@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Game">
+      <UniqueIdentifier>{f36aec4f-fb6d-4c5e-ad63-b4ec29307422}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Title">
+      <UniqueIdentifier>{7c9495a5-0c59-4f05-9581-967a99073fda}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\InGame">
+      <UniqueIdentifier>{def1f215-2258-4803-8dba-fef532827214}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Clear">
+      <UniqueIdentifier>{af5df716-377b-46fd-9a28-95bb7679e357}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Player">
+      <UniqueIdentifier>{a6da5924-ebd2-4adb-b3be-68d5333264e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\map">
+      <UniqueIdentifier>{f8ad8e0b-9673-4fe8-85ec-bbe7d3d6020f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Spike">
+      <UniqueIdentifier>{03edb04c-45b4-469e-8f34-e6c0712e5fcb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Leser">
+      <UniqueIdentifier>{2e90e99e-9e1b-4263-90d0-b4f77576e135}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="OneButton.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="TitleScene.h">
+      <Filter>Game\Title</Filter>
+    </ClInclude>
+    <ClInclude Include="ImGame.h">
+      <Filter>Game\InGame</Filter>
+    </ClInclude>
+    <ClInclude Include="Clear.h">
+      <Filter>Game\Clear</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Game\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="map.h">
+      <Filter>Game\map</Filter>
+    </ClInclude>
+    <ClInclude Include="Spike.h">
+      <Filter>Game\Spike</Filter>
+    </ClInclude>
+    <ClInclude Include="Leser.h">
+      <Filter>Game\Leser</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="OneButton.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="TitleScene.cpp">
+      <Filter>Game\Title</Filter>
+    </ClCompile>
+    <ClCompile Include="ImGame.cpp">
+      <Filter>Game\InGame</Filter>
+    </ClCompile>
+    <ClCompile Include="Clear.cpp">
+      <Filter>Game\Clear</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Game\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="map.cpp">
+      <Filter>Game\map</Filter>
+    </ClCompile>
+    <ClCompile Include="Spike.cpp">
+      <Filter>Game\Spike</Filter>
+    </ClCompile>
+    <ClCompile Include="Leser.cpp">
+      <Filter>Game\Leser</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
