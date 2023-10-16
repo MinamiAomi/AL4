@@ -1,7 +1,7 @@
 #pragma once
 #include "Engine/Application/Game.h"
 
-class OneButton :
+class AL4Game :
     public Game {
 public:
 

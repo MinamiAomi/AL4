@@ -1,11 +1,11 @@
 #include <Windows.h>
 
 #include "Engine/Engine.h"
-#include "OneButton.h"
+#include "AL4Game.h"
 
 int WINAPI WinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPSTR, _In_ int) {
 
-    Game* game = new OneButton;
+    Game* game = new AL4Game;
     Engine::Run(game);
     delete game;
 
