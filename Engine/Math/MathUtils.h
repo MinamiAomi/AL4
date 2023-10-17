@@ -840,7 +840,7 @@ public:
             -s,		c,		0.0f,	0.0f,
             0.0f,	0.0f,	1.0f,	0.0f,
             0.0f,	0.0f,	0.0f,	1.0f };
-    }
+    }   
     static inline Matrix4x4 MakeRotationXYZ(const Vector3& rotate) noexcept {
         Vector3 s = { std::sin(rotate.x), std::sin(rotate.y), std::sin(rotate.z) };
         Vector3 c = { std::cos(rotate.x), std::cos(rotate.y), std::cos(rotate.z) };

@@ -19,7 +19,7 @@ public:
     void Finalize();
     void Render();
 
-    void SetCamera(const Camera& camera) { camera_ = &camera; }
+    void SetCamera(const std::shared_ptr<Camera>& camera) { camera_ = camera; }
 
 private:
     RenderManager() = default;
@@ -37,5 +37,5 @@ private:
     Bloom bloom_;
     PostEffect postEffect_;
 
-    const Camera* camera_ = nullptr;
+    std::shared_ptr<const Camera> camera_;
 };

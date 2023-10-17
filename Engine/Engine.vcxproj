@@ -146,6 +146,7 @@
     <ClCompile Include="Graphics\ModelLoader.cpp" />
     <ClCompile Include="Graphics\PostEffect.cpp" />
     <ClCompile Include="Graphics\RenderManager.cpp" />
+    <ClCompile Include="Graphics\ResourceManager.cpp" />
     <ClCompile Include="Graphics\ToonModel.cpp" />
     <ClCompile Include="Graphics\ToonRenderer.cpp" />
     <ClCompile Include="Input\Input.cpp" />
@@ -220,6 +221,7 @@
     <ClInclude Include="Graphics\ModelLoader.h" />
     <ClInclude Include="Graphics\PostEffect.h" />
     <ClInclude Include="Graphics\RenderManager.h" />
+    <ClInclude Include="Graphics\ResourceManager.h" />
     <ClInclude Include="Graphics\ToonModel.h" />
     <ClInclude Include="Graphics\ToonRenderer.h" />
     <ClInclude Include="Input\Input.h" />

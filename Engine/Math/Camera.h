@@ -27,6 +27,10 @@ public:
     const Matrix4x4& GetProjectionMatrix() const { return projectionMatrix_; }
     const Matrix4x4& GetViewProjectionMatrix() const { return viewProjectionMatrix_; }
 
+    Vector3 GetForward() const { return rotate_ * Vector3::forward; }
+    Vector3 GetRight() const { return rotate_ * Vector3::right; }
+    Vector3 GetUp() const { return rotate_ * Vector3::up; }
+
 private:
     Vector3 position_;
     Quaternion rotate_;

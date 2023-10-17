@@ -12,6 +12,10 @@
     <ClInclude Include="GameScene.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="FollowCamera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -21,5 +25,7 @@
     <ClCompile Include="GameScene.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="FollowCamera.cpp" />
+    <ClCompile Include="Player.cpp" />
   </ItemGroup>
 </Project>
