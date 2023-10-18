@@ -3,7 +3,8 @@
 #include "Graphics.h"
 
 namespace SamplerManager {
-
+    
+    DescriptorHandle AnisotropicWrap;
     DescriptorHandle LinearWrap;
     DescriptorHandle LinearClamp;
     DescriptorHandle LinearBorder;
@@ -18,7 +19,7 @@ namespace SamplerManager {
         auto device = graphics->GetDevice();
 
         D3D12_SAMPLER_DESC desc{};
-        desc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
+        desc.Filter = D3D12_FILTER_ANISOTROPIC;
         desc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
         desc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
         desc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -30,6 +31,10 @@ namespace SamplerManager {
         desc.MinLOD = 0.0f;
         desc.MaxLOD = D3D12_FLOAT32_MAX;
 
+        AnisotropicWrap = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+        device->CreateSampler(&desc, AnisotropicWrap);
+
+        desc.Filter = D3D12_FILTER_MIN_MAG_MIP_LINEAR;
         LinearWrap = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
         device->CreateSampler(&desc, LinearWrap);
 

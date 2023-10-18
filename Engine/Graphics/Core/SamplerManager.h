@@ -4,6 +4,7 @@
 
 namespace SamplerManager {
 
+    extern DescriptorHandle AnisotropicWrap;
     extern DescriptorHandle LinearWrap;
     extern DescriptorHandle LinearClamp;
     extern DescriptorHandle LinearBorder;

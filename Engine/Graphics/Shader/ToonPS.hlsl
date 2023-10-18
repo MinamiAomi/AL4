@@ -1,65 +1,65 @@
-struct Scene
-{
+#include "Lighting.hlsli"
+
+struct Scene {
     float4x4 viewProjMatrix;
     float3 cameraPosition;
 };
 ConstantBuffer<Scene> scene_ : register(b0);
 
-struct Material
-{
+struct Instance {
+    float4x4 worldMatrix;
+    float outlineWidth;
+    float3 outlineColor;
+    uint useLighting;
+};
+ConstantBuffer<Instance> instance_ : register(b1);
+
+struct Material {
     float3 diffuse;
     float3 specular;
 };
 ConstantBuffer<Material> material_ : register(b2);
 
-// 平行光源
-struct DirectionalLight
-{
-    float3 direction; // 方向
-    float3 color; // 色
-    float intensity; // 強さ
-};
+//// 平行光源
+//struct DirectionalLight
+//{
+//    float3 direction; // 方向
+//    float3 color; // 色
+//    float intensity; // 強さ
+//};
 
 //ConstantBuffer<DirectionalLight> directionalLight_ : register(b3);
 
 Texture2D<float4> texture_ : register(t0);
 SamplerState sampler_ : register(s0);
 
-struct PSInput
-{
+struct PSInput {
     float4 position : SV_POSITION;
     float3 worldPosition : POSITION0;
     float3 normal : NORMAL0;
     float2 texcoord : TEXCOORD0;
 };
 
-struct PSOutput
-{
+struct PSOutput {
     float4 color : SV_TARGET0;
 };
 
-float ToonDiffuse(float3 normal, float3 lightDirection)
-{
-    float t = -dot(normal, lightDirection);
-    t = t * 0.5f + 0.5f;
-    return lerp(1.0f, 0.2f, step(t, 0.4f));
-    //float2 toonShadeUV = float2(t * 0.5f + 0.5f, 0.0f);
-    //return toonShadeTexture_.Sample(toonShadeSampler_, toonShadeUV).r;
-    //return t;
+float ToonDiffuse(float3 normal, float3 lightDirection) {
+    const float threshold = 0.2f;
+    
+    float t = LambertReflection(normal, lightDirection);
+    return lerp(1.0f, 0.2f, step(t, threshold));
 }
 
-float ToonSpecular(float3 normal, float3 pixelToCamera, float3 lightDirection)
-{
+float ToonSpecular(float3 normal, float3 pixelToCamera, float3 lightDirection) {
     const float shininess = 10.0f;
-    const float threshold = 0.5f;
-    float3 reflectVec = reflect(lightDirection, normal);
-    float t = pow(saturate(dot(reflectVec, pixelToCamera)), shininess);
+    const float threshold = 0.8f;
+    
+    float t = BlinnPhongReflection(normal, lightDirection, pixelToCamera, shininess);
     return step(threshold, t);
-    //return t;
 }
 
-PSOutput main(PSInput input)
-{
+PSOutput main(PSInput input) {
     // 位置
     float3 position = input.worldPosition;
     // 法線
@@ -81,11 +81,17 @@ PSOutput main(PSInput input)
     float3 specular = material_.specular * ToonSpecular(normal, pixelToCamera, directionalLight_.direction);
     // シェーディングによる色
     float3 shadeColor = (diffuse + specular) * directionalLight_.color * directionalLight_.intensity;
-    
-    
+    // ライティングを使用しない場合テクスチャの色をそのまま使う
+    shadeColor = lerp(float3(1.0f, 1.0f, 1.0f), shadeColor, float(instance_.useLighting));
+       
     PSOutput output;
     output.color.rgb = textureColor * shadeColor;
     output.color.a = 1.0f;
+   
+   // output.color.rgb = float3(0.0f, 0.0f, 0.0f);
+    
+    float m = saturate(1.0f - dot(normal, pixelToCamera));
+    output.color.rgb = lerp(float3(1.0f, 1.0f, 1.0f), output.color.rgb, step((m * m * m * m * m), 0.4f));
     
     //output.color.rgb = specular;
     

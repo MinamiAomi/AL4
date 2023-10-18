@@ -46,6 +46,7 @@ public:
 
     void SetModel(const std::shared_ptr<ToonModel>& model) { model_ = model; }
     void SetWorldMatrix(const Matrix4x4& worldMatrix) { worldMatrix_ = worldMatrix; }
+    void SetUseLighting(bool useLighting) { useLighting_ = useLighting; }
     void SetIsActive(bool isActive) { isActive_ = isActive; }
     void SetOutlineWidth(float width) { outlineWidth_ = width; }
     void SetOutlineColor(const Vector3& color) { outlineColor_ = color; }
@@ -65,6 +66,7 @@ private:
     Matrix4x4 worldMatrix_;
     float outlineWidth_ = {0.02f};
     Vector3 outlineColor_;
+    bool useLighting_ = true;
     bool useOutline_ = true;
     bool isActive_ = true;
 };

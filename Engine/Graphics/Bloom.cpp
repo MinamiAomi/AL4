@@ -13,7 +13,7 @@ void Bloom::Initialize(ColorBuffer* originalTexture) {
         L"Bloom LuminanceTexture", 
         originalTexture_->GetWidth(), 
         originalTexture_->GetHeight(), 
-        originalTexture->GetFormat());
+        originalTexture->GetRTVFormat());
 
     gaussianBlurs_[0].Initialize(&luminanceTexture_);
     for (uint32_t i = 1; i < kMaxLevel; ++i) {

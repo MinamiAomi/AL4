@@ -5,6 +5,9 @@
 
 #include "Player.h"
 #include "FollowCamera.h"
+#include "Ground.h"
+#include "Skydome.h"
+#include "Stage.h"
 
 class GameScene :
     public BaseScene {
@@ -17,5 +20,8 @@ public:
 private:
     std::shared_ptr<Player> player_;
     std::shared_ptr<FollowCamera> followCamera_;
+    //std::shared_ptr<Ground> ground_;
+    std::shared_ptr<Skydome> skydome_;
+    std::shared_ptr<Stage> stage_;
 
 };

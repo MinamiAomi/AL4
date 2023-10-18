@@ -37,7 +37,7 @@ void RenderManager::Initialize() {
     postEffect_.Initialize(swapChainBuffer);
 
     auto imguiManager = ImGuiManager::GetInstance();
-    imguiManager->Initialize(window->GetHWND(), swapChainBuffer.GetFormat());
+    imguiManager->Initialize(window->GetHWND(), swapChainBuffer.GetRTVFormat());
     imguiManager->NewFrame();
 }
 
@@ -74,6 +74,13 @@ void RenderManager::Render() {
     commandContext.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
     
     postEffect_.Render(commandContext, mainColorBuffer_);
+
+    ImGui::Begin("Profile");
+    auto io = ImGui::GetIO();
+    ImGui::Text("Framerate : %f", io.Framerate);
+    ImGui::End();
+
+
     // ImGuiを描画
     auto imguiManager = ImGuiManager::GetInstance();
     imguiManager->Render(commandContext);

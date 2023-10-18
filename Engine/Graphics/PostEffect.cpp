@@ -38,7 +38,7 @@ void PostEffect::Initialize(const ColorBuffer& target) {
     pipelineStateDesc.BlendState = Helper::BlendDisable;
     pipelineStateDesc.RasterizerState = Helper::RasterizerNoCull;
     pipelineStateDesc.NumRenderTargets = 1;
-    pipelineStateDesc.RTVFormats[0] = target.GetFormat();
+    pipelineStateDesc.RTVFormats[0] = target.GetRTVFormat();
     pipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
     pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     pipelineStateDesc.SampleDesc.Count = 1;

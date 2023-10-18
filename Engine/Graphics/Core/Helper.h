@@ -33,6 +33,7 @@ namespace Helper {
     DXGI_FORMAT GetDSVFormat(DXGI_FORMAT format);
     DXGI_FORMAT GetDepthFormat(DXGI_FORMAT format);
     DXGI_FORMAT GetStencilFormat(DXGI_FORMAT format);
+    DXGI_FORMAT GetSRGBFormat(DXGI_FORMAT format);
     size_t GetBytePerPixel(DXGI_FORMAT format);
 
     void AssertIfFailed(HRESULT hr, const wchar_t* str);

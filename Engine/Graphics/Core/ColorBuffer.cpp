@@ -1,18 +1,23 @@
 #include "ColorBuffer.h"
 
 #include "Graphics.h"
+#include "Helper.h"
 
-void ColorBuffer::CreateFromSwapChain(const std::wstring& name, ID3D12Resource* resource) {
+void ColorBuffer::CreateFromSwapChain(const std::wstring& name, ID3D12Resource* resource, bool srgb) {
     AssociateWithResource(name, resource, D3D12_RESOURCE_STATE_PRESENT);
 
     auto graphics = Graphics::GetInstance();
     if (rtvHandle_.IsNull()) {
         rtvHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
     }
-    graphics->GetDevice()->CreateRenderTargetView(resource_.Get(), nullptr, rtvHandle_);
+    D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
+    rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+    rtvDesc.Format = srgb ? Helper::GetSRGBFormat(format_) : format_;
+    graphics->GetDevice()->CreateRenderTargetView(resource_.Get(), &rtvDesc, rtvHandle_);
+    rtvFormat_ = rtvDesc.Format;
 }
 
-void ColorBuffer::Create(const std::wstring& name, uint32_t width, uint32_t height, DXGI_FORMAT format) {
+void ColorBuffer::Create(const std::wstring& name, uint32_t width, uint32_t height, DXGI_FORMAT format, bool srgb) {
     auto flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
     auto desc = DescribeTex2D(width, height, 1, format, flags);
 
@@ -21,10 +26,10 @@ void ColorBuffer::Create(const std::wstring& name, uint32_t width, uint32_t heig
     memcpy(clearValue.Color, clearColor_, sizeof(clearValue.Color));
 
     CreateTextureResource(name, desc, clearValue);
-    CreateViews();
+    CreateViews(srgb);
 }
 
-void ColorBuffer::CreateArray(const std::wstring& name, uint32_t width, uint32_t height, uint32_t arraySize, DXGI_FORMAT format) {
+void ColorBuffer::CreateArray(const std::wstring& name, uint32_t width, uint32_t height, uint32_t arraySize, DXGI_FORMAT format, bool srgb) {
     auto flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
     auto desc = DescribeTex2D(width, height, arraySize, format, flags);
 
@@ -33,17 +38,17 @@ void ColorBuffer::CreateArray(const std::wstring& name, uint32_t width, uint32_t
     memcpy(clearValue.Color, clearColor_, sizeof(clearValue.Color));
 
     CreateTextureResource(name, desc, clearValue);
-    CreateViews();
+    CreateViews(srgb);
 }
 
 void ColorBuffer::SetClearColor(const float* clearColor) {
     memcpy(clearColor_, clearColor, sizeof(clearColor_));
 }
 
-void ColorBuffer::CreateViews() {
+void ColorBuffer::CreateViews(bool srgb) {
     D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
-    rtvDesc.Format = format_;
+    rtvDesc.Format = srgb ? Helper::GetSRGBFormat(format_) : format_;
     srvDesc.Format = format_;
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 
@@ -79,4 +84,5 @@ void ColorBuffer::CreateViews() {
     auto device = graphics->GetDevice();
     device->CreateRenderTargetView(resource_.Get(), &rtvDesc, rtvHandle_);
     device->CreateShaderResourceView(resource_.Get(), &srvDesc, srvHandle_);
+    rtvFormat_ = rtvDesc.Format;
 }

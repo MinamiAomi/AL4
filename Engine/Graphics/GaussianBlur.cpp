@@ -108,7 +108,7 @@ void GaussianBlur::Initialize(ColorBuffer* originalTexture) {
 
     constantBuffer_.Create(L"GaussianBlur Constant", sizeof(weights_));
 
-    CreatePipelineState(originalTexture->GetFormat());
+    CreatePipelineState(originalTexture->GetRTVFormat());
 
     UpdateWeightTable(1.0f);
 }
