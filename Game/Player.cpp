@@ -15,11 +15,13 @@ void Player::Initialize() {
     model_->SetIsActive(true);
     //model_->SetUseOutline(false);
    // model_->SetOutlineColor({ 1.0f,0.0f,0.0f });
+    prevYTranslate_ = 0.0f;
 }
 
 void Player::Update() {
 
     MoveUpdate();
+    JumpUpdate();
 
     transform_->UpdateMatrix();
     model_->SetWorldMatrix(transform_->worldMatrix);
@@ -28,9 +30,7 @@ void Player::Update() {
 void Player::MoveUpdate() {
     auto input = Input::GetInstance();
 
-    const float speed = 0.3f;
     Vector3 move{};
-
     // Gamepad入力
     {
         auto xinputState = input->GetXInputState();
@@ -46,9 +46,8 @@ void Player::MoveUpdate() {
     // 移動処理
     {
         if (move != Vector3::zero) {
-            move = move.Normalized() * speed;
+            move = move.Normalized() * moveSpeed_;
             // 地面に水平なカメラの回転
-            //Quaternion cameraRotate = Quaternion::MakeLookRotation(Vector3::Scale(camera_->GetForward(), { 1.0f,0.0f,1.0f }));
             move = camera_->GetRotate() * move;
             // 移動
             transform_->translate += move;
@@ -56,5 +55,25 @@ void Player::MoveUpdate() {
             transform_->rotate = Quaternion::Slerp(0.1f, transform_->rotate, Quaternion::MakeLookRotation(move));
         }
     }
+}
 
+void Player::JumpUpdate() {
+    auto input = Input::GetInstance();
+
+    float force = fallForce_;
+
+    auto xinputState = input->GetXInputState();
+    if (canJump_ && (xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_A)) {
+        force = jumpForce_;
+        canJump_ = false;
+    }
+
+    auto yTmp = transform_->translate.y;
+    transform_->translate.y += (transform_->translate.y - prevYTranslate_) + force;
+    prevYTranslate_ = yTmp;
+
+ /*   if (transform_->translate.y <= 0.0f) {
+        canJump_ = true;
+        transform_->translate.y = 0.0f;
+    }*/
 }

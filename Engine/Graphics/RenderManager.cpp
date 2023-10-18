@@ -36,6 +36,8 @@ void RenderManager::Initialize() {
 
     postEffect_.Initialize(swapChainBuffer);
 
+    timer_.Initialize();
+
     auto imguiManager = ImGuiManager::GetInstance();
     imguiManager->Initialize(window->GetHWND(), swapChainBuffer.GetRTVFormat());
     imguiManager->NewFrame();
@@ -55,7 +57,7 @@ void RenderManager::Render() {
 
 
     commandContext.Reset();
-    
+
     commandContext.TransitionResource(mainColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     commandContext.SetRenderTarget(mainColorBuffer_.GetRTV(), mainDepthBuffer_.GetDSV());
@@ -72,14 +74,15 @@ void RenderManager::Render() {
     commandContext.SetRenderTarget(swapChainBuffer.GetRTV());
     commandContext.ClearColor(swapChainBuffer);
     commandContext.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
-    
+
     postEffect_.Render(commandContext, mainColorBuffer_);
 
+#ifdef _DEBUG
     ImGui::Begin("Profile");
     auto io = ImGui::GetIO();
     ImGui::Text("Framerate : %f", io.Framerate);
     ImGui::End();
-
+#endif // _DEBUG
 
     // ImGuiを描画
     auto imguiManager = ImGuiManager::GetInstance();
@@ -92,6 +95,8 @@ void RenderManager::Render() {
     commandQueue.Excute(commandContext);
     swapChain_.Present();
     commandQueue.Signal();
+
+    timer_.KeepFrameRate(60);
 
     imguiManager->NewFrame();
 }

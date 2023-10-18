@@ -131,4 +131,9 @@ namespace Math {
         float distance;
     };
 
+   
+    bool IsCollision(const Sphere& sphere1, const Sphere& sphere2);
+    bool IsCollision(const Sphere& sphere, const AABB& aabb);
+    bool IsCollision(const Sphere& sphere, const OBB& obb);
+    bool IsCollision(const OBB& obb1, const OBB& obb2);
 }

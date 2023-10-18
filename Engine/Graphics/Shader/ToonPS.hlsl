@@ -48,7 +48,7 @@ float ToonDiffuse(float3 normal, float3 lightDirection) {
     const float threshold = 0.2f;
     
     float t = LambertReflection(normal, lightDirection);
-    return lerp(1.0f, 0.2f, step(t, threshold));
+    return lerp(1.0f, 0.5f, step(t, threshold));
 }
 
 float ToonSpecular(float3 normal, float3 pixelToCamera, float3 lightDirection) {
@@ -90,6 +90,7 @@ PSOutput main(PSInput input) {
    
    // output.color.rgb = float3(0.0f, 0.0f, 0.0f);
     
+    // フレネル
     float m = saturate(1.0f - dot(normal, pixelToCamera));
     output.color.rgb = lerp(float3(1.0f, 1.0f, 1.0f), output.color.rgb, step((m * m * m * m * m), 0.4f));
     

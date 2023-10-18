@@ -24,9 +24,6 @@
     <ClInclude Include="Ground.h">
       <Filter>Game\Object</Filter>
     </ClInclude>
-    <ClInclude Include="MovingFloor.h">
-      <Filter>Game\Object</Filter>
-    </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>Game\Object</Filter>
     </ClInclude>
@@ -37,7 +34,7 @@
       <Filter>Game\Object</Filter>
     </ClInclude>
     <ClInclude Include="Stage.h">
-      <Filter>Game</Filter>
+      <Filter>Game\Object</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -63,9 +60,8 @@
     <ClCompile Include="Floor.cpp">
       <Filter>Game\Object</Filter>
     </ClCompile>
-    <ClCompile Include="MovingFloor.cpp" />
     <ClCompile Include="Stage.cpp">
-      <Filter>Game</Filter>
+      <Filter>Game\Object</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

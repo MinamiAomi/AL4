@@ -9,6 +9,7 @@
 #include "Bloom.h"
 #include "ToonRenderer.h"
 #include "PostEffect.h"
+#include "Timer.h"
 
 class RenderManager {
 public:
@@ -36,6 +37,7 @@ private:
     ToonRenderer toonRenderer_;
     Bloom bloom_;
     PostEffect postEffect_;
-
+    
+    Timer timer_;
     std::shared_ptr<const Camera> camera_;
 };

@@ -610,6 +610,33 @@ public:
     inline Quaternion Inverse() const noexcept {
         return Conjugate() * (1.0f / Length());
     }
+    inline constexpr Vector3 GetRight() const noexcept {
+        float yw = y * w, zw = z * w;
+        float yx = y * x, zx = z * x;
+        return {
+             w * w + x * x - y * y - z * z,
+             yx + yx + zw + zw,
+             zx + zx - yw - yw,
+        };
+    }
+    inline constexpr Vector3 GetUp() const noexcept {
+        float xw = x * w, zw = z * w;
+        float xy = x * y, zy = z * y;
+        return {
+             xy + xy - zw - zw,
+             w * w - x * x + y * y - z * z,
+             zy + zy + xw + xw,
+        };
+    }
+    inline constexpr Vector3 GetForward() const noexcept {
+        float xw = x * w, yw = y * w;
+        float xz = x * z, yz = y * z;
+        return {
+             xz + xz + yw + yw,
+             yz + yz - xw - xw,
+             w * w - x * x - y * y + z * z,
+        };
+    }
 #pragma endregion
 #pragma region 静的関数
     static inline constexpr float Dot(const Quaternion& lhs, const Quaternion& rhs) noexcept {
@@ -840,7 +867,7 @@ public:
             -s,		c,		0.0f,	0.0f,
             0.0f,	0.0f,	1.0f,	0.0f,
             0.0f,	0.0f,	0.0f,	1.0f };
-    }   
+    }
     static inline Matrix4x4 MakeRotationXYZ(const Vector3& rotate) noexcept {
         Vector3 s = { std::sin(rotate.x), std::sin(rotate.y), std::sin(rotate.z) };
         Vector3 c = { std::cos(rotate.x), std::cos(rotate.y), std::cos(rotate.z) };

@@ -99,6 +99,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Audio\Audio.cpp" />
+    <ClCompile Include="Collision\Collider.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Externals\ImGui\imgui.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -147,6 +148,7 @@
     <ClCompile Include="Graphics\PostEffect.cpp" />
     <ClCompile Include="Graphics\RenderManager.cpp" />
     <ClCompile Include="Graphics\ResourceManager.cpp" />
+    <ClCompile Include="Graphics\Timer.cpp" />
     <ClCompile Include="Graphics\ToonModel.cpp" />
     <ClCompile Include="Graphics\ToonRenderer.cpp" />
     <ClCompile Include="Input\Input.cpp" />
@@ -159,6 +161,8 @@
   <ItemGroup>
     <ClInclude Include="Application\Game.h" />
     <ClInclude Include="Audio\Audio.h" />
+    <ClInclude Include="Collision\Collider.h" />
+    <ClInclude Include="Collision\CollisionManager.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Externals\DirectXTex\Include\BC.h" />
     <ClInclude Include="Externals\DirectXTex\Include\BCDirectCompute.h" />
@@ -222,6 +226,7 @@
     <ClInclude Include="Graphics\PostEffect.h" />
     <ClInclude Include="Graphics\RenderManager.h" />
     <ClInclude Include="Graphics\ResourceManager.h" />
+    <ClInclude Include="Graphics\Timer.h" />
     <ClInclude Include="Graphics\ToonModel.h" />
     <ClInclude Include="Graphics\ToonRenderer.h" />
     <ClInclude Include="Input\Input.h" />
