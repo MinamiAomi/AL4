@@ -92,7 +92,7 @@ PSOutput main(PSInput input) {
     
     // フレネル
     float m = saturate(1.0f - dot(normal, pixelToCamera));
-    output.color.rgb = lerp(float3(1.0f, 1.0f, 1.0f), output.color.rgb, step((m * m * m * m * m), 0.4f));
+    output.color.rgb = lerp(float3(1.0f, 0.0f, 0.0f), output.color.rgb, step((m * m * m * m * m), 0.4f));
     
     //output.color.rgb = specular;
     

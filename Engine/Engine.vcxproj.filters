@@ -175,6 +175,7 @@
     <ClCompile Include="Collision\Collider.cpp">
       <Filter>Collision</Filter>
     </ClCompile>
+    <ClCompile Include="Collision\CollisionManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h" />

@@ -21,7 +21,7 @@ public:
     using Callback = std::function<void(const CollisionInfo&)>;
 
     Collider();
-    virtual ~Collider() {}
+    virtual ~Collider();
 
     virtual bool IsCollision(Collider* collider, CollisionInfo& collisionInfo) = 0;
     virtual bool IsCollision(SphereCollider* collider, CollisionInfo& collisionInfo) = 0;

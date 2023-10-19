@@ -13,8 +13,9 @@ void Player::Initialize() {
     model_ = std::make_unique<ToonModelInstance>();
     model_->SetModel(ResourceManager::GetInstance()->FindModel("Player"));
     model_->SetIsActive(true);
-    //model_->SetUseOutline(false);
-   // model_->SetOutlineColor({ 1.0f,0.0f,0.0f });
+    model_->SetUseOutline(false);
+    model_->SetOutlineWidth(0.03f);
+    model_->SetOutlineColor({ 1.0f,0.0f,1.0f });
     prevYTranslate_ = 0.0f;
 }
 
@@ -72,8 +73,8 @@ void Player::JumpUpdate() {
     transform_->translate.y += (transform_->translate.y - prevYTranslate_) + force;
     prevYTranslate_ = yTmp;
 
- /*   if (transform_->translate.y <= 0.0f) {
+    if (transform_->translate.y <= 0.0f) {
         canJump_ = true;
         transform_->translate.y = 0.0f;
-    }*/
+    }
 }

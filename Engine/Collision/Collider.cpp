@@ -1,5 +1,14 @@
 #include "Collider.h"
 
+#include "CollisionManager.h"
+
+Collider::Collider() {
+    CollisionManager::GetInstance()->AddCollider(this);
+}
+
+Collider::~Collider() {
+    CollisionManager::GetInstance()->RemoveCollider(this);
+}
 
 bool Collider::CanCollision(Collider* other) const {
     return (this->collisionAttribute_ & other->collisionMask_) && (other->collisionAttribute_ & this->collisionMask_);
@@ -131,64 +140,65 @@ bool BoxCollider::IsCollision(BoxCollider* other, CollisionInfo& collisionInfo) 
         vertices2[i] = other->obb_.orientation * vertices2[i] + other->obb_.center;
     }
 
-    Vector3 normalTable1[] = {
+    Vector3 axes1[] = {
         this->obb_.orientation.GetRight(),
         this->obb_.orientation.GetUp(),
         this->obb_.orientation.GetForward(),
     };
 
-    Vector3 normalTable2[] = {
+    Vector3 axes2[] = {
         other->obb_.orientation.GetRight(),
         other->obb_.orientation.GetUp(),
         other->obb_.orientation.GetForward(),
     };
-    const size_t numNormals = _countof(normalTable1);
+    const size_t numAxes = _countof(axes1);
 
-    float minSpan = FLT_MAX;
-    Vector3 minSpanSeparateAxis = {};
+    float minOverlap = FLT_MAX;
+    Vector3 minOverlapAxis = {};
 
     // 分離軸判定関数
-    auto IsSeparateAxis = [&](const Vector3& normal) {
+    auto IsSeparateAxis = [&](const Vector3& axis) {
         float min1 = 0, max1 = 0;
         float min2 = 0, max2 = 0;
-        min1 = max1 = Dot(normal, vertices1[0]);
-        min2 = max2 = Dot(normal, vertices2[0]);
+        min1 = max1 = Dot(axis, vertices1[0]);
+        min2 = max2 = Dot(axis, vertices2[0]);
         for (size_t i = 1; i < numVertices; ++i) {
-            float dot1 = Dot(normal, vertices1[i]);
+            float dot1 = Dot(axis, vertices1[i]);
             min1 = std::min(dot1, min1);
             max1 = std::max(dot1, max1);
         }
         for (size_t i = 1; i < numVertices; ++i) {
-            float dot2 = Dot(normal, vertices2[i]);
+            float dot2 = Dot(axis, vertices2[i]);
             min2 = std::min(dot2, min2);
             max2 = std::max(dot2, max2);
         }
-        float sumSpan = max1 - min1 + max2 - min2;
-        float longSpan = std::max(max1, max2) - std::min(min1, min2);
-        
+        float overlap = max1 - min1 + max2 - min2;
+        float maxOverlap = std::max(max1, max2) - std::min(min1, min2);
+
         // 最も幅の狭い分離軸
-        if (sumSpan < minSpan) {
-            minSpanSeparateAxis = normal;
+        if (overlap < minOverlap) {
+            minOverlapAxis = axis;
+            minOverlap = overlap;
         }
 
-        return sumSpan < longSpan;
-        };
+        return overlap < maxOverlap;
+    };
 
-    for (size_t i = 0; numNormals; ++i) {
-        if (IsSeparateAxis(normalTable1[i])) { return false; }
+    for (size_t i = 0; i < numAxes; ++i) {
+        if (IsSeparateAxis(axes1[i])) { return false; }
     }
-    for (size_t i = 0; numNormals; ++i) {
-        if (IsSeparateAxis(normalTable2[i])) { return false; }
+    for (size_t i = 0; i < numAxes; ++i) {
+        if (IsSeparateAxis(axes2[i])) { return false; }
     }
-    for (size_t i = 0; numNormals; ++i) {
-        for (size_t j = 0; numNormals; ++j) {
-            if (IsSeparateAxis(Cross(normalTable1[i], normalTable2[j]))) { return false; }
+    for (size_t i = 0; i < numAxes; ++i) {
+        for (size_t j = 0; j < numAxes; ++j) {
+            if (IsSeparateAxis(Cross(axes1[i], axes2[j]))) { return false; }
         }
     }
 
     // 衝突情報を格納していく
     collisionInfo.collider = this;
-    collisionInfo.normal = obb.orientation * (diff / length);
-    collisionInfo.depth = sphere.radius - length;
+    collisionInfo.normal = minOverlapAxis.Normalized();
+    collisionInfo.depth = minOverlap;
     return true;
 }

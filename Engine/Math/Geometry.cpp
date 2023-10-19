@@ -22,6 +22,7 @@ namespace Math {
     }
 
     bool IsCollision(const OBB& obb1, const OBB& obb2) {
+        obb1, obb2;
         return false;
     }
 
