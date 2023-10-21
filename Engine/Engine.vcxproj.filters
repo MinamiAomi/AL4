@@ -175,7 +175,9 @@
     <ClCompile Include="Collision\Collider.cpp">
       <Filter>Collision</Filter>
     </ClCompile>
-    <ClCompile Include="Collision\CollisionManager.cpp" />
+    <ClCompile Include="Collision\CollisionManager.cpp">
+      <Filter>Collision</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h" />
@@ -366,6 +368,9 @@
       <Filter>Collision</Filter>
     </ClInclude>
     <ClInclude Include="Collision\Collider.h">
+      <Filter>Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Collision\GameObject.h">
       <Filter>Collision</Filter>
     </ClInclude>
   </ItemGroup>

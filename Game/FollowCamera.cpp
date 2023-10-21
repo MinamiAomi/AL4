@@ -10,6 +10,7 @@ void FollowCamera::Initialize() {
     RenderManager::GetInstance()->SetCamera(camera_);
 
     transform_ = std::make_shared<Transform>();
+    transform_->rotate = Quaternion::MakeForXAxis(15.0f * Math::ToRadian);
 }
 
 void FollowCamera::Update() {
@@ -33,4 +34,8 @@ void FollowCamera::Update() {
     camera_->SetPosition(transform_->translate);
     camera_->SetRotate(transform_->rotate);
     camera_->UpdateMatrices();
+}
+
+void FollowCamera::Restart() {
+    transform_->rotate = Quaternion::MakeForXAxis(15.0f * Math::ToRadian);
 }

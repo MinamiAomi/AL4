@@ -9,13 +9,16 @@ struct FloorInitData {
 
 static const FloorInitData stageInits[] = {
     { {  0.0f, -1.0f,  0.0f }, 0.0f,         0.0f,   0  },
-    { {  0.0f, -1.0f, 10.0f }, Math::HalfPi, 5.0f, 300  },
+    { {  0.0f, -1.0f, 10.0f }, 0.0f,         5.0f, 300  },
     { {  0.0f, -1.0f, 20.0f }, 0.0f,         0.0f,   0  },
-    { { 10.0f, -1.0f, 20.0f }, 0.0f,         5.0f, 300  },
+    { { 10.0f, -1.0f, 20.0f }, Math::HalfPi, 5.0f, 300  },
     { { 20.0f, -1.0f, 20.0f }, 0.0f,         0.0f,  0  },
 };
 
 void Stage::Initialize() {
+    
+    enemy_ = std::make_shared<Enemy>();
+    enemy_->Initialize({ 0.0f,0.0f,20.0f });
 
     floors_.resize(_countof(stageInits));
 
@@ -25,10 +28,18 @@ void Stage::Initialize() {
         floor->Initialize(stageInits[i].base, stageInits[i].rotate, stageInits[i].movement, stageInits[i].moveCycle);
         i++;
     }
+
+    const uint32_t goalFloorIndex = 4;
+    goal_ = std::make_shared<Goal>();
+    goal_->transform.SetParent(&floors_[goalFloorIndex]->transform);
+    goal_->transform.translate = { 0.0f,1.0f,0.0f };
+    goal_->Initialize();
 }
 
 void Stage::Update() {
+    enemy_->Update();
     for (auto& floor : floors_) {
         floor->Update();
     }
+    goal_->Update();
 }

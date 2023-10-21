@@ -14,12 +14,12 @@ namespace Math {
         return (point - sphere.center).LengthSquare() <= sphere.radius * sphere.radius;
     }
 
-    bool IsCollision(const Sphere& sphere, const OBB& obb) {
+ /*   bool IsCollision(const Sphere& sphere, const OBB& obb) {
         Vector3 centerInOBBLocal = obb.orientation.Inverse() * (sphere.center - obb.center);
         AABB aabbInOBBLocal{ -obb.size, obb.size };
         Sphere sphereInOBBLocal{ centerInOBBLocal, sphere.radius };
         return IsCollision(sphereInOBBLocal, aabbInOBBLocal);
-    }
+    }*/
 
     bool IsCollision(const OBB& obb1, const OBB& obb2) {
         obb1, obb2;

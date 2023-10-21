@@ -164,6 +164,7 @@
     <ClInclude Include="Audio\Audio.h" />
     <ClInclude Include="Collision\Collider.h" />
     <ClInclude Include="Collision\CollisionManager.h" />
+    <ClInclude Include="Collision\GameObject.h" />
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Externals\DirectXTex\Include\BC.h" />
     <ClInclude Include="Externals\DirectXTex\Include\BCDirectCompute.h" />

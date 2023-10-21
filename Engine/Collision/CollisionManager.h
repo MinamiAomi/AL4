@@ -1,16 +1,20 @@
 #pragma once
-#include <list>
+#include <vector>
 
-class Collider;
+#include "Math/MathUtils.h"
+#include "Collider.h"
 
 class CollisionManager {
 public:
     static CollisionManager* GetInstance();
 
-    void AddCollider(Collider* collider) { colliders_.emplace_back(collider); }
-    void RemoveCollider(Collider* collider) { colliders_.remove(collider); }
+    void AddCollider(Collider* collider);
+    void RemoveCollider(Collider* collider);
+    void ClearCollider() { colliders_.clear(); }
 
     void CheckCollision();
+
+    bool RayCast(const Vector3& origin, const Vector3& diff, uint32_t mask, RayCastInfo* nearest);
 
 private:
     CollisionManager() = default;
@@ -20,5 +24,5 @@ private:
     CollisionManager(CollisionManager&&) = delete;
     CollisionManager& operator=(CollisionManager&&) = delete;
 
-    std::list<Collider*> colliders_;
+    std::vector<Collider*> colliders_;
 };

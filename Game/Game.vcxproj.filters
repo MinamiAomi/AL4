@@ -36,6 +36,15 @@
     <ClInclude Include="Stage.h">
       <Filter>Game\Object</Filter>
     </ClInclude>
+    <ClInclude Include="CollisionAttribute.h">
+      <Filter>Game\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Goal.h">
+      <Filter>Game\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Enemy.h">
+      <Filter>Game\Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -61,6 +70,12 @@
       <Filter>Game\Object</Filter>
     </ClCompile>
     <ClCompile Include="Stage.cpp">
+      <Filter>Game\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Goal.cpp">
+      <Filter>Game\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Enemy.cpp">
       <Filter>Game\Object</Filter>
     </ClCompile>
   </ItemGroup>

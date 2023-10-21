@@ -31,6 +31,17 @@ void AL4Game::OnInitialize() {
 	toonModel = std::make_shared<ToonModel>();
 	toonModel->Create(ModelData::LoadObjFile("Resources/Model/floor.obj"));
 	resourceManager->AddToonModel("Floor", toonModel);
+	// 床
+	toonModel = std::make_shared<ToonModel>();
+	toonModel->Create(ModelData::LoadObjFile("Resources/Model/Goal.obj"));
+	resourceManager->AddToonModel("Goal", toonModel);
+	// 敵
+	toonModel = std::make_shared<ToonModel>();
+	toonModel->Create(ModelData::LoadObjFile("Resources/Model/mimic_body.obj"));
+	resourceManager->AddToonModel("MimicBody", toonModel);
+	toonModel = std::make_shared<ToonModel>();
+	toonModel->Create(ModelData::LoadObjFile("Resources/Model/mimic_head.obj"));
+	resourceManager->AddToonModel("MimicHead", toonModel);
 }
 
 void AL4Game::OnFinalize() {

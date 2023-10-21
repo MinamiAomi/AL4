@@ -72,7 +72,7 @@ namespace Math {
 
     struct OBB {
         Vector3 center;
-        Quaternion orientation;
+        Vector3 orientations[3];
         Vector3 size;
     };
 
