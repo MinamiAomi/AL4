@@ -78,10 +78,10 @@ void RenderManager::Render() {
     postEffect_.Render(commandContext, mainColorBuffer_);
 
 #ifdef _DEBUG
-    ImGui::Begin("Profile");
-    auto io = ImGui::GetIO();
-    ImGui::Text("Framerate : %f", io.Framerate);
-    ImGui::End();
+    //ImGui::Begin("Profile");
+    //auto io = ImGui::GetIO();
+    //ImGui::Text("Framerate : %f", io.Framerate);
+    //ImGui::End();
 #endif // _DEBUG
 
     // ImGuiを描画
