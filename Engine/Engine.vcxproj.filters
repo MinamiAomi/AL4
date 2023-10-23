@@ -414,6 +414,9 @@
     <None Include="Externals\DirectXTex\Include\DirectXTex.inl">
       <Filter>Externals\DirectXTex</Filter>
     </None>
+    <None Include="Graphics\Shader\Convert.hlsli">
+      <Filter>Graphics\Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\ImGui\LICENSE.txt">

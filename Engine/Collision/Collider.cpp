@@ -4,6 +4,8 @@
 
 #include "CollisionManager.h"
 
+#include <limits>
+
 namespace {
 
     std::vector<Vector3> GetVertices(const Math::OBB& obb) {

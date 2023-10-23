@@ -7,6 +7,7 @@
 #include "CollisionAttribute.h"
 #include "Collision/CollisionManager.h"
 
+#include "Graphics/ImGuiManager.h"
 void Player::Initialize() {
     SetName("Player");
 
