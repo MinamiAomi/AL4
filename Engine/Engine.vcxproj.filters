@@ -7,9 +7,6 @@
     <Filter Include="Externals\ImGui">
       <UniqueIdentifier>{44947fb8-fa2d-4bbe-aff4-a384dd0b1869}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application">
-      <UniqueIdentifier>{801fc7d7-0285-444c-a099-1637b1bd7d09}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Audio">
       <UniqueIdentifier>{931986e9-7125-49b5-bf4c-5b87428be1ca}</UniqueIdentifier>
     </Filter>
@@ -40,9 +37,11 @@
     <Filter Include="Collision">
       <UniqueIdentifier>{789033f1-ff74-4c13-a8af-9a4692ecd979}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Framework">
+      <UniqueIdentifier>{ef658487-0d3a-4b10-83e8-efbec1816889}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Scene\SceneManager.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
@@ -178,9 +177,11 @@
     <ClCompile Include="Collision\CollisionManager.cpp">
       <Filter>Collision</Filter>
     </ClCompile>
+    <ClCompile Include="Engine.cpp">
+      <Filter>Framework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Engine.h" />
     <ClInclude Include="Scene\BaseScene.h">
       <Filter>Scene</Filter>
     </ClInclude>
@@ -301,9 +302,6 @@
     <ClInclude Include="Audio\Audio.h">
       <Filter>Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Application\Game.h">
-      <Filter>Application</Filter>
-    </ClInclude>
     <ClInclude Include="Externals\DirectXTex\Include\BC.h">
       <Filter>Externals\DirectXTex</Filter>
     </ClInclude>
@@ -372,6 +370,12 @@
     </ClInclude>
     <ClInclude Include="Collision\GameObject.h">
       <Filter>Collision</Filter>
+    </ClInclude>
+    <ClInclude Include="Engine.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Game.h">
+      <Filter>Framework</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
