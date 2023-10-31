@@ -1,6 +1,6 @@
 #include "Engine.h"
 
-#include "Application/Game.h"
+#include "Game.h"
 
 #include "Graphics/GameWindow.h"
 #include "Graphics/RenderManager.h"

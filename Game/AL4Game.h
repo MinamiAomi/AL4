@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/Application/Game.h"
+#include "Engine/Game.h"
 
 class AL4Game :
     public Game {

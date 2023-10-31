@@ -7,6 +7,8 @@
 #include "Core/CommandContext.h"
 #include "Math/Camera.h"
 #include "ToonModel.h"
+#include "Core/SamplerManager.h"
+#include "DefaultTextures.h"
 
 const wchar_t kOutlineVertexShadedr[] = L"Engine/Graphics/Shader/OutlineVS.hlsl";
 const wchar_t kOutlinePixelShadedr[] = L"Engine/Graphics/Shader/OutlinePS.hlsl";
@@ -60,8 +62,13 @@ void ToonRenderer::Render(CommandContext& commandContext, const Camera& camera) 
             commandContext.SetPipelineState(toonPipelineState_);
             for (auto& mesh : instance->model_->meshes_) {
                 commandContext.SetConstantBuffer(ToonRootIndex::Material, mesh.material->constantBuffer.GetGPUVirtualAddress());
-                commandContext.SetDescriptorTable(ToonRootIndex::Texture, mesh.material->texture->textureResource.GetSRV());
-                commandContext.SetDescriptorTable(ToonRootIndex::Sampler, mesh.material->texture->sampler);
+                if (mesh.material->texture->textureResource) {
+                    commandContext.SetDescriptorTable(ToonRootIndex::Texture, mesh.material->texture->textureResource->GetSRV());
+                }
+                else {
+                    commandContext.SetDescriptorTable(ToonRootIndex::Texture, DefaultTexture::White.GetSRV());
+                }
+                commandContext.SetDescriptorTable(ToonRootIndex::Sampler, SamplerManager::AnisotropicWrap);
 
                 D3D12_VERTEX_BUFFER_VIEW vbv{};
                 vbv.BufferLocation = mesh.vertexBuffer.GetGPUVirtualAddress();

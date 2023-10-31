@@ -48,13 +48,8 @@ void ToonModel::Create(const ModelData& modelData) {
             if (srcMaterial.textureIndex == createdTextures.size()) {
                 destMesh.material->texture = createdTextures.emplace_back(std::make_shared<Texture>());
                 if (srcTexture && !srcTexture->filePath.empty()) {
-                    destMesh.material->texture->textureResource.CreateFromWICFile(commandContext, srcTexture->filePath.wstring());
-                    destMesh.material->texture->sampler = SamplerManager::AnisotropicWrap;
-                }
-                else {
-                    // パスがない場合白画像を使う
-                    destMesh.material->texture->textureResource = DefaultTexture::White;
-                    destMesh.material->texture->sampler = SamplerManager::PointWrap;
+                    destMesh.material->texture->textureResource = std::make_unique<TextureResource>();
+                    destMesh.material->texture->textureResource->CreateFromWICFile(commandContext, srcTexture->filePath.wstring());
                 }
             }
             else {

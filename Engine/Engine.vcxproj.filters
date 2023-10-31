@@ -180,6 +180,12 @@
     <ClCompile Include="Engine.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Core\FreeList.cpp">
+      <Filter>Graphics\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Core\DescriptorHandle.cpp">
+      <Filter>Graphics\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -376,6 +382,9 @@
     </ClInclude>
     <ClInclude Include="Game.h">
       <Filter>Framework</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Core\FreeList.h">
+      <Filter>Graphics\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

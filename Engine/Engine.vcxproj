@@ -128,7 +128,9 @@
     <ClCompile Include="Graphics\Core\CommandContext.cpp" />
     <ClCompile Include="Graphics\Core\CommandQueue.cpp" />
     <ClCompile Include="Graphics\Core\DepthBuffer.cpp" />
+    <ClCompile Include="Graphics\Core\DescriptorHandle.cpp" />
     <ClCompile Include="Graphics\Core\DescriptorHeap.cpp" />
+    <ClCompile Include="Graphics\Core\FreeList.cpp" />
     <ClCompile Include="Graphics\Core\GPUBuffer.cpp" />
     <ClCompile Include="Graphics\Core\Graphics.cpp" />
     <ClCompile Include="Graphics\Core\Helper.cpp" />
@@ -207,6 +209,7 @@
     <ClInclude Include="Graphics\Core\DepthBuffer.h" />
     <ClInclude Include="Graphics\Core\DescriptorHandle.h" />
     <ClInclude Include="Graphics\Core\DescriptorHeap.h" />
+    <ClInclude Include="Graphics\Core\FreeList.h" />
     <ClInclude Include="Graphics\Core\GPUBuffer.h" />
     <ClInclude Include="Graphics\Core\GPUResource.h" />
     <ClInclude Include="Graphics\Core\Graphics.h" />

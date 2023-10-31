@@ -19,8 +19,7 @@ public:
     
 private:
     struct Texture {
-        TextureResource textureResource;
-        DescriptorHandle sampler;
+        std::unique_ptr<TextureResource> textureResource;
     };
     struct Material {
         UploadBuffer constantBuffer;

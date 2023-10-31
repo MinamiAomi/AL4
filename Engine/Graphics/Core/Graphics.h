@@ -23,7 +23,7 @@ public:
 
     ID3D12Device* GetDevice() const { return device_.Get(); }
     CommandQueue& GetCommandQueue() { return commandQueue_; }
-    DescriptorHeap& GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type) { return descriptorHeaps_[type]; }
+    DescriptorHeap& GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type) { return *descriptorHeaps_[type]; }
 
 private:
     static const uint32_t kNumRTVs = 16;
@@ -39,6 +39,6 @@ private:
 
     Microsoft::WRL::ComPtr<ID3D12Device> device_;
     CommandQueue commandQueue_;
-    DescriptorHeap descriptorHeaps_[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
+    std::shared_ptr<DescriptorHeap> descriptorHeaps_[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
     
 };

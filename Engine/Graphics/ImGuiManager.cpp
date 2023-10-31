@@ -18,7 +18,7 @@ ImGuiManager* ImGuiManager::GetInstance() {
 void ImGuiManager::Initialize(HWND hWnd, DXGI_FORMAT rtvFormat) {
 #ifdef _DEBUG
     auto graphics = Graphics::GetInstance();
-    auto descriptor = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    descriptor_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGui::StyleColorsDark();
@@ -28,8 +28,8 @@ void ImGuiManager::Initialize(HWND hWnd, DXGI_FORMAT rtvFormat) {
         SwapChain::kNumBuffers,
         rtvFormat,
         graphics->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV),
-        descriptor,
-        descriptor);
+        descriptor_,
+        descriptor_);
 #else
     hWnd; rtvFormat;
 #endif _DEBUG
