@@ -47,7 +47,7 @@ struct PSOutput {
 float ToonDiffuse(float3 normal, float3 lightDirection) {
     const float threshold = 0.2f;
     
-    float t = LambertReflection(normal, lightDirection);
+    float t = Lighting::LambertReflection(normal, lightDirection);
     return lerp(1.0f, 0.7f, step(t, threshold));
 }
 
@@ -55,7 +55,7 @@ float ToonSpecular(float3 normal, float3 pixelToCamera, float3 lightDirection) {
     const float shininess = 10.0f;
     const float threshold = 0.8f;
     
-    float t = BlinnPhongReflection(normal, lightDirection, pixelToCamera, shininess);
+    float t = Lighting::BlinnPhongReflection(normal, lightDirection, pixelToCamera, shininess);
     return step(threshold, t);
 }
 
@@ -67,10 +67,11 @@ PSOutput main(PSInput input) {
     // ピクセルからカメラへのベクトル 
     float3 pixelToCamera = normalize(scene_.cameraPosition - position);
     
-    DirectionalLight directionalLight_;
+    Lighting::DirectionalLight directionalLight_;
     directionalLight_.direction = normalize(float3(1.0f, -1.0f, 0.0f));
     directionalLight_.intensity = 1.0f;
     directionalLight_.color = float3(1.0f, 1.0f, 1.0f);
+    
     
     // テクスチャの色
     float3 textureColor = texture_.Sample(sampler_, input.texcoord).rgb;
@@ -81,6 +82,7 @@ PSOutput main(PSInput input) {
     float3 specular = material_.specular * ToonSpecular(normal, pixelToCamera, directionalLight_.direction);
     // シェーディングによる色
     float3 shadeColor = (diffuse + specular) * directionalLight_.color * directionalLight_.intensity;
+    
     // ライティングを使用しない場合テクスチャの色をそのまま使う
     shadeColor = lerp(float3(1.0f, 1.0f, 1.0f), shadeColor, float(instance_.useLighting));
        
