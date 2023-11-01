@@ -10,6 +10,9 @@ void RootSignature::Create(const std::wstring& name, const D3D12_ROOT_SIGNATURE_
     Microsoft::WRL::ComPtr<ID3DBlob> blob;
     Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
 
+   /* auto d = desc;
+    d.Flags |= D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;*/
+
     if (FAILED(D3D12SerializeRootSignature(
         &desc,
         D3D_ROOT_SIGNATURE_VERSION_1,

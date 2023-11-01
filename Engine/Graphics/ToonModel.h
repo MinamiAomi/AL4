@@ -19,7 +19,7 @@ public:
     
 private:
     struct Texture {
-        std::unique_ptr<TextureResource> textureResource;
+        TextureResource textureResource;
     };
     struct Material {
         UploadBuffer constantBuffer;

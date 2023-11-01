@@ -42,6 +42,11 @@ void AL4Game::OnInitialize() {
 	toonModel = std::make_shared<ToonModel>();
 	toonModel->Create(ModelData::LoadObjFile("Resources/Model/mimic_head.obj"));
 	resourceManager->AddToonModel("MimicHead", toonModel);
+	// 武器
+	toonModel = std::make_shared<ToonModel>();
+	toonModel->Create(ModelData::LoadObjFile("Resources/Model/weapon.obj"));
+	resourceManager->AddToonModel("Weapon", toonModel);
+
 }
 
 void AL4Game::OnFinalize() {

@@ -61,6 +61,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -84,6 +85,7 @@
       <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <TreatWarningAsError>true</TreatWarningAsError>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>
@@ -101,7 +103,6 @@
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Collision\Collider.cpp" />
     <ClCompile Include="Collision\CollisionManager.cpp" />
-    <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Externals\ImGui\imgui.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
@@ -123,6 +124,7 @@
     <ClCompile Include="Externals\ImGui\imgui_widgets.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="Framework\Engine.cpp" />
     <ClCompile Include="Graphics\Bloom.cpp" />
     <ClCompile Include="Graphics\Core\ColorBuffer.cpp" />
     <ClCompile Include="Graphics\Core\CommandContext.cpp" />
@@ -166,7 +168,6 @@
     <ClInclude Include="Collision\Collider.h" />
     <ClInclude Include="Collision\CollisionManager.h" />
     <ClInclude Include="Collision\GameObject.h" />
-    <ClInclude Include="Engine.h" />
     <ClInclude Include="Externals\DirectXTex\Include\BC.h" />
     <ClInclude Include="Externals\DirectXTex\Include\BCDirectCompute.h" />
     <ClInclude Include="Externals\DirectXTex\Include\d3dx12.h" />
@@ -201,7 +202,8 @@
     </ClInclude>
     <ClInclude Include="Externals\nlohmann\json.hpp" />
     <ClInclude Include="Externals\nlohmann\json_fwd.hpp" />
-    <ClInclude Include="Game.h" />
+    <ClInclude Include="Framework\Engine.h" />
+    <ClInclude Include="Framework\Game.h" />
     <ClInclude Include="Graphics\Bloom.h" />
     <ClInclude Include="Graphics\Core\ColorBuffer.h" />
     <ClInclude Include="Graphics\Core\CommandContext.h" />

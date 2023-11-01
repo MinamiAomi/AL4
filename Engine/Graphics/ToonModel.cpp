@@ -19,13 +19,29 @@ void ToonModel::Create(const ModelData& modelData) {
 
     CommandContext commandContext;
     commandContext.Create();
-
-    for (auto& srcMesh : modelData.meshes) {
-        auto& srcMaterial = modelData.materials[srcMesh.materialIndex];
-        const ModelData::Texture* srcTexture = nullptr;
-        if (!modelData.textures.empty()) {
-            srcTexture = &modelData.textures[srcMaterial.textureIndex];
+    // テクスチャ
+    for (auto& srcTexture : modelData.textures) {
+        auto& destTexture = createdTextures.emplace_back(std::make_shared<Texture>());
+        if (!srcTexture.filePath.empty()) {
+            destTexture->textureResource.CreateFromWICFile(commandContext, srcTexture.filePath.wstring());
         }
+    }
+    // マテリアル
+    for (auto& srcMaterial : modelData.materials) {
+        auto& destMaterial = createdMaterials.emplace_back(std::make_shared<Material>());
+        destMaterial->constantBuffer.CreateConstantBuffer(L"ToonModel ConstantBuffer", sizeof(MaterialData));
+        MaterialData materialData{};
+        materialData.diffuse = srcMaterial.diffuse;
+        materialData.specular = srcMaterial.specular;
+        destMaterial->constantBuffer.Copy(materialData);
+
+
+        if (srcMaterial.textureIndex < createdTextures.size()) {
+            destMaterial->texture = createdTextures[srcMaterial.textureIndex];
+        }
+    }
+    // メッシュ
+    for (auto& srcMesh : modelData.meshes) {
 
         // 生成するメッシュ
         auto& destMesh = meshes_.emplace_back();
@@ -36,31 +52,10 @@ void ToonModel::Create(const ModelData& modelData) {
         destMesh.indexCount = uint32_t(srcMesh.indices.size());
         destMesh.indexBuffer.Create(L"ToonModel indexBuffer", sizeof(srcMesh.indices[0]), srcMesh.indices.size());
         destMesh.indexBuffer.Copy(srcMesh.indices.data(), destMesh.indexBuffer.GetBufferSize());
-        // マテリアル
-        if (srcMesh.materialIndex == createdMaterials.size()) {
-            destMesh.material = createdMaterials.emplace_back(std::make_shared<Material>());
-            destMesh.material->constantBuffer.CreateConstantBuffer(L"ToonModel ConstantBuffer", sizeof(MaterialData));
-            MaterialData materialData{};
-            materialData.diffuse = srcMaterial.diffuse;
-            materialData.specular = srcMaterial.specular;
-            destMesh.material->constantBuffer.Copy(materialData);
-            // テクスチャ
-            if (srcMaterial.textureIndex == createdTextures.size()) {
-                destMesh.material->texture = createdTextures.emplace_back(std::make_shared<Texture>());
-                if (srcTexture && !srcTexture->filePath.empty()) {
-                    destMesh.material->texture->textureResource = std::make_unique<TextureResource>();
-                    destMesh.material->texture->textureResource->CreateFromWICFile(commandContext, srcTexture->filePath.wstring());
-                }
-            }
-            else {
-                // 生成済みから引っ張ってくる
-                destMesh.material->texture = createdTextures[srcMaterial.textureIndex];
-            }
-        }
-        else {
-            // 生成済みから引っ張ってくる
-            destMesh.material = createdMaterials[srcMesh.materialIndex];
-        }
+
+        assert(srcMesh.materialIndex < createdMaterials.size());
+        destMesh.material = createdMaterials[srcMesh.materialIndex];
+        assert(destMesh.material);
     }
     commandContext.Close();
     auto& commandQueue = Graphics::GetInstance()->GetCommandQueue();

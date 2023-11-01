@@ -12,17 +12,17 @@ namespace {
         Vector3 halfSize = obb.size * 0.5f;
 
         std::vector<Vector3> vertices(8);
-        
-        vertices[0] =  { -halfSize.x, -halfSize.y, -halfSize.z };   // 左下前
-        vertices[1] =  { -halfSize.x,  halfSize.y, -halfSize.z };   // 左上前
-        vertices[2] =  {  halfSize.x,  halfSize.y, -halfSize.z };   // 右上前
-        vertices[3] =  {  halfSize.x, -halfSize.y, -halfSize.z };   // 右下前
-        vertices[4] =  { -halfSize.x, -halfSize.y,  halfSize.z };   // 左下奥 
-        vertices[5] =  { -halfSize.x,  halfSize.y,  halfSize.z };   // 左上奥
-        vertices[6] =  {  halfSize.x,  halfSize.y,  halfSize.z };   // 右上奥
-        vertices[7] =  {  halfSize.x, -halfSize.y,  halfSize.z };   // 右下奥
-        
-        Matrix4x4 obbWorldMatrix = 
+
+        vertices[0] = { -halfSize.x, -halfSize.y, -halfSize.z };   // 左下前
+        vertices[1] = { -halfSize.x,  halfSize.y, -halfSize.z };   // 左上前
+        vertices[2] = { halfSize.x,  halfSize.y, -halfSize.z };   // 右上前
+        vertices[3] = { halfSize.x, -halfSize.y, -halfSize.z };   // 右下前
+        vertices[4] = { -halfSize.x, -halfSize.y,  halfSize.z };   // 左下奥 
+        vertices[5] = { -halfSize.x,  halfSize.y,  halfSize.z };   // 左上奥
+        vertices[6] = { halfSize.x,  halfSize.y,  halfSize.z };   // 右上奥
+        vertices[7] = { halfSize.x, -halfSize.y,  halfSize.z };   // 右下奥
+
+        Matrix4x4 obbWorldMatrix =
             Matrix4x4().SetXAxis(obb.orientations[0]).SetYAxis(obb.orientations[1]).SetZAxis(obb.orientations[2]).SetTranslate(obb.center);
         for (size_t i = 0; i < vertices.size(); ++i) {
             vertices[i] = vertices[i] * obbWorldMatrix;
@@ -193,19 +193,27 @@ bool BoxCollider::IsCollision(BoxCollider* other, CollisionInfo& collisionInfo) 
     auto vertices1 = GetVertices(this->obb_);
     auto vertices2 = GetVertices(other->obb_);
 
-    Vector3 axes1[] = {
+    Vector3 axes[] = {
         this->obb_.orientations[0],
         this->obb_.orientations[1],
         this->obb_.orientations[2],
-    };
 
-    Vector3 axes2[] = {
         other->obb_.orientations[0],
         other->obb_.orientations[1],
         other->obb_.orientations[2],
-    };
 
-    const size_t numAxes = _countof(axes1);
+        Cross(this->obb_.orientations[0], other->obb_.orientations[0]).Normalized(),
+        Cross(this->obb_.orientations[0], other->obb_.orientations[1]).Normalized(),
+        Cross(this->obb_.orientations[0], other->obb_.orientations[2]).Normalized(),
+
+        Cross(this->obb_.orientations[1], other->obb_.orientations[0]).Normalized(),
+        Cross(this->obb_.orientations[1], other->obb_.orientations[1]).Normalized(),
+        Cross(this->obb_.orientations[1], other->obb_.orientations[2]).Normalized(),
+
+        Cross(this->obb_.orientations[2], other->obb_.orientations[0]).Normalized(),
+        Cross(this->obb_.orientations[2], other->obb_.orientations[1]).Normalized(),
+        Cross(this->obb_.orientations[2], other->obb_.orientations[2]).Normalized(),
+    };
 
     float minOverlap = FLT_MAX;
     Vector3 minOverlapAxis = {};
@@ -217,10 +225,10 @@ bool BoxCollider::IsCollision(BoxCollider* other, CollisionInfo& collisionInfo) 
         Vector2 minmax2 = Projection(vertices2, axis);
 
         // 分離軸である
-        if (!(minmax1.x <= minmax2.y && minmax1.y >= minmax2.x)) { 
-            return true; 
+        if (!(minmax1.x <= minmax2.y && minmax1.y >= minmax2.x)) {
+            return true;
         }
-        
+
         float overlap = GetOverlap(minmax1, minmax2);
 
         if (overlap < minOverlap) {
@@ -229,24 +237,11 @@ bool BoxCollider::IsCollision(BoxCollider* other, CollisionInfo& collisionInfo) 
         }
 
         return false;
-        };
+    };
 
-    for (size_t i = 0; i < numAxes; ++i) {
-        if (IsSeparateAxis(axes1[i])) { return false; }
-    }
-    for (size_t i = 0; i < numAxes; ++i) {
-        if (IsSeparateAxis(axes2[i])) { return false; }
-    }
-    for (size_t i = 0; i < numAxes; ++i) {
-        for (size_t j = 0; j < numAxes; ++j) {
-            Vector3 axis = Cross(axes1[i], axes2[j]).Normalized();
-            if (std::isnan(axis.x) ||
-                std::isnan(axis.y) ||
-                std::isnan(axis.z)) {
-                continue;
-            }
-            if (IsSeparateAxis(axis)) { return false; }
-        }
+    for (auto& axis : axes) {
+        if (std::isnan(axis.x) || std::isnan(axis.y) || std::isnan(axis.z)) { continue; }
+        if (IsSeparateAxis(axis)) { return false; }
     }
 
     // 衝突情報を格納していく

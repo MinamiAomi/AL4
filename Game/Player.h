@@ -7,6 +7,7 @@
 #include "Graphics/ToonModel.h"
 #include "Collision/Collider.h"
 #include "FollowCamera.h"
+#include "Weapon.h"
 
 class Player :
     public GameObject {
@@ -15,7 +16,8 @@ public:
     void Update();
 
     void SetCamera(const std::shared_ptr<FollowCamera>& camera) { camera_ = camera; }
-    
+    const std::shared_ptr<Weapon>& GetWeapon() { return weapon_; }
+
 private:
     void Restart();
     void MoveUpdate();
@@ -28,6 +30,7 @@ private:
     std::unique_ptr<BoxCollider> collider_;
 
     std::shared_ptr<FollowCamera> camera_;
+    std::shared_ptr<Weapon> weapon_;
 
     //float prevYTranslate_ = 0.0f;
 

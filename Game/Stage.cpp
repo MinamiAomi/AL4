@@ -8,8 +8,8 @@ struct FloorInitData {
 };
 
 static const FloorInitData stageInits[] = {
-    { {  0.0f, -1.0f,  0.0f }, 0.0f,         0.0f,   0  },
-    { {  0.0f, -1.0f, 10.0f }, 0.0f,         5.0f, 300  },
+    { {  0.0f, -1.0f,  0.0f }, Math::HalfPi,         0.0f,   0  },
+    { {  0.0f, -1.0f, 10.0f }, Math::HalfPi,         5.0f, 300  },
     { {  0.0f, -1.0f, 20.0f }, 0.0f,         0.0f,   0  },
     { { 10.0f, -1.0f, 20.0f }, Math::HalfPi, 5.0f, 300  },
     { { 20.0f, -1.0f, 20.0f }, 0.0f,         0.0f,  0  },

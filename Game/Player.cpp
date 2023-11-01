@@ -8,6 +8,11 @@
 #include "Collision/CollisionManager.h"
 
 #include "Graphics/ImGuiManager.h"
+
+#include "Weapon.h"
+
+static Vector3 n;
+
 void Player::Initialize() {
     SetName("Player");
 
@@ -31,6 +36,11 @@ void Player::Initialize() {
     collider_->SetCollisionAttribute(CollisionAttribute::Player);
     collider_->SetCollisionMask(~CollisionAttribute::Player);
     //collider_->SetIsActive(false);
+
+    weapon_ = std::make_shared<Weapon>();
+    weapon_->Initialize();
+    //weapon_->SetIsShowing(false);
+    weapon_->transform.SetParent(&transform);
 }
 
 void Player::Update() {
@@ -47,6 +57,11 @@ void Player::Update() {
     }
 
     UpdateTransform();
+    weapon_->Update();
+
+    ImGui::Begin("Player");
+    ImGui::DragFloat3("normal", &n.x);
+    ImGui::End();
 }
 
 void Player::Restart() {
@@ -122,11 +137,18 @@ void Player::UpdateTransform() {
     collider_->SetCenter(translate + colliderOffset_);
     collider_->SetOrientation(rotate);
     model_->SetWorldMatrix(transform.worldMatrix);
+    weapon_->UpdateTransform();
 }
 
 void Player::OnCollision(const CollisionInfo& collisionInfo) {
     if (collisionInfo.collider->GetName() == "Floor") {
-        transform.translate += collisionInfo.normal * collisionInfo.depth;
+        // ワールド空間の押し出しベクトル
+        Vector3 pushVector = collisionInfo.normal * collisionInfo.depth;
+        auto parent = transform.GetParent();
+        if (parent) {
+            pushVector = parent->rotate.Inverse() * pushVector;
+        }
+        transform.translate += pushVector;
 
         // 衝突位置の法線
         float dot = Dot(collisionInfo.normal, Vector3::up);
@@ -138,9 +160,9 @@ void Player::OnCollision(const CollisionInfo& collisionInfo) {
         }
         UpdateTransform();
 
-        const GameObject* parent = collisionInfo.collider->GetGameObject();
-        if (parent) {
-            transform.SetParent(&parent->transform);
+        const GameObject* nextParent = collisionInfo.collider->GetGameObject();
+        if (nextParent) {
+            transform.SetParent(&nextParent->transform);
         }
     }
     else if (collisionInfo.collider->GetName() == "Goal") {
