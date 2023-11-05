@@ -430,6 +430,12 @@
     <None Include="Graphics\Shader\Convert.hlsli">
       <Filter>Graphics\Shader</Filter>
     </None>
+    <None Include="Graphics\Shader\RayMarchingCS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\Math.hlsli">
+      <Filter>Graphics\Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\ImGui\LICENSE.txt">
