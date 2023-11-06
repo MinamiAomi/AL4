@@ -153,6 +153,8 @@
     <ClCompile Include="Graphics\PostEffect.cpp" />
     <ClCompile Include="Graphics\RenderManager.cpp" />
     <ClCompile Include="Graphics\ResourceManager.cpp" />
+    <ClCompile Include="Graphics\Sprite.cpp" />
+    <ClCompile Include="Graphics\SpriteRenderer.cpp" />
     <ClCompile Include="Graphics\Timer.cpp" />
     <ClCompile Include="Graphics\ToonModel.cpp" />
     <ClCompile Include="Graphics\ToonRenderer.cpp" />
@@ -233,6 +235,8 @@
     <ClInclude Include="Graphics\PostEffect.h" />
     <ClInclude Include="Graphics\RenderManager.h" />
     <ClInclude Include="Graphics\ResourceManager.h" />
+    <ClInclude Include="Graphics\Sprite.h" />
+    <ClInclude Include="Graphics\SpriteRenderer.h" />
     <ClInclude Include="Graphics\Timer.h" />
     <ClInclude Include="Graphics\ToonModel.h" />
     <ClInclude Include="Graphics\ToonRenderer.h" />
