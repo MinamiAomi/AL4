@@ -25,7 +25,7 @@ const DescriptorHandle& Texture::GetSampler() const {
 		}
 		break;
 	}
-    return DescriptorHandle();
+    return SamplerManager::AnisotropicWrap;
 }
 
 std::list<Sprite*> Sprite::instanceList_;
