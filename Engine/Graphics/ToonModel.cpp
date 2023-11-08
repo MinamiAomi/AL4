@@ -12,6 +12,8 @@ void ToonModel::Create(const ModelData& modelData) {
         Vector3 diffuse;
         float pad;
         Vector3 specular;
+        uint32_t textureIndex;
+        uint32_t samplerIndex;
     };
 
     std::vector<std::shared_ptr<Texture>> createdTextures;
@@ -30,15 +32,21 @@ void ToonModel::Create(const ModelData& modelData) {
     for (auto& srcMaterial : modelData.materials) {
         auto& destMaterial = createdMaterials.emplace_back(std::make_shared<Material>());
         destMaterial->constantBuffer.CreateConstantBuffer(L"ToonModel ConstantBuffer", sizeof(MaterialData));
+
+
         MaterialData materialData{};
         materialData.diffuse = srcMaterial.diffuse;
         materialData.specular = srcMaterial.specular;
-        destMaterial->constantBuffer.Copy(materialData);
-
 
         if (srcMaterial.textureIndex < createdTextures.size()) {
             destMaterial->texture = createdTextures[srcMaterial.textureIndex];
+            materialData.textureIndex = destMaterial->texture->textureResource.GetSRV().GetIndex();
+            materialData.samplerIndex = SamplerManager::AnisotropicWrap.GetIndex();
         }
+        
+        destMaterial->constantBuffer.Copy(materialData);
+
+
     }
     // メッシュ
     for (auto& srcMesh : modelData.meshes) {

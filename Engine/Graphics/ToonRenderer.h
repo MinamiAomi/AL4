@@ -14,10 +14,7 @@ struct ToonRootIndex {
         Scene = 0,
         Instance,
         Material,
-        Texture,
-        Sampler,
         DirectionalLight,
-
         NumParameters
     };
 };

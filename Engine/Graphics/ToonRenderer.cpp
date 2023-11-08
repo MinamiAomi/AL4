@@ -62,13 +62,13 @@ void ToonRenderer::Render(CommandContext& commandContext, const Camera& camera) 
             commandContext.SetPipelineState(toonPipelineState_);
             for (auto& mesh : instance->model_->meshes_) {
                 commandContext.SetConstantBuffer(ToonRootIndex::Material, mesh.material->constantBuffer.GetGPUVirtualAddress());
-                if (mesh.material->texture) {
+                /*if (mesh.material->texture) {
                     commandContext.SetDescriptorTable(ToonRootIndex::Texture, mesh.material->texture->textureResource.GetSRV());
                 }
                 else {
                     commandContext.SetDescriptorTable(ToonRootIndex::Texture, DefaultTexture::White.GetSRV());
                 }
-                commandContext.SetDescriptorTable(ToonRootIndex::Sampler, SamplerManager::AnisotropicWrap);
+                commandContext.SetDescriptorTable(ToonRootIndex::Sampler, SamplerManager::AnisotropicWrap);*/
 
                 D3D12_VERTEX_BUFFER_VIEW vbv{};
                 vbv.BufferLocation = mesh.vertexBuffer.GetGPUVirtualAddress();
@@ -117,14 +117,17 @@ void ToonRenderer::InitializeRootSignature() {
     rootParameters[ToonRootIndex::Scene].InitAsConstantBufferView(0);
     rootParameters[ToonRootIndex::Instance].InitAsConstantBufferView(1);
     rootParameters[ToonRootIndex::Material].InitAsConstantBufferView(2);
-    rootParameters[ToonRootIndex::Texture].InitAsDescriptorTable(1, &srvRange[0]);
-    rootParameters[ToonRootIndex::Sampler].InitAsDescriptorTable(1, &samplerRange);
+//    rootParameters[ToonRootIndex::Texture].InitAsDescriptorTable(1, &srvRange[0]);
+//    rootParameters[ToonRootIndex::Sampler].InitAsDescriptorTable(1, &samplerRange);
     rootParameters[ToonRootIndex::DirectionalLight].InitAsConstantBufferView(3);
 
     D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
     rootSignatureDesc.NumParameters = _countof(rootParameters);
     rootSignatureDesc.pParameters = rootParameters;
-    rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+    rootSignatureDesc.Flags = 
+        D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT | 
+        D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED |
+        D3D12_ROOT_SIGNATURE_FLAG_SAMPLER_HEAP_DIRECTLY_INDEXED;
     rootSignature_.Create(L"Toon RootSignature", rootSignatureDesc);
 }
 

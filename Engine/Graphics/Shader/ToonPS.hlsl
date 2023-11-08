@@ -17,6 +17,8 @@ ConstantBuffer<Instance> instance_ : register(b1);
 struct Material {
     float3 diffuse;
     float3 specular;
+    uint textureIndex;
+    uint samplerIndex;
 };
 ConstantBuffer<Material> material_ : register(b2);
 
@@ -30,8 +32,8 @@ ConstantBuffer<Material> material_ : register(b2);
 
 //ConstantBuffer<DirectionalLight> directionalLight_ : register(b3);
 
-Texture2D<float4> texture_ : register(t0);
-SamplerState sampler_ : register(s0);
+//Texture2D<float4> texture_ : register(t0);
+//SamplerState sampler_ : register(s0);
 
 struct PSInput {
     float4 position : SV_POSITION;
@@ -60,6 +62,10 @@ float ToonSpecular(float3 normal, float3 pixelToCamera, float3 lightDirection) {
 }
 
 PSOutput main(PSInput input) {
+    
+    Texture2D<float4> texture_ = ResourceDescriptorHeap[material_.textureIndex];
+    SamplerState sampler_ = SamplerDescriptorHeap[material_.samplerIndex];
+    
     // 位置
     float3 position = input.worldPosition;
     // 法線
