@@ -10,6 +10,9 @@
     <Filter Include="Game\Object">
       <UniqueIdentifier>{17c6b11b-0e64-4213-a296-f6c44a8ed39b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Object\Player">
+      <UniqueIdentifier>{e183ebdb-5907-4de7-a888-6d504bdbd9c6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AL4Game.h">
@@ -22,9 +25,6 @@
       <Filter>Game\Object</Filter>
     </ClInclude>
     <ClInclude Include="Ground.h">
-      <Filter>Game\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
       <Filter>Game\Object</Filter>
     </ClInclude>
     <ClInclude Include="Skydome.h">
@@ -48,6 +48,12 @@
     <ClInclude Include="Weapon.h">
       <Filter>Game\Object</Filter>
     </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Game\Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerState.h">
+      <Filter>Game\Object\Player</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -61,9 +67,6 @@
       <Filter>Game\Object</Filter>
     </ClCompile>
     <ClCompile Include="Ground.cpp">
-      <Filter>Game\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
       <Filter>Game\Object</Filter>
     </ClCompile>
     <ClCompile Include="Skydome.cpp">
@@ -83,6 +86,12 @@
     </ClCompile>
     <ClCompile Include="Weapon.cpp">
       <Filter>Game\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Game\Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerState.cpp">
+      <Filter>Game\Object\Player</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

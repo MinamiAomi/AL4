@@ -109,7 +109,11 @@ void Player::MoveUpdate() {
             // 移動
             transform.translate += move;
             // 回転
-            transform.rotate = Quaternion::Slerp(0.2f, transform.rotate, Quaternion::MakeLookRotation(move));
+            //transform.rotate = Quaternion::Slerp(0.2f, transform.rotate, Quaternion::MakeLookRotation(move));
+                
+            move = transform.rotate.Conjugate() * move;
+            Quaternion diff = Quaternion::MakeFromTwoVector(Vector3::unitZ, move);
+            transform.rotate = Quaternion::Slerp(0.2f, Quaternion::identity, diff) * transform.rotate;
         }
     }
 }

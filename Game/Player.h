@@ -9,17 +9,11 @@
 #include "Collision/Collider.h"
 #include "FollowCamera.h"
 #include "Weapon.h"
+#include "PlayerState.h"
 
 class Player :
     public GameObject {
 public:
-    enum class Behavior {
-        Root,
-        Attack0,
-        Attack1,
-        Attack2
-    };
-
     void Initialize();
     void Update();
 
@@ -40,8 +34,8 @@ private:
     std::shared_ptr<FollowCamera> camera_;
     std::shared_ptr<Weapon> weapon_;
 
-    Behavior behavior_ = Behavior::Root;
-    std::optional<Behavior> behaviorRequest_ = std::nullopt;
+    std::unique_ptr<PlayerState> state_;
+    std::unique_ptr<PlayerState> nextState_;
 
     //float prevYTranslate_ = 0.0f;
 
