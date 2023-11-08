@@ -2,6 +2,7 @@
 #include "Collision/GameObject.h"
 
 #include <memory>
+#include <optional>
 
 #include "Math/Transform.h"
 #include "Graphics/ToonModel.h"
@@ -12,6 +13,13 @@
 class Player :
     public GameObject {
 public:
+    enum class Behavior {
+        Root,
+        Attack0,
+        Attack1,
+        Attack2
+    };
+
     void Initialize();
     void Update();
 
@@ -31,6 +39,9 @@ private:
 
     std::shared_ptr<FollowCamera> camera_;
     std::shared_ptr<Weapon> weapon_;
+
+    Behavior behavior_ = Behavior::Root;
+    std::optional
 
     //float prevYTranslate_ = 0.0f;
 
