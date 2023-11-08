@@ -41,7 +41,7 @@ private:
     std::shared_ptr<Weapon> weapon_;
 
     Behavior behavior_ = Behavior::Root;
-    std::optional
+    std::optional<Behavior> behaviorRequest_ = std::nullopt;
 
     //float prevYTranslate_ = 0.0f;
 
