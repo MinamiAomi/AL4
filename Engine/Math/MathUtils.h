@@ -516,7 +516,7 @@ public:
 
     // 二つのベクトルに垂直な軸と差分角から生成
     static inline Quaternion MakeFromTwoVector(const Vector3& from, const Vector3& to) noexcept {
-        Vector3 axis = Vector3::Cross(from, to);
+        Vector3 axis = Vector3::Cross(from, to).Normalized();
         float angle = Vector3::Angle(from, to);
         return MakeFromAngleAxis(angle, axis);
     }
@@ -581,6 +581,9 @@ public:
     }
 #pragma endregion
 #pragma region メンバ関数
+    inline Quaternion Concatenate(const Quaternion& rot) {
+        return rot * (*this);
+    }
     // オイラー角（不安）
     inline Vector3 EulerAngle() const noexcept {
         Vector3 euler{};
