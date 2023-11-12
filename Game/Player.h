@@ -14,16 +14,25 @@
 class Player :
     public GameObject {
 public:
+    struct ConstantData {
+        Vector3 colliderOffset;
+        float moveSpeed;
+        float gravity;
+        float jumpPower;
+        float maxFallSpeed;
+    };
+    
     void Initialize();
     void Update();
 
     void SetCamera(const std::shared_ptr<FollowCamera>& camera) { camera_ = camera; }
+    const std::shared_ptr<FollowCamera>& GetCamera() const { return camera_; }
     const std::shared_ptr<Weapon>& GetWeapon() { return weapon_; }
+
+    const ConstantData& GetConstantData() const { return constantData_; }
 
 private:
     void Restart();
-    void MoveUpdate();
-    void JumpUpdate();
     void UpdateTransform();
 
     void OnCollision(const CollisionInfo& collisionInfo);
@@ -34,18 +43,12 @@ private:
     std::shared_ptr<FollowCamera> camera_;
     std::shared_ptr<Weapon> weapon_;
 
-    std::unique_ptr<PlayerState> state_;
-    std::unique_ptr<PlayerState> nextState_;
+    std::unique_ptr<PlayerStateManager> state_;
+
+    // 定数データ
+    // ほかの状態でも使用される
+    ConstantData constantData_;
 
     //float prevYTranslate_ = 0.0f;
-
-    Vector3 colliderOffset_ = { 0.0f, 1.0f, 0.0f };
-    float ySpeed_ = 0.0f;
-    float moveSpeed_ = 0.3f;
-    float gravity_ = 0.02f;;
-    float jumpPower_ = 0.3f;
-    float maxFallSpeed_ = 0.5f;
-
-    bool canJump_;
     bool requestRestart_;
 };

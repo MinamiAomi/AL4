@@ -4,11 +4,13 @@
 
 class Player;
 class PlayerState;
+struct CollisionInfo;
 
 class PlayerStateManager {
 public:
     PlayerStateManager(Player& player) : player(player) {}
     void Update();
+    void OnCollision(const CollisionInfo& collisionInfo);
 
     template<class T>
     void ChangeState() {
@@ -29,29 +31,32 @@ public:
     virtual ~PlayerState() {}
     virtual void Initialize() = 0;
     virtual void Update() = 0;
+    virtual void OnCollision(const CollisionInfo& collisionInfo) = 0;
 
 protected:
     PlayerStateManager& manager_;
 };
 
-class PlayerRoot :
+class PlayerStateRoot :
     public PlayerState {
 public:
     using PlayerState::PlayerState;
     void Initialize() override;
     void Update() override;
+    void OnCollision(const CollisionInfo& collisionInfo) override;
 
 private:
-
-
+    float ySpeed_;
+    bool canJump_;
 };
 
-class PlayerAttack :
+class PlayerStateAttack :
     public PlayerState {
 public:
     using PlayerState::PlayerState;
     void Initialize() override;
     void Update() override;
+    void OnCollision(const CollisionInfo& collisionInfo) override;
 
 private:
 };
