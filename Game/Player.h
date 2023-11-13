@@ -14,6 +14,7 @@
 class Player :
     public GameObject {
 public:
+
     struct ConstantData {
         Vector3 colliderOffset;
         float moveSpeed;
@@ -49,6 +50,5 @@ private:
     // ほかの状態でも使用される
     ConstantData constantData_;
 
-    //float prevYTranslate_ = 0.0f;
     bool requestRestart_;
 };

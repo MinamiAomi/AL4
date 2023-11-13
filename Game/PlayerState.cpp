@@ -81,7 +81,8 @@ void PlayerStateRoot::Update() {
     ySpeed_ = std::max(ySpeed_, -constantData.maxFallSpeed);
     transform.translate.y += ySpeed_;
 
-    if (input->IsKeyTrigger(DIK_TAB)) {
+    auto& preXInputState = input->GetPreXInputState();
+    if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_B) && !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_B)) {
         manager_.ChangeState<PlayerStateAttack>();
     }
 }
@@ -99,10 +100,99 @@ void PlayerStateRoot::OnCollision(const CollisionInfo& collisionInfo) {
     }
 }
 
+
+const std::array<PlayerStateAttack::ConstantAttack, PlayerStateAttack::kNumCombos>
+PlayerStateAttack::kConstantAttacks = {
+    {
+        {  5, 10 },
+        { 15, 15 },
+        { 30, 30 },
+    }
+};
+
 void PlayerStateAttack::Initialize() {
+    attackParameter_ = 0;
+    comboIndex_ = 0;
+    comboNext_ = false;
 }
 
 void PlayerStateAttack::Update() {
+    auto input = Input::GetInstance();
+
+    auto& gamepad = input->GetXInputState();
+    auto& preGamepad = input->GetPreXInputState();
+
+    if (comboIndex_ < kNumCombos - 1) {
+        if ((gamepad.Gamepad.wButtons & XINPUT_GAMEPAD_B) && !(preGamepad.Gamepad.wButtons & XINPUT_GAMEPAD_B)) {
+            comboNext_ = true;
+        }
+    }
+
+    uint32_t comboTime = kConstantAttacks[comboIndex_].swingTime + kConstantAttacks[comboIndex_].recoveryTime;
+    if (++attackParameter_ >= comboTime) {
+        if (comboNext_) {
+            comboNext_ = false;
+
+            attackParameter_ = 0;
+            ++comboIndex_;
+
+        }
+        else {
+            manager_.ChangeState<PlayerStateRoot>();
+            return;
+        }
+    }
+
+    auto& weaponTransform = manager_.player.GetWeapon()->transform;
+
+    switch (comboIndex_) {
+    case 0:
+    default:
+    {
+        uint32_t swingTime = kConstantAttacks[0].swingTime;
+        uint32_t recoveryTime = kConstantAttacks[0].recoveryTime;
+
+        if (attackParameter_ < swingTime) {
+            float t = float(attackParameter_) / float(swingTime);
+            weaponTransform.rotate = Quaternion::Slerp(t, Quaternion::identity, Quaternion::MakeForXAxis(90.0f * Math::ToRadian));
+        }
+        else {
+            float t = float(attackParameter_ - swingTime) / float(recoveryTime);
+            weaponTransform.rotate = Quaternion::Slerp(t, Quaternion::MakeForXAxis(90.0f * Math::ToRadian), Quaternion::MakeForZAxis(90.0f * Math::ToRadian));
+        }
+        break;
+    }
+    case 1:
+    {
+        uint32_t swingTime = kConstantAttacks[1].swingTime;
+        uint32_t recoveryTime = kConstantAttacks[1].recoveryTime;
+
+        if (attackParameter_ < swingTime) {
+            float t = float(attackParameter_) / float(swingTime);
+            weaponTransform.rotate = Quaternion::Slerp(t, Quaternion::MakeForZAxis(90.0f * Math::ToRadian), Quaternion::MakeForZAxis(-90.0f * Math::ToRadian));
+        }
+        else {
+            float t = float(attackParameter_ - swingTime) / float(recoveryTime);
+            weaponTransform.rotate = Quaternion::Slerp(t, Quaternion::MakeForZAxis(-90.0f * Math::ToRadian), Quaternion::MakeFromAngleAxis(45.0f * Math::ToRadian, Vector3(-1.0f, 1.0f, 0.0f).Normalized()));
+        }
+    break;
+    }
+    case 2: {
+        uint32_t swingTime = kConstantAttacks[2].swingTime;
+        uint32_t recoveryTime = kConstantAttacks[2].recoveryTime;
+
+        if (attackParameter_ < swingTime) {
+            float t = float(attackParameter_) / float(swingTime);
+            weaponTransform.rotate = Quaternion::Slerp(t, Quaternion::MakeFromAngleAxis(45.0f * Math::ToRadian, Vector3(-1.0f, 1.0f, 0.0f).Normalized()), Quaternion::MakeForZAxis(-90.0f * Math::ToRadian));
+        }
+        else {
+            float t = float(attackParameter_ - swingTime) / float(recoveryTime);
+            weaponTransform.rotate = Quaternion::Slerp(t, Quaternion::MakeForZAxis(-90.0f * Math::ToRadian), Quaternion::identity);
+        }
+        break;
+    }
+    }
+
 }
 
 void PlayerStateAttack::OnCollision(const CollisionInfo& collisionInfo) {

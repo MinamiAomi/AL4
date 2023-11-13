@@ -6,9 +6,9 @@
 
 
 void Weapon::Initialize() {
-    SetName("Player");
+    SetName("Weapon");
 
-    transform.translate = {0.0f,2.0f,0.0f};
+    transform.translate = {0.0f,1.0f,0.0f};
     transform.scale = Vector3::one;
     transform.UpdateMatrix();
 
