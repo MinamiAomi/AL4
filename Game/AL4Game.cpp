@@ -15,8 +15,16 @@ void AL4Game::OnInitialize() {
 
 	ResourceManager* resourceManager = ResourceManager::GetInstance();
 	
+	std::shared_ptr<ToonModel> toonModel;
+	toonModel = std::make_shared<ToonModel>();
+	toonModel->Create(ModelData::LoadObjFile("Resources/Model/sphere.obj"));
+	resourceManager->AddToonModel("Sphere", toonModel);
+	toonModel = std::make_shared<ToonModel>();
+	toonModel->Create(ModelData::LoadObjFile("Resources/Model/box.obj"));
+	resourceManager->AddToonModel("Box", toonModel);
+	// 地面
 	// プレイヤー
-	std::shared_ptr<ToonModel> toonModel = std::make_shared<ToonModel>();
+	toonModel = std::make_shared<ToonModel>();
 	toonModel->Create(ModelData::LoadObjFile("Resources/Model/player.obj"));
 	resourceManager->AddToonModel("Player", toonModel);
 	// スカイドーム

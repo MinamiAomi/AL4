@@ -8,7 +8,7 @@
 void Weapon::Initialize() {
     SetName("Weapon");
 
-    transform.translate = {0.0f,1.0f,0.0f};
+    transform.translate = { 0.0f,0.5f,0.0f };
     transform.scale = Vector3::one;
     transform.UpdateMatrix();
 
@@ -18,11 +18,11 @@ void Weapon::Initialize() {
     model_->SetOutlineWidth(0.02f);
     model_->SetOutlineColor({ 0.0f,0.0f,0.0f });
 
-    collider_ = std::make_unique<SphereCollider>();
+    collider_ = std::make_unique<BoxCollider>();
     collider_->SetGameObject(this);
     collider_->SetName("Weapon");
     collider_->SetCenter(transform.translate + colliderOffset_);
-    collider_->SetRadius(0.15f);
+    collider_->SetSize({1.0f, 3.0f, 1.0f});
     collider_->SetCollisionAttribute(CollisionAttribute::Player);
     collider_->SetCollisionMask(~CollisionAttribute::Player);
 }
@@ -33,8 +33,8 @@ void Weapon::Update() {
 
 void Weapon::UpdateTransform() {
     transform.UpdateMatrix();
-    Vector3 worldPosition = transform.worldMatrix.GetTranslate();
     Vector3 worldColliderOffset = colliderOffset_ * transform.worldMatrix;
-    collider_->SetCenter(worldPosition + worldColliderOffset);
+    collider_->SetCenter(worldColliderOffset);
+    collider_->SetOrientation(transform.rotate);
     model_->SetWorldMatrix(transform.worldMatrix);
 }

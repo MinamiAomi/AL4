@@ -24,9 +24,11 @@ private:
     };
     
     void UpdateAnimation();
+    void OnCollision(const CollisionInfo& collisionInfo);
     
     std::unique_ptr<PartData> parts_[static_cast<size_t>(Part::NumParts)];
     std::unique_ptr<BoxCollider> collider_;
 
     float animationParameter_;
+    bool isDead_;
 };

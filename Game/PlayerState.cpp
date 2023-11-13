@@ -22,6 +22,7 @@ void PlayerStateManager::OnCollision(const CollisionInfo& collisionInfo) {
 
 void PlayerStateRoot::Initialize() {
     ySpeed_ = 0.0f;
+    manager_.player.GetWeapon()->SetIsShowing(false);
 }
 
 void PlayerStateRoot::Update() {
@@ -114,6 +115,7 @@ void PlayerStateAttack::Initialize() {
     attackParameter_ = 0;
     comboIndex_ = 0;
     comboNext_ = false;
+    manager_.player.GetWeapon()->SetIsShowing(true);
 }
 
 void PlayerStateAttack::Update() {
@@ -150,45 +152,45 @@ void PlayerStateAttack::Update() {
     default:
     {
         uint32_t swingTime = kConstantAttacks[0].swingTime;
-        uint32_t recoveryTime = kConstantAttacks[0].recoveryTime;
+        //uint32_t recoveryTime = kConstantAttacks[0].recoveryTime;
 
         if (attackParameter_ < swingTime) {
             float t = float(attackParameter_) / float(swingTime);
-            weaponTransform.rotate = Quaternion::Slerp(t, Quaternion::identity, Quaternion::MakeForXAxis(90.0f * Math::ToRadian));
+            weaponTransform.rotate = Quaternion::MakeForYAxis(Math::Lerp(t, -80.0f, 80.0f) * Math::ToRadian) * Quaternion::MakeForXAxis(Math::HalfPi);
         }
-        else {
+       /* else {
             float t = float(attackParameter_ - swingTime) / float(recoveryTime);
             weaponTransform.rotate = Quaternion::Slerp(t, Quaternion::MakeForXAxis(90.0f * Math::ToRadian), Quaternion::MakeForZAxis(90.0f * Math::ToRadian));
-        }
+        }*/
         break;
     }
     case 1:
     {
         uint32_t swingTime = kConstantAttacks[1].swingTime;
-        uint32_t recoveryTime = kConstantAttacks[1].recoveryTime;
+        //uint32_t recoveryTime = kConstantAttacks[1].recoveryTime;
 
         if (attackParameter_ < swingTime) {
             float t = float(attackParameter_) / float(swingTime);
-            weaponTransform.rotate = Quaternion::Slerp(t, Quaternion::MakeForZAxis(90.0f * Math::ToRadian), Quaternion::MakeForZAxis(-90.0f * Math::ToRadian));
+            weaponTransform.rotate = Quaternion::MakeForYAxis(Math::Lerp(t, 80.0f, -80.0f) * Math::ToRadian) * Quaternion::MakeForXAxis(Math::HalfPi);
         }
-        else {
+      /*  else {
             float t = float(attackParameter_ - swingTime) / float(recoveryTime);
             weaponTransform.rotate = Quaternion::Slerp(t, Quaternion::MakeForZAxis(-90.0f * Math::ToRadian), Quaternion::MakeFromAngleAxis(45.0f * Math::ToRadian, Vector3(-1.0f, 1.0f, 0.0f).Normalized()));
-        }
+        }*/
     break;
     }
     case 2: {
         uint32_t swingTime = kConstantAttacks[2].swingTime;
-        uint32_t recoveryTime = kConstantAttacks[2].recoveryTime;
+        //uint32_t recoveryTime = kConstantAttacks[2].recoveryTime;
 
         if (attackParameter_ < swingTime) {
             float t = float(attackParameter_) / float(swingTime);
-            weaponTransform.rotate = Quaternion::Slerp(t, Quaternion::MakeFromAngleAxis(45.0f * Math::ToRadian, Vector3(-1.0f, 1.0f, 0.0f).Normalized()), Quaternion::MakeForZAxis(-90.0f * Math::ToRadian));
+            weaponTransform.rotate = Quaternion::MakeForYAxis(Math::Lerp(t, -80.0f, 80.0f) * Math::ToRadian) * Quaternion::MakeForXAxis(Math::HalfPi);
         }
-        else {
+       /* else {
             float t = float(attackParameter_ - swingTime) / float(recoveryTime);
             weaponTransform.rotate = Quaternion::Slerp(t, Quaternion::MakeForZAxis(-90.0f * Math::ToRadian), Quaternion::identity);
-        }
+        }*/
         break;
     }
     }

@@ -13,13 +13,16 @@ public:
     void Initialize();
     void Update();
 
-    void SetIsShowing(bool isShowing) { model_->SetIsActive(isShowing); }
+    void SetIsShowing(bool isShowing) { 
+        model_->SetIsActive(isShowing);
+        collider_->SetIsActive(isShowing);
+    }
 
     void UpdateTransform();
 
 private:
     std::unique_ptr<ToonModelInstance> model_;
-    std::unique_ptr<SphereCollider> collider_;
+    std::unique_ptr<BoxCollider> collider_;
 
-    Vector3 colliderOffset_ = { 0.0f, 1.0f, 0.0f };
+    Vector3 colliderOffset_ = { 0.0f, 1.5f, 0.0f };
 };

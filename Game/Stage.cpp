@@ -8,8 +8,9 @@ struct FloorInitData {
 };
 
 static const FloorInitData stageInits[] = {
-    { {  0.0f, -1.0f,  0.0f }, Math::HalfPi,         0.0f,   0  },
-    { {  0.0f, -1.0f, 10.0f }, Math::HalfPi,         5.0f, 300  },
+    { {  0.0f, -1.0f,  0.0f }, 0.0f,         0.0f,   0  },
+    { {  0.0f, -1.0f, 10.0f }, 0.0f,         0.0f, 0  },
+     { {  0.0f, -1.0f, 15.0f }, 0.0f,         0.0f, 0  },
     { {  0.0f, -1.0f, 20.0f }, 0.0f,         0.0f,   0  },
     { { 10.0f, -1.0f, 20.0f }, Math::HalfPi, 5.0f, 300  },
     { { 20.0f, -1.0f, 20.0f }, 0.0f,         0.0f,  0  },
@@ -29,7 +30,7 @@ void Stage::Initialize() {
         i++;
     }
 
-    const uint32_t goalFloorIndex = 4;
+    const uint32_t goalFloorIndex = 5;
     goal_ = std::make_shared<Goal>();
     goal_->transform.SetParent(&floors_[goalFloorIndex]->transform);
     goal_->transform.translate = { 0.0f,1.0f,0.0f };

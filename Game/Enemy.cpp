@@ -39,6 +39,9 @@ void Enemy::Initialize(const Vector3& basePosition) {
     collider_->SetGameObject(this);
     collider_->SetName("Enemy");
     collider_->SetSize(Vector3::one);
+    collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
+
+    isDead_ = false;
 }
 
 void Enemy::Update() {
@@ -61,6 +64,7 @@ void Enemy::Update() {
 
     collider_->SetCenter(transform.translate + Vector3{ 0.0f,0.5f,0.0f });
     collider_->SetOrientation(transform.rotate);
+
 }
 
 void Enemy::UpdateAnimation() {
@@ -78,4 +82,14 @@ void Enemy::UpdateAnimation() {
     animationParameter_ += delta;
     float triangleWave = std::abs(std::sin(animationParameter_));
     parts_[static_cast<size_t>(Part::Head)]->transform.rotate = Quaternion::Slerp(triangleWave, Quaternion::identity, openLimitRotate);
+}
+
+void Enemy::OnCollision(const CollisionInfo& collisionInfo) {
+    if (collisionInfo.collider->GetName() == "Weapon") {
+        isDead_ = true;
+        collider_->SetIsActive(false);
+        for (size_t i = 0; i < static_cast<size_t>(Part::NumParts); ++i) {
+            parts_[i]->model.SetIsActive(false);
+        }
+    }
 }
