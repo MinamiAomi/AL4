@@ -72,3 +72,16 @@ private:
     uint32_t comboIndex_;
     bool comboNext_;
 };
+
+class PlayerStateDush :
+    public PlayerState {
+public:
+    using PlayerState::PlayerState;
+    void Initialize() override;
+    void Update() override;
+    void OnCollision(const CollisionInfo& collisionInfo) override;
+
+private:
+    uint32_t dushParameter_;
+
+};

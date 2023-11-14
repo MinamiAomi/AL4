@@ -10,8 +10,7 @@
 #include "Graphics/ImGuiManager.h"
 
 #include "Weapon.h"
-
-static Vector3 n;
+#include "GlobalVariables.h"
 
 void Player::Initialize() {
     SetName("Player");
@@ -21,6 +20,8 @@ void Player::Initialize() {
     constantData_.gravity = 0.02f;;
     constantData_.jumpPower = 0.3f;
     constantData_.maxFallSpeed = 0.5f;
+    constantData_.dushTime = 10;
+    constantData_.dushSpeed = 0.8f;
 
     transform.translate = Vector3::zero;
     transform.scale = Vector3::one;
@@ -50,9 +51,13 @@ void Player::Initialize() {
     weapon_->Initialize();
     //weapon_->SetIsShowing(false);
     weapon_->transform.SetParent(&transform);
+    
+    RegisterGlobalVariables();
 }
 
 void Player::Update() {
+    ApplyGlobalVariables();
+    
     if (requestRestart_) {
         Restart();
     }
@@ -67,9 +72,6 @@ void Player::Update() {
     UpdateTransform();
     weapon_->Update();
 
-    ImGui::Begin("Player");
-    ImGui::DragFloat3("normal", &n.x);
-    ImGui::End();
 }
 
 void Player::Restart() {
@@ -84,6 +86,7 @@ void Player::Restart() {
 }
 
 void Player::UpdateTransform() {
+
     transform.UpdateMatrix();
     Vector3 scale, translate;
     Quaternion rotate;
@@ -119,4 +122,22 @@ void Player::OnCollision(const CollisionInfo& collisionInfo) {
     else if (collisionInfo.collider->GetName() == "Enemy") {
         requestRestart_ = true;
     }
+}
+
+constexpr char kGroupName[] = "Player";
+
+void Player::RegisterGlobalVariables() {
+    GlobalVariables& globalVariables = *GlobalVariables::GetInstance();
+    if (!globalVariables.HasGroup(kGroupName)) {
+        auto& group = globalVariables[kGroupName];
+        group["Dush Speed"] = constantData_.dushSpeed;
+        group["Dush Time"] = int32_t(constantData_.dushTime);
+    }
+}
+
+void Player::ApplyGlobalVariables() {
+    GlobalVariables& globalVariables = *GlobalVariables::GetInstance();
+    auto& group = globalVariables[kGroupName];
+    constantData_.dushSpeed = group["Dush Speed"].Get<float>();
+    constantData_.dushTime = uint32_t(group["Dush Time"].Get<int32_t>());
 }

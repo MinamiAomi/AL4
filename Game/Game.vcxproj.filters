@@ -54,6 +54,9 @@
     <ClInclude Include="PlayerState.h">
       <Filter>Game\Object\Player</Filter>
     </ClInclude>
+    <ClInclude Include="GlobalVariables.h">
+      <Filter>Game</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -92,6 +95,9 @@
     </ClCompile>
     <ClCompile Include="PlayerState.cpp">
       <Filter>Game\Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalVariables.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

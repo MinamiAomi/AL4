@@ -21,6 +21,8 @@ public:
         float gravity;
         float jumpPower;
         float maxFallSpeed;
+        uint32_t dushTime;
+        float dushSpeed;
     };
     
     void Initialize();
@@ -36,7 +38,11 @@ private:
     void Restart();
     void UpdateTransform();
 
+    void RegisterGlobalVariables();
+    void ApplyGlobalVariables();
+
     void OnCollision(const CollisionInfo& collisionInfo);
+
 
     std::unique_ptr<ToonModelInstance> model_;
     std::unique_ptr<BoxCollider> collider_;

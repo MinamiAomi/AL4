@@ -1,8 +1,10 @@
 #include "GameScene.h"
 
 #include "Collision/CollisionManager.h"
+#include "GlobalVariables.h"
 
 void GameScene::OnInitialize() {
+    GlobalVariables::GetInstance()->LoadFiles();
     // 生成
     player_ = std::make_shared<Player>();
     followCamera_ = std::make_shared<FollowCamera>();
@@ -23,6 +25,8 @@ void GameScene::OnInitialize() {
 }
 
 void GameScene::OnUpdate() {
+    GlobalVariables::GetInstance()->Update();
+
     // 更新
     stage_->Update();
     player_->Update();

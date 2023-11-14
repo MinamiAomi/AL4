@@ -83,8 +83,13 @@ void PlayerStateRoot::Update() {
     transform.translate.y += ySpeed_;
 
     auto& preXInputState = input->GetPreXInputState();
+    // 攻撃に遷移
     if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_B) && !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_B)) {
         manager_.ChangeState<PlayerStateAttack>();
+    }
+    // ダッシュに遷移
+    if ((xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_X) && !(preXInputState.Gamepad.wButtons & XINPUT_GAMEPAD_X)) {
+        manager_.ChangeState<PlayerStateDush>();
     }
 }
 
@@ -185,7 +190,7 @@ void PlayerStateAttack::Update() {
 
         if (attackParameter_ < swingTime) {
             float t = float(attackParameter_) / float(swingTime);
-            weaponTransform.rotate = Quaternion::MakeForYAxis(Math::Lerp(t, -80.0f, 80.0f) * Math::ToRadian) * Quaternion::MakeForXAxis(Math::HalfPi);
+            weaponTransform.rotate = Quaternion::MakeForYAxis(Math::Lerp(t, -80.0f, 290.0f) * Math::ToRadian) * Quaternion::MakeForXAxis(Math::HalfPi);
         }
        /* else {
             float t = float(attackParameter_ - swingTime) / float(recoveryTime);
@@ -198,5 +203,25 @@ void PlayerStateAttack::Update() {
 }
 
 void PlayerStateAttack::OnCollision(const CollisionInfo& collisionInfo) {
+    collisionInfo;
+}
+
+void PlayerStateDush::Initialize() {
+    dushParameter_ = 0;
+}
+
+void PlayerStateDush::Update() {
+    auto& transform = manager_.player.transform;
+    float dushSpeed = manager_.player.GetConstantData().dushSpeed;
+    auto move = transform.rotate.GetForward() * dushSpeed;
+    transform.translate += move;
+
+    uint32_t dushTime = manager_.player.GetConstantData().dushTime;
+    if (++dushParameter_ >= dushTime) {
+        manager_.ChangeState<PlayerStateRoot>();
+    }
+}
+
+void PlayerStateDush::OnCollision(const CollisionInfo& collisionInfo) {
     collisionInfo;
 }
