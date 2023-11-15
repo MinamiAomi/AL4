@@ -4,16 +4,6 @@
 
 #include "Math/MathUtils.h"
 
-struct EmitterProperty {
-    Vector3 position;
-
-    float startSize;
-    float endSize;
-
-    float startAlpha;
-    float endAlpha;
-};
-
 struct Particle {
     Vector3 position;       // 位置
     Vector3 velocity;       // 速度

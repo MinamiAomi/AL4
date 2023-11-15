@@ -1,6 +1,11 @@
 #include "Enemy.h"
 
 #include "Graphics/ResourceManager.h"
+#include "Graphics/ParticleManager.h"
+#include "Math/Random.h"
+#include "Math/Color.h"
+
+static Random::RandomNumberGenerator randomNumberGenerator;
 
 struct PartInit {
     Vector3 translate;
@@ -67,8 +72,13 @@ void Enemy::Update() {
         parts_[i]->model.SetWorldMatrix(parts_[i]->transform.worldMatrix);
     }
 
-    collider_->SetCenter(transform.translate + Vector3{ 0.0f,0.5f,0.0f });
+    collider_->SetCenter(Vector3{ 0.0f,0.5f,0.5f } * transform.worldMatrix);
     collider_->SetOrientation(transform.rotate);
+}
+
+Vector3 Enemy::GetCenter() {
+    const Vector3 offset = { 0.0f, 0.5f, 0.5f };
+    return offset * transform.worldMatrix;
 }
 
 void Enemy::AliveUpdate() {
@@ -87,11 +97,19 @@ void Enemy::AliveUpdate() {
 void Enemy::DeadUpdate() {
     transform.rotate = Quaternion::MakeForYAxis(-10.0f * Math::ToRadian) * transform.rotate;
 
-    alpha_ -= 1.0f / 120.0f;
-    alpha_ = std::max(alpha_, 0.0f);
-    transform.translate += leapingVelocity_ * 0.1f;
-    for (size_t i = 0; i < static_cast<size_t>(Part::NumParts); ++i) {
-        parts_[i]->model.SetAlpha(alpha_);
+    if (alpha_ > 0.0f) {
+        alpha_ -= 1.0f / 120.0f;
+        transform.translate += leapingVelocity_ * 0.1f;
+        for (size_t i = 0; i < static_cast<size_t>(Part::NumParts); ++i) {
+            parts_[i]->model.SetAlpha(alpha_);
+        }
+    }
+    else {
+        // 一度だけ
+        if (alpha_ > -0.5f) {
+            DeadEffect();
+            alpha_ = -1.0f;
+        }
     }
 }
 
@@ -118,6 +136,7 @@ void Enemy::OnCollision(const CollisionInfo& collisionInfo) {
         if (hitCoolTime_ == 0) {
             --life_;
             hitCoolTime_ = invincibleTime_;
+            HitEffect();
         }
 
         if (life_ == 0) {
@@ -127,4 +146,60 @@ void Enemy::OnCollision(const CollisionInfo& collisionInfo) {
             leapingVelocity_ = collisionInfo.normal;
         }
     }
+}
+
+void Enemy::HitEffect() {
+
+    const uint32_t numParticles = 30;
+    std::list<Particle> particles(numParticles);
+
+    Vector3 base = transform.worldMatrix.GetTranslate();
+
+    for (auto& particle : particles) {
+        particle.position = base;
+
+        particle.velocity.x = randomNumberGenerator.NextFloatRange(-1.0f, 1.0f);
+        particle.velocity.y = randomNumberGenerator.NextFloatRange(0.0f, 1.0f);
+        particle.velocity.z = randomNumberGenerator.NextFloatRange(-1.0f, 1.0f);
+        particle.velocity = particle.velocity.Normalized() * 0.2f;
+
+        particle.startSize = 0.5f;
+        particle.endSize = 0.1f;
+        particle.startColor = Vector3::unitX;
+        particle.endColor = Vector3::unitX;
+        particle.startAlpha = 1.0f;
+        particle.endAlpha = 0.0f;
+        particle.existenceTime = 0;
+        particle.lifeTime = 10;
+    }
+
+    ParticleManager::GetInstance()->AddParticles(std::move(particles));
+}
+
+void Enemy::DeadEffect() {
+    const uint32_t numParticles = 50;
+    std::list<Particle> particles(numParticles);
+
+    Vector3 base = transform.worldMatrix.GetTranslate();
+
+    for (auto& particle : particles) {
+        particle.position = base;
+
+        particle.velocity.x = randomNumberGenerator.NextFloatRange(-1.0f, 1.0f);
+        particle.velocity.y = randomNumberGenerator.NextFloatRange(-1.0f, 1.0f);
+        particle.velocity.z = randomNumberGenerator.NextFloatRange(-1.0f, 1.0f);
+        particle.velocity = particle.velocity.Normalized() * 0.2f;
+
+        particle.startSize = 0.5f;
+        particle.endSize = 0.1f;
+        Color color = Color::HSVA(randomNumberGenerator.NextFloatRange(0.0f, 1.0f), 1.0f, 1.0f);
+        particle.startColor = color;
+        particle.endColor = color;
+        particle.startAlpha = 1.0f;
+        particle.endAlpha = 0.0f;
+        particle.existenceTime = 0;
+        particle.lifeTime = 15;
+    }
+
+    ParticleManager::GetInstance()->AddParticles(std::move(particles));
 }

@@ -57,6 +57,9 @@
     <ClInclude Include="GlobalVariables.h">
       <Filter>Game</Filter>
     </ClInclude>
+    <ClInclude Include="LookOn.h">
+      <Filter>Game\Object</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -98,6 +101,9 @@
     </ClCompile>
     <ClCompile Include="GlobalVariables.cpp">
       <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="LookOn.cpp">
+      <Filter>Game\Object</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

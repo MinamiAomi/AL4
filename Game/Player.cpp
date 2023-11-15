@@ -22,6 +22,15 @@ void Player::Initialize() {
     constantData_.maxFallSpeed = 0.5f;
     constantData_.dushTime = 10;
     constantData_.dushSpeed = 0.8f;
+    
+    constantData_.swingTimes[0] = 10;
+    constantData_.swingTimes[1] = 10;
+    constantData_.swingTimes[2] = 30;
+
+    constantData_.recoveryTimes[0] = 20;
+    constantData_.recoveryTimes[1] = 20;
+    constantData_.recoveryTimes[2] = 30;
+
 
     transform.translate = Vector3::zero;
     transform.scale = Vector3::one;
@@ -124,6 +133,12 @@ void Player::RegisterGlobalVariables() {
         auto& group = globalVariables[kGroupName];
         group["Dush Speed"] = constantData_.dushSpeed;
         group["Dush Time"] = int32_t(constantData_.dushTime);
+        group["Swing Time 0"] = int32_t(constantData_.swingTimes[0]);
+        group["Recovery Time 0"] = int32_t(constantData_.recoveryTimes[0]);
+        group["Swing Time 1"] = int32_t(constantData_.swingTimes[1]);
+        group["Recovery Time 1"] = int32_t(constantData_.recoveryTimes[1]);
+        group["Swing Time 2"] = int32_t(constantData_.swingTimes[2]);
+        group["Recovery Time 2"] = int32_t(constantData_.recoveryTimes[2]);
     }
 }
 
@@ -132,4 +147,10 @@ void Player::ApplyGlobalVariables() {
     auto& group = globalVariables[kGroupName];
     constantData_.dushSpeed = group["Dush Speed"].Get<float>();
     constantData_.dushTime = uint32_t(group["Dush Time"].Get<int32_t>());
+    constantData_.swingTimes[0] = uint32_t(group["Swing Time 0"].Get<int32_t>());
+    constantData_.recoveryTimes[0] = uint32_t(group["Recovery Time 0"].Get<int32_t>());
+    constantData_.swingTimes[1] = uint32_t(group["Swing Time 1"].Get<int32_t>());
+    constantData_.recoveryTimes[1] = uint32_t(group["Recovery Time 1"].Get<int32_t>());
+    constantData_.swingTimes[2] = uint32_t(group["Swing Time 2"].Get<int32_t>());
+    constantData_.recoveryTimes[2] = uint32_t(group["Recovery Time 2"].Get<int32_t>());
 }

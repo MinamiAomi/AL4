@@ -18,6 +18,7 @@ struct VSInput {
 struct VSOutput {
     float4 position : SV_POSITION;
     float2 texcoord : TEXCOORD0;
+    uint instanceID : SV_INSTANCEID;
 };
 
 VSOutput main(VSInput input) {
@@ -27,6 +28,7 @@ VSOutput main(VSInput input) {
     
     output.position = mul(position, scene_.viewProjMatrix);
     output.texcoord = input.position.xy;
+    output.instanceID = input.instanceID;
     
     return output;
 }

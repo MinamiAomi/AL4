@@ -106,16 +106,6 @@ void PlayerStateRoot::OnCollision(const CollisionInfo& collisionInfo) {
     }
 }
 
-
-const std::array<PlayerStateAttack::ConstantAttack, PlayerStateAttack::kNumCombos>
-PlayerStateAttack::kConstantAttacks = {
-    {
-        { 10, 20 },
-        { 10, 20 },
-        { 30, 30 },
-    }
-};
-
 void PlayerStateAttack::Initialize() {
     attackParameter_ = 0;
     comboIndex_ = 0;
@@ -129,13 +119,14 @@ void PlayerStateAttack::Update() {
     auto& gamepad = input->GetXInputState();
     auto& preGamepad = input->GetPreXInputState();
 
-    if (comboIndex_ < kNumCombos - 1) {
+    if (comboIndex_ < Player::kNumCombos - 1) {
         if ((gamepad.Gamepad.wButtons & XINPUT_GAMEPAD_B) && !(preGamepad.Gamepad.wButtons & XINPUT_GAMEPAD_B)) {
             comboNext_ = true;
         }
     }
 
-    uint32_t comboTime = kConstantAttacks[comboIndex_].swingTime + kConstantAttacks[comboIndex_].recoveryTime;
+    auto& constantData = manager_.player.GetConstantData();
+    uint32_t comboTime = constantData.swingTimes[comboIndex_] + constantData.recoveryTimes[comboIndex_];
     if (++attackParameter_ >= comboTime) {
         if (comboNext_) {
             comboNext_ = false;
@@ -156,12 +147,12 @@ void PlayerStateAttack::Update() {
     case 0:
     default:
     {
-        uint32_t swingTime = kConstantAttacks[0].swingTime;
+        uint32_t swingTime = constantData.swingTimes[0];
         //uint32_t recoveryTime = kConstantAttacks[0].recoveryTime;
 
         if (attackParameter_ < swingTime) {
             float t = float(attackParameter_) / float(swingTime);
-            weaponTransform.rotate = Quaternion::MakeForYAxis(Math::Lerp(t, -80.0f, 80.0f) * Math::ToRadian) * Quaternion::MakeForXAxis(Math::HalfPi);
+            weaponTransform.rotate = Quaternion::MakeForYAxis(Math::Lerp(t, -90.0f, 130.0f) * Math::ToRadian) * Quaternion::MakeForXAxis(Math::HalfPi);
         }
        /* else {
             float t = float(attackParameter_ - swingTime) / float(recoveryTime);
@@ -171,12 +162,12 @@ void PlayerStateAttack::Update() {
     }
     case 1:
     {
-        uint32_t swingTime = kConstantAttacks[1].swingTime;
+        uint32_t swingTime = constantData.swingTimes[1];
         //uint32_t recoveryTime = kConstantAttacks[1].recoveryTime;
 
         if (attackParameter_ < swingTime) {
             float t = float(attackParameter_) / float(swingTime);
-            weaponTransform.rotate = Quaternion::MakeForYAxis(Math::Lerp(t, 80.0f, -80.0f) * Math::ToRadian) * Quaternion::MakeForXAxis(Math::HalfPi);
+            weaponTransform.rotate = Quaternion::MakeForYAxis(Math::Lerp(t, 130.0f, -130.0f) * Math::ToRadian) * Quaternion::MakeForXAxis(Math::HalfPi);
         }
       /*  else {
             float t = float(attackParameter_ - swingTime) / float(recoveryTime);
@@ -185,12 +176,12 @@ void PlayerStateAttack::Update() {
     break;
     }
     case 2: {
-        uint32_t swingTime = kConstantAttacks[2].swingTime;
+        uint32_t swingTime = constantData.swingTimes[2];
         //uint32_t recoveryTime = kConstantAttacks[2].recoveryTime;
 
         if (attackParameter_ < swingTime) {
             float t = float(attackParameter_) / float(swingTime);
-            weaponTransform.rotate = Quaternion::MakeForYAxis(Math::Lerp(t, -80.0f, 290.0f) * Math::ToRadian) * Quaternion::MakeForXAxis(Math::HalfPi);
+            weaponTransform.rotate = Quaternion::MakeForYAxis(Math::Lerp(t, -130.0f, 490.0f) * Math::ToRadian) * Quaternion::MakeForXAxis(Math::HalfPi);
         }
        /* else {
             float t = float(attackParameter_ - swingTime) / float(recoveryTime);

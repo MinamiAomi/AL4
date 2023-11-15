@@ -19,6 +19,7 @@ namespace Helper {
 
     extern const D3D12_DEPTH_STENCIL_DESC DepthStateDisabled;
     extern const D3D12_DEPTH_STENCIL_DESC DepthStateReadWrite;
+    extern const D3D12_DEPTH_STENCIL_DESC DepthStateReadOnly;
 
 
     template<typename T>

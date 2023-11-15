@@ -15,6 +15,8 @@ class Player :
     public GameObject {
 public:
 
+    static const uint32_t kNumCombos = 3;
+
     struct ConstantData {
         Vector3 colliderOffset;
         float moveSpeed;
@@ -23,6 +25,9 @@ public:
         float maxFallSpeed;
         uint32_t dushTime;
         float dushSpeed;
+        
+        uint32_t swingTimes[kNumCombos];
+        uint32_t recoveryTimes[kNumCombos];
     };
     
     void Initialize();

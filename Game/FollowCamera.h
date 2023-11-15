@@ -5,6 +5,8 @@
 #include "Math/Camera.h"
 #include "Math/Transform.h"
 
+class LookOn;
+
 class FollowCamera {
 public:
     void Initialize();
@@ -15,6 +17,7 @@ public:
     const std::shared_ptr<Camera>& GetCamera() { return camera_; }
 
     void SetTarget(const Transform* target) { target_ = target; Reset(); }
+    void SetLookOn(const std::shared_ptr<LookOn>& lookOn) { lookOn_ = lookOn; }
 
 private:
     void Reset();
@@ -31,4 +34,6 @@ private:
     Quaternion destinationRotate_;
 
     float followDelay_;
+
+    std::shared_ptr<LookOn> lookOn_;
 };

@@ -5,6 +5,7 @@
 #include "Scene/SceneManager.h"
 #include "Graphics/ResourceManager.h"
 #include "Graphics/ToonModel.h"
+#include "Graphics/Sprite.h"
 
 #include "GameScene.h"
 
@@ -16,6 +17,8 @@ void AL4Game::OnInitialize() {
 	ResourceManager* resourceManager = ResourceManager::GetInstance();
 	
 	std::shared_ptr<ToonModel> toonModel;
+	std::shared_ptr<Texture> texture;
+
 	toonModel = std::make_shared<ToonModel>();
 	toonModel->Create(ModelData::LoadObjFile("Resources/Model/sphere.obj"));
 	resourceManager->AddToonModel("Sphere", toonModel);
@@ -55,6 +58,9 @@ void AL4Game::OnInitialize() {
 	toonModel->Create(ModelData::LoadObjFile("Resources/Model/weapon.obj"));
 	resourceManager->AddToonModel("Weapon", toonModel);
 
+	texture = std::make_shared<Texture>();
+	texture->Load("Resources/lookOn.png");
+	resourceManager->AddTexture("LookOn", texture);
 }
 
 void AL4Game::OnFinalize() {

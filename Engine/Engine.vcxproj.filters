@@ -195,7 +195,9 @@
     <ClCompile Include="Graphics\ParticleManager.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ParticleRenderer.cpp" />
+    <ClCompile Include="Graphics\ParticleRenderer.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">

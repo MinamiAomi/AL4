@@ -8,6 +8,7 @@
 #include "Ground.h"
 #include "Skydome.h"
 #include "Stage.h"
+#include "LookOn.h"
 
 class GameScene :
     public BaseScene {
@@ -23,5 +24,5 @@ private:
     //std::shared_ptr<Ground> ground_;
     std::shared_ptr<Skydome> skydome_;
     std::shared_ptr<Stage> stage_;
-
+    std::shared_ptr<LookOn> lookOn_;
 };

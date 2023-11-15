@@ -60,14 +60,6 @@ public:
     void OnCollision(const CollisionInfo& collisionInfo) override;
 
 private:
-    struct ConstantAttack {
-        uint32_t swingTime;
-        uint32_t recoveryTime;
-    };
-
-    static const int32_t kNumCombos = 3;
-    static const std::array<ConstantAttack, kNumCombos> kConstantAttacks;
-
     uint32_t attackParameter_;
     uint32_t comboIndex_;
     bool comboNext_;

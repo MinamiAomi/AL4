@@ -33,8 +33,9 @@ void RenderManager::Initialize() {
     mainDepthBuffer_.Create(L"MainDepthBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_D32_FLOAT);
 
     toonRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
-
+    particleRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
     postEffect_.Initialize(swapChainBuffer);
+    spriteRenderer_.Initialize(swapChainBuffer);
 
     timer_.Initialize();
 
@@ -67,6 +68,7 @@ void RenderManager::Render() {
 
     if (camera_) {
         toonRenderer_.Render(commandContext, *camera_);
+        particleRenderer_.Render(commandContext, *camera_);
     }
 
     auto& swapChainBuffer = swapChain_.GetColorBuffer();
@@ -76,6 +78,7 @@ void RenderManager::Render() {
     commandContext.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
     postEffect_.Render(commandContext, mainColorBuffer_);
+    spriteRenderer_.Render(commandContext, 0.0f, 0.0f, float(swapChainBuffer.GetWidth()), float(swapChainBuffer.GetHeight()));
 
 #ifdef _DEBUG
     //ImGui::Begin("Profile");

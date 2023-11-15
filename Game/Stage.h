@@ -13,6 +13,7 @@ public:
     void Update();
 
     void Restart();
+    const std::vector<std::shared_ptr<Enemy>>& GetEnemies() const { return enemies_; }
 
 private:
     std::shared_ptr<Goal> goal_;

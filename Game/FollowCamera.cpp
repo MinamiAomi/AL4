@@ -6,6 +6,7 @@
 #include "Input/Input.h"
 
 #include "GlobalVariables.h"
+#include "LookOn.h"
 
 void FollowCamera::Initialize() {
     camera_ = std::make_shared<Camera>();
@@ -23,26 +24,35 @@ void FollowCamera::Update() {
     ApplyGlobalVariables();
 
     auto input = Input::GetInstance();
-
     XINPUT_STATE xinputState = input->GetXInputState();
 
-    Quaternion diffRotate;
-    // 左右振り向き
-    if (std::abs(xinputState.Gamepad.sThumbRX) > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
-        const float rotateSpeed = 3.0f * Math::ToRadian;
-        destinationRotate_ = Quaternion::MakeForYAxis(float(xinputState.Gamepad.sThumbRX) / float(SHRT_MAX) * rotateSpeed) * destinationRotate_;
+    if (lookOn_->IsEnabled()) {
+        Vector3 lookOnPosition = lookOn_->GetTargetPosition();
+        Vector3 diff = lookOnPosition - interTarget_;
+        diff.y = 0.0f;
+        destinationRotate_ = Quaternion::MakeLookRotation(diff);
     }
+    else {
+
+        Quaternion diffRotate;
+        // 左右振り向き
+        if (std::abs(xinputState.Gamepad.sThumbRX) > XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE) {
+            const float rotateSpeed = 3.0f * Math::ToRadian;
+            destinationRotate_ = Quaternion::MakeForYAxis(float(xinputState.Gamepad.sThumbRX) / float(SHRT_MAX) * rotateSpeed) * destinationRotate_;
+        }
+    }
+    transform_->rotate = Quaternion::Slerp(1.0f - followDelay_, transform_->rotate, destinationRotate_);
 
     if (target_) {
         interTarget_ = Vector3::Lerp(1.0f - followDelay_, interTarget_, target_->worldMatrix.GetTranslate());
-        
+
         // カメラリセット
         if (xinputState.Gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) {
             destinationRotate_ = target_->worldMatrix.GetRotate();
         }
     }
-    transform_->rotate = Quaternion::Slerp(1.0f - followDelay_, transform_->rotate, destinationRotate_);
     transform_->translate = interTarget_ + CalcOffset();
+
 
     camera_->SetPosition(transform_->translate);
     camera_->SetRotate(transform_->rotate);

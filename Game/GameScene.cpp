@@ -11,16 +11,19 @@ void GameScene::OnInitialize() {
     followCamera_ = std::make_shared<FollowCamera>();
     //ground_ = std::make_shared<Ground>();
     stage_ = std::make_shared<Stage>();
+    lookOn_ = std::make_shared<LookOn>();
     
     // 初期化
     skydome_->Initialize();
     stage_->Initialize();
     player_->Initialize();
     followCamera_->Initialize();
+    lookOn_->Initialize();
 
     // セット
     player_->SetCamera(followCamera_);
     followCamera_->SetTarget(&player_->transform);
+    followCamera_->SetLookOn(lookOn_);
 }
 
 void GameScene::OnUpdate() {
@@ -30,6 +33,7 @@ void GameScene::OnUpdate() {
         player_->Restart();
         stage_->Restart();
         followCamera_->Restart();
+        lookOn_->Restart();
     }
 
     // 更新
@@ -39,6 +43,8 @@ void GameScene::OnUpdate() {
 
     // 当たり判定を取る
     CollisionManager::GetInstance()->CheckCollision();
+
+    lookOn_->Update(stage_->GetEnemies(), *followCamera_->GetCamera());
     followCamera_->Update();
 }
 

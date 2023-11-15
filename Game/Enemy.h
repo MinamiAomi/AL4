@@ -16,6 +16,8 @@ public:
 
     void Initialize(const Vector3& basePosition);
     void Update();
+    bool IsDead() const { return isDead_; }
+    Vector3 GetCenter();
 
 private:
     struct PartData {
@@ -27,6 +29,8 @@ private:
     void DeadUpdate();
     void UpdateAnimation();
     void OnCollision(const CollisionInfo& collisionInfo);
+    void HitEffect();
+    void DeadEffect();
     
     std::unique_ptr<PartData> parts_[static_cast<size_t>(Part::NumParts)];
     std::unique_ptr<BoxCollider> collider_;

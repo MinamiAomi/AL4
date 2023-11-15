@@ -24,5 +24,5 @@ private:
     std::unique_ptr<ToonModelInstance> model_;
     std::unique_ptr<BoxCollider> collider_;
 
-    Vector3 colliderOffset_ = { 0.0f, 1.5f, 0.0f };
+    Vector3 colliderOffset_ = { 0.0f, 2.0f, 0.0f };
 };

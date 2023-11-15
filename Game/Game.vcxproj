@@ -19,6 +19,7 @@
     <ClInclude Include="GlobalVariables.h" />
     <ClInclude Include="Goal.h" />
     <ClInclude Include="Ground.h" />
+    <ClInclude Include="LookOn.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="PlayerState.h" />
     <ClInclude Include="Skydome.h" />
@@ -33,6 +34,7 @@
     <ClCompile Include="GlobalVariables.cpp" />
     <ClCompile Include="Goal.cpp" />
     <ClCompile Include="Ground.cpp" />
+    <ClCompile Include="LookOn.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="AL4Game.cpp" />
     <ClCompile Include="Player.cpp" />

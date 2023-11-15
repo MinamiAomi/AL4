@@ -22,7 +22,7 @@ void Weapon::Initialize() {
     collider_->SetGameObject(this);
     collider_->SetName("Weapon");
     collider_->SetCenter(transform.translate + colliderOffset_);
-    collider_->SetSize({1.0f, 3.0f, 1.0f});
+    collider_->SetSize({1.0f, 4.0f, 1.0f});
     collider_->SetCollisionAttribute(CollisionAttribute::Player);
     collider_->SetCollisionMask(~CollisionAttribute::Player);
 }
