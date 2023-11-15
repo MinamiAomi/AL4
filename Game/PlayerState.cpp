@@ -110,8 +110,8 @@ void PlayerStateRoot::OnCollision(const CollisionInfo& collisionInfo) {
 const std::array<PlayerStateAttack::ConstantAttack, PlayerStateAttack::kNumCombos>
 PlayerStateAttack::kConstantAttacks = {
     {
-        {  5, 10 },
-        { 15, 15 },
+        { 10, 20 },
+        { 10, 20 },
         { 30, 30 },
     }
 };

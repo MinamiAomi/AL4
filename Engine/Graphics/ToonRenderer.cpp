@@ -30,6 +30,8 @@ void ToonRenderer::Render(CommandContext& commandContext, const Camera& camera) 
 
     struct InstanceConstant {
         Matrix4x4 worldMatrix;
+        Vector3 color;
+        float alpha;
         float outlineWidth;
         Vector3 outlineColor;
         uint32_t useLighting;
@@ -53,6 +55,8 @@ void ToonRenderer::Render(CommandContext& commandContext, const Camera& camera) 
 
             InstanceConstant data;
             data.worldMatrix = instance->worldMatrix_;
+            data.color = instance->color_;
+            data.alpha = instance->alpha_;
             data.outlineWidth = instance->outlineWidth_;
             data.outlineColor = instance->outlineColor_;
             data.useLighting = instance->useLighting_ ? 1 : 0;
@@ -60,6 +64,7 @@ void ToonRenderer::Render(CommandContext& commandContext, const Camera& camera) 
 
             // オブジェクト描画
             commandContext.SetPipelineState(toonPipelineState_);
+
             for (auto& mesh : instance->model_->meshes_) {
                 commandContext.SetConstantBuffer(ToonRootIndex::Material, mesh.material->constantBuffer.GetGPUVirtualAddress());
                 if (mesh.material->texture) {
@@ -187,7 +192,7 @@ void ToonRenderer::InitializeToonPass(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvForm
     pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
     pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
 
-    pipelineStateDesc.BlendState = Helper::BlendDisable;
+    pipelineStateDesc.BlendState = Helper::BlendAlpha;
     pipelineStateDesc.DepthStencilState = Helper::DepthStateReadWrite;
     pipelineStateDesc.RasterizerState = Helper::RasterizerDefault;
     // 前面カリング
@@ -197,5 +202,5 @@ void ToonRenderer::InitializeToonPass(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvForm
     pipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
     pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
     pipelineStateDesc.SampleDesc.Count = 1;
-    toonPipelineState_.Create(L"Outline PipelineState", pipelineStateDesc);
+    toonPipelineState_.Create(L"Toon PipelineState", pipelineStateDesc);
 }

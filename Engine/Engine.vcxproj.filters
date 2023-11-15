@@ -192,6 +192,10 @@
     <ClCompile Include="Graphics\SpriteRenderer.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\ParticleManager.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ParticleRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -398,6 +402,12 @@
     <ClInclude Include="Graphics\SpriteRenderer.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\ParticleRenderer.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ParticleManager.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\Lighting.hlsli">
@@ -446,6 +456,12 @@
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Graphics\Shader\SpriteVS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\ParticleVS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\ParticlePS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
   </ItemGroup>

@@ -24,7 +24,7 @@ void Enemy::Initialize(const Vector3& basePosition) {
         "MimicHead"
     };
     ResourceManager* resourceManager = ResourceManager::GetInstance();
-    
+
     for (size_t i = 0; i < static_cast<size_t>(Part::NumParts); ++i) {
         parts_[i] = std::make_unique<PartData>();
         parts_[i]->model.SetModel(resourceManager->FindModel(partModelName[i]));
@@ -42,20 +42,25 @@ void Enemy::Initialize(const Vector3& basePosition) {
     collider_->SetCallback([this](const CollisionInfo& collisionInfo) {OnCollision(collisionInfo); });
 
     isDead_ = false;
+    alpha_ = 1.0f;
+    life_ = 3;
+    invincibleTime_ = 15;
+    hitCoolTime_ = 0;
 }
 
 void Enemy::Update() {
 
-    transform.rotate = Quaternion::MakeForYAxis(-4.0f * Math::ToRadian) * transform.rotate;
-
-    const float moveSpeed = 0.1f;
-    Vector3 move = { 0.0f,0.0f,1.0f };
-    move = transform.rotate * move * moveSpeed;
-    transform.translate += move;
+    // 死亡時演出
+    if (isDead_) {
+        DeadUpdate();
+    }
+    else {
+        AliveUpdate();
+        UpdateAnimation();
+    }
 
     transform.UpdateMatrix();
 
-    UpdateAnimation();
 
     for (size_t i = 0; i < static_cast<size_t>(Part::NumParts); ++i) {
         parts_[i]->transform.UpdateMatrix();
@@ -64,7 +69,30 @@ void Enemy::Update() {
 
     collider_->SetCenter(transform.translate + Vector3{ 0.0f,0.5f,0.0f });
     collider_->SetOrientation(transform.rotate);
+}
 
+void Enemy::AliveUpdate() {
+    if (hitCoolTime_ > 0) {
+        --hitCoolTime_;
+    }
+
+    transform.rotate = Quaternion::MakeForYAxis(-4.0f * Math::ToRadian) * transform.rotate;
+
+    const float moveSpeed = 0.1f;
+    Vector3 move = { 0.0f,0.0f,1.0f };
+    move = transform.rotate * move * moveSpeed;
+    transform.translate += move;
+}
+
+void Enemy::DeadUpdate() {
+    transform.rotate = Quaternion::MakeForYAxis(-10.0f * Math::ToRadian) * transform.rotate;
+
+    alpha_ -= 1.0f / 120.0f;
+    alpha_ = std::max(alpha_, 0.0f);
+    transform.translate += leapingVelocity_ * 0.1f;
+    for (size_t i = 0; i < static_cast<size_t>(Part::NumParts); ++i) {
+        parts_[i]->model.SetAlpha(alpha_);
+    }
 }
 
 void Enemy::UpdateAnimation() {
@@ -86,10 +114,17 @@ void Enemy::UpdateAnimation() {
 
 void Enemy::OnCollision(const CollisionInfo& collisionInfo) {
     if (collisionInfo.collider->GetName() == "Weapon") {
-        isDead_ = true;
-        collider_->SetIsActive(false);
-        for (size_t i = 0; i < static_cast<size_t>(Part::NumParts); ++i) {
-            parts_[i]->model.SetIsActive(false);
+
+        if (hitCoolTime_ == 0) {
+            --life_;
+            hitCoolTime_ = invincibleTime_;
+        }
+
+        if (life_ == 0) {
+            isDead_ = true;
+            collider_->SetIsActive(false);
+            alpha_ = 1.0f;
+            leapingVelocity_ = collisionInfo.normal;
         }
     }
 }

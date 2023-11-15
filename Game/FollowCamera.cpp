@@ -50,7 +50,7 @@ void FollowCamera::Update() {
 }
 
 void FollowCamera::Restart() {
-    transform_->rotate = Quaternion::MakeForXAxis(15.0f * Math::ToRadian);
+    destinationRotate_ = Quaternion::MakeForXAxis(10.0f * Math::ToRadian);
 }
 
 void FollowCamera::Reset() {

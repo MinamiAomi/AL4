@@ -150,6 +150,8 @@
     <ClCompile Include="Graphics\GaussianBlur.cpp" />
     <ClCompile Include="Graphics\ImGuiManager.cpp" />
     <ClCompile Include="Graphics\ModelLoader.cpp" />
+    <ClCompile Include="Graphics\ParticleManager.cpp" />
+    <ClCompile Include="Graphics\ParticleRenderer.cpp" />
     <ClCompile Include="Graphics\PostEffect.cpp" />
     <ClCompile Include="Graphics\RenderManager.cpp" />
     <ClCompile Include="Graphics\ResourceManager.cpp" />
@@ -232,6 +234,8 @@
     <ClInclude Include="Graphics\GaussianBlur.h" />
     <ClInclude Include="Graphics\ImGuiManager.h" />
     <ClInclude Include="Graphics\ModelLoader.h" />
+    <ClInclude Include="Graphics\ParticleManager.h" />
+    <ClInclude Include="Graphics\ParticleRenderer.h" />
     <ClInclude Include="Graphics\PostEffect.h" />
     <ClInclude Include="Graphics\RenderManager.h" />
     <ClInclude Include="Graphics\ResourceManager.h" />
@@ -329,6 +333,22 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="Graphics\Shader\SpriteVS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Graphics\Shader\ParticlePS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="Graphics\Shader\ParticleVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

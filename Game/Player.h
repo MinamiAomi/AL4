@@ -27,6 +27,8 @@ public:
     
     void Initialize();
     void Update();
+    bool RequestRestart() { return requestRestart_; }
+    void Restart();
 
     void SetCamera(const std::shared_ptr<FollowCamera>& camera) { camera_ = camera; }
     const std::shared_ptr<FollowCamera>& GetCamera() const { return camera_; }
@@ -35,7 +37,6 @@ public:
     const ConstantData& GetConstantData() const { return constantData_; }
 
 private:
-    void Restart();
     void UpdateTransform();
 
     void RegisterGlobalVariables();

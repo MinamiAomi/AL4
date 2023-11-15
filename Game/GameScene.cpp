@@ -6,18 +6,17 @@
 void GameScene::OnInitialize() {
     GlobalVariables::GetInstance()->LoadFiles();
     // 生成
+    skydome_ = std::make_shared<Skydome>();
     player_ = std::make_shared<Player>();
     followCamera_ = std::make_shared<FollowCamera>();
     //ground_ = std::make_shared<Ground>();
-    skydome_ = std::make_shared<Skydome>();
     stage_ = std::make_shared<Stage>();
     
     // 初期化
+    skydome_->Initialize();
     stage_->Initialize();
     player_->Initialize();
     followCamera_->Initialize();
-    //ground_->Initialize();
-    skydome_->Initialize();
 
     // セット
     player_->SetCamera(followCamera_);
@@ -27,10 +26,15 @@ void GameScene::OnInitialize() {
 void GameScene::OnUpdate() {
     GlobalVariables::GetInstance()->Update();
 
+    if (player_->RequestRestart()) {
+        player_->Restart();
+        stage_->Restart();
+        followCamera_->Restart();
+    }
+
     // 更新
     stage_->Update();
     player_->Update();
-    //ground_->Update();
     skydome_->Update();
 
     // 当たり判定を取る

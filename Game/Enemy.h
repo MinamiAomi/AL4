@@ -23,12 +23,21 @@ private:
         Transform transform;
     };
     
+    void AliveUpdate();
+    void DeadUpdate();
     void UpdateAnimation();
     void OnCollision(const CollisionInfo& collisionInfo);
     
     std::unique_ptr<PartData> parts_[static_cast<size_t>(Part::NumParts)];
     std::unique_ptr<BoxCollider> collider_;
 
+    uint32_t invincibleTime_;
+    uint32_t hitCoolTime_;
+
+    uint32_t life_;
     float animationParameter_;
+    float alpha_;
+    // 吹っ飛ぶ速度
+    Vector3 leapingVelocity_;
     bool isDead_;
 };

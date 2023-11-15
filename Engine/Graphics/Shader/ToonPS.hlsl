@@ -8,6 +8,8 @@ ConstantBuffer<Scene> scene_ : register(b0);
 
 struct Instance {
     float4x4 worldMatrix;
+    float3 color;
+    float alpha;
     float outlineWidth;
     float3 outlineColor;
     uint useLighting;
@@ -74,7 +76,7 @@ PSOutput main(PSInput input) {
     
     
     // テクスチャの色
-    float3 textureColor = texture_.Sample(sampler_, input.texcoord).rgb;
+    float4 textureColor = texture_.Sample(sampler_, input.texcoord);
     //float3 textureColor = float3(0.6f, 0.6f, 0.6f);
     // 拡散反射
     float3 diffuse = material_.diffuse * ToonDiffuse(normal, directionalLight_.direction);
@@ -87,8 +89,12 @@ PSOutput main(PSInput input) {
     shadeColor = lerp(float3(1.0f, 1.0f, 1.0f), shadeColor, float(instance_.useLighting));
        
     PSOutput output;
-    output.color.rgb = textureColor * shadeColor;
-    output.color.a = 1.0f;
+    output.color.rgb = instance_.color * textureColor.rgb * shadeColor;
+    output.color.a = instance_.alpha * textureColor.a;
+
+    if (output.color.a <= 0.0f) {
+        discard;
+    }
    
    // output.color.rgb = float3(0.0f, 0.0f, 0.0f);
     

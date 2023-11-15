@@ -12,8 +12,10 @@ public:
     void Initialize();
     void Update();
 
+    void Restart();
+
 private:
-    std::shared_ptr<Enemy> enemy_;
     std::shared_ptr<Goal> goal_;
+    std::vector<std::shared_ptr<Enemy>> enemies_;
     std::vector<std::shared_ptr<Floor>> floors_;
 };

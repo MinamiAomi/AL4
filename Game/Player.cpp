@@ -51,19 +51,14 @@ void Player::Initialize() {
     weapon_->Initialize();
     //weapon_->SetIsShowing(false);
     weapon_->transform.SetParent(&transform);
-    
+
     RegisterGlobalVariables();
 }
 
 void Player::Update() {
     ApplyGlobalVariables();
-    
-    if (requestRestart_) {
-        Restart();
-    }
-    else {
-        state_->Update();
-    }
+
+    state_->Update();
 
     if (transform.worldMatrix.GetTranslate().y < -10.0f) {
         requestRestart_ = true;
@@ -79,9 +74,6 @@ void Player::Restart() {
     transform.translate = Vector3::zero;
     transform.rotate = Quaternion::identity;
     requestRestart_ = false;
-    if (camera_) {
-        camera_->Restart();
-    }
     state_->ChangeState<PlayerStateRoot>();
 }
 
