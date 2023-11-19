@@ -6,6 +6,17 @@
 
 #include <string>
 #include <vector>
+#include <filesystem>
+
+enum class ShaderType {
+    Vertex, 
+    Hull,
+    Domain,
+    Geometry,
+    Pixel,
+    Compute,
+    Library
+};
 
 class ShaderManager {
 public:
@@ -24,6 +35,8 @@ public:
 
     void Initialize();
     Microsoft::WRL::ComPtr<IDxcBlob> Compile(const std::wstring& path, Type type);
+
+    Microsoft::WRL::ComPtr<IDxcBlob> Compile(const std::filesystem::path& path, ShaderType type, int majorVersion, int minorVersion);
 
 private:
     ShaderManager() = default;

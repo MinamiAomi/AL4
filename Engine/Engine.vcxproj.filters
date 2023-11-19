@@ -40,6 +40,9 @@
     <Filter Include="Framework">
       <UniqueIdentifier>{ef658487-0d3a-4b10-83e8-efbec1816889}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Graphics\Shader\Standard">
+      <UniqueIdentifier>{c1b57460-ea7d-4058-a0a7-376ed04e9969}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene\SceneManager.cpp">
@@ -418,9 +421,6 @@
     <None Include="Graphics\Shader\BloomPS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
-    <None Include="Graphics\Shader\GaussianBlurPS.hlsl">
-      <Filter>Graphics\Shader</Filter>
-    </None>
     <None Include="Graphics\Shader\HorizontalGaussianBlurVS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
@@ -465,6 +465,21 @@
     </None>
     <None Include="Graphics\Shader\ParticlePS.hlsl">
       <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\GeometryPass.hlsli">
+      <Filter>Graphics\Shader\Standard</Filter>
+    </None>
+    <None Include="Graphics\Shader\GeometryPassVS.hlsl">
+      <Filter>Graphics\Shader\Standard</Filter>
+    </None>
+    <None Include="Graphics\Shader\GaussianBlurPS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\GeometryPassPS.hlsl">
+      <Filter>Graphics\Shader\Standard</Filter>
+    </None>
+    <None Include="Graphics\Shader\LightingPassPS.hlsl">
+      <Filter>Graphics\Shader\Standard</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

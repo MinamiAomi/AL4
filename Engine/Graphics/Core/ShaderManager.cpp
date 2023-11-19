@@ -4,6 +4,7 @@
 #include <format>
 #include <filesystem>
 #include <fstream>
+#include <sstream>
 
 #include "Helper.h"
 
@@ -22,6 +23,21 @@ namespace {
         L"cs_6_5"
     };
 
+    std::wstring GetProfile(ShaderType type, int majorVersion, int minorVersion) {
+        const wchar_t* kProfileTypes[] = {
+            L"vs_",
+            L"hs_",
+            L"ds_",
+            L"gs_",
+            L"ps_",
+            L"cs_",
+            L"lib_",
+        };
+        std::wostringstream stream;
+        stream << kProfileTypes[static_cast<size_t>(type)] << majorVersion << L"_" << minorVersion;
+        return stream.str();
+    }
+
 }
 
 ShaderManager* ShaderManager::GetInstance() {
@@ -38,6 +54,12 @@ void ShaderManager::Initialize() {
 Microsoft::WRL::ComPtr<IDxcBlob> ShaderManager::Compile(const std::wstring& path, Type type) {
     auto parent = std::filesystem::current_path().parent_path();
     return Compile((parent / path).wstring(), profiles[type]);
+}
+
+Microsoft::WRL::ComPtr<IDxcBlob> ShaderManager::Compile(const std::filesystem::path& path, ShaderType type, int majorVersion, int minorVersion) {
+    std::wstring profile = GetProfile(type, majorVersion, minorVersion);
+    std::wstring fullpath = std::filesystem::current_path().parent_path() / path.wstring();
+    return Compile(fullpath, profile);
 }
 
 Microsoft::WRL::ComPtr<IDxcBlob> ShaderManager::Compile(const std::wstring& path, const std::wstring& profile) {
