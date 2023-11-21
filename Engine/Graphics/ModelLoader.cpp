@@ -6,6 +6,9 @@
 #include <unordered_map>
 #include <optional>
 
+#include "assimp/scene.h"
+#include "assimp/Importer.hpp"
+
 namespace {
     void LoadMTLFile(ModelData& modelData, const std::filesystem::path& path) {
         std::ifstream file(path);
@@ -189,4 +192,23 @@ ModelData ModelData::LoadObjFile(const std::filesystem::path& path) {
     }
 
     return modelData;
+}
+
+class ModelLoader::Impl {
+public:
+
+
+    Assimp::Importer importer;
+};
+
+ModelLoader::ModelLoader() :
+    impl_(new Impl) {
+
+}
+
+ModelLoader::~ModelLoader() {
+    if (impl_) {
+        delete impl_;
+        impl_ = nullptr;
+    }
 }

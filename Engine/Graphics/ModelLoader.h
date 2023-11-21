@@ -42,3 +42,15 @@ struct ModelData {
     std::vector<Texture> textures;
 };
 
+class ModelLoader {
+public:
+    static ModelLoader* GetInstance();
+
+
+private:
+    ModelLoader();
+    ~ModelLoader();
+
+    class Impl;
+    Impl* impl_;
+};

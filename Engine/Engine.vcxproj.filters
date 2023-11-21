@@ -43,6 +43,12 @@
     <Filter Include="Graphics\Shader\Standard">
       <UniqueIdentifier>{c1b57460-ea7d-4058-a0a7-376ed04e9969}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Externals\assimp">
+      <UniqueIdentifier>{2c1031fa-842b-4eee-893c-9cbf4c43040c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Standard">
+      <UniqueIdentifier>{37312380-62d4-4315-99fe-3ebcfbc4d566}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene\SceneManager.cpp">
@@ -200,6 +206,9 @@
     </ClCompile>
     <ClCompile Include="Graphics\ParticleRenderer.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Animation.cpp">
+      <Filter>Graphics\Standard</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -412,6 +421,18 @@
     </ClInclude>
     <ClInclude Include="Graphics\ParticleManager.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Mesh.h">
+      <Filter>Graphics\Standard</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Model.h">
+      <Filter>Graphics\Standard</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Material.h">
+      <Filter>Graphics\Standard</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Animation.h">
+      <Filter>Graphics\Standard</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
