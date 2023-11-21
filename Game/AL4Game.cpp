@@ -6,6 +6,7 @@
 #include "Graphics/ResourceManager.h"
 #include "Graphics/ToonModel.h"
 #include "Graphics/Sprite.h"
+#include "Graphics/Model.h"
 
 #include "GameScene.h"
 
@@ -16,6 +17,8 @@ void AL4Game::OnInitialize() {
 
 	ResourceManager* resourceManager = ResourceManager::GetInstance();
 	
+	auto model = Model::Load("Resources/Model/weapon.glb");
+
 	std::shared_ptr<ToonModel> toonModel;
 	std::shared_ptr<Texture> texture;
 

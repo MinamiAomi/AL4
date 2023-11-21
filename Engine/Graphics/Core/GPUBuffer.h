@@ -3,31 +3,59 @@
 
 #include <string>
 
+#include "DescriptorHandle.h"
+
 class GPUBuffer :
     public GPUResource {
 public:
+    size_t GetBufferSize() const { return bufferSize_; }
+
+protected:
     void Create(const std::wstring& name, size_t bufferSize);
-    void CreateVertexBuffer(const std::wstring& name, size_t numVertices, size_t vertexSize);
-    void CreateIndexBuffer(const std::wstring& name, size_t numIndices, size_t indexSize);
     void CreateConstantBuffer(const std::wstring& name, size_t dataSize);
 
-    D3D12_VERTEX_BUFFER_VIEW GetVertexBufferView(size_t strideSize) const {
+    size_t bufferSize_ = 0;
+};
+
+class StructuredBuffer :
+    public GPUBuffer {
+public:
+    void Create(const std::wstring& name, size_t numElements, size_t strideSize);
+
+    D3D12_VERTEX_BUFFER_VIEW GetVertexBufferView() const {
         return D3D12_VERTEX_BUFFER_VIEW{
             .BufferLocation = resource_->GetGPUVirtualAddress(),
             .SizeInBytes = UINT(bufferSize_),
-            .StrideInBytes = UINT(strideSize)
+            .StrideInBytes = UINT(strideSize_)
         };
     }
-    D3D12_INDEX_BUFFER_VIEW GetIndexBufferView(size_t strideSize) const {
+    D3D12_INDEX_BUFFER_VIEW GetIndexBufferView() const {
         return D3D12_INDEX_BUFFER_VIEW{
             .BufferLocation = resource_->GetGPUVirtualAddress(),
             .SizeInBytes = UINT(bufferSize_),
-            .Format = (strideSize == 4) ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT
+            .Format = (strideSize_ == 4) ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT
         };
     }
 
-    size_t GetBufferSize() const { return bufferSize_; }
+    size_t GetNumElements() const { return numElements_; }
+    size_t GetStrideSize() const { return strideSize_; }
 
-private:
-    size_t bufferSize_ = 0;
+protected:
+    void CreateViews();
+
+    size_t numElements_ = 0;
+    size_t strideSize_ = 0;
+
+    DescriptorHandle srvHandle_;
+};
+
+class ConstantBuffer : 
+    public GPUBuffer {
+public:
+    void Create(const std::wstring& name, size_t bufferSize);
+
+protected:
+    void CreateView();
+
+    DescriptorHandle cbvHandle_;
 };

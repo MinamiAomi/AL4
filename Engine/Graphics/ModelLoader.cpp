@@ -193,22 +193,3 @@ ModelData ModelData::LoadObjFile(const std::filesystem::path& path) {
 
     return modelData;
 }
-
-class ModelLoader::Impl {
-public:
-
-
-    Assimp::Importer importer;
-};
-
-ModelLoader::ModelLoader() :
-    impl_(new Impl) {
-
-}
-
-ModelLoader::~ModelLoader() {
-    if (impl_) {
-        delete impl_;
-        impl_ = nullptr;
-    }
-}

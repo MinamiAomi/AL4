@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <filesystem>
 
 #include "Math/MathUtils.h"
 #include "Core/GPUBuffer.h"
@@ -8,10 +9,13 @@
 
 class Model {
 public:
+    static std::shared_ptr<Model> Load(const std::filesystem::path& path);
 
 private:
-    std::vector<Mesh> meshes_;
+    Model() = default;
+    ~Model() = default;
 
+    std::vector<Mesh> meshes_;
 };
 
 class ModelInstance {
@@ -23,8 +27,6 @@ private:
     Matrix4x4 worldMatrix_;
     Vector3 color_;
     float alpha_;
-
-    std::unique_ptr<GPUBuffer> boneData_;
 
     bool isActive_;
 };

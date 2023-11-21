@@ -146,12 +146,15 @@
     <ClCompile Include="Graphics\Core\SamplerManager.cpp" />
     <ClCompile Include="Graphics\Core\ShaderManager.cpp" />
     <ClCompile Include="Graphics\Core\SwapChain.cpp" />
+    <ClCompile Include="Graphics\Core\TextureLoader.cpp" />
     <ClCompile Include="Graphics\Core\TextureResource.cpp" />
     <ClCompile Include="Graphics\Core\UploadBuffer.cpp" />
     <ClCompile Include="Graphics\DefaultTextures.cpp" />
     <ClCompile Include="Graphics\GameWindow.cpp" />
     <ClCompile Include="Graphics\GaussianBlur.cpp" />
     <ClCompile Include="Graphics\ImGuiManager.cpp" />
+    <ClCompile Include="Graphics\Mesh.cpp" />
+    <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Graphics\ModelLoader.cpp" />
     <ClCompile Include="Graphics\ParticleManager.cpp" />
     <ClCompile Include="Graphics\ParticleRenderer.cpp" />
@@ -231,6 +234,7 @@
     <ClInclude Include="Graphics\Core\SamplerManager.h" />
     <ClInclude Include="Graphics\Core\ShaderManager.h" />
     <ClInclude Include="Graphics\Core\SwapChain.h" />
+    <ClInclude Include="Graphics\Core\TextureLoader.h" />
     <ClInclude Include="Graphics\Core\TextureResource.h" />
     <ClInclude Include="Graphics\Core\UploadBuffer.h" />
     <ClInclude Include="Graphics\DefaultTextures.h" />

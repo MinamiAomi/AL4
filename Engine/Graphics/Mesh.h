@@ -7,30 +7,24 @@
 #include "Core/GPUBuffer.h"
 #include "Math/MathUtils.h"
 
-class Mesh {
-public:
-    struct SurfaceVertex {
+class CommandContext;
+struct Material;
+
+struct Mesh {
+    struct Vertex {
         Vector3 position;
         Vector3 normal;
-        Vector3 tangent;
         Vector2 texcood;
-    };
-
-    struct SkinVertex {
-        uint32_t boneIndices[4];
-        float weights[4];
     };
 
     using Index = uint32_t;
 
+    StructuredBuffer vertexBuffer;
+    StructuredBuffer indexBuffer;
 
+    std::vector<Vertex> vertices;
+    std::vector<Index> indices;
+    std::shared_ptr<Material> material_;
 
-private:
-    std::string name_;
-    std::unique_ptr<GPUBuffer> surfaceVertexBuffer_;
-    std::unique_ptr<GPUBuffer> skinVertexBuffer_;
-    std::unique_ptr<GPUBuffer> indexBuffer_;
-    std::vector<SurfaceVertex> surfaceVertices_;
-    std::vector<SkinVertex> skinVertices_;
-    std::vector<Index> indices_;
+    void CreateBuffers(CommandContext& commandContext);
 };

@@ -14,6 +14,7 @@ struct ModelData {
         Vector3 normal;
         Vector2 texcoord;
     };
+    
     // インデックス
     using Index = uint16_t;
     // メッシュ
@@ -40,17 +41,4 @@ struct ModelData {
     std::vector<Mesh> meshes;
     std::vector<Material> materials;
     std::vector<Texture> textures;
-};
-
-class ModelLoader {
-public:
-    static ModelLoader* GetInstance();
-
-
-private:
-    ModelLoader();
-    ~ModelLoader();
-
-    class Impl;
-    Impl* impl_;
 };

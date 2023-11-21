@@ -210,6 +210,15 @@
     <ClCompile Include="Graphics\Animation.cpp">
       <Filter>Graphics\Standard</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Model.cpp">
+      <Filter>Graphics\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Core\TextureLoader.cpp">
+      <Filter>Graphics\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Mesh.cpp">
+      <Filter>Graphics\Standard</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -433,6 +442,9 @@
     </ClInclude>
     <ClInclude Include="Graphics\Animation.h">
       <Filter>Graphics\Standard</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Core\TextureLoader.h">
+      <Filter>Graphics\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -4,23 +4,21 @@
 #include <string>
 
 #include "Math/MathUtils.h"
+#include "Core/TextureResource.h"
 
-class Material {
-public:
+struct Material {
+    Vector3 diffuse{ 0.8f, 0.8f, 0.8f };
+    Vector3 specular{ 0.5f, 0.5f, 0.5f };
+    Vector3 ambient{ 0.0f, 0.0f, 0.0f };
+    float shininess{ 10.0f };
+    std::shared_ptr<TextureResource> diffuseMap;
+};
 
-    void SetBaseColor(const Vector3& baseColor) { baseColor_ = baseColor; }
-    void SetMetallic(float metallic) { metallic_ = metallic; }
-    void SetRoughness(float roughness) { roughness_ = roughness; }
-
-    const Vector3& GetBaseColor() { return baseColor_; }
-    float GetMetallic() { return metallic_; }
-    float GetRoughness() { return roughness_; }
-
-private:
-    Vector3 baseColor_;
-    float metallic_;
-    float roughness_;
-    std::shared_ptr<Texture> baseColorMap_;
-    std::shared_ptr<Texture> Map_;
-    std::shared_ptr<Texture> baseColorMap_;
+struct PBRMaterial {
+    Vector3 baseColor;
+    float metallic;
+    float roughness;
+    std::shared_ptr<TextureResource> baseColorMap;
+    std::shared_ptr<TextureResource> metallicRoughnessMap;
+    std::shared_ptr<TextureResource> noramlMap;
 };
