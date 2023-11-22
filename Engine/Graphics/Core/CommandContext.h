@@ -14,6 +14,8 @@
 #include "LinearAllocator.h"
 #include "Helper.h"
 
+#define DXR_GRAPHICS_COMMAND_LIST ID3D12GraphicsCommandList4
+
 struct DWParam {
     DWParam(FLOAT f) : v{ .f = f } {}
     DWParam(UINT u) : v{ .u = u } {}
@@ -32,12 +34,11 @@ struct DWParam {
 
 class CommandContext {
 public:
-    void Create();
-
-    void Close();
-    void Reset();
+    void Start(D3D12_COMMAND_LIST_TYPE type);
+    UINT64 Finish(bool waitForCompletion);
 
     void TransitionResource(GPUResource& resource, D3D12_RESOURCE_STATES newState);
+    void UAVBarrier(GPUResource& resource);
     void FlushResourceBarriers();
 
     void CopyBuffer(GPUResource& dest, GPUResource& src);
@@ -94,13 +95,16 @@ public:
 
     operator ID3D12GraphicsCommandList* () const { return commandList_.Get(); }
 
+    DXR_GRAPHICS_COMMAND_LIST* GetDXRCommandList() const { return dxrCommandList_.Get(); }
+
     void TrackingObject(Microsoft::WRL::ComPtr<ID3D12Object> object) { trackedObjects_.emplace_back(object); }
 private:
     static const uint32_t kMaxNumResourceBarriers = 16;
 
-
+    D3D12_COMMAND_LIST_TYPE type_;
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator_;
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_;
+    Microsoft::WRL::ComPtr<DXR_GRAPHICS_COMMAND_LIST> dxrCommandList_;
 
     D3D12_RESOURCE_BARRIER resourceBarriers_[kMaxNumResourceBarriers]{};
     uint32_t numResourceBarriers_;
@@ -134,6 +138,21 @@ inline void CommandContext::TransitionResource(GPUResource& resource, D3D12_RESO
 
         TrackingObject(resource.Get());
     }
+
+    if (numResourceBarriers_ >= kMaxNumResourceBarriers) {
+        FlushResourceBarriers();
+    }
+}
+
+inline void CommandContext::UAVBarrier(GPUResource& resource) {
+    assert(numResourceBarriers_ < kMaxNumResourceBarriers);
+
+    auto& barrier = resourceBarriers_[numResourceBarriers_++];
+    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+    barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    barrier.UAV.pResource = resource;
+
+    TrackingObject(resource.Get());
 
     if (numResourceBarriers_ >= kMaxNumResourceBarriers) {
         FlushResourceBarriers();

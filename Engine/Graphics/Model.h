@@ -20,9 +20,12 @@ private:
 
 class ModelInstance {
 public:
+    static const std::list<ModelInstance*>& GetInstanceList() { return instanceLists_; }
 
 
 private:
+    static std::list<ModelInstance*> instanceLists_;
+
     std::shared_ptr<Model> model_;
     Matrix4x4 worldMatrix_;
     Vector3 color_;

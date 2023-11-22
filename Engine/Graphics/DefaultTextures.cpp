@@ -12,19 +12,14 @@ namespace DefaultTexture{
     void Initialize() {
 
         CommandContext commandContext;
-        commandContext.Create();
+        commandContext.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
         UINT white = 0xFFFFFFFF;
         White.Create(commandContext, 1, 1, DXGI_FORMAT_R8G8B8A8_UNORM, &white);
         UINT black = 0xFF000000;
         Black.Create(commandContext, 1, 1, DXGI_FORMAT_R8G8B8A8_UNORM, &black);
         UINT normal = 0xFFFF8080;
         Normal.Create(commandContext, 1, 1, DXGI_FORMAT_R8G8B8A8_UNORM, &normal);
-        commandContext.Close();
-        auto graphics = Graphics::GetInstance();
-        auto& commandQueue = graphics->GetCommandQueue();
-        commandQueue.Excute(commandContext);
-        commandQueue.Signal();
-        commandQueue.WaitForGPU();
+        commandContext.Finish(true);
     }
 
     void Finalize() {

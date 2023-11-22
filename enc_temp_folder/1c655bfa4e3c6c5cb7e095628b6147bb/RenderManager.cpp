@@ -55,8 +55,6 @@ void RenderManager::Finalize() {
 }
 
 void RenderManager::Render() {
-    // コマンドをキック
-
     commandContext_.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
     commandContext_.TransitionResource(mainColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -92,20 +90,11 @@ void RenderManager::Render() {
     imguiManager->Render(commandContext_);
 
     commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_PRESENT);
-
-    // コマンドリスト完成(クローズ)
-
-    // バックバッファをフリップ
-    swapChain_.Present();
-    // シグナルを発行
-    auto& commandQueue = graphics_->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
-    commandQueue.WaitForIdle();
-
-    // 待つ
-
-
+    
+    graphics_->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT).WaitForGPU(prevFrameFenceValue_);
     prevFrameFenceValue_ = commandContext_.Finish(false);
-
+    swapChain_.Present();
+   
     timer_.KeepFrameRate(60);
 
     imguiManager->NewFrame();

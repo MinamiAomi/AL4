@@ -307,7 +307,7 @@ namespace Helper {
         case DXGI_FORMAT_B8G8R8X8_TYPELESS:
         case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
             return DXGI_FORMAT_B8G8R8X8_UNORM_SRGB;
-        
+
         default:
             // Not SRGB supported;
             assert(false);
@@ -421,8 +421,20 @@ namespace Helper {
         if (FAILED(hr)) {
             MessageBoxW(nullptr, str, L"HRESUT FAILED", S_OK);
             OutputDebugStringW(std::format(L"\n/////HRESULT FAILED/////\n{} = {}\n/////HRESULT FAILED/////\n\n", str, hr).c_str());
-            std::exit(EXIT_FAILURE);
+            //std::exit(EXIT_FAILURE);
         }
+    }
+
+    std::wstring GetCommandListTypeStr(D3D12_COMMAND_LIST_TYPE type) {
+        switch (type) {
+        case D3D12_COMMAND_LIST_TYPE_DIRECT:
+            return L"Direct";
+        case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+            return L"Compute";
+        case D3D12_COMMAND_LIST_TYPE_COPY:
+            return L"Copy";
+        }
+        return L"";
     }
 
 }

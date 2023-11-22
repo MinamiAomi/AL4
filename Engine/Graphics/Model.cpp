@@ -6,9 +6,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "Core/Graphics.h"
 #include "Core/CommandContext.h"
-#include "Core/CommandQueue.h"
 #include "Core/TextureLoader.h"
 #include "Mesh.h"
 #include "Material.h"
@@ -117,21 +115,14 @@ std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
     std::vector<std::shared_ptr<Material>> materials = ParseMaterials(scene, directory);
     model->meshes_ = ParseMeshes(scene, materials);
 
-    auto graphics = Graphics::GetInstance();
-
     // 中間リソースをコピーする
-    auto& commandQueue = graphics->GetCommandQueue();
     CommandContext commandContext;
-    commandContext.Create();
+    commandContext.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
     for (auto& mesh : model->meshes_) {
         mesh.CreateBuffers(commandContext);
     }
-
-    commandContext.Close();
-    commandQueue.Excute(commandContext);
-    commandQueue.Signal();
-    commandQueue.WaitForGPU();
+    commandContext.Finish(true);
 
     return model;
 }

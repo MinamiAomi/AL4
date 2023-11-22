@@ -222,6 +222,15 @@
     <ClCompile Include="Graphics\Mesh.cpp">
       <Filter>Graphics\Standard</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Raytracing\BLAS.cpp">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Core\CommandAllocatorPool.cpp">
+      <Filter>Graphics\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Core\CommandListPool.cpp">
+      <Filter>Graphics\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -449,8 +458,17 @@
     <ClInclude Include="Graphics\Core\TextureLoader.h">
       <Filter>Graphics\Core</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Raytracing\BLAS.h">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClInclude>
     <ClInclude Include="Graphics\Raytracing\RaytracingRenderer.h">
       <Filter>Graphics\Raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Core\CommandAllocatorPool.h">
+      <Filter>Graphics\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Core\CommandListPool.h">
+      <Filter>Graphics\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -130,7 +130,9 @@
     <ClCompile Include="Graphics\Animation.cpp" />
     <ClCompile Include="Graphics\Bloom.cpp" />
     <ClCompile Include="Graphics\Core\ColorBuffer.cpp" />
+    <ClCompile Include="Graphics\Core\CommandAllocatorPool.cpp" />
     <ClCompile Include="Graphics\Core\CommandContext.cpp" />
+    <ClCompile Include="Graphics\Core\CommandListPool.cpp" />
     <ClCompile Include="Graphics\Core\CommandQueue.cpp" />
     <ClCompile Include="Graphics\Core\DepthBuffer.cpp" />
     <ClCompile Include="Graphics\Core\DescriptorHandle.cpp" />
@@ -159,6 +161,7 @@
     <ClCompile Include="Graphics\ParticleManager.cpp" />
     <ClCompile Include="Graphics\ParticleRenderer.cpp" />
     <ClCompile Include="Graphics\PostEffect.cpp" />
+    <ClCompile Include="Graphics\Raytracing\BLAS.cpp" />
     <ClCompile Include="Graphics\RenderManager.cpp" />
     <ClCompile Include="Graphics\ResourceManager.cpp" />
     <ClCompile Include="Graphics\Sprite.cpp" />
@@ -217,7 +220,9 @@
     <ClInclude Include="Graphics\Animation.h" />
     <ClInclude Include="Graphics\Bloom.h" />
     <ClInclude Include="Graphics\Core\ColorBuffer.h" />
+    <ClInclude Include="Graphics\Core\CommandAllocatorPool.h" />
     <ClInclude Include="Graphics\Core\CommandContext.h" />
+    <ClInclude Include="Graphics\Core\CommandListPool.h" />
     <ClInclude Include="Graphics\Core\CommandQueue.h" />
     <ClInclude Include="Graphics\Core\DepthBuffer.h" />
     <ClInclude Include="Graphics\Core\DescriptorHandle.h" />
@@ -248,6 +253,7 @@
     <ClInclude Include="Graphics\ParticleManager.h" />
     <ClInclude Include="Graphics\ParticleRenderer.h" />
     <ClInclude Include="Graphics\PostEffect.h" />
+    <ClInclude Include="Graphics\Raytracing\BLAS.h" />
     <ClInclude Include="Graphics\Raytracing\RaytracingRenderer.h" />
     <ClInclude Include="Graphics\RenderManager.h" />
     <ClInclude Include="Graphics\ResourceManager.h" />

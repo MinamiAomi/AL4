@@ -9,6 +9,8 @@
 #include "DescriptorHandle.h"
 #include "DescriptorHeap.h"
 #include "CommandQueue.h"
+#include "CommandAllocatorPool.h"
+#include "CommandListPool.h"
 
 #define BINDLESS_RESOURCE_MAX 1024
 #define DXR_DEVICE ID3D12Device5
@@ -24,8 +26,14 @@ public:
 
     ID3D12Device* GetDevice() const { return device_.Get(); }
     DXR_DEVICE* GetDXRDevoce() const { return dxrDevice_.Get(); }
-    CommandQueue& GetCommandQueue() { return commandQueue_; }
+
+    CommandQueue& GetCommandQueue(D3D12_COMMAND_LIST_TYPE type) { return GetCommandSet(type).queue; }
+    CommandAllocatorPool& GetCommandAllocatorPool(D3D12_COMMAND_LIST_TYPE type) { return GetCommandSet(type).allocatorPool; }
+    CommandListPool& GetCommandListPool(D3D12_COMMAND_LIST_TYPE type) { return GetCommandSet(type).listPool; }
+
     DescriptorHeap& GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type) { return *descriptorHeaps_[type]; }
+
+    bool IsDXRSupported() const { return dxrDevice_; }
 
 private:
     static const uint32_t kNumRTVs = 16;
@@ -33,15 +41,40 @@ private:
     static const uint32_t kNumSRVs = BINDLESS_RESOURCE_MAX;
     static const uint32_t kNumSamplers = 16;
 
-    Graphics() = default;
+    struct CommandSet {
+        CommandQueue queue;
+        CommandAllocatorPool allocatorPool;
+        CommandListPool listPool;
+        
+        CommandSet(D3D12_COMMAND_LIST_TYPE type) :
+            queue(type), allocatorPool(type), listPool(type) {
+        }
+    };
+
+    Graphics();
     Graphics(const Graphics&) = delete;
     Graphics& operator=(const Graphics&) = delete;
 
     void CreateDevice();
+    CommandSet& GetCommandSet(D3D12_COMMAND_LIST_TYPE type);
 
     Microsoft::WRL::ComPtr<ID3D12Device> device_;
     Microsoft::WRL::ComPtr<DXR_DEVICE> dxrDevice_;
-    CommandQueue commandQueue_;
+
+    CommandSet directCommandSet_;
+    CommandSet computeCommandSet_;
+    CommandSet copyCommandSet_;
+
     std::shared_ptr<DescriptorHeap> descriptorHeaps_[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
-    
+
 };
+
+inline Graphics::CommandSet& Graphics::GetCommandSet(D3D12_COMMAND_LIST_TYPE type) {
+    switch (type) {
+    case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+        return computeCommandSet_;
+    case D3D12_COMMAND_LIST_TYPE_COPY:
+        return copyCommandSet_;
+    }
+    return directCommandSet_;
+}

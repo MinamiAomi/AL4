@@ -41,10 +41,27 @@ Graphics* Graphics::GetInstance() {
 
 void Graphics::Initialize() {
     CreateDevice();
-   
-    device_.As(&dxrDevice_);
 
-    commandQueue_.Create();
+    D3D12_FEATURE_DATA_SHADER_MODEL featureShaderModel{};
+    if (SUCCEEDED(device_->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &featureShaderModel, sizeof(featureShaderModel)))) {
+        if (featureShaderModel.HighestShaderModel < D3D_SHADER_MODEL_6_6) {
+            // HLSL 6.6に対応してない
+            assert(false);
+        }
+
+    }
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS5 options5{};
+    if (SUCCEEDED(device_->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &options5, sizeof(options5)))) {
+        if (options5.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED) {
+            ASSERT_IF_FAILED(device_.As(&dxrDevice_));
+            OutputDebugStringA("DXR supported!!\n");
+        }
+    }
+
+    directCommandSet_.queue.Create();
+    computeCommandSet_.queue.Create();
+    copyCommandSet_.queue.Create();
 
     uint32_t numDescriptorsTable[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
     numDescriptorsTable[D3D12_DESCRIPTOR_HEAP_TYPE_RTV] = kNumRTVs;
@@ -60,9 +77,10 @@ void Graphics::Initialize() {
     SamplerManager::Initialize();
 }
 
-void Graphics::Finalize(){
-    commandQueue_.Signal();
-    commandQueue_.WaitForGPU();
+void Graphics::Finalize() {
+    directCommandSet_.queue.WaitForIdle();
+    computeCommandSet_.queue.WaitForIdle();
+    copyCommandSet_.queue.WaitForIdle();
     TextureLoader::ReleaseAll();
 }
 
@@ -70,13 +88,19 @@ DescriptorHandle Graphics::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type) {
     return descriptorHeaps_[type]->Allocate();
 }
 
+Graphics::Graphics() :
+    directCommandSet_(D3D12_COMMAND_LIST_TYPE_DIRECT),
+    computeCommandSet_(D3D12_COMMAND_LIST_TYPE_COMPUTE),
+    copyCommandSet_(D3D12_COMMAND_LIST_TYPE_COPY) {
+}
+
 void Graphics::CreateDevice() {
 #ifdef _DEBUG
-    ComPtr<ID3D12Debug1> debugController;
-    if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(debugController.GetAddressOf())))) {
-        debugController->EnableDebugLayer();
-        debugController->SetEnableGPUBasedValidation(TRUE);
-    }
+    //ComPtr<ID3D12Debug1> debugController;
+    //if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(debugController.GetAddressOf())))) {
+    //    debugController->EnableDebugLayer();
+    //    //debugController->SetEnableGPUBasedValidation(TRUE);
+    //}
 #endif // _DEBUG
 
     ComPtr<IDXGIFactory7> factory;
@@ -120,28 +144,28 @@ void Graphics::CreateDevice() {
     assert(device_);
 
 #ifdef _DEBUG
-    // デバッグ時のみ
-    ComPtr<ID3D12InfoQueue> infoQueue;
-    if (SUCCEEDED(device_->QueryInterface(IID_PPV_ARGS(infoQueue.GetAddressOf())))) {
-        // やばいエラーの時に止まる
-        infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
-        // エラーの時に止まる
-        infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
-        // 警告時に止まる
-        infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
-        // 抑制するメッセージのID
-        D3D12_MESSAGE_ID denyIds[] = {
-            D3D12_MESSAGE_ID_RESOURCE_BARRIER_MISMATCHING_COMMAND_LIST_TYPE
-        };
-        // 抑制するレベル
-        D3D12_MESSAGE_SEVERITY severities[] = { D3D12_MESSAGE_SEVERITY_INFO };
-        D3D12_INFO_QUEUE_FILTER filter{};
-        filter.DenyList.NumIDs = _countof(denyIds);
-        filter.DenyList.pIDList = denyIds;
-        filter.DenyList.NumSeverities = _countof(severities);
-        filter.DenyList.pSeverityList = severities;
-        // 指定したメッセージの表示を抑制する
-        infoQueue->PushStorageFilter(&filter);
-    }
+    //// デバッグ時のみ
+    //ComPtr<ID3D12InfoQueue> infoQueue;
+    //if (SUCCEEDED(device_->QueryInterface(IID_PPV_ARGS(infoQueue.GetAddressOf())))) {
+    //    // やばいエラーの時に止まる
+    //    infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_CORRUPTION, true);
+    //    // エラーの時に止まる
+    //    infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
+    //    // 警告時に止まる
+    //    infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+    //    // 抑制するメッセージのID
+    //    D3D12_MESSAGE_ID denyIds[] = {
+    //        D3D12_MESSAGE_ID_RESOURCE_BARRIER_MISMATCHING_COMMAND_LIST_TYPE
+    //    };
+    //    // 抑制するレベル
+    //    D3D12_MESSAGE_SEVERITY severities[] = { D3D12_MESSAGE_SEVERITY_INFO };
+    //    D3D12_INFO_QUEUE_FILTER filter{};
+    //    filter.DenyList.NumIDs = _countof(denyIds);
+    //    filter.DenyList.pIDList = denyIds;
+    //    filter.DenyList.NumSeverities = _countof(severities);
+    //    filter.DenyList.pSeverityList = severities;
+    //    // 指定したメッセージの表示を抑制する
+    //    infoQueue->PushStorageFilter(&filter);
+    //}
 #endif
 }

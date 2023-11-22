@@ -31,7 +31,8 @@ private:
 
     Graphics* graphics_ = nullptr;
     SwapChain swapChain_;
-    CommandContext commandContexts_[SwapChain::kNumBuffers];
+    CommandContext commandContext_;
+    UINT64 prevFrameFenceValue_;
 
     ColorBuffer mainColorBuffer_;
     DepthBuffer mainDepthBuffer_;

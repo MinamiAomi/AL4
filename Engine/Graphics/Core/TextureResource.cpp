@@ -8,35 +8,22 @@
 
 void TextureResource::CreateFromWICFile(const std::wstring& path) {
 
-    auto graphics = Graphics::GetInstance();
 
     // 中間リソースをコピーする
-    auto& commandQueue = graphics->GetCommandQueue();
     CommandContext commandContext;
-    commandContext.Create();
-
+    commandContext.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
     CreateFromWICFile(commandContext, path);
-    commandContext.Close();
-    commandQueue.Excute(commandContext);
-    commandQueue.Signal();
-    commandQueue.WaitForGPU();
-
+    commandContext.Finish(true);
 }
 
 void TextureResource::Create(UINT width, UINT height, DXGI_FORMAT format, void* dataBegin) {
 
-    auto graphics = Graphics::GetInstance();
-
     // 中間リソースをコピーする
-    auto& commandQueue = graphics->GetCommandQueue();
     CommandContext commandContext;
-    commandContext.Create();
+    commandContext.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
     Create(commandContext, width, height, format, dataBegin);
-    commandContext.Close();
-    commandQueue.Excute(commandContext);
-    commandQueue.Signal();
-    commandQueue.WaitForGPU();
+    commandContext.Finish(true);
 
 }
 
