@@ -11,6 +11,7 @@
 #include "CommandQueue.h"
 
 #define BINDLESS_RESOURCE_MAX 1024
+#define DXR_DEVICE ID3D12Device5
 
 class Graphics {
 public:
@@ -22,6 +23,7 @@ public:
     DescriptorHandle AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type);
 
     ID3D12Device* GetDevice() const { return device_.Get(); }
+    DXR_DEVICE* GetDXRDevoce() const { return dxrDevice_.Get(); }
     CommandQueue& GetCommandQueue() { return commandQueue_; }
     DescriptorHeap& GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type) { return *descriptorHeaps_[type]; }
 
@@ -38,6 +40,7 @@ private:
     void CreateDevice();
 
     Microsoft::WRL::ComPtr<ID3D12Device> device_;
+    Microsoft::WRL::ComPtr<DXR_DEVICE> dxrDevice_;
     CommandQueue commandQueue_;
     std::shared_ptr<DescriptorHeap> descriptorHeaps_[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
     

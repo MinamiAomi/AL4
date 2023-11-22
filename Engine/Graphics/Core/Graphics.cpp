@@ -41,6 +41,8 @@ Graphics* Graphics::GetInstance() {
 
 void Graphics::Initialize() {
     CreateDevice();
+   
+    device_.As(&dxrDevice_);
 
     commandQueue_.Create();
 

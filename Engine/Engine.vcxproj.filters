@@ -49,6 +49,9 @@
     <Filter Include="Graphics\Standard">
       <UniqueIdentifier>{37312380-62d4-4315-99fe-3ebcfbc4d566}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Graphics\Raytracing">
+      <UniqueIdentifier>{955959df-b378-4033-ae18-447adc1bcc1f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene\SceneManager.cpp">
@@ -445,6 +448,9 @@
     </ClInclude>
     <ClInclude Include="Graphics\Core\TextureLoader.h">
       <Filter>Graphics\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Raytracing\RaytracingRenderer.h">
+      <Filter>Graphics\Raytracing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
