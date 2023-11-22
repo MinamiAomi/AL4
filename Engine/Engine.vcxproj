@@ -58,7 +58,7 @@
       <PreprocessorDefinitions>_DEBUG;_LIB;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Externals\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -69,8 +69,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>$(ProjectDir)Externals\DirectXTex\Library\$(Configuration)\DirectXTex.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>DirectXTex.lib;assimp-vc143-mtd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
+      <AdditionalLibraryDirectories>$(ProjectDir)Externals\DirectXTex\lib\$(Configuration);$(ProjectDir)Externals\assimp\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -82,7 +83,7 @@
       <PreprocessorDefinitions>NDEBUG;_LIB;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ProjectDir);$(ProjectDir)Externals\assimp\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
       <TreatWarningAsError>true</TreatWarningAsError>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -95,8 +96,9 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <Lib>
-      <AdditionalDependencies>$(ProjectDir)Externals\DirectXTex\Library\$(Configuration)\DirectXTex.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>DirectXTex.lib;assimp-vc143-mt.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <TreatLibWarningAsErrors>true</TreatLibWarningAsErrors>
+      <AdditionalLibraryDirectories>$(ProjectDir)Externals\DirectXTex\lib\$(Configuration);$(ProjectDir)Externals\assimp\lib\$(Configuration);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -125,6 +127,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Framework\Engine.cpp" />
+    <ClCompile Include="Graphics\Animation.cpp" />
     <ClCompile Include="Graphics\Bloom.cpp" />
     <ClCompile Include="Graphics\Core\ColorBuffer.cpp" />
     <ClCompile Include="Graphics\Core\CommandContext.cpp" />
@@ -143,12 +146,15 @@
     <ClCompile Include="Graphics\Core\SamplerManager.cpp" />
     <ClCompile Include="Graphics\Core\ShaderManager.cpp" />
     <ClCompile Include="Graphics\Core\SwapChain.cpp" />
+    <ClCompile Include="Graphics\Core\TextureLoader.cpp" />
     <ClCompile Include="Graphics\Core\TextureResource.cpp" />
     <ClCompile Include="Graphics\Core\UploadBuffer.cpp" />
     <ClCompile Include="Graphics\DefaultTextures.cpp" />
     <ClCompile Include="Graphics\GameWindow.cpp" />
     <ClCompile Include="Graphics\GaussianBlur.cpp" />
     <ClCompile Include="Graphics\ImGuiManager.cpp" />
+    <ClCompile Include="Graphics\Mesh.cpp" />
+    <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Graphics\ModelLoader.cpp" />
     <ClCompile Include="Graphics\ParticleManager.cpp" />
     <ClCompile Include="Graphics\ParticleRenderer.cpp" />
@@ -208,6 +214,7 @@
     <ClInclude Include="Externals\nlohmann\json_fwd.hpp" />
     <ClInclude Include="Framework\Engine.h" />
     <ClInclude Include="Framework\Game.h" />
+    <ClInclude Include="Graphics\Animation.h" />
     <ClInclude Include="Graphics\Bloom.h" />
     <ClInclude Include="Graphics\Core\ColorBuffer.h" />
     <ClInclude Include="Graphics\Core\CommandContext.h" />
@@ -227,12 +234,16 @@
     <ClInclude Include="Graphics\Core\SamplerManager.h" />
     <ClInclude Include="Graphics\Core\ShaderManager.h" />
     <ClInclude Include="Graphics\Core\SwapChain.h" />
+    <ClInclude Include="Graphics\Core\TextureLoader.h" />
     <ClInclude Include="Graphics\Core\TextureResource.h" />
     <ClInclude Include="Graphics\Core\UploadBuffer.h" />
     <ClInclude Include="Graphics\DefaultTextures.h" />
     <ClInclude Include="Graphics\GameWindow.h" />
     <ClInclude Include="Graphics\GaussianBlur.h" />
     <ClInclude Include="Graphics\ImGuiManager.h" />
+    <ClInclude Include="Graphics\Material.h" />
+    <ClInclude Include="Graphics\Mesh.h" />
+    <ClInclude Include="Graphics\Model.h" />
     <ClInclude Include="Graphics\ModelLoader.h" />
     <ClInclude Include="Graphics\ParticleManager.h" />
     <ClInclude Include="Graphics\ParticleRenderer.h" />
@@ -269,6 +280,10 @@
     <None Include="Graphics\Shader\GaussianBlurPS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+    <None Include="Graphics\Shader\GeometryPass.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
     <None Include="Graphics\Shader\HorizontalGaussianBlurVS.hlsl">
@@ -349,6 +364,33 @@
     <None Include="Graphics\Shader\ParticleVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Graphics\Shader\GeometryPassVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Graphics\Shader\GeometryPassPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Graphics\Shader\LightingPassPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

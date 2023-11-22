@@ -7,6 +7,7 @@
 
 #include "Helper.h"
 #include "SamplerManager.h"
+#include "TextureLoader.h"
 
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
@@ -60,6 +61,7 @@ void Graphics::Initialize() {
 void Graphics::Finalize(){
     commandQueue_.Signal();
     commandQueue_.WaitForGPU();
+    TextureLoader::ReleaseAll();
 }
 
 DescriptorHandle Graphics::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type) {

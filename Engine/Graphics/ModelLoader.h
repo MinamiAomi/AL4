@@ -14,6 +14,7 @@ struct ModelData {
         Vector3 normal;
         Vector2 texcoord;
     };
+    
     // インデックス
     using Index = uint16_t;
     // メッシュ
@@ -41,4 +42,3 @@ struct ModelData {
     std::vector<Material> materials;
     std::vector<Texture> textures;
 };
-
