@@ -55,5 +55,4 @@ void SwapChain::Present() {
     static constexpr int32_t kThreasholdRefreshRate = 58;
     int vsync = refreshRate_ < kThreasholdRefreshRate ? 0 : 1;
     swapChain_->Present(vsync, 0);
-    currentBufferIndex_ = (currentBufferIndex_ + 1) % kNumBuffers;
 }

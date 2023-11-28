@@ -27,7 +27,7 @@ void RenderManager::Initialize() {
 
     DefaultTexture::Initialize();
 
-    auto& swapChainBuffer = swapChain_.GetColorBuffer();
+    auto& swapChainBuffer = swapChain_.GetColorBuffer(0);
     float clearColor[4] = { 0.1f, 0.4f, 0.6f, 0.0f };
     mainColorBuffer_.SetClearColor(clearColor);
     mainColorBuffer_.Create(L"MainColorBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R8G8B8A8_UNORM);
@@ -55,7 +55,8 @@ void RenderManager::Finalize() {
 }
 
 void RenderManager::Render() {
-    // コマンドをキック
+
+    uint32_t targetSwapChainBufferIndex = (swapChain_.GetCurrentBackBufferIndex() + 1) % SwapChain::kNumBuffers;
 
     commandContext_.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
@@ -71,7 +72,7 @@ void RenderManager::Render() {
         particleRenderer_.Render(commandContext_, *camera_);
     }
 
-    auto& swapChainBuffer = swapChain_.GetColorBuffer();
+    auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
     commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext_.SetRenderTarget(swapChainBuffer.GetRTV());
     commandContext_.ClearColor(swapChainBuffer);
@@ -94,17 +95,15 @@ void RenderManager::Render() {
     commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_PRESENT);
 
     // コマンドリスト完成(クローズ)
+    commandContext_.Close();
 
     // バックバッファをフリップ
     swapChain_.Present();
-    // シグナルを発行
+    // シグナルを発行し待つ
     auto& commandQueue = graphics_->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
     commandQueue.WaitForIdle();
 
-    // 待つ
-
-
-    prevFrameFenceValue_ = commandContext_.Finish(false);
+    commandContext_.Finish(false);
 
     timer_.KeepFrameRate(60);
 

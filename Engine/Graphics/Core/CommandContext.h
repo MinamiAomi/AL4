@@ -35,6 +35,7 @@ struct DWParam {
 class CommandContext {
 public:
     void Start(D3D12_COMMAND_LIST_TYPE type);
+    void Close();
     UINT64 Finish(bool waitForCompletion);
 
     void TransitionResource(GPUResource& resource, D3D12_RESOURCE_STATES newState);
@@ -120,6 +121,7 @@ private:
     LinearAllocator dynamicBuffer_;
 
     std::vector<Microsoft::WRL::ComPtr<ID3D12Object>> trackedObjects_;
+    bool isClose_;
 };
 
 inline void CommandContext::TransitionResource(GPUResource& resource, D3D12_RESOURCE_STATES newState) {

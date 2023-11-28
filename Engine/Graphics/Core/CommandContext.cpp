@@ -34,11 +34,22 @@ void CommandContext::Start(D3D12_COMMAND_LIST_TYPE type) {
     rootSignature_ = nullptr;
     pipelineState_ = nullptr;
     primitiveTopology_ = D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
+
+    isClose_ = false;
+}
+
+void CommandContext::Close() {
+    assert(!isClose_);
+    // バリアをフラッシュ
+    FlushResourceBarriers();
+    ASSERT_IF_FAILED(commandList_->Close());
+    isClose_ = true;
 }
 
 UINT64 CommandContext::Finish(bool waitForCompletion) {
-    // バリアをフラッシュ
-    FlushResourceBarriers();
+    if (!isClose_) {
+        Close();
+    }
 
     auto graphics = Graphics::GetInstance();
     auto& queue = graphics->GetCommandQueue(type_);

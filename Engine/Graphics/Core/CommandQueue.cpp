@@ -98,8 +98,6 @@ void CommandQueue::Destroy() {
 UINT64 CommandQueue::ExecuteCommandList(ID3D12CommandList* list) {
     std::lock_guard<std::mutex> lock(fenceMutex_);
 
-    ASSERT_IF_FAILED(((ID3D12GraphicsCommandList*)list)->Close());
-
     commandQueue_->ExecuteCommandLists(1, &list);
 
     commandQueue_->Signal(fence_.Get(), nextFenceValue_);

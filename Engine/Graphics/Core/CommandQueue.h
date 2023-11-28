@@ -23,6 +23,8 @@ public:
     void WaitForGPU(UINT64 fenceValue);
     void WaitForIdle() { WaitForGPU(IncrementFence()); }
 
+    UINT64 ExecuteCommandList(ID3D12CommandList* list);
+
     operator ID3D12CommandQueue* () const { return commandQueue_.Get(); }
     
     UINT64 GetNextFenceValue() const { return nextFenceValue_; }
@@ -30,7 +32,7 @@ public:
 
 private:
     void Destroy();
-    UINT64 ExecuteCommandList(ID3D12CommandList* list);
+    //UINT64 ExecuteCommandList(ID3D12CommandList* list);
 
     const D3D12_COMMAND_LIST_TYPE type_;
     Microsoft::WRL::ComPtr<ID3D12CommandQueue> commandQueue_;
