@@ -1,7 +1,13 @@
 #include "BLAS.h"
 
+#include "../Core/Graphics.h"
+#include "../Core/CommandContext.h"
+#include "../Core/GPUBuffer.h"
 
-void BLAS::Create(const std::wstring& name, StructuredBuffer& vertexBuffer, StructuredBuffer& indexBuffer) {
+void BLAS::Create(const std::wstring& name, CommandContext& commandContext, StructuredBuffer& vertexBuffer, StructuredBuffer& indexBuffer) {
+
+    auto graphics = Graphics::GetInstance();
+
     D3D12_RAYTRACING_GEOMETRY_DESC geometryDesc{};
     // 三角形
     geometryDesc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
@@ -16,9 +22,8 @@ void BLAS::Create(const std::wstring& name, StructuredBuffer& vertexBuffer, Stru
     geometryDesc.Triangles.IndexFormat = indexBuffer.GetElementSize() == sizeof(UINT) ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
     geometryDesc.Triangles.IndexCount = indexBuffer.GetNumElements();
 
-    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC asDesc{};
-
-    auto& asInputs = asDesc.Inputs;
+    // ASビルド時に必要な情報
+    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS asInputs{};
     asInputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
     asInputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
     // 容量を小さく
@@ -29,5 +34,25 @@ void BLAS::Create(const std::wstring& name, StructuredBuffer& vertexBuffer, Stru
     asInputs.pGeometryDescs = &geometryDesc;
     asInputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
 
-    name;
+    // ASのサイズを取得
+    D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO asInfo{};
+    graphics->GetDXRDevoce()->GetRaytracingAccelerationStructurePrebuildInfo(&asInputs, &asInfo);
+
+    CD3DX12_HEAP_PROPERTIES defaultHeapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
+    CD3DX12_RESOURCE_DESC resultDesc = CD3DX12_RESOURCE_DESC::Buffer(asInfo.ResultDataMaxSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    CreateResource(name, defaultHeapProps, resultDesc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    // スクラッチリソース一時的なリソース
+    GPUResource scratchResource;
+    CD3DX12_RESOURCE_DESC scratchDesc = CD3DX12_RESOURCE_DESC::Buffer(asInfo.ScratchDataSizeInBytes, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+    scratchResource.CreateResource(L"BLAS ScratchDataBuffer", defaultHeapProps, scratchDesc, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+    D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC asDesc{};
+    asDesc.Inputs = asInputs;
+    asDesc.DestAccelerationStructureData = resource_->GetGPUVirtualAddress();
+    asDesc.ScratchAccelerationStructureData = scratchResource->GetGPUVirtualAddress();
+    commandContext.GetDXRCommandList()->BuildRaytracingAccelerationStructure(&asDesc, 0, nullptr);
+    // 生成完了までUAVバリアを張る
+    commandContext.UAVBarrier(*this);
+    // スクラッチリソースが解放されないようにする
+    commandContext.TrackingObject(scratchResource.Get());
 }

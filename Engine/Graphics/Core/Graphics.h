@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <memory>
 
+#include "RootSignature.h"
 #include "DescriptorHandle.h"
 #include "DescriptorHeap.h"
 #include "CommandQueue.h"
@@ -33,6 +34,8 @@ public:
 
     DescriptorHeap& GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type) { return *descriptorHeaps_[type]; }
 
+    RootSignature& GetDynamicResourcesRootSignature() { return dynamicResourcesRootSignature_; }
+
     bool IsDXRSupported() const { return dxrDevice_; }
 
 private:
@@ -57,6 +60,7 @@ private:
 
     void CreateDevice();
     CommandSet& GetCommandSet(D3D12_COMMAND_LIST_TYPE type);
+    void CreateDynamicResourcesRootSignature();
 
     Microsoft::WRL::ComPtr<ID3D12Device> device_;
     Microsoft::WRL::ComPtr<DXR_DEVICE> dxrDevice_;
@@ -67,6 +71,7 @@ private:
 
     std::shared_ptr<DescriptorHeap> descriptorHeaps_[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 
+    RootSignature dynamicResourcesRootSignature_;
 };
 
 inline Graphics::CommandSet& Graphics::GetCommandSet(D3D12_COMMAND_LIST_TYPE type) {

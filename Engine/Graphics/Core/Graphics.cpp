@@ -78,6 +78,7 @@ void Graphics::Initialize() {
     }
 
     SamplerManager::Initialize();
+    CreateDynamicResourcesRootSignature();
 }
 
 void Graphics::Finalize() {
@@ -177,4 +178,18 @@ void Graphics::CreateDevice() {
         infoQueue->PushStorageFilter(&filter);
     }
 #endif
+}
+
+void Graphics::CreateDynamicResourcesRootSignature() {
+    D3D12_ROOT_SIGNATURE_DESC dynamicResourcesRootSignatureDesc{};
+    dynamicResourcesRootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
+    dynamicResourcesRootSignatureDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+    dynamicResourcesRootSignatureDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
+    dynamicResourcesRootSignatureDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_SAMPLER_HEAP_DIRECTLY_INDEXED;
+
+    CD3DX12_ROOT_PARAMETER rootParameters[1]{};
+    rootParameters[0].InitAsConstantBufferView(0);
+    dynamicResourcesRootSignatureDesc.pParameters = rootParameters;
+    dynamicResourcesRootSignatureDesc.NumParameters = _countof(rootParameters);
+    dynamicResourcesRootSignature_.Create(L"RootSignature DynamicResources", dynamicResourcesRootSignatureDesc);
 }

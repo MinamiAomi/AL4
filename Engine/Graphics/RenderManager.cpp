@@ -17,9 +17,10 @@ void RenderManager::Initialize() {
     auto shaderManager = ShaderManager::GetInstance();
     shaderManager->Initialize();
 
-    auto vs = shaderManager->Compile(L"Engine/Graphics/Shader/GeometryPassVS.hlsl", ShaderType::Vertex, 6, 6);
-    auto ps = shaderManager->Compile(L"Engine/Graphics/Shader/GeometryPassPS.hlsl", ShaderType::Pixel, 6, 6);
-    auto lps = shaderManager->Compile(L"Engine/Graphics/Shader/LightingPassPS.hlsl", ShaderType::Pixel, 6, 6);
+    auto vs = shaderManager->Compile(L"Engine/Graphics/Shader/Standard/GeometryPassVS.hlsl", ShaderType::Vertex, 6, 6);
+    auto ps = shaderManager->Compile(L"Engine/Graphics/Shader/Standard/GeometryPassPS.hlsl", ShaderType::Pixel, 6, 6);
+    auto lps = shaderManager->Compile(L"Engine/Graphics/Shader/Standard/LightingPassPS.hlsl", ShaderType::Pixel, 6, 6);
+    auto rt = shaderManager->Compile(L"Engine/Graphics/Shader/Raytracing/Raytracing.hlsl", ShaderType::Library, 6, 6);
 
 
     auto window = GameWindow::GetInstance();

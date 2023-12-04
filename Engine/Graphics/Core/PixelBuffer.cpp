@@ -10,17 +10,8 @@
 void PixelBuffer::CreateTextureResource(const std::wstring& name, const D3D12_RESOURCE_DESC& desc, D3D12_CLEAR_VALUE clearValue) {
     resource_.Reset();
 
-    auto device = Graphics::GetInstance()->GetDevice();
-
-    CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);
-    ASSERT_IF_FAILED(device->CreateCommittedResource(
-        &heapProps, D3D12_HEAP_FLAG_NONE, 
-        &desc, D3D12_RESOURCE_STATE_COMMON, 
-        &clearValue, IID_PPV_ARGS(resource_.GetAddressOf())));
-
-    state_ = D3D12_RESOURCE_STATE_COMMON;
-
-    D3D12_OBJECT_SET_NAME(resource_, name.c_str());
+    CD3DX12_HEAP_PROPERTIES heapProps(D3D12_HEAP_TYPE_DEFAULT);    
+    CreateResource(name, heapProps, desc, D3D12_RESOURCE_STATE_COMMON, &clearValue);
 }
 
 void PixelBuffer::AssociateWithResource(const std::wstring& name, ID3D12Resource* resource, D3D12_RESOURCE_STATES state) {

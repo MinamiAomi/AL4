@@ -1,4 +1,4 @@
-#include "Lighting.hlsli"
+#include "../Lighting.hlsli"
 
 struct DescriptorIndex {
     uint scene;
