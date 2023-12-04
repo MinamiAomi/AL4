@@ -15,6 +15,9 @@
 
 using namespace Microsoft::WRL;
 
+#define ENABLED_DEBUG_LAYER 0
+#define ENABLED_GPU_BASED_DEBUGGER 0
+
 #ifdef _DEBUG
 
 #include <dxgidebug.h>
@@ -96,11 +99,17 @@ Graphics::Graphics() :
 
 void Graphics::CreateDevice() {
 #ifdef _DEBUG
+#if ENABLED_DEBUG_LAYER || ENABLED_GPU_BASED_DEBUGGER
     ComPtr<ID3D12Debug1> debugController;
     if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(debugController.GetAddressOf())))) {
+#if ENABLED_DEBUG_LAYER 
         debugController->EnableDebugLayer();
+#endif
+#if ENABLED_GPU_BASED_DEBUGGER
         debugController->SetEnableGPUBasedValidation(TRUE);
+#endif
     }
+#endif
 #endif // _DEBUG
 
     ComPtr<IDXGIFactory7> factory;
