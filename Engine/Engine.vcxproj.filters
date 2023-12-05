@@ -479,6 +479,9 @@
     <ClInclude Include="Graphics\Core\CommandListPool.h">
       <Filter>Graphics\Core</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Raytracing\ShaderTable.h">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\Lighting.hlsli">

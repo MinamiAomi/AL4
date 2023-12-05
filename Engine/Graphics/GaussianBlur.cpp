@@ -9,6 +9,10 @@
 
 namespace {
 
+    const char kGaussianBlurHorizontalVS[] = "HorizontalGaussianBlurVS.hlsl";
+    const char kGaussianBlurVerticalVS[] = "VerticalGaussianBlurVS.hlsl";
+    const char kGaussianBlurPS[] = "GaussianBlurPS.hlsl";
+
     struct PipelineSet {
         PipelineState horizontalBlurPSO;
         PipelineState verticalBlurPSO;
@@ -49,8 +53,8 @@ namespace {
             D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
             psoDesc.pRootSignature = *gbRootSignature_;
 
-            auto vs = shaderManager->Compile(L"Resources/Shader/HorizontalGaussianBlurVS.hlsl", ShaderManager::kVertex);
-            auto ps = shaderManager->Compile(L"Resources/Shader/GaussianBlurPS.hlsl", ShaderManager::kPixel);
+            auto vs = shaderManager->Compile(kGaussianBlurHorizontalVS, ShaderManager::kVertex);
+            auto ps = shaderManager->Compile(kGaussianBlurPS, ShaderManager::kPixel);
             psoDesc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
             psoDesc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
 
@@ -64,7 +68,7 @@ namespace {
 
             psos->horizontalBlurPSO.Create(L"GaussianBlur HorizontalPSO", psoDesc);
 
-            vs = shaderManager->Compile(L"Resources/Shader/VerticalGaussianBlurVS.hlsl", ShaderManager::kVertex);
+            vs = shaderManager->Compile(kGaussianBlurVerticalVS, ShaderManager::kVertex);
             psoDesc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
 
             psos->verticalBlurPSO.Create(L"GaussianBlur VerticalPSO", psoDesc);

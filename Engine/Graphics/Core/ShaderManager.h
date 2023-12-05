@@ -34,9 +34,10 @@ public:
     };
 
     void Initialize();
-    Microsoft::WRL::ComPtr<IDxcBlob> Compile(const std::wstring& path, Type type);
-
+    Microsoft::WRL::ComPtr<IDxcBlob> Compile(const std::filesystem::path& path, Type type);
     Microsoft::WRL::ComPtr<IDxcBlob> Compile(const std::filesystem::path& path, ShaderType type, int majorVersion, int minorVersion);
+
+    void SetDirectory(const std::filesystem::path& directory) { directory_ = directory; }
 
 private:
     ShaderManager() = default;
@@ -50,4 +51,5 @@ private:
     Microsoft::WRL::ComPtr<IDxcIncludeHandler> includeHandler_;
 
     std::vector<std::wstring> loadedShaderList_;
+    std::filesystem::path directory_;
 };

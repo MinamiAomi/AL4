@@ -1,3 +1,6 @@
+#define GLOBAL_REGISTER_SPACE space0
+#define HIT_GROUP_REGISTER_SPACE space1
+
 struct DescriptorIndex {
     uint tlas;
     uint output;
@@ -5,7 +8,7 @@ struct DescriptorIndex {
     uint light;
 };
 
-ConstantBuffer<DescriptorIndex> descriptorIndex : register(b0);
+ConstantBuffer<DescriptorIndex> descriptorIndex : register(b0, GLOBAL_REGISTER_SPACE);
 
 struct Scene {
     float4x4 viewProjectionInverseMatrix;
@@ -25,9 +28,9 @@ struct PrimaryPayload {
 #define FALSE_UINT 0
 
 // 一次レイヒットグループ
-#define PRIMARY_HITGROUP_INDEX 0
+#define PRIMARY_HIT_GROUP_INDEX 0
 // 影ヒットグループ
-#define SHADOW_HITGROUP_INDEX 1
+#define SHADOW_HIT_GROUP_INDEX 1
 
 #define MISS_SHADER_INDEX 0
 
@@ -60,19 +63,14 @@ void RayGeneration() {
     // レイを飛ばす
     RaytracingAccelerationStructure tlas = ResourceDescriptorHeap[descriptorIndex.tlas];
     PrimaryPayload payload;
-    uint rayFlags = RAY_FLAG_NONE;
-    uint instanceInclusionMask = 0xFF;
-    uint rayContributionToHitGroupIndex = 0;
-    uint multiplierForGeomeryContributionToHitGroupIndex = 0;
-    uint missShaderIndex = 0;
     TraceRay(
-        tlas, 
-        RAY_FLAG_NONE, 
-        0xFF, 
-        PRIMARY_HITGROUP_INDEX,
-        0, 
-        MISS_SHADER_INDEX, 
-        rayDesc, 
+        tlas,
+        RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH,
+        0xFF,
+        PRIMARY_HIT_GROUP_INDEX,
+        0,
+        MISS_SHADER_INDEX,
+        rayDesc,
         payload);
 
     float shadow = lerp(0.0f, 0.5f, payload.shadow);
@@ -81,44 +79,52 @@ void RayGeneration() {
 }
 
 [shader("miss")]
-void PrimaryMiss(inout PrimaryPayload payload) {
+void Miss(inout PrimaryPayload payload) {
     payload.shadow = FALSE_UINT;
 }
 
+struct Material {
+    uint reciveShadow;
+};
+ConstantBuffer<Material> material : register(b0, HIT_GROUP_REGISTER_SPACE);
+
 [shader("closesthit")]
-void ReceiveShadowClosestHit(inout PrimaryPayload payload, in BuiltInTriangleIntersectionAttributes attribs) {
-    float hitT = RayTCurrent();
-    float3 rayOrigin = WorldRayOrigin();
-    float3 rayDirection = WorldRayDirection();
-    // ヒットしたポジション
-    float3 hitPosition = rayOrigin + hitT * rayDirection;
+void PrimaryRayClosestHit(inout PrimaryPayload payload, in BuiltInTriangleIntersectionAttributes attribs) {
     
-    ConstantBuffer<Light> light = ResourceDescriptorHeap[descriptorIndex.light];
-    // 衝突点からライトへのレイ
-    RayDesc rayDesc;
-    rayDesc.Origin = hitPosition;
-    rayDesc.Direction = -light.sunLightDirection;
-    rayDesc.TMin = 0.001f; // 少し浮かす
-    rayDesc.TMax = 100000.0f; // 
+    if (material.reciveShadow) {
+        // 影を受けるためシャドウレイを飛ばす
+        float hitT = RayTCurrent();
+        float3 rayOrigin = WorldRayOrigin();
+        float3 rayDirection = WorldRayDirection();
+        // ヒットしたポジション
+        float3 hitPosition = rayOrigin + hitT * rayDirection;
     
-    RaytracingAccelerationStructure tlas = ResourceDescriptorHeap[descriptorIndex.tlas];
-    TraceRay(
-        tlas, 
-        RAY_FLAG_NONE,
-        0xFF, 
-        SHADOW_HITGROUP_INDEX, 
-        0, 
-        MISS_SHADER_INDEX, 
-        rayDesc, 
+        ConstantBuffer<Light> light = ResourceDescriptorHeap[descriptorIndex.light];
+        // 衝突点からライトへのレイ
+        RayDesc rayDesc;
+        rayDesc.Origin = hitPosition;
+        rayDesc.Direction = -light.sunLightDirection;
+        rayDesc.TMin = 0.001f; // 少し浮かす
+        rayDesc.TMax = 100000.0f; // 
+    
+        RaytracingAccelerationStructure tlas = ResourceDescriptorHeap[descriptorIndex.tlas];
+        TraceRay(
+        tlas,
+        RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH,
+        0xFF,
+        SHADOW_HIT_GROUP_INDEX,
+        0,
+        MISS_SHADER_INDEX,
+        rayDesc,
         payload);
+    }
+    else {
+        // 影を受けない
+        payload.shadow = FALSE_UINT;
+    }
 }
 
 [shader("closesthit")]
-void NonReceiveShadowClosestHit(inout PrimaryPayload payload, in BuiltInTriangleIntersectionAttributes attribs) {
-    payload.shadow = FALSE_UINT;
-}
-
-[shader("closesthit")]
-void ShadowHitClosestHit(inout PrimaryPayload payload, in BuiltInTriangleIntersectionAttributes attribs) {
+void ShadowRayClosestHit(inout PrimaryPayload payload, in BuiltInTriangleIntersectionAttributes attribs) {   
     payload.shadow = TRUE_UINT;
 }

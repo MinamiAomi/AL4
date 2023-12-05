@@ -8,8 +8,8 @@
 
 #include "ParticleManager.h"
 
-const wchar_t kParticleVertexShadedr[] = L"Engine/Graphics/Shader/ParticleVS.hlsl";
-const wchar_t kParticlePixelShadedr[] = L"Engine/Graphics/Shader/ParticlePS.hlsl";
+const wchar_t kParticleVertexShadedr[] = L"ParticleVS.hlsl";
+const wchar_t kParticlePixelShadedr[] = L"ParticlePS.hlsl";
 
 void ParticleRenderer::Initialize(const ColorBuffer& colorBuffer, const DepthBuffer& depthBuffer) {
 

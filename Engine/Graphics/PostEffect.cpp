@@ -4,8 +4,8 @@
 #include "Core/ShaderManager.h"
 #include "Core/CommandContext.h"
 
-const wchar_t kPostEffectVertexShadedr[] = L"Engine/Graphics/Shader/ScreenQuadVS.hlsl";
-const wchar_t kPostEffectPixelShadedr[] = L"Engine/Graphics/Shader/PostEffectPS.hlsl";
+const wchar_t kPostEffectVertexShader[] = L"ScreenQuadVS.hlsl";
+const wchar_t kPostEffectPixelShader[] = L"PostEffectPS.hlsl";
 
 void PostEffect::Initialize(const ColorBuffer& target) {
     CD3DX12_DESCRIPTOR_RANGE srvRange[1]{};
@@ -31,8 +31,8 @@ void PostEffect::Initialize(const ColorBuffer& target) {
     pipelineStateDesc.pRootSignature = rootSignature_;
 
     auto shaderManager = ShaderManager::GetInstance();
-    auto vs = shaderManager->Compile(kPostEffectVertexShadedr, ShaderManager::kVertex);
-    auto ps = shaderManager->Compile(kPostEffectPixelShadedr, ShaderManager::kPixel);
+    auto vs = shaderManager->Compile(kPostEffectVertexShader, ShaderManager::kVertex);
+    auto ps = shaderManager->Compile(kPostEffectPixelShader, ShaderManager::kPixel);
     pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
     pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
     pipelineStateDesc.BlendState = Helper::BlendDisable;

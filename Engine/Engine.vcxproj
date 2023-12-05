@@ -257,6 +257,7 @@
     <ClInclude Include="Graphics\PostEffect.h" />
     <ClInclude Include="Graphics\Raytracing\BLAS.h" />
     <ClInclude Include="Graphics\Raytracing\RaytracingRenderer.h" />
+    <ClInclude Include="Graphics\Raytracing\ShaderTable.h" />
     <ClInclude Include="Graphics\RenderManager.h" />
     <ClInclude Include="Graphics\ResourceManager.h" />
     <ClInclude Include="Graphics\Sprite.h" />

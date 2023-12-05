@@ -49,16 +49,17 @@ void ShaderManager::Initialize() {
     ASSERT_IF_FAILED(DxcCreateInstance(CLSID_DxcUtils, IID_PPV_ARGS(utils_.GetAddressOf())));
     ASSERT_IF_FAILED(DxcCreateInstance(CLSID_DxcCompiler, IID_PPV_ARGS(compiler_.GetAddressOf())));
     ASSERT_IF_FAILED(utils_->CreateDefaultIncludeHandler(includeHandler_.GetAddressOf()));
+    directory_ = std::filesystem::current_path();
 }
 
-Microsoft::WRL::ComPtr<IDxcBlob> ShaderManager::Compile(const std::wstring& path, Type type) {
-    auto parent = std::filesystem::current_path().parent_path();
-    return Compile((parent / path).wstring(), profiles[type]);
+Microsoft::WRL::ComPtr<IDxcBlob> ShaderManager::Compile(const std::filesystem::path& path, Type type) {
+    auto fullpath = directory_ / path;
+    return Compile(fullpath, profiles[type]);
 }
 
 Microsoft::WRL::ComPtr<IDxcBlob> ShaderManager::Compile(const std::filesystem::path& path, ShaderType type, int majorVersion, int minorVersion) {
     std::wstring profile = GetProfile(type, majorVersion, minorVersion);
-    std::wstring fullpath = std::filesystem::current_path().parent_path() / path.wstring();
+    std::wstring fullpath = directory_ / path;
     return Compile(fullpath, profile);
 }
 

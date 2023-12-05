@@ -6,6 +6,10 @@
 #include "Core/Helper.h"
 #include "Core/ShaderManager.h"
 
+static const char kBloomVS[] = "ScreenQuadVS.hlsl";
+static const char kLuminanceExtractionrPS[] = "LuminanceExtractionrPS.hlsl";
+static const char kBloomPS[] = "BloomPS.hlsl";
+
 void Bloom::Initialize(ColorBuffer* originalTexture) {
     originalTexture_ = originalTexture;
 
@@ -51,8 +55,8 @@ void Bloom::Initialize(ColorBuffer* originalTexture) {
         D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc{};
         psoDesc.pRootSignature = rootSignature_;
 
-        auto vs = shaderManager->Compile(L"Resources/Shader/ScreenQuadVS.hlsl", ShaderManager::kVertex);
-        auto ps = shaderManager->Compile(L"Resources/Shader/LuminanceExtractionrPS.hlsl", ShaderManager::kPixel);
+        auto vs = shaderManager->Compile(kBloomVS, ShaderManager::kVertex);
+        auto ps = shaderManager->Compile(kLuminanceExtractionrPS, ShaderManager::kPixel);
         psoDesc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
         psoDesc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
 
@@ -66,7 +70,7 @@ void Bloom::Initialize(ColorBuffer* originalTexture) {
         psoDesc.SampleDesc.Count = 1;
         luminacePipelineState_.Create(L"Luminace PSO", psoDesc);
     
-        ps = shaderManager->Compile(L"Resources/Shader/BloomPS.hlsl", ShaderManager::kPixel);
+        ps = shaderManager->Compile(kBloomPS, ShaderManager::kPixel);
         psoDesc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
 
         psoDesc.BlendState = Helper::BlendAdditive;
