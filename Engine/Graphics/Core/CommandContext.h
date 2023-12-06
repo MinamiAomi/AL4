@@ -94,6 +94,8 @@ public:
     void DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation = 0, UINT startInstanceLocation = 0);
     void DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0, UINT startInstanceLocation = 0);
 
+    D3D12_GPU_VIRTUAL_ADDRESS TransfarUploadBuffer(size_t bufferSize, const void* bufferData);
+
     operator ID3D12GraphicsCommandList* () const { return commandList_.Get(); }
 
     DXR_GRAPHICS_COMMAND_LIST* GetDXRCommandList() const { return dxrCommandList_.Get(); }
@@ -410,4 +412,10 @@ inline void CommandContext::DrawInstanced(UINT vertexCountPerInstance, UINT inst
 inline void CommandContext::DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation, INT baseVertexLocation, UINT startInstanceLocation) {
     FlushResourceBarriers();
     commandList_->DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
+}
+
+inline D3D12_GPU_VIRTUAL_ADDRESS CommandContext::TransfarUploadBuffer(size_t bufferSize, const void* bufferData) {
+    auto allocation = dynamicBuffer_.Allocate(bufferSize);
+    memcpy(allocation.cpu, bufferData, bufferSize);
+    return allocation.gpu;
 }

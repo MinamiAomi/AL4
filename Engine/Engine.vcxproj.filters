@@ -246,6 +246,9 @@
     <ClCompile Include="Graphics\Raytracing\StateObject.cpp">
       <Filter>Graphics\Raytracing</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Raytracing\TLAS.cpp">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -489,6 +492,9 @@
       <Filter>Graphics\Raytracing</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Raytracing\StateObject.h">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Raytracing\TLAS.h">
       <Filter>Graphics\Raytracing</Filter>
     </ClInclude>
   </ItemGroup>

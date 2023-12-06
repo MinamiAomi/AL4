@@ -34,6 +34,9 @@ struct PrimaryPayload {
 
 #define MISS_SHADER_INDEX 0
 
+#define RECIVE_SHADOW_INSTANCE_ID 0x1
+#define CAST_SHADOW_INSTANCE_ID 0x2
+
 // texcoodとdepthからワールド座標を計算
 float3 GetWorldPosition(in float2 texcoord, in float depth, in float4x4 viewProjectionInverseMatrix) {
     // xは0~1から-1~1, yは0~1から1~-1に上下反転
@@ -91,7 +94,7 @@ ConstantBuffer<Material> material : register(b0, HIT_GROUP_REGISTER_SPACE);
 [shader("closesthit")]
 void PrimaryRayClosestHit(inout PrimaryPayload payload, in BuiltInTriangleIntersectionAttributes attribs) {
     
-    if (material.reciveShadow) {
+    if ((InstanceID() & RECIVE_SHADOW_INSTANCE_ID) == 1) {
         // 影を受けるためシャドウレイを飛ばす
         float hitT = RayTCurrent();
         float3 rayOrigin = WorldRayOrigin();
@@ -111,7 +114,7 @@ void PrimaryRayClosestHit(inout PrimaryPayload payload, in BuiltInTriangleInters
         TraceRay(
         tlas,
         RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH,
-        0xFF,
+        ~1,
         SHADOW_HIT_GROUP_INDEX,
         0,
         MISS_SHADER_INDEX,

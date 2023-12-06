@@ -5,6 +5,7 @@
 #include "../../Math/Camera.h"
 
 #include "StateObject.h"
+#include "TLAS.h"
 
 class CommandContext;
 
@@ -22,6 +23,7 @@ private:
     StateObject stateObject_;
     RootSignature globalRootSignature_;
     RootSignature primaryRayHitGroupLocalRootSignature_;
+    TLAS tlas_;
 
     ColorBuffer resultBuffer_;
 

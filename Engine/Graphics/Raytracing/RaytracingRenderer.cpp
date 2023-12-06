@@ -3,6 +3,7 @@
 #include "../Core/Graphics.h"
 #include "../Core/Helper.h"
 #include "../Core/ShaderManager.h"
+#include "../Core/CommandContext.h"
 
 static const wchar_t kRayGenerationName[] = L"RayGeneration";
 static const wchar_t kMissName[] = L"Miss";
@@ -117,7 +118,14 @@ void PrintStateObjectDesc(const D3D12_STATE_OBJECT_DESC* desc) {
 void RaytracingRenderer::Create() {
     CreateRootSignature();
     CreateStateObject();
+}
 
+void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& camera) {
+    auto commandList = commandContext.GetDXRCommandList();
+    
+    commandList->SetComputeRootSignature(globalRootSignature_);
+    commandList->SetPipelineState1(stateObject_);
+    //commandList->DispatchRays();
 }
 
 void RaytracingRenderer::CreateRootSignature() {

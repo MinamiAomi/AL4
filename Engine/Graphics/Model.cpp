@@ -17,16 +17,22 @@ namespace {
 
         for (uint32_t meshIndex = 0; auto & destMesh : meshes) {
             const aiMesh* srcMesh = scene->mMeshes[meshIndex];
+            assert(srcMesh->HasNormals());
 
             destMesh.vertices.resize(srcMesh->mNumVertices);
             for (uint32_t vertexIndex = 0; auto & destVertex : destMesh.vertices) {
                 aiVector3D& srcPosition = srcMesh->mVertices[vertexIndex];
                 aiVector3D& srcNormal = srcMesh->mNormals[vertexIndex];
-                aiVector3D& srcTexcoord = srcMesh->mTextureCoords[0][vertexIndex];
                 // セット
                 destVertex.position = { srcPosition.x, srcPosition.y, srcPosition.z };
                 destVertex.normal = { srcNormal.x, srcNormal.y, srcNormal.z };
-                destVertex.texcood = { srcTexcoord.x, srcTexcoord.y };
+                if (srcMesh->HasTextureCoords(0)) {
+                    aiVector3D& srcTexcoord = srcMesh->mTextureCoords[0][vertexIndex];
+                    destVertex.texcood = { srcTexcoord.x, srcTexcoord.y };
+                }
+                else {
+                    destVertex.texcood = Vector2::zero;
+                }
                 // 左手座標系に変換
                 destVertex.position.x *= -1.0f;
                 destVertex.normal.x *= -1.0f;
@@ -108,9 +114,14 @@ std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
     flags |= aiProcess_FlipUVs;
     // 接空間を計算
     flags |= aiProcess_CalcTangentSpace;
+    flags |= aiProcess_GenNormals;
     const aiScene* scene = importer.ReadFile(path.string(), flags);
     // 読み込めた
-    assert(scene && scene->HasMeshes());
+    if (!scene) {
+        OutputDebugStringA(importer.GetErrorString());
+        assert(false);
+    }
+    assert(scene->HasMeshes());
 
     std::vector<std::shared_ptr<Material>> materials = ParseMaterials(scene, directory);
     model->meshes_ = ParseMeshes(scene, materials);
@@ -122,6 +133,8 @@ std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
     for (auto& mesh : model->meshes_) {
         mesh.CreateBuffers(commandContext);
     }
+    model->blas_.Create(L"ModelBLAS", commandContext, model->meshes_);
+
     commandContext.Finish(true);
 
     return model;

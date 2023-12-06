@@ -166,6 +166,7 @@
     <ClCompile Include="Graphics\Raytracing\RaytracingRenderer.cpp" />
     <ClCompile Include="Graphics\Raytracing\ShaderTable.cpp" />
     <ClCompile Include="Graphics\Raytracing\StateObject.cpp" />
+    <ClCompile Include="Graphics\Raytracing\TLAS.cpp" />
     <ClCompile Include="Graphics\RenderManager.cpp" />
     <ClCompile Include="Graphics\ResourceManager.cpp" />
     <ClCompile Include="Graphics\Sprite.cpp" />
@@ -261,6 +262,7 @@
     <ClInclude Include="Graphics\Raytracing\RaytracingRenderer.h" />
     <ClInclude Include="Graphics\Raytracing\ShaderTable.h" />
     <ClInclude Include="Graphics\Raytracing\StateObject.h" />
+    <ClInclude Include="Graphics\Raytracing\TLAS.h" />
     <ClInclude Include="Graphics\RenderManager.h" />
     <ClInclude Include="Graphics\ResourceManager.h" />
     <ClInclude Include="Graphics\Sprite.h" />

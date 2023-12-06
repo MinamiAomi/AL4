@@ -5,7 +5,6 @@
 #include <vector>
 
 #include "Core/GPUBuffer.h"
-#include "Raytracing/BLAS.h"
 #include "Math/MathUtils.h"
 
 class CommandContext;
@@ -22,7 +21,6 @@ struct Mesh {
 
     StructuredBuffer vertexBuffer;
     StructuredBuffer indexBuffer;
-    BLAS blas;
 
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
