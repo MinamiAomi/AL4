@@ -16,6 +16,7 @@ void Mesh::CreateBuffers(CommandContext& commandContext) {
     commandContext.CopyBuffer(indexBuffer, indexBuffer.GetBufferSize(), indices.data());
     commandContext.TransitionResource(vertexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
     commandContext.TransitionResource(indexBuffer, D3D12_RESOURCE_STATE_GENERIC_READ);
+    commandContext.FlushResourceBarriers();
 
     blas.Create(L"Mesh BLAS", commandContext, vertexBuffer, indexBuffer);
 }

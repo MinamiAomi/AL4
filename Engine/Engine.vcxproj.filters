@@ -240,6 +240,12 @@
     <ClCompile Include="Graphics\Core\GPUResource.cpp">
       <Filter>Graphics\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Raytracing\ShaderTable.cpp">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Raytracing\StateObject.cpp">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -480,6 +486,9 @@
       <Filter>Graphics\Core</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Raytracing\ShaderTable.h">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Raytracing\StateObject.h">
       <Filter>Graphics\Raytracing</Filter>
     </ClInclude>
   </ItemGroup>

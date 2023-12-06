@@ -164,6 +164,8 @@
     <ClCompile Include="Graphics\PostEffect.cpp" />
     <ClCompile Include="Graphics\Raytracing\BLAS.cpp" />
     <ClCompile Include="Graphics\Raytracing\RaytracingRenderer.cpp" />
+    <ClCompile Include="Graphics\Raytracing\ShaderTable.cpp" />
+    <ClCompile Include="Graphics\Raytracing\StateObject.cpp" />
     <ClCompile Include="Graphics\RenderManager.cpp" />
     <ClCompile Include="Graphics\ResourceManager.cpp" />
     <ClCompile Include="Graphics\Sprite.cpp" />
@@ -258,6 +260,7 @@
     <ClInclude Include="Graphics\Raytracing\BLAS.h" />
     <ClInclude Include="Graphics\Raytracing\RaytracingRenderer.h" />
     <ClInclude Include="Graphics\Raytracing\ShaderTable.h" />
+    <ClInclude Include="Graphics\Raytracing\StateObject.h" />
     <ClInclude Include="Graphics\RenderManager.h" />
     <ClInclude Include="Graphics\ResourceManager.h" />
     <ClInclude Include="Graphics\Sprite.h" />

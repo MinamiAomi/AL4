@@ -1,7 +1,10 @@
 #pragma once
 
 #include "../Core/ColorBuffer.h"
+#include "../Core/RootSignature.h"
 #include "../../Math/Camera.h"
+
+#include "StateObject.h"
 
 class CommandContext;
 
@@ -13,10 +16,12 @@ public:
 
 
 private:
+    void CreateRootSignature();
     void CreateStateObject();
 
-
-    Microsoft::WRL::ComPtr<ID3D12StateObject> stateObject_;
+    StateObject stateObject_;
+    RootSignature globalRootSignature_;
+    RootSignature primaryRayHitGroupLocalRootSignature_;
 
     ColorBuffer resultBuffer_;
 

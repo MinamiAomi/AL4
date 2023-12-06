@@ -57,6 +57,27 @@ namespace {
         return depthStencilDesc;
     }
 
+    const wchar_t* HRESULTErrorDescription(HRESULT hr) {
+        if (hr == E_ACCESSDENIED) {
+            return L"Access denied";
+        }
+        else if (hr == E_FAIL) {
+            return L"Unspecified error";
+        }
+        else if (hr == E_INVALIDARG) {
+            return L"Invalid parameter value";
+        }
+        else if (hr == E_OUTOFMEMORY) {
+            return L"Out of memory";
+        }
+        else if (hr == E_POINTER) {
+            return L"NULL was passed incorrectly for a pointer valu";
+        }
+        else if (hr == E_UNEXPECTED) {
+            return L"Unexpected condition";
+        }
+        return L"Unknown error";
+    }
 }
 
 namespace Helper {
@@ -420,8 +441,11 @@ namespace Helper {
     void AssertIfFailed(HRESULT hr, const wchar_t* str) {
         if (FAILED(hr)) {
             MessageBoxW(nullptr, str, L"HRESUT FAILED", S_OK);
-            OutputDebugStringW(std::format(L"\n/////HRESULT FAILED/////\n{} = {}\n/////HRESULT FAILED/////\n\n", str, hr).c_str());
-            //std::exit(EXIT_FAILURE);
+            OutputDebugStringW(L"\n/////HRESULT FAILED/////\n");
+            OutputDebugStringW(std::format(L"{}\n", str).c_str());
+            OutputDebugStringW((HRESULTErrorDescription(hr) + std::wstring(L"!!\n")).c_str());
+            OutputDebugStringW(L"/////HRESULT FAILED/////\n\n");
+            assert(false);
         }
     }
 

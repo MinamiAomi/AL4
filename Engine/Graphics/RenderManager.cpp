@@ -40,6 +40,8 @@ void RenderManager::Initialize() {
     postEffect_.Initialize(swapChainBuffer);
     spriteRenderer_.Initialize(swapChainBuffer);
 
+    raytracingRenderer_.Create();
+
     timer_.Initialize();
 
     auto imguiManager = ImGuiManager::GetInstance();
