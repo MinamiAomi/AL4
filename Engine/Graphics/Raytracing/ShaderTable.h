@@ -7,8 +7,6 @@ class ShaderRecord {
 public:
     static UINT GetLocalRootArgumentsSize(const D3D12_ROOT_PARAMETER* parameters, UINT numParameters);
 
-
-
     ShaderRecord(
         void* shaderIdentifierPtr,
         UINT shaderIdentifierSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES,
@@ -26,8 +24,6 @@ private:
 
     PointerSize shaderIdentifier_;
     PointerSize localRootArguments_;
-
-    std::vector<BYTE> localRoot;
 };
 
 class ShaderTable :

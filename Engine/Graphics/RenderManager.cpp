@@ -40,7 +40,7 @@ void RenderManager::Initialize() {
     postEffect_.Initialize(swapChainBuffer);
     spriteRenderer_.Initialize(swapChainBuffer);
 
-    raytracingRenderer_.Create();
+    raytracingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
 
     timer_.Initialize();
 

@@ -115,14 +115,17 @@ void PrintStateObjectDesc(const D3D12_STATE_OBJECT_DESC* desc) {
     OutputDebugStringW(wstr.str().c_str());
 }
 
-void RaytracingRenderer::Create() {
+void RaytracingRenderer::Create(uint32_t width, uint32_t height) {
     CreateRootSignature();
     CreateStateObject();
+    resultBuffer_.Create(L"RaytracingRenderer ResultBuffer", width, height, DXGI_FORMAT_R16_FLOAT);
 }
 
 void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& camera) {
     auto commandList = commandContext.GetDXRCommandList();
-    
+    camera;
+
+    tlas_.Create(L"RaytracingRenderer TLAS", commandContext);
     commandList->SetComputeRootSignature(globalRootSignature_);
     commandList->SetPipelineState1(stateObject_);
     //commandList->DispatchRays();
@@ -130,33 +133,18 @@ void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& ca
 
 void RaytracingRenderer::CreateRootSignature() {
 
-    {
-        CD3DX12_ROOT_PARAMETER rootParameters[1]{};
-        rootParameters[0].InitAsConstantBufferView(0);
+    CD3DX12_ROOT_PARAMETER rootParameters[1]{};
+    rootParameters[0].InitAsConstantBufferView(0);
 
-        D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
-        rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
-        rootSignatureDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
-        rootSignatureDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_SAMPLER_HEAP_DIRECTLY_INDEXED;
+    D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
+    rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
+    rootSignatureDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
+    rootSignatureDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_SAMPLER_HEAP_DIRECTLY_INDEXED;
 
-        rootSignatureDesc.pParameters = rootParameters;
-        rootSignatureDesc.NumParameters = _countof(rootParameters);
-        globalRootSignature_.Create(L"GlobalRootSignatures", rootSignatureDesc);
-    }
+    rootSignatureDesc.pParameters = rootParameters;
+    rootSignatureDesc.NumParameters = _countof(rootParameters);
+    globalRootSignature_.Create(L"GlobalRootSignatures", rootSignatureDesc);
 
-
-    // 一次レイヒットグループ
-    {
-        CD3DX12_ROOT_PARAMETER rootParameters[1]{};
-        rootParameters[0].InitAsConstants(1, 0, 1);
-
-        D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
-        rootSignatureDesc.NumParameters = _countof(rootParameters);
-        rootSignatureDesc.pParameters = rootParameters;
-        rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE;
-
-        primaryRayHitGroupLocalRootSignature_.Create(L"PrimaryRayHitGroupLocalRootSignature", rootSignatureDesc);
-    }
 }
 
 void RaytracingRenderer::CreateStateObject() {
@@ -178,33 +166,24 @@ void RaytracingRenderer::CreateStateObject() {
     primaryRayHitGroup->SetHitGroupExport(kPrimaryRayHitGroupName);
     primaryRayHitGroup->SetHitGroupType(D3D12_HIT_GROUP_TYPE_TRIANGLES);
 
-    // 3.一次レイヒットグループローカルルートシグネチャ
-    auto primaryRayHitGroupRootSignature = stateObjectDesc.CreateSubobject<CD3DX12_LOCAL_ROOT_SIGNATURE_SUBOBJECT>();
-    primaryRayHitGroupRootSignature->SetRootSignature(primaryRayHitGroupLocalRootSignature_);
-
-    // 4.一次レイヒットグループアソシエーション
-    auto primaryRayHitGroupAssociation = stateObjectDesc.CreateSubobject<CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT>();
-    primaryRayHitGroupAssociation->SetSubobjectToAssociate(*primaryRayHitGroupRootSignature);
-    primaryRayHitGroupAssociation->AddExport(kPrimaryRayHitGroupName);
-  
-    // 5.シャドウレイヒットグループ
+    // 3.シャドウレイヒットグループ
     auto shadowRayHitGroup = stateObjectDesc.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
     shadowRayHitGroup->SetClosestHitShaderImport(kShadowRayClosestHitName);
     shadowRayHitGroup->SetHitGroupExport(kShadowRayHitGroupName);
     shadowRayHitGroup->SetHitGroupType(D3D12_HIT_GROUP_TYPE_TRIANGLES);
 
-    // 6.シェーダーコンフィグ
+    // 4.シェーダーコンフィグ
     auto shaderConfig = stateObjectDesc.CreateSubobject<CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
     uint32_t maxPayloadSize = static_cast<uint32_t>(sizeof(uint32_t));      // 最大ペイロードサイズ
     uint32_t maxAttributeSize = 2 * static_cast<uint32_t>(sizeof(float));   // 最大アトリビュートサイズ
     shaderConfig->Config(maxPayloadSize, maxAttributeSize);
 
-    // 7.パイプラインコンフィグ
+    // 5.パイプラインコンフィグ
     auto pipelineConfig = stateObjectDesc.CreateSubobject<CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT>();
     uint32_t maxTraceRecursionDepth = 2; // 一次レイ, シャドウレイ
     pipelineConfig->Config(maxTraceRecursionDepth);
 
-    // 8.グローバルルートシグネチャ
+    // 6.グローバルルートシグネチャ
     auto globalRootSignature = stateObjectDesc.CreateSubobject<CD3DX12_GLOBAL_ROOT_SIGNATURE_SUBOBJECT>();
     globalRootSignature->SetRootSignature(globalRootSignature_);
 

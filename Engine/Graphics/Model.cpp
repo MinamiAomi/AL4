@@ -96,6 +96,8 @@ namespace {
 
 }
 
+std::list<ModelInstance*> ModelInstance::instanceLists_;
+
 std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
 
     // privateコンストラクタをmake_sharedで呼ぶためのヘルパー

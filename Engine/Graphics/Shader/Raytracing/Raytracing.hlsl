@@ -1,6 +1,3 @@
-#define GLOBAL_REGISTER_SPACE space0
-#define HIT_GROUP_REGISTER_SPACE space1
-
 struct DescriptorIndex {
     uint tlas;
     uint output;
@@ -8,7 +5,7 @@ struct DescriptorIndex {
     uint light;
 };
 
-ConstantBuffer<DescriptorIndex> descriptorIndex : register(b0, GLOBAL_REGISTER_SPACE);
+ConstantBuffer<DescriptorIndex> descriptorIndex : register(b0);
 
 struct Scene {
     float4x4 viewProjectionInverseMatrix;
@@ -17,7 +14,6 @@ struct Scene {
 struct Light {
     float3 sunLightDirection;
 };
-
 
 // 一次レイ用ペイロード
 struct PrimaryPayload {
@@ -34,8 +30,8 @@ struct PrimaryPayload {
 
 #define MISS_SHADER_INDEX 0
 
-#define RECIVE_SHADOW_INSTANCE_ID 0x1
-#define CAST_SHADOW_INSTANCE_ID 0x2
+#define PRIMARY_RAY_ATTRIBUTE (1 << 0)
+#define SHADOW_RAY_ATTRIBUTE  (1 << 1)
 
 // texcoodとdepthからワールド座標を計算
 float3 GetWorldPosition(in float2 texcoord, in float depth, in float4x4 viewProjectionInverseMatrix) {
@@ -69,7 +65,7 @@ void RayGeneration() {
     TraceRay(
         tlas,
         RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH,
-        0xFF,
+        PRIMARY_RAY_ATTRIBUTE,
         PRIMARY_HIT_GROUP_INDEX,
         0,
         MISS_SHADER_INDEX,
@@ -86,16 +82,12 @@ void Miss(inout PrimaryPayload payload) {
     payload.shadow = FALSE_UINT;
 }
 
-struct Material {
-    uint reciveShadow;
-};
-ConstantBuffer<Material> material : register(b0, HIT_GROUP_REGISTER_SPACE);
-
 [shader("closesthit")]
 void PrimaryRayClosestHit(inout PrimaryPayload payload, in BuiltInTriangleIntersectionAttributes attribs) {
     
-    if ((InstanceID() & RECIVE_SHADOW_INSTANCE_ID) == 1) {
-        // 影を受けるためシャドウレイを飛ばす
+    // InstanceIDが1なら影を受ける
+    if (InstanceID()  == 1) {
+        // シャドウレイを飛ばす
         float hitT = RayTCurrent();
         float3 rayOrigin = WorldRayOrigin();
         float3 rayDirection = WorldRayDirection();
@@ -114,7 +106,7 @@ void PrimaryRayClosestHit(inout PrimaryPayload payload, in BuiltInTriangleInters
         TraceRay(
         tlas,
         RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH,
-        ~1,
+        SHADOW_RAY_ATTRIBUTE,
         SHADOW_HIT_GROUP_INDEX,
         0,
         MISS_SHADER_INDEX,

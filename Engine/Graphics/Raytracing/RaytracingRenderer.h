@@ -11,7 +11,7 @@ class CommandContext;
 
 class RaytracingRenderer {
 public:
-    void Create();
+    void Create(uint32_t width, uint32_t height);
 
     void Render(CommandContext& commandContext, const Camera& camera);
 
@@ -22,7 +22,6 @@ private:
 
     StateObject stateObject_;
     RootSignature globalRootSignature_;
-    RootSignature primaryRayHitGroupLocalRootSignature_;
     TLAS tlas_;
 
     ColorBuffer resultBuffer_;
