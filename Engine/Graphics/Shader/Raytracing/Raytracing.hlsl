@@ -82,8 +82,8 @@ void Miss(inout PrimaryPayload payload) {
 
 [shader("closesthit")]
 void PrimaryRayClosestHit(inout PrimaryPayload payload, in BuiltInTriangleIntersectionAttributes attribs) {
-    payload.shadow = TRUE_UINT;
-    return;
+    //payload.shadow = TRUE_UINT;
+    //return;
     
     // InstanceIDが1なら影を受ける
     if (InstanceID()  == 1) {
