@@ -249,7 +249,9 @@
     <ClCompile Include="Graphics\Raytracing\TLAS.cpp">
       <Filter>Graphics\Raytracing</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Core\ReleasedObjectTracker.cpp" />
+    <ClCompile Include="Graphics\Core\ReleasedObjectTracker.cpp">
+      <Filter>Graphics\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">

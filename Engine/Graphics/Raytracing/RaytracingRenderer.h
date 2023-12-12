@@ -16,6 +16,7 @@ public:
 
     void Render(CommandContext& commandContext, const Camera& camera);
 
+    ColorBuffer& GetResult() { return resultBuffer_; }
 
 private:
     void CreateRootSignature();

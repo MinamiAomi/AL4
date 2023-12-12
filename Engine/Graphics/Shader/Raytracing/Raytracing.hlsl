@@ -35,7 +35,8 @@ float3 GetWorldPosition(in float2 texcoord, in float depth, in float4x4 viewProj
     float2 xy = texcoord * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f);
     float4 position = float4(xy, depth, 1.0f);
     position = mul(position, viewProjectionInverseMatrix);
-    return position.xyz / position.w;
+    position.xyz /= position.w;
+    return position.xyz;
 }
 
 [shader("raygeneration")]
@@ -50,8 +51,9 @@ void RayGeneration() {
     //ConstantBuffer<Scene> scene = ResourceDescriptorHeap[descriptorIndex.scene];
     // 近面から遠面へのレイ
     RayDesc rayDesc;
-    rayDesc.Origin = GetWorldPosition(texcoord, 0.0f, scene.viewProjectionInverseMatrix);
-    float3 rayDiff = GetWorldPosition(texcoord, 0.0f, scene.viewProjectionInverseMatrix) - rayDesc.Origin;
+    float3 rayOrigin = GetWorldPosition(texcoord, 0.0f, scene.viewProjectionInverseMatrix);
+    rayDesc.Origin = rayOrigin;
+    float3 rayDiff = GetWorldPosition(texcoord, 1.0f, scene.viewProjectionInverseMatrix) - rayOrigin;
     rayDesc.Direction = normalize(rayDiff);
     rayDesc.TMin = 0.0f;
     rayDesc.TMax = length(rayDiff);

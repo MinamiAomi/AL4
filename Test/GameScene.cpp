@@ -11,12 +11,12 @@ void GameScene::OnInitialize() {
     bunny_ = Model::Load("Resources/Bunny/bunny.obj");
 
 
-    floorModel_.SetModel(floor_);
     teapotModel_.SetModel(teapot_);
     bunnyModel_.SetModel(bunny_);
 }
 
 void GameScene::OnUpdate() {
+    floorModel_.SetModel(Model::Load("Resources/Floor/Floor.obj"));
 }
 
 void GameScene::OnFinalize() {

@@ -83,7 +83,7 @@ void RenderManager::Render() {
     commandContext_.ClearColor(swapChainBuffer);
     commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
-    postEffect_.Render(commandContext_, mainColorBuffer_);
+    postEffect_.Render(commandContext_, raytracingRenderer_.GetResult());
     spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, float(swapChainBuffer.GetWidth()), float(swapChainBuffer.GetHeight()));
 
 #ifdef _DEBUG

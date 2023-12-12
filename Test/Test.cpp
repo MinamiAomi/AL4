@@ -15,7 +15,7 @@ void Test::OnInitialize() {
 
 	ResourceManager* resourceManager = ResourceManager::GetInstance();
 	resourceManager;
-	auto model = Model::Load("Resources/CornellBox/CornellBox-Original.obj");
+	//auto model = Model::Load("Resources/CornellBox/CornellBox-Original.obj");
 }
 
 void Test::OnFinalize() {

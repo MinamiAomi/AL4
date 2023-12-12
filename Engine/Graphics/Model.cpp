@@ -36,6 +36,8 @@ namespace {
                 // 左手座標系に変換
                 destVertex.position.x *= -1.0f;
                 destVertex.normal.x *= -1.0f;
+
+                vertexIndex++;
             }
 
             destMesh.indices.reserve(srcMesh->mNumFaces * 3);
