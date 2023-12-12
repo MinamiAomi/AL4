@@ -74,6 +74,7 @@ void RenderManager::Render() {
     if (camera_) {
         toonRenderer_.Render(commandContext_, *camera_);
         particleRenderer_.Render(commandContext_, *camera_);
+        raytracingRenderer_.Render(commandContext_, *camera_);
     }
 
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);

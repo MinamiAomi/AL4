@@ -14,6 +14,7 @@ void CommandContext::Start(D3D12_COMMAND_LIST_TYPE type) {
     type_ = type;
 
     auto graphics = Graphics::GetInstance();
+    device_ = graphics->GetDevice();
     auto& queue = graphics->GetCommandQueue(type_);
     commandAllocator_ = graphics->GetCommandAllocatorPool(type_).Allocate(queue.GetLastCompletedFenceValue());
     commandList_ = graphics->GetCommandListPool(type_).Allocate(commandAllocator_);

@@ -1,19 +1,15 @@
 struct DescriptorIndex {
     uint tlas;
     uint output;
-    uint scene;
-    uint light;
 };
 
 ConstantBuffer<DescriptorIndex> descriptorIndex : register(b0);
 
 struct Scene {
     float4x4 viewProjectionInverseMatrix;
-};
-
-struct Light {
     float3 sunLightDirection;
 };
+ConstantBuffer<Scene> scene : register(b1);
 
 // 一次レイ用ペイロード
 struct PrimaryPayload {
@@ -51,7 +47,7 @@ void RayGeneration() {
     // テクスチャ座標系を求める    
     float2 texcoord = (float2) dispatchRaysIndex / (float2) dispatchRaysDimensions;
     
-    ConstantBuffer<Scene> scene = ResourceDescriptorHeap[descriptorIndex.scene];
+    //ConstantBuffer<Scene> scene = ResourceDescriptorHeap[descriptorIndex.scene];
     // 近面から遠面へのレイ
     RayDesc rayDesc;
     rayDesc.Origin = GetWorldPosition(texcoord, 0.0f, scene.viewProjectionInverseMatrix);
@@ -94,11 +90,11 @@ void PrimaryRayClosestHit(inout PrimaryPayload payload, in BuiltInTriangleInters
         // ヒットしたポジション
         float3 hitPosition = rayOrigin + hitT * rayDirection;
     
-        ConstantBuffer<Light> light = ResourceDescriptorHeap[descriptorIndex.light];
+       // ConstantBuffer<Scene> scene = ResourceDescriptorHeap[descriptorIndex.scene];
         // 衝突点からライトへのレイ
         RayDesc rayDesc;
         rayDesc.Origin = hitPosition;
-        rayDesc.Direction = -light.sunLightDirection;
+        rayDesc.Direction = -scene.sunLightDirection;
         rayDesc.TMin = 0.001f; // 少し浮かす
         rayDesc.TMax = 100000.0f; // 
     

@@ -105,6 +105,7 @@ private:
     static const uint32_t kMaxNumResourceBarriers = 16;
 
     D3D12_COMMAND_LIST_TYPE type_;
+    Microsoft::WRL::ComPtr<ID3D12Device> device_;
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator_;
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_;
     Microsoft::WRL::ComPtr<DXR_GRAPHICS_COMMAND_LIST> dxrCommandList_;
@@ -122,6 +123,7 @@ private:
 
     LinearAllocator dynamicBuffer_;
 
+    std::vector<DescriptorHandle> trackedDescriptors_;
     std::vector<Microsoft::WRL::ComPtr<ID3D12Object>> trackedObjects_;
     bool isClose_;
 };
@@ -419,3 +421,4 @@ inline D3D12_GPU_VIRTUAL_ADDRESS CommandContext::TransfarUploadBuffer(size_t buf
     memcpy(allocation.cpu, bufferData, bufferSize);
     return allocation.gpu;
 }
+

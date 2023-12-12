@@ -47,3 +47,21 @@ void ShaderRecord::CopyTo(void* dest) const {
         memcpy(byteDest, localRootArguments_.ptr, localRootArguments_.size);
     }
 }
+
+void ShaderTable::Create(const std::wstring& name, UINT shaderRecordSize, UINT numShaderRecords) {
+    shaderRecordSize_ = Helper::AlignUp(shaderRecordSize, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
+    shaderRecords_.reserve(numShaderRecords);
+    bufferSize_ = shaderRecordSize_ * numShaderRecords;
+    auto heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
+    auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize_);
+    CreateResource(name, heapProps, resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ);
+    ASSERT_IF_FAILED(resource_->Map(0, nullptr, reinterpret_cast<void**>(&mappedShaderRecords_)));
+    ZeroMemory(mappedShaderRecords_, bufferSize_);
+}
+
+void ShaderTable::Add(const ShaderRecord& shaderRecord) {
+    assert(shaderRecords_.size() < shaderRecords_.capacity());
+    shaderRecords_.emplace_back(shaderRecord);
+    shaderRecord.CopyTo(mappedShaderRecords_);
+    mappedShaderRecords_ += shaderRecordSize_;
+}

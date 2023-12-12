@@ -6,6 +6,7 @@
 
 #include "StateObject.h"
 #include "TLAS.h"
+#include "ShaderTable.h"
 
 class CommandContext;
 
@@ -19,11 +20,14 @@ public:
 private:
     void CreateRootSignature();
     void CreateStateObject();
+    void CreateShaderTables();
 
     StateObject stateObject_;
     RootSignature globalRootSignature_;
     TLAS tlas_;
+    ShaderTable rayGenerationShaderTable_;
+    ShaderTable hitGroupShaderTable_;
+    ShaderTable missShaderTable_;
 
     ColorBuffer resultBuffer_;
-
 };

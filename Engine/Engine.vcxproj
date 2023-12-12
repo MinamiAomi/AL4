@@ -145,6 +145,7 @@
     <ClCompile Include="Graphics\Core\LinearAllocator.cpp" />
     <ClCompile Include="Graphics\Core\PipelineState.cpp" />
     <ClCompile Include="Graphics\Core\PixelBuffer.cpp" />
+    <ClCompile Include="Graphics\Core\ReleasedObjectTracker.cpp" />
     <ClCompile Include="Graphics\Core\RootSignature.cpp" />
     <ClCompile Include="Graphics\Core\SamplerManager.cpp" />
     <ClCompile Include="Graphics\Core\ShaderManager.cpp" />
@@ -240,6 +241,7 @@
     <ClInclude Include="Graphics\Core\LinearAllocator.h" />
     <ClInclude Include="Graphics\Core\PipelineState.h" />
     <ClInclude Include="Graphics\Core\PixelBuffer.h" />
+    <ClInclude Include="Graphics\Core\ReleasedObjectTracker.h" />
     <ClInclude Include="Graphics\Core\RootSignature.h" />
     <ClInclude Include="Graphics\Core\SamplerManager.h" />
     <ClInclude Include="Graphics\Core\ShaderManager.h" />

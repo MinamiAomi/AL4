@@ -27,6 +27,9 @@ class ModelInstance {
 public:
     static const std::list<ModelInstance*>& GetInstanceList() { return instanceLists_; }
 
+    ModelInstance();
+    ~ModelInstance();
+
     void SetModel(const std::shared_ptr<Model>& model) { model_ = model; }
     void SetWorldMatrix(const Matrix4x4& worldMatrix) { worldMatrix_ = worldMatrix; }
     void SetColor(const Vector3& color) { color_ = color; }

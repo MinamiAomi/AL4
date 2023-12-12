@@ -141,3 +141,15 @@ std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
 
     return model;
 }
+
+ModelInstance::ModelInstance() {
+    instanceLists_.emplace_back(this);
+}
+
+ModelInstance::~ModelInstance() {
+    std::erase(instanceLists_, this);
+   // auto iter = std::find(instanceLists_.begin(), instanceLists_.end(), this);
+   // if (iter != instanceLists_.end()) {
+   //     instanceLists_.erase(iter);
+   // }
+}

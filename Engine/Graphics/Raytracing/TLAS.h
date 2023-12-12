@@ -10,6 +10,8 @@ class TLAS :
 public:
     void Create(const std::wstring& name, CommandContext& commandContext);
 
+    const DescriptorHandle& GetSRV() const { return srvHandle_; }
+
 private:
     void CreateView();
 

@@ -118,23 +118,53 @@ void PrintStateObjectDesc(const D3D12_STATE_OBJECT_DESC* desc) {
 void RaytracingRenderer::Create(uint32_t width, uint32_t height) {
     CreateRootSignature();
     CreateStateObject();
+    CreateShaderTables();
     resultBuffer_.Create(L"RaytracingRenderer ResultBuffer", width, height, DXGI_FORMAT_R16_FLOAT);
 }
 
 void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& camera) {
     auto commandList = commandContext.GetDXRCommandList();
-    camera;
 
+    // シーン定数
+    struct Scene {
+        Matrix4x4 viewProjectionInverseMatrix;
+        Vector3 sunLightDirection;
+    };
+    // シーン定数を送る
+    Scene scene;
+    scene.viewProjectionInverseMatrix = camera.GetViewProjectionMatrix().Inverse();
+    scene.sunLightDirection = Vector3::down;
+    auto sceneCB = commandContext.TransfarUploadBuffer(sizeof(scene), &scene);
+
+    // TLASを生成
     tlas_.Create(L"RaytracingRenderer TLAS", commandContext);
     commandList->SetComputeRootSignature(globalRootSignature_);
     commandList->SetPipelineState1(stateObject_);
-    //commandList->DispatchRays();
+
+    commandList->SetComputeRoot32BitConstant(0, tlas_.GetSRV().GetIndex(), 0);
+    commandList->SetComputeRoot32BitConstant(0, resultBuffer_.GetUAV().GetIndex(), 1);
+    commandList->SetComputeRootConstantBufferView(1, sceneCB);
+
+    D3D12_DISPATCH_RAYS_DESC rayDesc{};
+    rayDesc.RayGenerationShaderRecord.StartAddress = rayGenerationShaderTable_.GetGPUVirtualAddress();
+    rayDesc.RayGenerationShaderRecord.SizeInBytes = rayGenerationShaderTable_.GetBufferSize();
+    rayDesc.MissShaderTable.StartAddress = missShaderTable_.GetGPUVirtualAddress();
+    rayDesc.MissShaderTable.SizeInBytes = missShaderTable_.GetBufferSize();
+    rayDesc.MissShaderTable.StrideInBytes = missShaderTable_.GetShaderRecordSize();
+    rayDesc.HitGroupTable.StartAddress = hitGroupShaderTable_.GetGPUVirtualAddress();
+    rayDesc.HitGroupTable.SizeInBytes = hitGroupShaderTable_.GetBufferSize();
+    rayDesc.HitGroupTable.StrideInBytes = hitGroupShaderTable_.GetShaderRecordSize();
+    rayDesc.Width = resultBuffer_.GetWidth();
+    rayDesc.Height = resultBuffer_.GetHeight();
+    rayDesc.Depth = 1;
+    commandList->DispatchRays(&rayDesc);
 }
 
 void RaytracingRenderer::CreateRootSignature() {
 
-    CD3DX12_ROOT_PARAMETER rootParameters[1]{};
-    rootParameters[0].InitAsConstantBufferView(0);
+    CD3DX12_ROOT_PARAMETER rootParameters[2]{};
+    rootParameters[0].InitAsConstants(2, 0);
+    rootParameters[1].InitAsConstantBufferView(1);
 
     D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
     rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
@@ -190,4 +220,41 @@ void RaytracingRenderer::CreateStateObject() {
     //PrintStateObjectDesc(stateObjectDesc);
 
     stateObject_.Create(L"RaytracingStateObject", stateObjectDesc);
+}
+
+void RaytracingRenderer::CreateShaderTables() {
+
+    void* rayGenerationShaderIdentifier = nullptr;
+    void* primaryRayHitGroupShaderIdentifier = nullptr;
+    void* shadowRayHitGroupShaderIdentifier = nullptr;
+    void* missShaderIdentifier = nullptr;
+
+    {
+        Microsoft::WRL::ComPtr<ID3D12StateObjectProperties> stateObjectProperties;
+        stateObject_.Get().As(&stateObjectProperties);
+        rayGenerationShaderIdentifier = stateObjectProperties->GetShaderIdentifier(kRayGenerationName);
+        primaryRayHitGroupShaderIdentifier = stateObjectProperties->GetShaderIdentifier(kPrimaryRayHitGroupName);
+        shadowRayHitGroupShaderIdentifier = stateObjectProperties->GetShaderIdentifier(kShadowRayHitGroupName);
+        missShaderIdentifier = stateObjectProperties->GetShaderIdentifier(kMissName);
+    }
+
+    {
+        UINT numRecords = 1;
+        UINT recordSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
+        rayGenerationShaderTable_.Create(L"RaytracingRenderer RayGenerationShaderTable", recordSize, numRecords);
+        rayGenerationShaderTable_.Add(ShaderRecord(rayGenerationShaderIdentifier));
+    }
+    {
+        UINT numRecords = 2;
+        UINT recordSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
+        hitGroupShaderTable_.Create(L"RaytracingRenderer HitGroupShaderTable", recordSize, numRecords);
+        hitGroupShaderTable_.Add(ShaderRecord(primaryRayHitGroupShaderIdentifier));
+        hitGroupShaderTable_.Add(ShaderRecord(shadowRayHitGroupShaderIdentifier));
+    }
+    {
+        UINT numRecords = 1;
+        UINT recordSize = D3D12_SHADER_IDENTIFIER_SIZE_IN_BYTES;
+        missShaderTable_.Create(L"RaytracingRenderer MissShaderTable", recordSize, numRecords);
+        missShaderTable_.Add(ShaderRecord(missShaderIdentifier));
+    }
 }

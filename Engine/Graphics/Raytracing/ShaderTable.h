@@ -30,9 +30,13 @@ class ShaderTable :
     public GPUResource {
 public:
     void Create(const std::wstring& name, UINT shaderRecordSize, UINT numShaderRecords);
+    void Add(const ShaderRecord& shaderRecord);
+    UINT GetShaderRecordSize()const { return shaderRecordSize_; }
+    UINT GetBufferSize() const { return bufferSize_; }
 
 private:
-    BYTE* mappedShaderRecords_;
+    UINT bufferSize_;
     UINT shaderRecordSize_;
     std::vector<ShaderRecord> shaderRecords_;
+    BYTE* mappedShaderRecords_;
 };
