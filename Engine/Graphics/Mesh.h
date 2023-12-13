@@ -6,9 +6,9 @@
 
 #include "Core/GPUBuffer.h"
 #include "Math/MathUtils.h"
+#include "Material.h"
 
 class CommandContext;
-struct Material;
 
 struct Mesh {
     struct Vertex {
@@ -24,7 +24,7 @@ struct Mesh {
 
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
-    std::shared_ptr<Material> material_;
+    std::shared_ptr<Material> material;
 
     void CreateBuffers(CommandContext& commandContext);
 };

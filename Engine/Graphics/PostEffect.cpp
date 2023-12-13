@@ -8,12 +8,14 @@ const wchar_t kPostEffectVertexShader[] = L"ScreenQuadVS.hlsl";
 const wchar_t kPostEffectPixelShader[] = L"PostEffectPS.hlsl";
 
 void PostEffect::Initialize(const ColorBuffer& target) {
-    CD3DX12_DESCRIPTOR_RANGE srvRange[1]{};
+    CD3DX12_DESCRIPTOR_RANGE srvRange[2]{};
     srvRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
+    srvRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
 
-    CD3DX12_ROOT_PARAMETER rootParameters[2]{};
+    CD3DX12_ROOT_PARAMETER rootParameters[3]{};
     rootParameters[0].InitAsConstantBufferView(0);
-    rootParameters[1].InitAsDescriptorTable(_countof(srvRange), srvRange);
+    rootParameters[1].InitAsDescriptorTable(1, &srvRange[0]);
+    rootParameters[2].InitAsDescriptorTable(1, &srvRange[1]);
 
     CD3DX12_STATIC_SAMPLER_DESC staticSampler[1]{};
     staticSampler->Init(0);
@@ -46,11 +48,13 @@ void PostEffect::Initialize(const ColorBuffer& target) {
     pipelineState_.Create(L"PostEffect PipelineState", pipelineStateDesc);
 }
 
-void PostEffect::Render(CommandContext& commandContext, ColorBuffer& texture) {
+void PostEffect::Render(CommandContext& commandContext, ColorBuffer& texture, ColorBuffer& shadow) {
     commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    commandContext.TransitionResource(shadow, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandContext.SetRootSignature(rootSignature_);
     commandContext.SetPipelineState(pipelineState_);
     commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     commandContext.SetDescriptorTable(1, texture.GetSRV());
+    commandContext.SetDescriptorTable(2, shadow.GetSRV());
     commandContext.Draw(3);
 }

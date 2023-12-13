@@ -10,7 +10,7 @@ class PostEffect {
 public:
 
     void Initialize(const ColorBuffer& target);
-    void Render(CommandContext& commandContext, ColorBuffer& texture);
+    void Render(CommandContext& commandContext, ColorBuffer& texture, ColorBuffer& shadow);
 
 
 private:

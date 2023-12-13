@@ -5,6 +5,7 @@
 
 #include "Math/Camera.h"
 #include "Graphics/Model.h"
+#include "Graphics/ToonModel.h"
 
 class GameScene :
     public BaseScene {

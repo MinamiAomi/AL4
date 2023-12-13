@@ -71,6 +71,7 @@ void RayGeneration() {
         payload);
 
     float shadow = lerp(0.0f, 0.5f, payload.shadow);
+    
     RWTexture2D<float> output = ResourceDescriptorHeap[descriptorIndex.output];
     output[dispatchRaysIndex] = shadow;
 }
@@ -82,11 +83,9 @@ void Miss(inout PrimaryPayload payload) {
 
 [shader("closesthit")]
 void PrimaryRayClosestHit(inout PrimaryPayload payload, in BuiltInTriangleIntersectionAttributes attribs) {
-    //payload.shadow = TRUE_UINT;
-    //return;
     
     // InstanceIDが1なら影を受ける
-    if (InstanceID()  == 1) {
+    if (InstanceID() == 1) {
         // シャドウレイを飛ばす
         float hitT = RayTCurrent();
         float3 rayOrigin = WorldRayOrigin();
@@ -101,7 +100,7 @@ void PrimaryRayClosestHit(inout PrimaryPayload payload, in BuiltInTriangleInters
         rayDesc.Direction = -scene.sunLightDirection;
         rayDesc.TMin = 0.001f; // 少し浮かす
         rayDesc.TMax = 100000.0f; // 
-    
+        
         RaytracingAccelerationStructure tlas = ResourceDescriptorHeap[descriptorIndex.tlas];
         TraceRay(
         tlas,
@@ -120,6 +119,6 @@ void PrimaryRayClosestHit(inout PrimaryPayload payload, in BuiltInTriangleInters
 }
 
 [shader("closesthit")]
-void ShadowRayClosestHit(inout PrimaryPayload payload, in BuiltInTriangleIntersectionAttributes attribs) {   
+void ShadowRayClosestHit(inout PrimaryPayload payload, in BuiltInTriangleIntersectionAttributes attribs) {
     payload.shadow = TRUE_UINT;
 }

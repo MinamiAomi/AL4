@@ -74,5 +74,5 @@ inline D3D12_INDEX_BUFFER_VIEW GPUBuffer::GetIndexBufferView() const {
     ibv.BufferLocation = resource_->GetGPUVirtualAddress();
     ibv.SizeInBytes = UINT(bufferSize_);
     ibv.Format = elementSize_ == sizeof(UINT) ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_R16_UINT;
-    return D3D12_INDEX_BUFFER_VIEW();
+    return ibv;
 }

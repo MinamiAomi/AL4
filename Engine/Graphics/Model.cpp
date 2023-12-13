@@ -45,13 +45,13 @@ namespace {
                 aiFace& srcFace = srcMesh->mFaces[faceIndex];
                 assert(srcFace.mNumIndices == 3);
                 destMesh.indices.emplace_back(srcFace.mIndices[0]);
-                destMesh.indices.emplace_back(srcFace.mIndices[1]);
                 destMesh.indices.emplace_back(srcFace.mIndices[2]);
+                destMesh.indices.emplace_back(srcFace.mIndices[1]);
             }
 
             // マテリアルが読み込まれてない
             assert(srcMesh->mMaterialIndex < materials.size());
-            destMesh.material_ = materials[srcMesh->mMaterialIndex];
+            destMesh.material = materials[srcMesh->mMaterialIndex];
 
             ++meshIndex;
         }

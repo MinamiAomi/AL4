@@ -5,6 +5,7 @@
 #include "../Core/ShaderManager.h"
 #include "../Core/CommandContext.h"
 
+static const wchar_t kRaytracingShader[] = L"Raytracing/Raytracing.hlsl";
 static const wchar_t kRayGenerationName[] = L"RayGeneration";
 static const wchar_t kMissName[] = L"Miss";
 static const wchar_t kPrimaryRayClosestHitName[] = L"PrimaryRayClosestHit";
@@ -133,7 +134,7 @@ void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& ca
     // シーン定数を送る
     Scene scene;
     scene.viewProjectionInverseMatrix = camera.GetViewProjectionMatrix().Inverse();
-    scene.sunLightDirection = Vector3::down;
+    scene.sunLightDirection = -Vector3::one;
     auto sceneCB = commandContext.TransfarUploadBuffer(sizeof(scene), &scene);
 
     // TLASを生成
@@ -181,7 +182,7 @@ void RaytracingRenderer::CreateStateObject() {
     CD3DX12_STATE_OBJECT_DESC stateObjectDesc{ D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE };
 
     // 1.DXILLib
-    auto shader = ShaderManager::GetInstance()->Compile(L"Raytracing/Raytracing.hlsl", ShaderType::Library, 6, 6);
+    auto shader = ShaderManager::GetInstance()->Compile(kRaytracingShader, ShaderType::Library, 6, 6);
     CD3DX12_SHADER_BYTECODE shaderByteCode(shader->GetBufferPointer(), shader->GetBufferSize());
     auto dxilLibSubobject = stateObjectDesc.CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
     dxilLibSubobject->SetDXILLibrary(&shaderByteCode);

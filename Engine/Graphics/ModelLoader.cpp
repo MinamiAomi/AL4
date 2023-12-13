@@ -105,13 +105,13 @@ ModelData ModelData::LoadObjFile(const std::filesystem::path& path) {
         else if (identifier == "v") {
             Vector3& position = positions.emplace_back();
             iss >> position.x >> position.y >> position.z;
-            // position.z = -position.z;
+            position.x = -position.x;
         }
         // 法線
         else if (identifier == "vn") {
             Vector3& normal = normals.emplace_back();
             iss >> normal.x >> normal.y >> normal.z;
-            // normal.z = -normal.z;
+            normal.x = -normal.x;
         }
         // UV座標
         else if (identifier == "vt") {

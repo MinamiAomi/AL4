@@ -5,6 +5,7 @@
 
 #include "Math/MathUtils.h"
 #include "Core/TextureResource.h"
+#include "Core/UploadBuffer.h"
 
 struct Material {
     Vector3 diffuse{ 0.8f, 0.8f, 0.8f };

@@ -78,9 +78,6 @@
     <ClCompile Include="Graphics\Bloom.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\DefaultTextures.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\GameWindow.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
@@ -252,6 +249,12 @@
     <ClCompile Include="Graphics\Core\ReleasedObjectTracker.cpp">
       <Filter>Graphics\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\ModelRenderer.cpp">
+      <Filter>Graphics\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\DefaultTextures.cpp">
+      <Filter>Graphics\Standard</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -285,9 +288,6 @@
       <Filter>Input</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Bloom.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\DefaultTextures.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\GameWindow.h">
@@ -503,6 +503,12 @@
     <ClInclude Include="Graphics\Core\ReleasedObjectTracker.h">
       <Filter>Graphics\Core</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\ModelRenderer.h">
+      <Filter>Graphics\Standard</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\DefaultTextures.h">
+      <Filter>Graphics\Standard</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\Lighting.hlsli">
@@ -573,6 +579,15 @@
     </None>
     <None Include="Graphics\Shader\Raytracing\Raytracing.hlsl">
       <Filter>Graphics\Shader\Raytracing</Filter>
+    </None>
+    <None Include="Graphics\Shader\Standard\StandardModelVS.hlsl">
+      <Filter>Graphics\Shader\Standard</Filter>
+    </None>
+    <None Include="Graphics\Shader\Standard\StandardModel.hlsli">
+      <Filter>Graphics\Shader\Standard</Filter>
+    </None>
+    <None Include="Graphics\Shader\Standard\StandardModelPS.hlsl">
+      <Filter>Graphics\Shader\Standard</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

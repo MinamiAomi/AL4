@@ -36,6 +36,7 @@ public:
     void SetAlpha(float alpha) { alpha_ = alpha; }
     void SetReciveShadow(bool reciveShadow) { reciveShadow_ = reciveShadow; }
     void SetCastShadow(bool castShadow) { castShadow_ = castShadow; }
+    void SetUseLighting(bool useLighting) { useLighting_ = useLighting; }
     void SetIsActive(bool isActive) { isActive_ = isActive; }
 
     const std::shared_ptr<Model>& GetModel() const { return model_; }
@@ -44,6 +45,7 @@ public:
     float GetAlpha() const { return alpha_; }
     bool ReciveShadow() const { return reciveShadow_; }
     bool CastShadow() const { return castShadow_; }
+    bool UseLighting() const { return useLighting_; }
     bool IsActive() const { return isActive_; }
 
 private:
@@ -56,5 +58,6 @@ private:
 
     bool reciveShadow_ = true;
     bool castShadow_ = true;
+    bool useLighting_ = true;
     bool isActive_ = true;
 };
