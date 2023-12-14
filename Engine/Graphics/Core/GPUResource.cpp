@@ -3,6 +3,11 @@
 #include "Graphics.h"
 #include "Helper.h"
 
+void GPUResource::Destroy() {
+    Graphics::GetInstance()->GetReleasedObjectTracker().AddObject(resource_);
+    resource_ = nullptr;
+}
+
 void GPUResource::CreateResource(
     const std::wstring& name,
     const D3D12_HEAP_PROPERTIES& heapProperties,

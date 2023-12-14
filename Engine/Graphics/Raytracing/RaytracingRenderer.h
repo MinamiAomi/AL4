@@ -9,12 +9,13 @@
 #include "ShaderTable.h"
 
 class CommandContext;
+class DirectionalLight;
 
 class RaytracingRenderer {
 public:
     void Create(uint32_t width, uint32_t height);
 
-    void Render(CommandContext& commandContext, const Camera& camera);
+    void Render(CommandContext& commandContext, const Camera& camera, const DirectionalLight& sunLight);
 
     ColorBuffer& GetResult() { return resultBuffer_; }
 

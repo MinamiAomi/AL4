@@ -5,6 +5,10 @@
 #include "Graphics.h"
 #include "Helper.h"
 
+RootSignature::~RootSignature() {
+    Graphics::GetInstance()->GetReleasedObjectTracker().AddObject(rootSignature_);
+}
+
 void RootSignature::Create(const std::wstring& name, const D3D12_ROOT_SIGNATURE_DESC& desc) {
 
     Microsoft::WRL::ComPtr<ID3DBlob> blob;

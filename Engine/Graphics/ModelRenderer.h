@@ -8,6 +8,7 @@ class CommandContext;
 class ColorBuffer;
 class DepthBuffer;
 class Camera;
+class DirectionalLight;
 
 class ModelRenderer {
 public:
@@ -22,7 +23,7 @@ public:
     };
 
     void Initialize(const ColorBuffer& colorBuffer, const DepthBuffer& depthBuffer);
-    void Render(CommandContext& commandContext, const Camera& camera);
+    void Render(CommandContext& commandContext, const Camera& camera, const DirectionalLight& sunLight);
 
 private:
     void InitializeRootSignature();

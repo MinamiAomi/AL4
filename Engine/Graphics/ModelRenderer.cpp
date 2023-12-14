@@ -6,9 +6,10 @@
 #include "Core/DepthBuffer.h"
 #include "Core/CommandContext.h"
 #include "Math/Camera.h"
-#include "Model.h"
 #include "Core/SamplerManager.h"
+#include "Model.h"
 #include "DefaultTextures.h"
+#include "LightManager.h"
 
 const wchar_t kVertexShader[] = L"Standard/StandardModelVS.hlsl";
 const wchar_t kPixelShader[] = L"Standard/StandardModelPS.hlsl";
@@ -18,7 +19,7 @@ void ModelRenderer::Initialize(const ColorBuffer& colorBuffer, const DepthBuffer
     InitializePipelineState(colorBuffer.GetRTVFormat(), depthBuffer.GetFormat());
 }
 
-void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera) {
+void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera, const DirectionalLight& sunLight) {
     struct SceneConstant {
         Matrix4x4 viewMatrix;
         Matrix4x4 projectionMatrix;
@@ -56,9 +57,9 @@ void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera)
     scene.viewMatrix = camera.GetViewMatrix();
     scene.projectionMatrix = camera.GetProjectionMatrix();
     scene.cameraPosition = camera.GetPosition();
-    scene.sunLightColor = Vector3::one;
-    scene.sunLightDirection = -Vector3::one;
-    scene.sunLightIntensity = 1.0f;
+    scene.sunLightColor = sunLight.color;
+    scene.sunLightDirection = sunLight.direction;
+    scene.sunLightIntensity = sunLight.intensity;
     commandContext.SetDynamicConstantBufferView(RootIndex::Scene, sizeof(scene), &scene);
 
     for (auto& instance : instanceList) {

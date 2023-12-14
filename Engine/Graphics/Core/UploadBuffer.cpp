@@ -18,7 +18,7 @@ void UploadBuffer::Create(const std::wstring& name, size_t bufferSize) {
     CreateResource(name, heapProps, desc, D3D12_RESOURCE_STATE_GENERIC_READ);
 
     bufferSize_ = bufferSize;
-    ASSERT_IF_FAILED(resource_->Map(0, nullptr, &cpuData_));
+    ASSERT_IF_FAILED(resource_->Map(0, nullptr, &cpuDataBegin_));
 }
 
 void UploadBuffer::Create(const std::wstring& name, size_t numElements, size_t elementSize) {
@@ -31,13 +31,6 @@ void UploadBuffer::CreateConstantBuffer(const std::wstring& name, size_t bufferS
 
 void UploadBuffer::Copy(const void* srcData, size_t copySize) const {
     assert(copySize <= bufferSize_);
-    memcpy(cpuData_, srcData, copySize);
+    memcpy(cpuDataBegin_, srcData, copySize);
 }
 
-void UploadBuffer::Destroy() {
-    /*if (cpuData_ && resource_) {
-        resource_->Unmap(0, nullptr);
-        resource_.Reset();
-        cpuData_ = nullptr;
-    }*/
-}

@@ -72,11 +72,11 @@ void RenderManager::Render() {
     commandContext_.ClearDepth(mainDepthBuffer_);
     commandContext_.SetViewportAndScissorRect(0, 0, mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
 
-    if (camera_) {
+    if (camera_ && sunLight_) {
         //toonRenderer_.Render(commandContext_, *camera_);
         particleRenderer_.Render(commandContext_, *camera_);
-        modelRenderer.Render(commandContext_, *camera_);
-        raytracingRenderer_.Render(commandContext_, *camera_);
+        modelRenderer.Render(commandContext_, *camera_, *sunLight_);
+        raytracingRenderer_.Render(commandContext_, *camera_, *sunLight_);
     }
 
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
@@ -111,6 +111,8 @@ void RenderManager::Render() {
     commandQueue.WaitForIdle();
 
     commandContext_.Finish(false);
+
+    graphics_->GetReleasedObjectTracker().FrameIncrementForRelease();
 
     timer_.KeepFrameRate(60);
 

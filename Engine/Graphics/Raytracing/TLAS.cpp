@@ -68,7 +68,6 @@ void TLAS::Create(const std::wstring& name, CommandContext& commandContext) {
     // 生成完了までUAVバリアを張る
     commandContext.UAVBarrier(*this);
     // スクラッチリソースが解放されないようにする
-    commandContext.TrackingObject(scratchResource.Get());
 
     // ビューを生成
     CreateView();

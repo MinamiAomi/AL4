@@ -14,6 +14,7 @@
 #include "SpriteRenderer.h"
 #include "PostEffect.h"
 #include "Timer.h"
+#include "LightManager.h"
 
 #ifdef _DEBUG
 #define SHADER_DIRECTORY "../Engine/Graphics/Shader"
@@ -31,6 +32,7 @@ public:
     void Render();
 
     void SetCamera(const std::shared_ptr<Camera>& camera) { camera_ = camera; }
+    void SetSunLight(const std::shared_ptr<DirectionalLight>& light) { sunLight_ = light; }
 
 private:
     RenderManager() = default;
@@ -54,4 +56,5 @@ private:
     
     Timer timer_;
     std::shared_ptr<const Camera> camera_;
+    std::shared_ptr<const DirectionalLight> sunLight_;
 };

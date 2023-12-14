@@ -7,6 +7,7 @@
 
 class PipelineState {
 public:
+    ~PipelineState();
     void Create(const std::wstring& name, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc);
 
     operator ID3D12PipelineState* () const { return pipelineState_.Get(); }

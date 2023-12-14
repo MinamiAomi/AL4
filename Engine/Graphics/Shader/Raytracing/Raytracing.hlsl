@@ -91,7 +91,7 @@ void PrimaryRayClosestHit(inout PrimaryPayload payload, in BuiltInTriangleInters
         float3 rayOrigin = WorldRayOrigin();
         float3 rayDirection = WorldRayDirection();
         // ヒットしたポジション
-        float3 hitPosition = rayOrigin + hitT * rayDirection;
+        float3 hitPosition = rayOrigin + (hitT - 0.001f) * rayDirection;
     
        // ConstantBuffer<Scene> scene = ResourceDescriptorHeap[descriptorIndex.scene];
         // 衝突点からライトへのレイ

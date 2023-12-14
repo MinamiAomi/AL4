@@ -86,6 +86,7 @@ void Graphics::Finalize() {
     computeCommandSet_.queue.WaitForIdle();
     copyCommandSet_.queue.WaitForIdle();
     TextureLoader::ReleaseAll();
+    releasedObjectTracker_.AllRelease();
 }
 
 DescriptorHandle Graphics::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type) {

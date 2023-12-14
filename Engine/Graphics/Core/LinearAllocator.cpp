@@ -49,7 +49,7 @@ LinearAllocator::Allocation LinearAllocator::Page::Allocate(size_t sizeInByte, s
     offset_ = Helper::AlignUp(offset_, alignment);
 
     Allocation allocation{
-        .cpu = static_cast<uint8_t*>(buffer_.GetCPUData()) + offset_,
+        .cpu = static_cast<uint8_t*>(buffer_.GetCPUDataBegin()) + offset_,
         .gpu = buffer_.GetGPUVirtualAddress() + offset_
     };
     offset_ += alignedSize;

@@ -7,6 +7,7 @@
 
 class RootSignature {
 public:
+    ~RootSignature();
     void Create(const std::wstring& name, const D3D12_ROOT_SIGNATURE_DESC& desc);
 
     operator ID3D12RootSignature* () const { return rootSignature_.Get(); }

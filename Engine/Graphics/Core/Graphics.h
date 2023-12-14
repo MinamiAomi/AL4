@@ -12,6 +12,7 @@
 #include "CommandQueue.h"
 #include "CommandAllocatorPool.h"
 #include "CommandListPool.h"
+#include "ReleasedObjectTracker.h"
 
 #define BINDLESS_RESOURCE_MAX 1024
 #define DXR_DEVICE ID3D12Device5
@@ -33,6 +34,8 @@ public:
     CommandListPool& GetCommandListPool(D3D12_COMMAND_LIST_TYPE type) { return GetCommandSet(type).listPool; }
 
     DescriptorHeap& GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type) { return *descriptorHeaps_[type]; }
+
+    ReleasedObjectTracker& GetReleasedObjectTracker() { return releasedObjectTracker_; }
 
     RootSignature& GetDynamicResourcesRootSignature() { return dynamicResourcesRootSignature_; }
 
@@ -70,6 +73,8 @@ private:
     CommandSet copyCommandSet_;
 
     std::shared_ptr<DescriptorHeap> descriptorHeaps_[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
+    
+    ReleasedObjectTracker releasedObjectTracker_;
 
     RootSignature dynamicResourcesRootSignature_;
 };

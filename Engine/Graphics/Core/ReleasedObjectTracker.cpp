@@ -1,10 +1,5 @@
 #include "ReleasedObjectTracker.h"
 
-ReleasedObjectTracker& ReleasedObjectTracker::GetInstance() {
-    static ReleasedObjectTracker instance;
-    return instance;
-}
-
 void ReleasedObjectTracker::AddObject(Microsoft::WRL::ComPtr<ID3D12Object> releasedObject) {
     trackingObjectLists_.back().emplace_back(releasedObject);
 }

@@ -21,9 +21,7 @@ public:
 
     D3D12_GPU_VIRTUAL_ADDRESS GetGPUVirtualAddress() const { return resource_->GetGPUVirtualAddress(); }
 
-    virtual void Destroy() {
-        resource_ = nullptr;
-    }
+    virtual void Destroy();
 
     void CreateResource(
         const std::wstring& name,

@@ -4,6 +4,7 @@
 #include "../Core/Helper.h"
 #include "../Core/ShaderManager.h"
 #include "../Core/CommandContext.h"
+#include "../LightManager.h"
 
 static const wchar_t kRaytracingShader[] = L"Raytracing/Raytracing.hlsl";
 static const wchar_t kRayGenerationName[] = L"RayGeneration";
@@ -123,7 +124,7 @@ void RaytracingRenderer::Create(uint32_t width, uint32_t height) {
     resultBuffer_.Create(L"RaytracingRenderer ResultBuffer", width, height, DXGI_FORMAT_R16_FLOAT);
 }
 
-void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& camera) {
+void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& camera, const DirectionalLight& sunLight) {
     auto commandList = commandContext.GetDXRCommandList();
 
     // シーン定数
@@ -134,7 +135,7 @@ void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& ca
     // シーン定数を送る
     Scene scene;
     scene.viewProjectionInverseMatrix = camera.GetViewProjectionMatrix().Inverse();
-    scene.sunLightDirection = -Vector3::one;
+    scene.sunLightDirection = sunLight.direction;
     auto sceneCB = commandContext.TransfarUploadBuffer(sizeof(scene), &scene);
 
     // TLASを生成
