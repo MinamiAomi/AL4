@@ -14,14 +14,16 @@ public:
     
     DXGI_FORMAT GetRTVFormat() const { return rtvFormat_; }
 
-    const DescriptorHandle& GetSRV() const { return srvHandle_; }
     const DescriptorHandle& GetRTV() const { return rtvHandle_; }
+    const DescriptorHandle& GetSRV() const { return srvHandle_; }
+    const DescriptorHandle& GetUAV() const { return srvHandle_; }
 
 private:
     void CreateViews(bool srgb);
 
     float clearColor_[4]{ 0.0f,0.0f,0.0f,0.0f };
     DescriptorHandle srvHandle_;
+    DescriptorHandle uavHandle_;
     DescriptorHandle rtvHandle_;
     DXGI_FORMAT rtvFormat_;
 };

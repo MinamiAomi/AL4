@@ -8,12 +8,16 @@
 #include "Helper.h"
 #include "SamplerManager.h"
 #include "TextureLoader.h"
+#include "LinearAllocator.h"
 
 #pragma comment(lib,"d3d12.lib")
 #pragma comment(lib,"dxgi.lib")
 #pragma comment(lib,"dxguid.lib")
 
 using namespace Microsoft::WRL;
+
+#define ENABLED_DEBUG_LAYER 1
+#define ENABLED_GPU_BASED_DEBUGGER 1
 
 #ifdef _DEBUG
 
@@ -42,7 +46,26 @@ Graphics* Graphics::GetInstance() {
 void Graphics::Initialize() {
     CreateDevice();
 
-    commandQueue_.Create();
+    D3D12_FEATURE_DATA_SHADER_MODEL featureShaderModel{};
+    if (SUCCEEDED(device_->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &featureShaderModel, sizeof(featureShaderModel)))) {
+        if (featureShaderModel.HighestShaderModel < D3D_SHADER_MODEL_6_6) {
+            // HLSL 6.6に対応してない
+            assert(false);
+        }
+
+    }
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS5 options5{};
+    if (SUCCEEDED(device_->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &options5, sizeof(options5)))) {
+        if (options5.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED) {
+            ASSERT_IF_FAILED(device_.As(&dxrDevice_));
+            OutputDebugStringA("DXR supported!!\n");
+        }
+    }
+
+    directCommandSet_.queue.Create();
+    computeCommandSet_.queue.Create();
+    copyCommandSet_.queue.Create();
 
     uint32_t numDescriptorsTable[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
     numDescriptorsTable[D3D12_DESCRIPTOR_HEAP_TYPE_RTV] = kNumRTVs;
@@ -56,25 +79,41 @@ void Graphics::Initialize() {
     }
 
     SamplerManager::Initialize();
+    CreateDynamicResourcesRootSignature();
 }
 
-void Graphics::Finalize(){
-    commandQueue_.Signal();
-    commandQueue_.WaitForGPU();
+void Graphics::Finalize() {
+    directCommandSet_.queue.WaitForIdle();
+    computeCommandSet_.queue.WaitForIdle();
+    copyCommandSet_.queue.WaitForIdle();
     TextureLoader::ReleaseAll();
+    LinearAllocator::Finalize();
+    releasedObjectTracker_.AllRelease();
 }
 
 DescriptorHandle Graphics::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type) {
     return descriptorHeaps_[type]->Allocate();
 }
 
+Graphics::Graphics() :
+    directCommandSet_(D3D12_COMMAND_LIST_TYPE_DIRECT),
+    computeCommandSet_(D3D12_COMMAND_LIST_TYPE_COMPUTE),
+    copyCommandSet_(D3D12_COMMAND_LIST_TYPE_COPY) {
+}
+
 void Graphics::CreateDevice() {
 #ifdef _DEBUG
+#if ENABLED_DEBUG_LAYER || ENABLED_GPU_BASED_DEBUGGER
     ComPtr<ID3D12Debug1> debugController;
     if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(debugController.GetAddressOf())))) {
+#if ENABLED_DEBUG_LAYER 
         debugController->EnableDebugLayer();
+#endif
+#if ENABLED_GPU_BASED_DEBUGGER
         debugController->SetEnableGPUBasedValidation(TRUE);
+#endif
     }
+#endif
 #endif // _DEBUG
 
     ComPtr<IDXGIFactory7> factory;
@@ -126,7 +165,7 @@ void Graphics::CreateDevice() {
         // エラーの時に止まる
         infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
         // 警告時に止まる
-        infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+        //infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
         // 抑制するメッセージのID
         D3D12_MESSAGE_ID denyIds[] = {
             D3D12_MESSAGE_ID_RESOURCE_BARRIER_MISMATCHING_COMMAND_LIST_TYPE
@@ -142,4 +181,18 @@ void Graphics::CreateDevice() {
         infoQueue->PushStorageFilter(&filter);
     }
 #endif
+}
+
+void Graphics::CreateDynamicResourcesRootSignature() {
+    D3D12_ROOT_SIGNATURE_DESC dynamicResourcesRootSignatureDesc{};
+    dynamicResourcesRootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
+    dynamicResourcesRootSignatureDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+    dynamicResourcesRootSignatureDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED;
+    dynamicResourcesRootSignatureDesc.Flags |= D3D12_ROOT_SIGNATURE_FLAG_SAMPLER_HEAP_DIRECTLY_INDEXED;
+
+    CD3DX12_ROOT_PARAMETER rootParameters[1]{};
+    rootParameters[0].InitAsConstantBufferView(0);
+    dynamicResourcesRootSignatureDesc.pParameters = rootParameters;
+    dynamicResourcesRootSignatureDesc.NumParameters = _countof(rootParameters);
+    dynamicResourcesRootSignature_.Create(L"RootSignature DynamicResources", dynamicResourcesRootSignatureDesc);
 }

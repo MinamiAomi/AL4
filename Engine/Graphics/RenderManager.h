@@ -6,12 +6,21 @@
 #include "Core/CommandContext.h"
 #include "Core/ColorBuffer.h"
 #include "Core/DepthBuffer.h"
+#include "Raytracing/RaytracingRenderer.h"
+#include "ModelRenderer.h"
 #include "Bloom.h"
 #include "ToonRenderer.h"
 #include "ParticleRenderer.h"
 #include "SpriteRenderer.h"
 #include "PostEffect.h"
 #include "Timer.h"
+#include "LightManager.h"
+
+#ifdef _DEBUG
+#define SHADER_DIRECTORY "../Engine/Graphics/Shader"
+#else
+#define SHADER_DIRECTORY "Resources/Shader"
+#endif // _DEBUG
 
 class RenderManager {
 public:
@@ -23,6 +32,7 @@ public:
     void Render();
 
     void SetCamera(const std::shared_ptr<Camera>& camera) { camera_ = camera; }
+    void SetSunLight(const std::shared_ptr<DirectionalLight>& light) { sunLight_ = light; }
 
 private:
     RenderManager() = default;
@@ -31,7 +41,7 @@ private:
 
     Graphics* graphics_ = nullptr;
     SwapChain swapChain_;
-    CommandContext commandContexts_[SwapChain::kNumBuffers];
+    CommandContext commandContext_;
 
     ColorBuffer mainColorBuffer_;
     DepthBuffer mainDepthBuffer_;
@@ -39,9 +49,12 @@ private:
     ToonRenderer toonRenderer_;
     ParticleRenderer particleRenderer_;
     SpriteRenderer spriteRenderer_;
-    Bloom bloom_;
+    RaytracingRenderer raytracingRenderer_;
+    ModelRenderer modelRenderer;
+    //Bloom bloom_;
     PostEffect postEffect_;
     
     Timer timer_;
     std::shared_ptr<const Camera> camera_;
+    std::shared_ptr<const DirectionalLight> sunLight_;
 };

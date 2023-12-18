@@ -34,7 +34,7 @@ void SwapChain::Create(HWND hWnd) {
     desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; // モニタに移したら、中身を破棄
 
     ASSERT_IF_FAILED(factory->CreateSwapChainForHwnd(
-        Graphics::GetInstance()->GetCommandQueue(),
+        Graphics::GetInstance()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT),
         hWnd,
         &desc,
         nullptr,
@@ -53,6 +53,6 @@ void SwapChain::Create(HWND hWnd) {
 
 void SwapChain::Present() {
     static constexpr int32_t kThreasholdRefreshRate = 58;
-    swapChain_->Present(refreshRate_ < kThreasholdRefreshRate ? 0 : 1, 0);
-    currentBufferIndex_ = (currentBufferIndex_ + 1) % kNumBuffers;
+    int vsync = refreshRate_ < kThreasholdRefreshRate ? 0 : 1;
+    swapChain_->Present(vsync, 0);
 }

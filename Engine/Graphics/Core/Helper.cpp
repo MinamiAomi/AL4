@@ -57,6 +57,27 @@ namespace {
         return depthStencilDesc;
     }
 
+    const wchar_t* HRESULTErrorDescription(HRESULT hr) {
+        if (hr == E_ACCESSDENIED) {
+            return L"Access denied";
+        }
+        else if (hr == E_FAIL) {
+            return L"Unspecified error";
+        }
+        else if (hr == E_INVALIDARG) {
+            return L"Invalid parameter value";
+        }
+        else if (hr == E_OUTOFMEMORY) {
+            return L"Out of memory";
+        }
+        else if (hr == E_POINTER) {
+            return L"NULL was passed incorrectly for a pointer valu";
+        }
+        else if (hr == E_UNEXPECTED) {
+            return L"Unexpected condition";
+        }
+        return L"Unknown error";
+    }
 }
 
 namespace Helper {
@@ -94,11 +115,11 @@ namespace Helper {
             D3D12_COLOR_WRITE_ENABLE_ALL);     // ブレンド無効
     const D3D12_BLEND_DESC BlendMultiply =
         CreateBlendDesc(TRUE,
-            D3D12_BLEND_ONE,
-            D3D12_BLEND_ZERO,
-            D3D12_BLEND_OP_ADD,
             D3D12_BLEND_ZERO,
             D3D12_BLEND_SRC_COLOR,
+            D3D12_BLEND_OP_ADD,
+            D3D12_BLEND_ONE,
+            D3D12_BLEND_ZERO,
             D3D12_BLEND_OP_ADD,
             D3D12_COLOR_WRITE_ENABLE_ALL);     // ブレンド無効
     const D3D12_BLEND_DESC BlendAdditive =
@@ -307,7 +328,7 @@ namespace Helper {
         case DXGI_FORMAT_B8G8R8X8_TYPELESS:
         case DXGI_FORMAT_B8G8R8X8_UNORM_SRGB:
             return DXGI_FORMAT_B8G8R8X8_UNORM_SRGB;
-        
+
         default:
             // Not SRGB supported;
             assert(false);
@@ -420,9 +441,24 @@ namespace Helper {
     void AssertIfFailed(HRESULT hr, const wchar_t* str) {
         if (FAILED(hr)) {
             MessageBoxW(nullptr, str, L"HRESUT FAILED", S_OK);
-            OutputDebugStringW(std::format(L"\n/////HRESULT FAILED/////\n{} = {}\n/////HRESULT FAILED/////\n\n", str, hr).c_str());
-            std::exit(EXIT_FAILURE);
+            OutputDebugStringW(L"\n/////HRESULT FAILED/////\n");
+            OutputDebugStringW(std::format(L"{}\n", str).c_str());
+            OutputDebugStringW((HRESULTErrorDescription(hr) + std::wstring(L"!!\n")).c_str());
+            OutputDebugStringW(L"/////HRESULT FAILED/////\n\n");
+            assert(false);
         }
+    }
+
+    std::wstring GetCommandListTypeStr(D3D12_COMMAND_LIST_TYPE type) {
+        switch (type) {
+        case D3D12_COMMAND_LIST_TYPE_DIRECT:
+            return L"Direct";
+        case D3D12_COMMAND_LIST_TYPE_COMPUTE:
+            return L"Compute";
+        case D3D12_COMMAND_LIST_TYPE_COPY:
+            return L"Copy";
+        }
+        return L"";
     }
 
 }

@@ -1,44 +1,73 @@
 #include "CommandContext.h"
 
+#include <vector>
+
 #include "Helper.h"
 #include "Graphics.h"
 #include "DescriptorHeap.h"
 
-void CommandContext::Create() {
-    auto device = Graphics::GetInstance()->GetDevice();
-    ASSERT_IF_FAILED(device->CreateCommandAllocator(
-        D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(commandAllocator_.ReleaseAndGetAddressOf())));
 
-    ASSERT_IF_FAILED(device->CreateCommandList(
-        0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator_.Get(),
-        nullptr, IID_PPV_ARGS(commandList_.ReleaseAndGetAddressOf())));
-}
+void CommandContext::Start(D3D12_COMMAND_LIST_TYPE type) {
+    // 残っているはずがない
+    assert(commandAllocator_ == nullptr);
 
-void CommandContext::Close() {
-    FlushResourceBarriers();
-    ASSERT_IF_FAILED(commandList_->Close());
-}
-
-void CommandContext::Reset() {
-    ASSERT_IF_FAILED(commandAllocator_->Reset());
-    ASSERT_IF_FAILED(commandList_->Reset(commandAllocator_.Get(), nullptr));
-
-    dynamicBuffer_.Reset();
-
-    trackedObjects_.clear();
+    type_ = type;
 
     auto graphics = Graphics::GetInstance();
+    device_ = graphics->GetDevice();
+    auto& queue = graphics->GetCommandQueue(type_);
+    commandAllocator_ = graphics->GetCommandAllocatorPool(type_).Allocate(queue.GetLastCompletedFenceValue());
+    commandList_ = graphics->GetCommandListPool(type_).Allocate(commandAllocator_);
+
+    if (graphics->IsDXRSupported()) {
+        ASSERT_IF_FAILED(commandList_.As(&dxrCommandList_));
+    }
+
+
     resourceHeap_ = (ID3D12DescriptorHeap*)graphics->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     samplerHeap_ = (ID3D12DescriptorHeap*)graphics->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
     ID3D12DescriptorHeap* ppHeaps[] = {
         resourceHeap_,
-        samplerHeap_ };
+        samplerHeap_
+    };
     commandList_->SetDescriptorHeaps(_countof(ppHeaps), ppHeaps);
-    
+
     rootSignature_ = nullptr;
     pipelineState_ = nullptr;
     primitiveTopology_ = D3D_PRIMITIVE_TOPOLOGY_UNDEFINED;
-    
+
+    isClose_ = false;
 }
 
+void CommandContext::Close() {
+    assert(!isClose_);
+    // バリアをフラッシュ
+    FlushResourceBarriers();
+    ASSERT_IF_FAILED(commandList_->Close());
+    isClose_ = true;
+}
+
+UINT64 CommandContext::Finish(bool waitForCompletion) {
+    if (!isClose_) {
+        Close();
+    }
+
+    auto graphics = Graphics::GetInstance();
+    auto& queue = graphics->GetCommandQueue(type_);
+
+    UINT64 fenceValue = queue.ExecuteCommandList(commandList_.Get());
+
+    graphics->GetCommandAllocatorPool(type_).Discard(fenceValue, commandAllocator_);
+    commandAllocator_ = nullptr;
+    graphics->GetCommandListPool(type_).Discard(commandList_);
+    commandList_ = nullptr;
+    dxrCommandList_ = nullptr;
+    dynamicBuffer_.Reset(type_, fenceValue);
+
+    if (waitForCompletion) {
+        queue.WaitForGPU(fenceValue);
+    }
+
+    return fenceValue;
+}
 

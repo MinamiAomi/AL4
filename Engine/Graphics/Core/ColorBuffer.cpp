@@ -18,7 +18,7 @@ void ColorBuffer::CreateFromSwapChain(const std::wstring& name, ID3D12Resource* 
 }
 
 void ColorBuffer::Create(const std::wstring& name, uint32_t width, uint32_t height, DXGI_FORMAT format, bool srgb) {
-    auto flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+    auto flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
     auto desc = DescribeTex2D(width, height, 1, format, flags);
 
     D3D12_CLEAR_VALUE clearValue{};
@@ -30,7 +30,7 @@ void ColorBuffer::Create(const std::wstring& name, uint32_t width, uint32_t heig
 }
 
 void ColorBuffer::CreateArray(const std::wstring& name, uint32_t width, uint32_t height, uint32_t arraySize, DXGI_FORMAT format, bool srgb) {
-    auto flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+    auto flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
     auto desc = DescribeTex2D(width, height, arraySize, format, flags);
 
     D3D12_CLEAR_VALUE clearValue{};
@@ -48,9 +48,11 @@ void ColorBuffer::SetClearColor(const float* clearColor) {
 void ColorBuffer::CreateViews(bool srgb) {
     D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
+    D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
     rtvDesc.Format = srgb ? Helper::GetSRGBFormat(format_) : format_;
     srvDesc.Format = format_;
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    uavDesc.Format = Helper::GetUAVFormat(format_);
 
     if (arraySize_ > 1) {
         rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2DARRAY;
@@ -63,10 +65,18 @@ void ColorBuffer::CreateViews(bool srgb) {
         srvDesc.Texture2DArray.MostDetailedMip = 0;
         srvDesc.Texture2DArray.FirstArraySlice = 0;
         srvDesc.Texture2DArray.ArraySize = UINT(arraySize_);
+
+        uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2DARRAY;
+        uavDesc.Texture2DArray.MipSlice = 0;
+        uavDesc.Texture2DArray.FirstArraySlice = 0;
+        uavDesc.Texture2DArray.ArraySize = UINT(arraySize_);
     }
     else {
         rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
         rtvDesc.Texture2D.MipSlice = 0;
+
+        uavDesc.ViewDimension = D3D12_UAV_DIMENSION_TEXTURE2D;
+        uavDesc.Texture2D.MipSlice = 0;
 
         srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
         srvDesc.Texture2D.MipLevels = 1;
@@ -80,9 +90,13 @@ void ColorBuffer::CreateViews(bool srgb) {
     if (srvHandle_.IsNull()) {
         srvHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
+    if (uavHandle_.IsNull()) {
+        uavHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
+    }
 
     auto device = graphics->GetDevice();
     device->CreateRenderTargetView(resource_.Get(), &rtvDesc, rtvHandle_);
     device->CreateShaderResourceView(resource_.Get(), &srvDesc, srvHandle_);
+    device->CreateUnorderedAccessView(resource_.Get(), nullptr, &uavDesc, uavHandle_);
     rtvFormat_ = rtvDesc.Format;
 }

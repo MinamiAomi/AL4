@@ -6,9 +6,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-#include "Core/Graphics.h"
 #include "Core/CommandContext.h"
-#include "Core/CommandQueue.h"
 #include "Core/TextureLoader.h"
 #include "Mesh.h"
 #include "Material.h"
@@ -19,19 +17,27 @@ namespace {
 
         for (uint32_t meshIndex = 0; auto & destMesh : meshes) {
             const aiMesh* srcMesh = scene->mMeshes[meshIndex];
+            assert(srcMesh->HasNormals());
 
             destMesh.vertices.resize(srcMesh->mNumVertices);
             for (uint32_t vertexIndex = 0; auto & destVertex : destMesh.vertices) {
                 aiVector3D& srcPosition = srcMesh->mVertices[vertexIndex];
                 aiVector3D& srcNormal = srcMesh->mNormals[vertexIndex];
-                aiVector3D& srcTexcoord = srcMesh->mTextureCoords[0][vertexIndex];
                 // セット
                 destVertex.position = { srcPosition.x, srcPosition.y, srcPosition.z };
                 destVertex.normal = { srcNormal.x, srcNormal.y, srcNormal.z };
-                destVertex.texcood = { srcTexcoord.x, srcTexcoord.y };
+                if (srcMesh->HasTextureCoords(0)) {
+                    aiVector3D& srcTexcoord = srcMesh->mTextureCoords[0][vertexIndex];
+                    destVertex.texcood = { srcTexcoord.x, srcTexcoord.y };
+                }
+                else {
+                    destVertex.texcood = Vector2::zero;
+                }
                 // 左手座標系に変換
                 destVertex.position.x *= -1.0f;
                 destVertex.normal.x *= -1.0f;
+
+                vertexIndex++;
             }
 
             destMesh.indices.reserve(srcMesh->mNumFaces * 3);
@@ -39,13 +45,13 @@ namespace {
                 aiFace& srcFace = srcMesh->mFaces[faceIndex];
                 assert(srcFace.mNumIndices == 3);
                 destMesh.indices.emplace_back(srcFace.mIndices[0]);
-                destMesh.indices.emplace_back(srcFace.mIndices[1]);
                 destMesh.indices.emplace_back(srcFace.mIndices[2]);
+                destMesh.indices.emplace_back(srcFace.mIndices[1]);
             }
 
             // マテリアルが読み込まれてない
             assert(srcMesh->mMaterialIndex < materials.size());
-            destMesh.material_ = materials[srcMesh->mMaterialIndex];
+            destMesh.material = materials[srcMesh->mMaterialIndex];
 
             ++meshIndex;
         }
@@ -92,6 +98,8 @@ namespace {
 
 }
 
+std::list<ModelInstance*> ModelInstance::instanceLists_;
+
 std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
 
     // privateコンストラクタをmake_sharedで呼ぶためのヘルパー
@@ -109,29 +117,41 @@ std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
     // 左手座標系に変換
     flags |= aiProcess_FlipUVs;
     // 接空間を計算
-    flags |= aiProcess_CalcTangentSpace;
+    //flags |= aiProcess_CalcTangentSpace;
+    flags |= aiProcess_GenNormals;
     const aiScene* scene = importer.ReadFile(path.string(), flags);
     // 読み込めた
-    assert(scene && scene->HasMeshes());
+    if (!scene) {
+        OutputDebugStringA(importer.GetErrorString());
+        assert(false);
+    }
+    assert(scene->HasMeshes());
 
     std::vector<std::shared_ptr<Material>> materials = ParseMaterials(scene, directory);
     model->meshes_ = ParseMeshes(scene, materials);
 
-    auto graphics = Graphics::GetInstance();
-
     // 中間リソースをコピーする
-    auto& commandQueue = graphics->GetCommandQueue();
     CommandContext commandContext;
-    commandContext.Create();
+    commandContext.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
     for (auto& mesh : model->meshes_) {
         mesh.CreateBuffers(commandContext);
     }
+    model->blas_.Create(L"ModelBLAS", commandContext, model->meshes_);
 
-    commandContext.Close();
-    commandQueue.Excute(commandContext);
-    commandQueue.Signal();
-    commandQueue.WaitForGPU();
+    commandContext.Finish(true);
 
     return model;
+}
+
+ModelInstance::ModelInstance() {
+    instanceLists_.emplace_back(this);
+}
+
+ModelInstance::~ModelInstance() {
+    std::erase(instanceLists_, this);
+   // auto iter = std::find(instanceLists_.begin(), instanceLists_.end(), this);
+   // if (iter != instanceLists_.end()) {
+   //     instanceLists_.erase(iter);
+   // }
 }

@@ -16,11 +16,10 @@ public:
     void Copy(const T& srcData) const { Copy(&srcData, sizeof(srcData)); }
 
     size_t GetBufferSize() const { return bufferSize_; }
-    void* GetCPUData() const { return cpuData_; }
+    void* GetCPUDataBegin() const { return cpuDataBegin_; }
 
 protected:
-    void Destroy();
 
     size_t bufferSize_ = 0;
-    void* cpuData_ = nullptr;
+    void* cpuDataBegin_ = nullptr;
 };

@@ -14,6 +14,8 @@
 #include "LinearAllocator.h"
 #include "Helper.h"
 
+#define DXR_GRAPHICS_COMMAND_LIST ID3D12GraphicsCommandList4
+
 struct DWParam {
     DWParam(FLOAT f) : v{ .f = f } {}
     DWParam(UINT u) : v{ .u = u } {}
@@ -32,12 +34,12 @@ struct DWParam {
 
 class CommandContext {
 public:
-    void Create();
-
+    void Start(D3D12_COMMAND_LIST_TYPE type);
     void Close();
-    void Reset();
+    UINT64 Finish(bool waitForCompletion);
 
     void TransitionResource(GPUResource& resource, D3D12_RESOURCE_STATES newState);
+    void UAVBarrier(GPUResource& resource);
     void FlushResourceBarriers();
 
     void CopyBuffer(GPUResource& dest, GPUResource& src);
@@ -92,15 +94,20 @@ public:
     void DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation = 0, UINT startInstanceLocation = 0);
     void DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0, UINT startInstanceLocation = 0);
 
+    D3D12_GPU_VIRTUAL_ADDRESS TransfarUploadBuffer(size_t bufferSize, const void* bufferData);
+
     operator ID3D12GraphicsCommandList* () const { return commandList_.Get(); }
 
-    void TrackingObject(Microsoft::WRL::ComPtr<ID3D12Object> object) { trackedObjects_.emplace_back(object); }
+    DXR_GRAPHICS_COMMAND_LIST* GetDXRCommandList() const { return dxrCommandList_.Get(); }
+
 private:
     static const uint32_t kMaxNumResourceBarriers = 16;
 
-
+    D3D12_COMMAND_LIST_TYPE type_;
+    Microsoft::WRL::ComPtr<ID3D12Device> device_;
     Microsoft::WRL::ComPtr<ID3D12CommandAllocator> commandAllocator_;
     Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList_;
+    Microsoft::WRL::ComPtr<DXR_GRAPHICS_COMMAND_LIST> dxrCommandList_;
 
     D3D12_RESOURCE_BARRIER resourceBarriers_[kMaxNumResourceBarriers]{};
     uint32_t numResourceBarriers_;
@@ -115,7 +122,7 @@ private:
 
     LinearAllocator dynamicBuffer_;
 
-    std::vector<Microsoft::WRL::ComPtr<ID3D12Object>> trackedObjects_;
+    bool isClose_;
 };
 
 inline void CommandContext::TransitionResource(GPUResource& resource, D3D12_RESOURCE_STATES newState) {
@@ -131,9 +138,20 @@ inline void CommandContext::TransitionResource(GPUResource& resource, D3D12_RESO
         barrier.Transition.Subresource = D3D12_RESOURCE_BARRIER_ALL_SUBRESOURCES;
 
         resource.state_ = newState;
-
-        TrackingObject(resource.Get());
     }
+
+    if (numResourceBarriers_ >= kMaxNumResourceBarriers) {
+        FlushResourceBarriers();
+    }
+}
+
+inline void CommandContext::UAVBarrier(GPUResource& resource) {
+    assert(numResourceBarriers_ < kMaxNumResourceBarriers);
+
+    auto& barrier = resourceBarriers_[numResourceBarriers_++];
+    barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
+    barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
+    barrier.UAV.pResource = resource;
 
     if (numResourceBarriers_ >= kMaxNumResourceBarriers) {
         FlushResourceBarriers();
@@ -152,8 +170,6 @@ inline void CommandContext::CopyBuffer(GPUResource& dest, GPUResource& src) {
     TransitionResource(src, D3D12_RESOURCE_STATE_COPY_SOURCE);
     FlushResourceBarriers();
     commandList_->CopyResource(dest, src);
-    TrackingObject(dest.Get());
-    TrackingObject(src.Get());
 }
 
 inline void CommandContext::CopyBuffer(GPUResource& dest, size_t bufferSize, const void* data) {
@@ -170,8 +186,6 @@ inline void CommandContext::CopyBufferRegion(GPUResource& dest, size_t destOffse
     TransitionResource(src, D3D12_RESOURCE_STATE_COPY_SOURCE);
     FlushResourceBarriers();
     commandList_->CopyBufferRegion(dest, destOffset, src, srcOffset, numBytes);
-    TrackingObject(dest.Get());
-    TrackingObject(src.Get());
 }
 
 inline void CommandContext::SetPipelineState(const PipelineState& pipelineState) {
@@ -179,7 +193,6 @@ inline void CommandContext::SetPipelineState(const PipelineState& pipelineState)
     if (pipelineState_ != ps) {
         pipelineState_ = ps;
         commandList_->SetPipelineState(pipelineState_);
-        TrackingObject(pipelineState.Get());
     }
 }
 inline void CommandContext::SetRootSignature(const RootSignature& rootSignature) {
@@ -187,32 +200,27 @@ inline void CommandContext::SetRootSignature(const RootSignature& rootSignature)
     if (rootSignature_ != rs) {
         rootSignature_ = rs;
         commandList_->SetGraphicsRootSignature(rootSignature_);
-        TrackingObject(rootSignature.Get());
     }
 }
 
 inline void CommandContext::ClearColor(ColorBuffer& target) {
     FlushResourceBarriers();
     commandList_->ClearRenderTargetView(target.GetRTV(), target.GetClearColor(), 0, nullptr);
-    TrackingObject(target.Get());
 }
 
 inline void CommandContext::ClearColor(ColorBuffer& target, float clearColor[4]) {
     FlushResourceBarriers();
     commandList_->ClearRenderTargetView(target.GetRTV(), clearColor, 0, nullptr);
-    TrackingObject(target.Get());
 }
 
 inline void CommandContext::ClearDepth(DepthBuffer& target) {
     FlushResourceBarriers();
     commandList_->ClearDepthStencilView(target.GetDSV(), D3D12_CLEAR_FLAG_DEPTH, target.GetClearValue(), 0, 0, nullptr);
-    TrackingObject(target.Get());
 }
 
 inline void CommandContext::ClearDepth(DepthBuffer& target, float clearValue) {
     FlushResourceBarriers();
     commandList_->ClearDepthStencilView(target.GetDSV(), D3D12_CLEAR_FLAG_DEPTH, clearValue, 0, 0, nullptr);
-    TrackingObject(target.Get());
 }
 
 inline void CommandContext::SetRenderTargets(UINT numRTVs, const D3D12_CPU_DESCRIPTOR_HANDLE rtvs[]) {
@@ -390,3 +398,10 @@ inline void CommandContext::DrawIndexedInstanced(UINT indexCountPerInstance, UIN
     FlushResourceBarriers();
     commandList_->DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
 }
+
+inline D3D12_GPU_VIRTUAL_ADDRESS CommandContext::TransfarUploadBuffer(size_t bufferSize, const void* bufferData) {
+    auto allocation = dynamicBuffer_.Allocate(bufferSize);
+    memcpy(allocation.cpu, bufferData, bufferSize);
+    return allocation.gpu;
+}
+

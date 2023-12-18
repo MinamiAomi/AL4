@@ -49,6 +49,12 @@
     <Filter Include="Graphics\Standard">
       <UniqueIdentifier>{37312380-62d4-4315-99fe-3ebcfbc4d566}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Graphics\Raytracing">
+      <UniqueIdentifier>{955959df-b378-4033-ae18-447adc1bcc1f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Shader\Raytracing">
+      <UniqueIdentifier>{a1e7bf27-2b86-4027-bc62-89a4ba770bdb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene\SceneManager.cpp">
@@ -70,9 +76,6 @@
       <Filter>Input</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Bloom.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\DefaultTextures.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\GameWindow.cpp">
@@ -219,6 +222,42 @@
     <ClCompile Include="Graphics\Mesh.cpp">
       <Filter>Graphics\Standard</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Raytracing\BLAS.cpp">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Core\CommandAllocatorPool.cpp">
+      <Filter>Graphics\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Core\CommandListPool.cpp">
+      <Filter>Graphics\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Raytracing\RaytracingRenderer.cpp">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Core\GPUResource.cpp">
+      <Filter>Graphics\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Raytracing\ShaderTable.cpp">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Raytracing\StateObject.cpp">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Raytracing\TLAS.cpp">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Core\ReleasedObjectTracker.cpp">
+      <Filter>Graphics\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ModelRenderer.cpp">
+      <Filter>Graphics\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\DefaultTextures.cpp">
+      <Filter>Graphics\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\LightManager.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -236,9 +275,6 @@
     <ClInclude Include="Math\Geometry.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="Math\LightStructs.h">
-      <Filter>Math</Filter>
-    </ClInclude>
     <ClInclude Include="Math\MathUtils.h">
       <Filter>Math</Filter>
     </ClInclude>
@@ -252,9 +288,6 @@
       <Filter>Input</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Bloom.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\DefaultTextures.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\GameWindow.h">
@@ -446,6 +479,39 @@
     <ClInclude Include="Graphics\Core\TextureLoader.h">
       <Filter>Graphics\Core</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Raytracing\BLAS.h">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Raytracing\RaytracingRenderer.h">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Core\CommandAllocatorPool.h">
+      <Filter>Graphics\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Core\CommandListPool.h">
+      <Filter>Graphics\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Raytracing\ShaderTable.h">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Raytracing\StateObject.h">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Raytracing\TLAS.h">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Core\ReleasedObjectTracker.h">
+      <Filter>Graphics\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ModelRenderer.h">
+      <Filter>Graphics\Standard</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\DefaultTextures.h">
+      <Filter>Graphics\Standard</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\LightManager.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\Lighting.hlsli">
@@ -499,19 +565,31 @@
     <None Include="Graphics\Shader\ParticlePS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
-    <None Include="Graphics\Shader\GeometryPass.hlsli">
-      <Filter>Graphics\Shader\Standard</Filter>
-    </None>
-    <None Include="Graphics\Shader\GeometryPassVS.hlsl">
-      <Filter>Graphics\Shader\Standard</Filter>
-    </None>
     <None Include="Graphics\Shader\GaussianBlurPS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
-    <None Include="Graphics\Shader\GeometryPassPS.hlsl">
+    <None Include="Graphics\Shader\Standard\GeometryPass.hlsli">
       <Filter>Graphics\Shader\Standard</Filter>
     </None>
-    <None Include="Graphics\Shader\LightingPassPS.hlsl">
+    <None Include="Graphics\Shader\Standard\LightingPassPS.hlsl">
+      <Filter>Graphics\Shader\Standard</Filter>
+    </None>
+    <None Include="Graphics\Shader\Standard\GeometryPassVS.hlsl">
+      <Filter>Graphics\Shader\Standard</Filter>
+    </None>
+    <None Include="Graphics\Shader\Standard\GeometryPassPS.hlsl">
+      <Filter>Graphics\Shader\Standard</Filter>
+    </None>
+    <None Include="Graphics\Shader\Raytracing\Raytracing.hlsl">
+      <Filter>Graphics\Shader\Raytracing</Filter>
+    </None>
+    <None Include="Graphics\Shader\Standard\StandardModelVS.hlsl">
+      <Filter>Graphics\Shader\Standard</Filter>
+    </None>
+    <None Include="Graphics\Shader\Standard\StandardModel.hlsli">
+      <Filter>Graphics\Shader\Standard</Filter>
+    </None>
+    <None Include="Graphics\Shader\Standard\StandardModelPS.hlsl">
       <Filter>Graphics\Shader\Standard</Filter>
     </None>
   </ItemGroup>

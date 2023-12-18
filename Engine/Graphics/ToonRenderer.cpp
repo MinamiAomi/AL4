@@ -10,10 +10,10 @@
 #include "Core/SamplerManager.h"
 #include "DefaultTextures.h"
 
-const wchar_t kOutlineVertexShadedr[] = L"Engine/Graphics/Shader/OutlineVS.hlsl";
-const wchar_t kOutlinePixelShadedr[] = L"Engine/Graphics/Shader/OutlinePS.hlsl";
-const wchar_t kToonVertexShadedr[] = L"Engine/Graphics/Shader/ToonVS.hlsl";
-const wchar_t kToonPixelShadedr[] = L"Engine/Graphics/Shader/ToonPS.hlsl";
+const wchar_t kOutlineVertexShadedr[] = L"OutlineVS.hlsl";
+const wchar_t kOutlinePixelShadedr[] = L"OutlinePS.hlsl";
+const wchar_t kToonVertexShadedr[] = L"ToonVS.hlsl";
+const wchar_t kToonPixelShadedr[] = L"ToonPS.hlsl";
 
 void ToonRenderer::Initialize(const ColorBuffer& colorBuffer, const DepthBuffer& depthBuffer) {
     InitializeRootSignature();

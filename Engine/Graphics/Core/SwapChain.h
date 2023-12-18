@@ -18,13 +18,12 @@ public:
     void Create(HWND hWnd);
     void Present();
 
-    ColorBuffer& GetColorBuffer() { return *buffers_[currentBufferIndex_]; }
-    const ColorBuffer& GetColorBuffer() const { return *buffers_[currentBufferIndex_]; }
-    uint32_t GetBufferIndex() const { return currentBufferIndex_; }
+    ColorBuffer& GetColorBuffer(uint32_t bufferIndex) { return *buffers_[bufferIndex]; }
+    const ColorBuffer& GetColorBuffer(uint32_t bufferIndex) const { return *buffers_[bufferIndex]; }
+    uint32_t GetCurrentBackBufferIndex() const { return swapChain_->GetCurrentBackBufferIndex(); }
 
 private:
     Microsoft::WRL::ComPtr<IDXGISwapChain4> swapChain_;
     std::unique_ptr<ColorBuffer> buffers_[kNumBuffers];
-    uint32_t currentBufferIndex_ = 0;
     int32_t refreshRate_ = 0;
 };

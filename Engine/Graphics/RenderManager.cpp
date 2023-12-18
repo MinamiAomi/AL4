@@ -12,27 +12,23 @@ RenderManager* RenderManager::GetInstance() {
 
 void RenderManager::Initialize() {
     graphics_ = Graphics::GetInstance();
-    graphics_->Initialize();
 
     auto shaderManager = ShaderManager::GetInstance();
     shaderManager->Initialize();
+    shaderManager->SetDirectory(std::filesystem::current_path() / SHADER_DIRECTORY);
 
-    auto vs = shaderManager->Compile(L"Engine/Graphics/Shader/GeometryPassVS.hlsl", ShaderType::Vertex, 6, 6);
-    auto ps = shaderManager->Compile(L"Engine/Graphics/Shader/GeometryPassPS.hlsl", ShaderType::Pixel, 6, 6);
-    auto lps = shaderManager->Compile(L"Engine/Graphics/Shader/LightingPassPS.hlsl", ShaderType::Pixel, 6, 6);
+    auto vs = shaderManager->Compile(L"Standard/GeometryPassVS.hlsl", ShaderType::Vertex, 6, 6);
+    auto ps = shaderManager->Compile(L"Standard/GeometryPassPS.hlsl", ShaderType::Pixel, 6, 6);
+    auto lps = shaderManager->Compile(L"Standard/LightingPassPS.hlsl", ShaderType::Pixel, 6, 6);
+    auto rt = shaderManager->Compile(L"Raytracing/Raytracing.hlsl", ShaderType::Library, 6, 6);
 
 
     auto window = GameWindow::GetInstance();
     swapChain_.Create(window->GetHWND());
 
-    for (auto& commandContext : commandContexts_) {
-        commandContext.Create();
-        commandContext.Close();
-    }
-
     DefaultTexture::Initialize();
 
-    auto& swapChainBuffer = swapChain_.GetColorBuffer();
+    auto& swapChainBuffer = swapChain_.GetColorBuffer(0);
     float clearColor[4] = { 0.1f, 0.4f, 0.6f, 0.0f };
     mainColorBuffer_.SetClearColor(clearColor);
     mainColorBuffer_.Create(L"MainColorBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R8G8B8A8_UNORM);
@@ -42,6 +38,9 @@ void RenderManager::Initialize() {
     particleRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
     postEffect_.Initialize(swapChainBuffer);
     spriteRenderer_.Initialize(swapChainBuffer);
+
+    modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
+    raytracingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
 
     timer_.Initialize();
 
@@ -55,36 +54,36 @@ void RenderManager::Finalize() {
     imguiManager->Shutdown();
 
     DefaultTexture::Finalize();
-
-    graphics_->Finalize();
 }
 
 void RenderManager::Render() {
-    auto& commandContext = commandContexts_[swapChain_.GetBufferIndex()];
 
+    uint32_t targetSwapChainBufferIndex = (swapChain_.GetCurrentBackBufferIndex() + 1) % SwapChain::kNumBuffers;
 
-    commandContext.Reset();
+    commandContext_.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
-    commandContext.TransitionResource(mainColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    commandContext.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    commandContext.SetRenderTarget(mainColorBuffer_.GetRTV(), mainDepthBuffer_.GetDSV());
-    commandContext.ClearColor(mainColorBuffer_);
-    commandContext.ClearDepth(mainDepthBuffer_);
-    commandContext.SetViewportAndScissorRect(0, 0, mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
+    commandContext_.TransitionResource(mainColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    commandContext_.SetRenderTarget(mainColorBuffer_.GetRTV(), mainDepthBuffer_.GetDSV());
+    commandContext_.ClearColor(mainColorBuffer_);
+    commandContext_.ClearDepth(mainDepthBuffer_);
+    commandContext_.SetViewportAndScissorRect(0, 0, mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
 
-    if (camera_) {
-        toonRenderer_.Render(commandContext, *camera_);
-        particleRenderer_.Render(commandContext, *camera_);
+    if (camera_ && sunLight_) {
+        //toonRenderer_.Render(commandContext_, *camera_);
+        particleRenderer_.Render(commandContext_, *camera_);
+        modelRenderer.Render(commandContext_, *camera_, *sunLight_);
+        raytracingRenderer_.Render(commandContext_, *camera_, *sunLight_);
     }
 
-    auto& swapChainBuffer = swapChain_.GetColorBuffer();
-    commandContext.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    commandContext.SetRenderTarget(swapChainBuffer.GetRTV());
-    commandContext.ClearColor(swapChainBuffer);
-    commandContext.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
+    auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
+    commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    commandContext_.SetRenderTarget(swapChainBuffer.GetRTV());
+    commandContext_.ClearColor(swapChainBuffer);
+    commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
-    postEffect_.Render(commandContext, mainColorBuffer_);
-    spriteRenderer_.Render(commandContext, 0.0f, 0.0f, float(swapChainBuffer.GetWidth()), float(swapChainBuffer.GetHeight()));
+    postEffect_.Render(commandContext_, mainColorBuffer_, raytracingRenderer_.GetResult());
+    spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, float(swapChainBuffer.GetWidth()), float(swapChainBuffer.GetHeight()));
 
 #ifdef _DEBUG
     //ImGui::Begin("Profile");
@@ -95,15 +94,22 @@ void RenderManager::Render() {
 
     // ImGuiを描画
     auto imguiManager = ImGuiManager::GetInstance();
-    imguiManager->Render(commandContext);
+    imguiManager->Render(commandContext_);
 
-    commandContext.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_PRESENT);
-    commandContext.Close();
-    CommandQueue& commandQueue = graphics_->GetCommandQueue();
-    commandQueue.WaitForGPU();
-    commandQueue.Excute(commandContext);
+    commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_PRESENT);
+
+    // コマンドリスト完成(クローズ)
+    commandContext_.Close();
+
+    // バックバッファをフリップ
     swapChain_.Present();
-    commandQueue.Signal();
+    // シグナルを発行し待つ
+    auto& commandQueue = graphics_->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
+    commandQueue.WaitForIdle();
+
+    commandContext_.Finish(false);
+
+    graphics_->GetReleasedObjectTracker().FrameIncrementForRelease();
 
     timer_.KeepFrameRate(60);
 

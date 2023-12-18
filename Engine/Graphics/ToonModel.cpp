@@ -18,7 +18,7 @@ void ToonModel::Create(const ModelData& modelData) {
     std::vector<std::shared_ptr<Material>> createdMaterials;
 
     CommandContext commandContext;
-    commandContext.Create();
+    commandContext.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
     // テクスチャ
     for (auto& srcTexture : modelData.textures) {
         auto& destTexture = createdTextures.emplace_back(std::make_shared<Texture>());
@@ -57,11 +57,7 @@ void ToonModel::Create(const ModelData& modelData) {
         destMesh.material = createdMaterials[srcMesh.materialIndex];
         assert(destMesh.material);
     }
-    commandContext.Close();
-    auto& commandQueue = Graphics::GetInstance()->GetCommandQueue();
-    commandQueue.Excute(commandContext);
-    commandQueue.Signal();
-    commandQueue.WaitForGPU();
+    commandContext.Finish(true);
 }
 
 

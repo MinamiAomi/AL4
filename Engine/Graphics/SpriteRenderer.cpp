@@ -9,8 +9,8 @@
 #include "DefaultTextures.h"
 #include "Sprite.h"
 
-const wchar_t kSpriteVertexShadedr[] = L"Engine/Graphics/Shader/SpriteVS.hlsl";
-const wchar_t kSpritePixelShadedr[] = L"Engine/Graphics/Shader/SpritePS.hlsl";
+const wchar_t kSpriteVertexShadedr[] = L"SpriteVS.hlsl";
+const wchar_t kSpritePixelShadedr[] = L"SpritePS.hlsl";
 
 struct SpriteRootIndex {
     enum Index {

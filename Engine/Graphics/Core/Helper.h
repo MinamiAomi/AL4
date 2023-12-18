@@ -38,6 +38,8 @@ namespace Helper {
     size_t GetBytePerPixel(DXGI_FORMAT format);
 
     void AssertIfFailed(HRESULT hr, const wchar_t* str);
+
+    std::wstring GetCommandListTypeStr(D3D12_COMMAND_LIST_TYPE type);
 }
 
 #ifndef HELPER_DEFINES

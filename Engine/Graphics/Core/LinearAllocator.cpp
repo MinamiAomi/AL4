@@ -2,52 +2,43 @@
 
 #include <assert.h>
 
+#include "Graphics.h"
 #include "Helper.h"
 
-LinearAllocator::LinearAllocator(size_t pageSize) : pageSize_(pageSize) {}
+LinearAllocator::PagePool LinearAllocator::pagePool_;
+
+void LinearAllocator::Finalize() {
+    pagePool_.Clear();
+}
 
 LinearAllocator::Allocation LinearAllocator::Allocate(size_t sizeInByte, size_t alignment) {
-    assert(sizeInByte <= pageSize_);
+    assert(sizeInByte <= kPageSize);
 
     // 現在のページがない、または、ページに空きがない場合
     if (!currentPage_ || !currentPage_->HasSpace(sizeInByte, alignment)) {
+        if (currentPage_) {
+            usedPages_.emplace_back(currentPage_);
+        }
         // 新しいページを要求
-        currentPage_ = RequestPage();
+        currentPage_ = pagePool_.Allocate();
     }
     // 割り当て
     return currentPage_->Allocate(sizeInByte, alignment);
 }
 
-void LinearAllocator::Reset() {
-    currentPage_ = nullptr;
-    availablePages_ = pagePool_;
-
-    for (auto& page : availablePages_) {
-        page->Reset();
+void LinearAllocator::Reset(D3D12_COMMAND_LIST_TYPE type, UINT64 fenceValue) {
+    if (currentPage_) {
+        usedPages_.emplace_back(currentPage_);
+    }
+    if (!usedPages_.empty()) {
+        pagePool_.Discard(type, fenceValue, usedPages_);
+        usedPages_.clear();
     }
 }
 
-std::shared_ptr<LinearAllocator::Page> LinearAllocator::RequestPage() {
-    std::shared_ptr<Page> page;
-
-    // 利用可能なページがある
-    if (!availablePages_.empty()) {
-        page = availablePages_.front();
-        availablePages_.pop_front();
-    }
-    // 利用可能なページがない
-    else {
-        // 新しく生成する
-        page = std::make_shared<Page>(pageSize_);
-        pagePool_.push_back(page);
-    }
-
-    return page;
-}
-
-LinearAllocator::Page::Page(size_t sizeInByte) :
+LinearAllocator::Page::Page() :
     offset_(0) {
-    buffer_.Create(L"LinearAllocator Page", sizeInByte);
+    buffer_.Create(L"LinearAllocator Page", LinearAllocator::kPageSize);
 }
 
 bool LinearAllocator::Page::HasSpace(size_t sizeInByte, size_t alignment) {
@@ -62,7 +53,7 @@ LinearAllocator::Allocation LinearAllocator::Page::Allocate(size_t sizeInByte, s
     offset_ = Helper::AlignUp(offset_, alignment);
 
     Allocation allocation{
-        .cpu = static_cast<uint8_t*>(buffer_.GetCPUData()) + offset_,
+        .cpu = static_cast<uint8_t*>(buffer_.GetCPUDataBegin()) + offset_,
         .gpu = buffer_.GetGPUVirtualAddress() + offset_
     };
     offset_ += alignedSize;
@@ -71,4 +62,53 @@ LinearAllocator::Allocation LinearAllocator::Page::Allocate(size_t sizeInByte, s
 
 void LinearAllocator::Page::Reset() {
     offset_ = 0;
+}
+
+LinearAllocator::PagePtr LinearAllocator::PagePool::Allocate() {
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    PagePtr page;
+
+    page = TryAllocate(D3D12_COMMAND_LIST_TYPE_DIRECT);
+    if (page) { return page; }
+    page = TryAllocate(D3D12_COMMAND_LIST_TYPE_COMPUTE);
+    if (page) { return page; }
+    page = TryAllocate(D3D12_COMMAND_LIST_TYPE_COPY);
+    if (page) { return page; }
+
+    page = std::make_shared<Page>();
+    pagePool_.emplace_back(page);
+
+    return page;
+}
+
+void LinearAllocator::PagePool::Discard(D3D12_COMMAND_LIST_TYPE type, UINT64 fenceValue, const std::vector<PagePtr>& pages) {
+    auto& readyPages = GetReadyPages(type);
+    for (auto& page : pages) {
+        readyPages.push(std::make_pair(fenceValue, page));
+    }
+}
+
+void LinearAllocator::PagePool::Clear() {
+    pagePool_.clear();
+    std::queue<std::pair<UINT64, PagePtr>>().swap(directReadyPages_);
+    std::queue<std::pair<UINT64, PagePtr>>().swap(computeReadyPages_);
+    std::queue<std::pair<UINT64, PagePtr>>().swap(copyReadyPages_);
+}
+
+LinearAllocator::PagePtr LinearAllocator::PagePool::TryAllocate(D3D12_COMMAND_LIST_TYPE type) {
+    auto& readyPages = GetReadyPages(type);
+
+    if (!readyPages.empty()) {
+        const auto& [fenceValue, readyPage] = readyPages.front();
+        auto& queue = Graphics::GetInstance()->GetCommandQueue(type);
+
+        if (fenceValue <= queue.GetLastCompletedFenceValue()) {
+            readyPage->Reset();
+            readyPages.pop();
+            return readyPage;
+        }
+    }
+
+    return PagePtr();
 }
