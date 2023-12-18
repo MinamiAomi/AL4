@@ -51,7 +51,7 @@ private:
     SpriteRenderer spriteRenderer_;
     RaytracingRenderer raytracingRenderer_;
     ModelRenderer modelRenderer;
-    Bloom bloom_;
+    //Bloom bloom_;
     PostEffect postEffect_;
     
     Timer timer_;

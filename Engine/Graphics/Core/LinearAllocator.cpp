@@ -7,6 +7,10 @@
 
 LinearAllocator::PagePool LinearAllocator::pagePool_;
 
+void LinearAllocator::Finalize() {
+    pagePool_.Clear();
+}
+
 LinearAllocator::Allocation LinearAllocator::Allocate(size_t sizeInByte, size_t alignment) {
     assert(sizeInByte <= kPageSize);
 
@@ -83,6 +87,13 @@ void LinearAllocator::PagePool::Discard(D3D12_COMMAND_LIST_TYPE type, UINT64 fen
     for (auto& page : pages) {
         readyPages.push(std::make_pair(fenceValue, page));
     }
+}
+
+void LinearAllocator::PagePool::Clear() {
+    pagePool_.clear();
+    std::queue<std::pair<UINT64, PagePtr>>().swap(directReadyPages_);
+    std::queue<std::pair<UINT64, PagePtr>>().swap(computeReadyPages_);
+    std::queue<std::pair<UINT64, PagePtr>>().swap(copyReadyPages_);
 }
 
 LinearAllocator::PagePtr LinearAllocator::PagePool::TryAllocate(D3D12_COMMAND_LIST_TYPE type) {

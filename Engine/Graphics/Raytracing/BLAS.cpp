@@ -59,6 +59,4 @@ void BLAS::Create(const std::wstring& name, CommandContext& commandContext, cons
     commandContext.GetDXRCommandList()->BuildRaytracingAccelerationStructure(&asDesc, 0, nullptr);
     // 生成完了までUAVバリアを張る
     commandContext.UAVBarrier(*this);
-    // スクラッチリソースが解放されないようにする
-    commandContext.TrackingObject(scratchResource.Get());
 }

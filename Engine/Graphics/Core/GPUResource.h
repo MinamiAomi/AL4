@@ -33,4 +33,9 @@ public:
 protected:
     Microsoft::WRL::ComPtr<ID3D12Resource> resource_;
     D3D12_RESOURCE_STATES state_ = D3D12_RESOURCE_STATE_COMMON;
+
+#ifdef _DEBUG
+    std::wstring name_;
+#endif // _DEBUG
+
 };

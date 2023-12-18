@@ -60,10 +60,13 @@ private:
     Graphics();
     Graphics(const Graphics&) = delete;
     Graphics& operator=(const Graphics&) = delete;
+    ~Graphics() = default;
 
     void CreateDevice();
     CommandSet& GetCommandSet(D3D12_COMMAND_LIST_TYPE type);
     void CreateDynamicResourcesRootSignature();
+
+    ReleasedObjectTracker releasedObjectTracker_;
 
     Microsoft::WRL::ComPtr<ID3D12Device> device_;
     Microsoft::WRL::ComPtr<DXR_DEVICE> dxrDevice_;
@@ -74,8 +77,6 @@ private:
 
     std::shared_ptr<DescriptorHeap> descriptorHeaps_[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
     
-    ReleasedObjectTracker releasedObjectTracker_;
-
     RootSignature dynamicResourcesRootSignature_;
 };
 

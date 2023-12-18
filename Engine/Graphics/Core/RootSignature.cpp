@@ -5,11 +5,8 @@
 #include "Graphics.h"
 #include "Helper.h"
 
-RootSignature::~RootSignature() {
-    Graphics::GetInstance()->GetReleasedObjectTracker().AddObject(rootSignature_);
-}
-
 void RootSignature::Create(const std::wstring& name, const D3D12_ROOT_SIGNATURE_DESC& desc) {
+    Destroy();
 
     Microsoft::WRL::ComPtr<ID3DBlob> blob;
     Microsoft::WRL::ComPtr<ID3DBlob> errorBlob;
@@ -33,4 +30,14 @@ void RootSignature::Create(const std::wstring& name, const D3D12_ROOT_SIGNATURE_
         blob->GetBufferSize(),
         IID_PPV_ARGS(rootSignature_.ReleaseAndGetAddressOf())));
     D3D12_OBJECT_SET_NAME(rootSignature_, name.c_str());
+#ifdef _DEBUG
+    name_ = name;
+#endif // _DEBUG
+}
+
+void RootSignature::Destroy() {
+    if (rootSignature_) {
+        Graphics::GetInstance()->GetReleasedObjectTracker().AddObject(rootSignature_);
+        rootSignature_ = nullptr;
+    }
 }

@@ -14,6 +14,8 @@ public:
         void* cpu;
         const D3D12_GPU_VIRTUAL_ADDRESS gpu;
     };
+
+    static void Finalize();
     
     Allocation Allocate(size_t sizeInByte, size_t alignment = 256);
     void Reset(D3D12_COMMAND_LIST_TYPE type, UINT64 fenceValue);
@@ -38,6 +40,7 @@ private:
     public:
         PagePtr Allocate();
         void Discard(D3D12_COMMAND_LIST_TYPE type, UINT64 fenceValue, const std::vector<PagePtr>& pages);
+        void Clear();
 
         size_t GetSize() const { return pagePool_.size(); }
 

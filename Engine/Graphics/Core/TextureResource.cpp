@@ -7,9 +7,7 @@
 #include "CommandContext.h"
 #include "UploadBuffer.h"
 
-void TextureResource::CreateFromWICFile(const std::wstring& path) {
-
-
+void TextureResource::CreateFromWICFile(const std::filesystem::path& path) {
     // 中間リソースをコピーする
     CommandContext commandContext;
     commandContext.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
@@ -17,27 +15,21 @@ void TextureResource::CreateFromWICFile(const std::wstring& path) {
     commandContext.Finish(true);
 }
 
-void TextureResource::Create(UINT width, UINT height, DXGI_FORMAT format, void* dataBegin) {
-
+void TextureResource::Create(size_t rowPitchBytes, size_t width, size_t height, DXGI_FORMAT format, void* dataBegin) {
     // 中間リソースをコピーする
     CommandContext commandContext;
     commandContext.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
-
-    Create(commandContext, width, height, format, dataBegin);
+    Create(commandContext, rowPitchBytes, width, height, format, dataBegin);
     commandContext.Finish(true);
-
 }
 
 
-void TextureResource::CreateFromWICFile(CommandContext& commandContext, const std::wstring& path) {
-    auto graphics = Graphics::GetInstance();
-    auto device = graphics->GetDevice();
-
-    auto& wname = path;
+void TextureResource::CreateFromWICFile(CommandContext& commandContext, const std::filesystem::path& path) {
+    auto device = Graphics::GetInstance()->GetDevice();
 
     // ファイルを読み込む
     DirectX::ScratchImage image{};
-    ASSERT_IF_FAILED(DirectX::LoadFromWICFile(wname.c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image));
+    ASSERT_IF_FAILED(DirectX::LoadFromWICFile(path.wstring().c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image));
 
     // ミップマップを生成
     DirectX::ScratchImage mipImages{};
@@ -52,86 +44,32 @@ void TextureResource::CreateFromWICFile(CommandContext& commandContext, const st
     desc_.Format = metadata.format;
     desc_.SampleDesc.Count = 1;
     desc_.Dimension = D3D12_RESOURCE_DIMENSION(metadata.dimension);
-    D3D12_HEAP_PROPERTIES heapPropeteies = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-    ASSERT_IF_FAILED(device->CreateCommittedResource(
-        &heapPropeteies,
-        D3D12_HEAP_FLAG_NONE,
-        &desc_,
-        D3D12_RESOURCE_STATE_COPY_DEST,
-        nullptr,
-        IID_PPV_ARGS(resource_.GetAddressOf())));
-    state_ = D3D12_RESOURCE_STATE_COPY_DEST;
 
     // 中間リソースを読み込む
     std::vector<D3D12_SUBRESOURCE_DATA> subresources;
     DirectX::PrepareUpload(device, mipImages.GetImages(), mipImages.GetImageCount(), mipImages.GetMetadata(), subresources);
-    uint64_t intermediateSize = GetRequiredIntermediateSize(resource_.Get(), 0, UINT(subresources.size()));
+    
+    CD3DX12_HEAP_PROPERTIES heapProp(D3D12_HEAP_TYPE_DEFAULT);
+    CreateResource(L"TextureResource", heapProp, desc_, D3D12_RESOURCE_STATE_COPY_DEST);
 
-    D3D12_RESOURCE_DESC intermediateResourceDesc = CD3DX12_RESOURCE_DESC::Buffer(intermediateSize);
-    heapPropeteies = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
-    Microsoft::WRL::ComPtr<ID3D12Resource> intermediateResource;
-    ASSERT_IF_FAILED(device->CreateCommittedResource(
-        &heapPropeteies,
-        D3D12_HEAP_FLAG_NONE,
-        &intermediateResourceDesc,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        nullptr,
-        IID_PPV_ARGS(intermediateResource.GetAddressOf())));
-    UpdateSubresources(commandContext, resource_.Get(), intermediateResource.Get(), 0, 0, UINT(subresources.size()), subresources.data());
+    UploadResource(commandContext, UINT(subresources.size()), subresources.data());
 
-    commandContext.TrackingObject(intermediateResource);
-    commandContext.TrackingObject(resource_);
-    commandContext.TransitionResource(*this, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     // ビューを生成
     CreateView();
 }
 
-void TextureResource::Create(CommandContext& commandContext, UINT width, UINT height, DXGI_FORMAT format, void* dataBegin) {
-    auto graphics = Graphics::GetInstance();
-    auto device = graphics->GetDevice();
+void TextureResource::Create(CommandContext& commandContext, size_t rowPitchBytes, size_t width, size_t height, DXGI_FORMAT format, void* dataBegin) {
 
-    size_t pixelSize = Helper::GetBytePerPixel(format);
-    size_t bufferSize = pixelSize * width * height;
+    CD3DX12_HEAP_PROPERTIES heapProp(D3D12_HEAP_TYPE_DEFAULT);
+    desc_ = CD3DX12_RESOURCE_DESC::Tex2D(format, width, UINT(height), 1, 1);
+    CreateResource(L"TextureResource", heapProp, desc_, D3D12_RESOURCE_STATE_COPY_DEST);
+    
+    D3D12_SUBRESOURCE_DATA subresourceData{};
+    subresourceData.pData = dataBegin;
+    subresourceData.RowPitch = rowPitchBytes;
+    subresourceData.SlicePitch = rowPitchBytes * height;
 
-    UploadBuffer intermediateResource;
-    intermediateResource.Create(L"TextureResource IntermediateResource", bufferSize);
-
-    D3D12_SUBRESOURCE_FOOTPRINT pitchedDesc{};
-    pitchedDesc.Format = format;
-    pitchedDesc.Width = width;
-    pitchedDesc.Height = height;
-    pitchedDesc.Depth = 1;
-    pitchedDesc.RowPitch = UINT(Helper::AlignUp(width * pixelSize, D3D12_TEXTURE_DATA_PITCH_ALIGNMENT));
-
-    UINT8* uploadDataBegin = reinterpret_cast<UINT8*>(intermediateResource.GetCPUDataBegin());
-    UINT8* uploadDataDest = reinterpret_cast<UINT8*>(Helper::AlignUp(reinterpret_cast<size_t>(uploadDataBegin), D3D12_TEXTURE_DATA_PLACEMENT_ALIGNMENT));
-
-    D3D12_PLACED_SUBRESOURCE_FOOTPRINT placedTexture2D{};
-    placedTexture2D.Offset = uploadDataDest - uploadDataBegin;
-    placedTexture2D.Footprint = pitchedDesc;
-
-    for (UINT y = 0; y < height; ++y) {
-        UINT8* scan = uploadDataBegin + placedTexture2D.Offset + y * pitchedDesc.RowPitch;
-        memcpy(scan, &(reinterpret_cast<UINT8*>(dataBegin)[y * width]), pixelSize * width);
-    }
-
-    auto heapProp = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT);
-    auto desc_ = CD3DX12_RESOURCE_DESC::Tex2D(format, width, height, 1, 1);
-    ASSERT_IF_FAILED(device->CreateCommittedResource(
-        &heapProp,
-        D3D12_HEAP_FLAG_NONE,
-        &desc_,
-        D3D12_RESOURCE_STATE_COPY_DEST,
-        nullptr,
-        IID_PPV_ARGS(resource_.GetAddressOf())));
-    state_ = D3D12_RESOURCE_STATE_COPY_DEST;
-
-    ID3D12GraphicsCommandList* commandList = commandContext;
-
-    auto destLocation = CD3DX12_TEXTURE_COPY_LOCATION(resource_.Get(), 0);
-    auto srcLocation = CD3DX12_TEXTURE_COPY_LOCATION(intermediateResource, placedTexture2D);
-    commandList->CopyTextureRegion(&destLocation, 0, 0, 0, &srcLocation, nullptr);
-    commandContext.TransitionResource(*this, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    UploadResource(commandContext, 1, &subresourceData);
 
     CreateView();
 }
@@ -151,3 +89,14 @@ void TextureResource::CreateView() {
     srvDesc.Texture2D.MipLevels = desc_.MipLevels;
     device->CreateShaderResourceView(resource_.Get(), &srvDesc, srvHandle_);
 }
+
+void TextureResource::UploadResource(CommandContext& commandContext, size_t numSubresources, const D3D12_SUBRESOURCE_DATA* subresources) {
+    uint64_t intermediateSize = GetRequiredIntermediateSize(resource_.Get(), 0, UINT(numSubresources));
+
+    UploadBuffer intermediateResource;
+    intermediateResource.Create(L"TextureResource IntermediateResource", intermediateSize);
+
+    UpdateSubresources(commandContext, resource_.Get(), intermediateResource, 0, 0, UINT(numSubresources), subresources);
+    commandContext.TransitionResource(*this, D3D12_RESOURCE_STATE_GENERIC_READ);
+}
+

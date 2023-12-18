@@ -3,6 +3,7 @@
 #include "ImGuiManager.h"
 
 void DirectionalLight::DrawImGui(const std::string& label) {
+    (void)label;
 #ifdef _DEBUG
     bool openTree = ImGui::TreeNode(label.c_str());
     if (openTree) {

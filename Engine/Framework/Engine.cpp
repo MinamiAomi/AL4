@@ -12,6 +12,9 @@ void Engine::Run(Game* game) {
     auto gameWindow = GameWindow::GetInstance();
     gameWindow->Initialize(L"AL4", 1280, 720);
 
+    auto graphics = Graphics::GetInstance();
+    graphics->Initialize();
+
     auto input = Input::GetInstance();
     input->Initialize(gameWindow->GetHWND());
 
@@ -36,5 +39,6 @@ void Engine::Run(Game* game) {
     game->OnFinalize();
 
     renderManager->Finalize();
+    graphics->Finalize();
     gameWindow->Shutdown();
 }

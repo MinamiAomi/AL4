@@ -12,7 +12,6 @@ RenderManager* RenderManager::GetInstance() {
 
 void RenderManager::Initialize() {
     graphics_ = Graphics::GetInstance();
-    graphics_->Initialize();
 
     auto shaderManager = ShaderManager::GetInstance();
     shaderManager->Initialize();
@@ -55,8 +54,6 @@ void RenderManager::Finalize() {
     imguiManager->Shutdown();
 
     DefaultTexture::Finalize();
-
-    graphics_->Finalize();
 }
 
 void RenderManager::Render() {
