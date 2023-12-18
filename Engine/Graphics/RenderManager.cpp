@@ -41,6 +41,7 @@ void RenderManager::Initialize() {
 
     modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
     raytracingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
+    raymarchingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
 
     timer_.Initialize();
 
@@ -72,8 +73,9 @@ void RenderManager::Render() {
     if (camera_ && sunLight_) {
         //toonRenderer_.Render(commandContext_, *camera_);
         particleRenderer_.Render(commandContext_, *camera_);
-        modelRenderer.Render(commandContext_, *camera_, *sunLight_);
-        raytracingRenderer_.Render(commandContext_, *camera_, *sunLight_);
+        //modelRenderer.Render(commandContext_, *camera_, *sunLight_);
+        //raytracingRenderer_.Render(commandContext_, *camera_, *sunLight_);
+        raymarchingRenderer_.Render(commandContext_, *camera_);
     }
 
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
@@ -82,7 +84,7 @@ void RenderManager::Render() {
     commandContext_.ClearColor(swapChainBuffer);
     commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
-    postEffect_.Render(commandContext_, mainColorBuffer_, raytracingRenderer_.GetResult());
+    postEffect_.Render(commandContext_, raymarchingRenderer_.GetResult(), raytracingRenderer_.GetResult());
     spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, float(swapChainBuffer.GetWidth()), float(swapChainBuffer.GetHeight()));
 
 #ifdef _DEBUG

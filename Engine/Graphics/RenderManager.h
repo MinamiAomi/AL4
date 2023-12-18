@@ -7,6 +7,7 @@
 #include "Core/ColorBuffer.h"
 #include "Core/DepthBuffer.h"
 #include "Raytracing/RaytracingRenderer.h"
+#include "RaymarchingRenderer.h"
 #include "ModelRenderer.h"
 #include "Bloom.h"
 #include "ToonRenderer.h"
@@ -50,6 +51,7 @@ private:
     ParticleRenderer particleRenderer_;
     SpriteRenderer spriteRenderer_;
     RaytracingRenderer raytracingRenderer_;
+    RaymarchingRenderer raymarchingRenderer_;
     ModelRenderer modelRenderer;
     //Bloom bloom_;
     PostEffect postEffect_;

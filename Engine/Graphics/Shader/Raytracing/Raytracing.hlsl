@@ -46,7 +46,7 @@ void RayGeneration() {
     // レイの縦横数
     uint2 dispatchRaysDimensions = DispatchRaysDimensions().xy;
     // テクスチャ座標系を求める    
-    float2 texcoord = (float2) dispatchRaysIndex / (float2) dispatchRaysDimensions;
+    float2 texcoord = ((float2) dispatchRaysIndex + 0.5f) / (float2) dispatchRaysDimensions;
     
     //ConstantBuffer<Scene> scene = ResourceDescriptorHeap[descriptorIndex.scene];
     // 近面から遠面へのレイ
