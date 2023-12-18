@@ -32,11 +32,12 @@ void RaymarchingRenderer::Create(uint32_t width, uint32_t height) {
 void RaymarchingRenderer::Render(CommandContext& commandContext, const Camera& camera) {
     struct Scene {
         Matrix4x4 viewProjectionInverse;
+        Vector3 cameraPosition;
     };
 
     Scene scene;
     scene.viewProjectionInverse = camera.GetViewProjectionMatrix().Inverse();
-
+    scene.cameraPosition = camera.GetPosition();
 
     commandContext.TransitionResource(resultBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 

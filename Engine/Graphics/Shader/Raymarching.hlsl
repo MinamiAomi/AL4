@@ -1,10 +1,15 @@
+#include "Lighting.hlsli"
 
-#define MAX_STEPS 16
-#define MAX_DISTANCE 100
-#define EPSILON 0.001f
+#define MAX_STEPS 64
+#define MAX_DISTANCE 100.0f
+#define EPSILON 0.0001f
+
+#define MIN_FOG_DEPTH 50.0f
+#define MAX_FOG_DEPTH 100.0f
 
 struct Scene {
     float4x4 viewProjectionInverse;
+    float3 cameraPosition;
 };
 ConstantBuffer<Scene> g_Scene : register(b0);
 RWTexture2D<float4> g_Output : register(u0);
@@ -19,17 +24,47 @@ float3 GetWorldPosition(in float2 texcoord, in float depth, in float4x4 viewProj
     return position.xyz;
 }
 
-float3 Trans(float3 p) {
-    return fmod(p, 4.0f) - 2.0f;
+float Random(in float2 seed) {
+    return frac(sin(dot(seed, float2(12.9898f, 78.233f))) * 43758.5453f);
+
+}
+
+float3 opRepetitionXZ(in float3 p, in float x, in float z) {
+    return float3(
+    p.x - floor(p.x / x) * x - x * 0.5f, 
+    p.y, 
+    p.z - floor(p.z / z) * z - z * 0.5f);
+}
+
+float sdSphere(in float3 p, in float r) {
+    return length(p) - r;
+}
+
+float sdBox(in float3 p, in float3 b) {
+    float3 d = abs(p) - b;
+    return min(max(d.x, max(d.y, d.z)), 0.0f) + length(max(d, 0.0f));
 }
 
 float GetDistance(in float3 position) {
-    float3 p = float3(0.0f, 1.0f, 0.0f);
-    float r = 1.0f;
+    //float r = 1.0f;
+    //float distance = length(Trans(position)) - r;
     
-    float distance = length(Trans(position - p)) - r;
+    // XZ軸に繰り返し
+    float3 rayPos = opRepetitionXZ(position, 5.0f, 5.0f);
+    float height = lerp(0.0f, 5.0f, Random((float2)(int2) ((position.xz / 5.0f) - frac(position.xz / 5.0f))));
+    float distance = sdBox(rayPos - float3(0.0f, -50.0f, 0.0f), float3(2.0f, 1.0f, 2.0f)) - 0.5f;
     
     return distance;
+}
+
+float3 GetNormal(in float3 position) {
+    float3 d = float3(0.0001f, -0.0001f, 0.0f);
+    
+    float3 normal;
+    normal.x = GetDistance(position + d.xzz) - GetDistance(position + d.yzz);
+    normal.y = GetDistance(position + d.zxz) - GetDistance(position + d.zyz);
+    normal.z = GetDistance(position + d.zzx) - GetDistance(position + d.zzy);
+    return normalize(normal);
 }
 
 float Raymarch(in float3 rayOrigin, in float3 rayDirection) {
@@ -37,18 +72,21 @@ float Raymarch(in float3 rayOrigin, in float3 rayDirection) {
     float distance = 0.0f;
     
     for (uint i = 0; i < MAX_STEPS; ++i) {
-        for (uint i = 0; i < MAX_STEPS; ++i) {
-            float3 position = rayOrigin + rayDirection * distance;
-            float d = GetDistance(position);
-            distance += d;
+        float3 position = rayOrigin + rayDirection * distance;
+        float d = GetDistance(position);
+        distance += d;
         
-            if (distance > MAX_DISTANCE || d < EPSILON) {
-                break;
-            }
+        if (distance > MAX_DISTANCE || d < EPSILON) {
+            break;
         }
     }
 
     return distance;
+}
+
+float3 Fog(in float3 color, in float3 fogColor, in float depth) {
+    float t = (depth - MIN_FOG_DEPTH) / (MAX_FOG_DEPTH - MIN_FOG_DEPTH);
+    return lerp(color, fogColor, saturate(t));
 }
 
 [numthreads(8, 8, 1)]
@@ -65,11 +103,18 @@ void main(uint3 DTid : SV_DispatchThreadID) {
     float3 rayDirection = normalize(farPosition - nearPosition);
     float distance = Raymarch(rayOrigin, rayDirection);
     
-    float4 color = float4(0.0f, 0.0f, 0.0f, 0.0f);
+    float3 lightDirection = normalize(float3(0.2f, -1.0f, 0.3f));
+    
+    float4 color = float4(0.0f, 0.0f, 0.0f, 1.0f);
     
     if (distance < MAX_DISTANCE) {
-        color = float4(1.0f, 1.0f, 1.0f, 1.0f);
-    }  
+        float3 position = rayOrigin + rayDirection * distance;
+        float3 normal = GetNormal(position);
+        float3 pixelToCamera = normalize(g_Scene.cameraPosition - position);
+        color.rgb = Lighting::HalfLambertReflection(normal, lightDirection) + Lighting::BlinnPhongReflection(normal, pixelToCamera, lightDirection, 10.0f);
+        color.rgb = Fog(color.rgb, float3(0.0f, 0.0f, 0.0f), distance);
 
+    }
+        
     g_Output[DTid.xy] = color;
 }
