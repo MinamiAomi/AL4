@@ -48,6 +48,7 @@ public:
 
     void SetPipelineState(const PipelineState& pipelineState);
     void SetRootSignature(const RootSignature& rootSignature);
+    void SetComputeRootSignature(const RootSignature& rootSignature);
 
     void ClearColor(ColorBuffer& target);
     void ClearColor(ColorBuffer& target, float clearColor[4]);
@@ -79,6 +80,17 @@ public:
     void SetBindlessResource(UINT rootIndex);
     void SetBindlessSampler(UINT rootIndex);
 
+    void SetComputeConstantArray(UINT rootIndex, UINT numConstants, const void* constants);
+    void SetComputeConstant(UINT rootIndex, UINT offset, DWParam value);
+    void SetComputeConstants(UINT rootIndex, DWParam x);
+    void SetComputeConstants(UINT rootIndex, DWParam x, DWParam y);
+    void SetComputeConstants(UINT rootIndex, DWParam x, DWParam y, DWParam z);
+    void SetComputeConstants(UINT rootIndex, DWParam x, DWParam y, DWParam z, DWParam w);
+    void SetComputeConstantBuffer(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address);
+    void SetComputeDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE baseDescriptor);
+    void SetComputeBindlessResource(UINT rootIndex);
+    void SetComputeBindlessSampler(UINT rootIndex);
+
     void SetVertexBuffer(UINT slot, const D3D12_VERTEX_BUFFER_VIEW& vbv);
     void SetVertexBuffer(UINT slot, UINT numViews, const D3D12_VERTEX_BUFFER_VIEW vbvs[]);
     void SetIndexBuffer(const D3D12_INDEX_BUFFER_VIEW& ibv);
@@ -88,11 +100,17 @@ public:
     void SetDynamicVertexBuffer(UINT slot, size_t numVertices, size_t vertexStride, const void* vertexData);
     void SetDynamicIndexBuffer(size_t numIndices, DXGI_FORMAT indexFormat, const void* indexData);
 
+    void SetComputeDynamicConstantBufferView(UINT rootIndex, size_t bufferSize, const void* bufferData);
+    void SetComputeDynamicShaderResourceView(UINT rootIndex, size_t bufferSize, const void* bufferData);
 
     void Draw(UINT vertexCount, UINT vertexStartOffset = 0);
     void DrawIndexed(UINT indexCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0);
     void DrawInstanced(UINT vertexCountPerInstance, UINT instanceCount, UINT startVertexLocation = 0, UINT startInstanceLocation = 0);
     void DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation = 0, INT baseVertexLocation = 0, UINT startInstanceLocation = 0);
+    
+    void Dispatch(UINT threadGroupCountX);
+    void Dispatch(UINT threadGroupCountX, UINT threadGroupCountY);
+    void Dispatch(UINT threadGroupCountX, UINT threadGroupCountY, UINT threadGroupCountZ);
 
     D3D12_GPU_VIRTUAL_ADDRESS TransfarUploadBuffer(size_t bufferSize, const void* bufferData);
 
@@ -200,6 +218,14 @@ inline void CommandContext::SetRootSignature(const RootSignature& rootSignature)
     if (rootSignature_ != rs) {
         rootSignature_ = rs;
         commandList_->SetGraphicsRootSignature(rootSignature_);
+    }
+}
+
+inline void CommandContext::SetComputeRootSignature(const RootSignature& rootSignature) {
+    ID3D12RootSignature* rs = rootSignature;
+    if (rootSignature_ != rs) {
+        rootSignature_ = rs;
+        commandList_->SetComputeRootSignature(rootSignature_);
     }
 }
 
@@ -323,6 +349,52 @@ inline void CommandContext::SetBindlessSampler(UINT rootIndex) {
     commandList_->SetGraphicsRootDescriptorTable(rootIndex, samplerHeap_->GetGPUDescriptorHandleForHeapStart());
 }
 
+inline void CommandContext::SetComputeConstantArray(UINT rootIndex, UINT numConstants, const void* constants) {
+    commandList_->SetComputeRoot32BitConstants(rootIndex, numConstants, constants, 0);
+}
+
+inline void CommandContext::SetComputeConstant(UINT rootIndex, UINT offset, DWParam value) {
+    commandList_->SetComputeRoot32BitConstant(rootIndex, value.v.u, offset);
+}
+
+inline void CommandContext::SetComputeConstants(UINT rootIndex, DWParam x) {
+    commandList_->SetComputeRoot32BitConstant(rootIndex, x.v.u, 0);
+}
+
+inline void CommandContext::SetComputeConstants(UINT rootIndex, DWParam x, DWParam y) {
+    commandList_->SetComputeRoot32BitConstant(rootIndex, x.v.u, 0);
+    commandList_->SetComputeRoot32BitConstant(rootIndex, y.v.u, 1);
+}
+
+inline void CommandContext::SetComputeConstants(UINT rootIndex, DWParam x, DWParam y, DWParam z) {
+    commandList_->SetComputeRoot32BitConstant(rootIndex, x.v.u, 0);
+    commandList_->SetComputeRoot32BitConstant(rootIndex, y.v.u, 1);
+    commandList_->SetComputeRoot32BitConstant(rootIndex, z.v.u, 2);
+}
+
+inline void CommandContext::SetComputeConstants(UINT rootIndex, DWParam x, DWParam y, DWParam z, DWParam w) {
+    commandList_->SetComputeRoot32BitConstant(rootIndex, x.v.u, 0);
+    commandList_->SetComputeRoot32BitConstant(rootIndex, y.v.u, 1);
+    commandList_->SetComputeRoot32BitConstant(rootIndex, z.v.u, 2);
+    commandList_->SetComputeRoot32BitConstant(rootIndex, w.v.u, 3);
+}
+
+inline void CommandContext::SetComputeConstantBuffer(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address) {
+    commandList_->SetComputeRootConstantBufferView(rootIndex, address);
+}
+
+inline void CommandContext::SetComputeDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE baseDescriptor) {
+    commandList_->SetComputeRootDescriptorTable(rootIndex, baseDescriptor);
+}
+
+inline void CommandContext::SetComputeBindlessResource(UINT rootIndex) {
+    commandList_->SetComputeRootDescriptorTable(rootIndex, resourceHeap_->GetGPUDescriptorHandleForHeapStart());
+}
+
+inline void CommandContext::SetComputeBindlessSampler(UINT rootIndex) {
+    commandList_->SetComputeRootDescriptorTable(rootIndex, samplerHeap_->GetGPUDescriptorHandleForHeapStart());
+}
+
 inline void CommandContext::SetVertexBuffer(UINT slot, const D3D12_VERTEX_BUFFER_VIEW& vbv) {
     commandList_->IASetVertexBuffers(slot, 1, &vbv);
 }
@@ -381,6 +453,22 @@ inline void CommandContext::SetDynamicIndexBuffer(size_t numIndices, DXGI_FORMAT
     commandList_->IASetIndexBuffer(&ibv);
 }
 
+inline void CommandContext::SetComputeDynamicConstantBufferView(UINT rootIndex, size_t bufferSize, const void* bufferData) {
+    assert(bufferData);
+
+    auto allocation = dynamicBuffer_.Allocate(bufferSize, 256);
+    memcpy(allocation.cpu, bufferData, bufferSize);
+    commandList_->SetComputeRootConstantBufferView(rootIndex, allocation.gpu);
+}
+
+inline void CommandContext::SetComputeDynamicShaderResourceView(UINT rootIndex, size_t bufferSize, const void* bufferData) {
+    assert(bufferData);
+
+    auto allocation = dynamicBuffer_.Allocate(bufferSize, 256);
+    memcpy(allocation.cpu, bufferData, bufferSize);
+    commandList_->SetComputeRootShaderResourceView(rootIndex, allocation.gpu);
+}
+
 inline void CommandContext::Draw(UINT vertexCount, UINT vertexStartOffset) {
     DrawInstanced(vertexCount, 1, vertexStartOffset, 0);
 }
@@ -397,6 +485,21 @@ inline void CommandContext::DrawInstanced(UINT vertexCountPerInstance, UINT inst
 inline void CommandContext::DrawIndexedInstanced(UINT indexCountPerInstance, UINT instanceCount, UINT startIndexLocation, INT baseVertexLocation, UINT startInstanceLocation) {
     FlushResourceBarriers();
     commandList_->DrawIndexedInstanced(indexCountPerInstance, instanceCount, startIndexLocation, baseVertexLocation, startInstanceLocation);
+}
+
+inline void CommandContext::Dispatch(UINT threadGroupCountX) {
+    FlushResourceBarriers();
+    commandList_->Dispatch(threadGroupCountX, 1, 1);
+}
+
+inline void CommandContext::Dispatch(UINT threadGroupCountX, UINT threadGroupCountY) {
+    FlushResourceBarriers();
+    commandList_->Dispatch(threadGroupCountX, threadGroupCountY, 1);
+}
+
+inline void CommandContext::Dispatch(UINT threadGroupCountX, UINT threadGroupCountY, UINT threadGroupCountZ) {
+    FlushResourceBarriers();
+    commandList_->Dispatch(threadGroupCountX, threadGroupCountY, threadGroupCountZ);
 }
 
 inline D3D12_GPU_VIRTUAL_ADDRESS CommandContext::TransfarUploadBuffer(size_t bufferSize, const void* bufferData) {

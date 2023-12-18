@@ -55,6 +55,9 @@
     <Filter Include="Graphics\Shader\Raytracing">
       <UniqueIdentifier>{a1e7bf27-2b86-4027-bc62-89a4ba770bdb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Graphics\Raymarching">
+      <UniqueIdentifier>{715d8bf0-90b2-46d9-af00-f83058a2e0f0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene\SceneManager.cpp">
@@ -257,6 +260,9 @@
     </ClCompile>
     <ClCompile Include="Graphics\LightManager.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\RaymarchingRenderer.cpp">
+      <Filter>Graphics\Raymarching</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -512,6 +518,9 @@
     <ClInclude Include="Graphics\LightManager.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\RaymarchingRenderer.h">
+      <Filter>Graphics\Raymarching</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\Lighting.hlsli">
@@ -591,6 +600,9 @@
     </None>
     <None Include="Graphics\Shader\Standard\StandardModelPS.hlsl">
       <Filter>Graphics\Shader\Standard</Filter>
+    </None>
+    <None Include="Graphics\Shader\Raymarching.hlsl">
+      <Filter>Graphics\Shader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

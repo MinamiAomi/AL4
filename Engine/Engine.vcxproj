@@ -165,6 +165,7 @@
     <ClCompile Include="Graphics\ParticleManager.cpp" />
     <ClCompile Include="Graphics\ParticleRenderer.cpp" />
     <ClCompile Include="Graphics\PostEffect.cpp" />
+    <ClCompile Include="Graphics\RaymarchingRenderer.cpp" />
     <ClCompile Include="Graphics\Raytracing\BLAS.cpp" />
     <ClCompile Include="Graphics\Raytracing\RaytracingRenderer.cpp" />
     <ClCompile Include="Graphics\Raytracing\ShaderTable.cpp" />
@@ -264,6 +265,7 @@
     <ClInclude Include="Graphics\ParticleManager.h" />
     <ClInclude Include="Graphics\ParticleRenderer.h" />
     <ClInclude Include="Graphics\PostEffect.h" />
+    <ClInclude Include="Graphics\RaymarchingRenderer.h" />
     <ClInclude Include="Graphics\Raytracing\BLAS.h" />
     <ClInclude Include="Graphics\Raytracing\RaytracingRenderer.h" />
     <ClInclude Include="Graphics\Raytracing\ShaderTable.h" />
@@ -432,6 +434,16 @@
     <None Include="Graphics\Shader\Standard\StandardModelPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Graphics\Shader\Raymarching.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
     </None>
