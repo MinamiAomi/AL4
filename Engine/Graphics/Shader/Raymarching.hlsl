@@ -7,9 +7,12 @@
 #define MIN_FOG_DEPTH 50.0f
 #define MAX_FOG_DEPTH 100.0f
 
+#define REPETITION(x, y) (x - floor(x / y) * y - y * 0.5f)
+
 struct Scene {
     float4x4 viewProjectionInverse;
     float3 cameraPosition;
+    float time;
 };
 ConstantBuffer<Scene> g_Scene : register(b0);
 RWTexture2D<float4> g_Output : register(u0);
@@ -29,13 +32,6 @@ float Random(in float2 seed) {
 
 }
 
-float3 opRepetitionXZ(in float3 p, in float x, in float z) {
-    return float3(
-    p.x - floor(p.x / x) * x - x * 0.5f, 
-    p.y, 
-    p.z - floor(p.z / z) * z - z * 0.5f);
-}
-
 float sdSphere(in float3 p, in float r) {
     return length(p) - r;
 }
@@ -50,9 +46,11 @@ float GetDistance(in float3 position) {
     //float distance = length(Trans(position)) - r;
     
     // XZ軸に繰り返し
-    float3 rayPos = opRepetitionXZ(position, 5.0f, 5.0f);
-    float height = lerp(0.0f, 5.0f, Random((float2)(int2) ((position.xz / 5.0f) - frac(position.xz / 5.0f))));
-    float distance = sdBox(rayPos - float3(0.0f, -50.0f, 0.0f), float3(2.0f, 1.0f, 2.0f)) - 0.5f;
+    float2 r = REPETITION(position.xz, 5.0f);
+    float3 rayPos = float3(r.x, position.y, r.y);
+    float height = sin(r.x / 5.0f);
+    //float height = lerp(0.0f, 5.0f, Random((float2)(int2) ((position.xz / 5.0f))));
+    float distance = sdBox(rayPos - float3(0.0f, -50.0f + height, 0.0f), float3(2.5f, 1.0f, 2.5f));
     
     return distance;
 }

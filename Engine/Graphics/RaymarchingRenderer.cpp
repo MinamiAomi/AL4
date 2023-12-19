@@ -27,17 +27,23 @@ void RaymarchingRenderer::Create(uint32_t width, uint32_t height) {
 
     resultBuffer_.Create(L"RaymarchingRenderer ResultBuffer", width, height, DXGI_FORMAT_R8G8B8A8_UNORM);
 
+    time_ = 0.0f;
 }
 
 void RaymarchingRenderer::Render(CommandContext& commandContext, const Camera& camera) {
     struct Scene {
         Matrix4x4 viewProjectionInverse;
         Vector3 cameraPosition;
+        float time;
     };
+
+    time_ += 1.0f / kCycle;
+    time_ = time_ - std::floor(time_);
 
     Scene scene;
     scene.viewProjectionInverse = camera.GetViewProjectionMatrix().Inverse();
     scene.cameraPosition = camera.GetPosition();
+    scene.time = time_;
 
     commandContext.TransitionResource(resultBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 

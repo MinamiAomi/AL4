@@ -9,6 +9,7 @@ class CommandContext;
 
 class RaymarchingRenderer {
 public:
+    static const uint32_t kCycle = 120;
   
     void Create(uint32_t width, uint32_t height);
 
@@ -20,4 +21,5 @@ private:
     RootSignature rootSignature_;
     PipelineState pipelineState_;
     ColorBuffer resultBuffer_;
+    float time_;
 };
