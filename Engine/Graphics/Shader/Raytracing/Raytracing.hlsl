@@ -70,7 +70,7 @@ void RayGeneration() {
         rayDesc,
         payload);
 
-    float shadow = lerp(0.0f, 0.5f, payload.shadow);
+    float shadow = lerp(1.0f, 0.5f, payload.shadow);
     
     RWTexture2D<float> output = ResourceDescriptorHeap[descriptorIndex.output];
     output[dispatchRaysIndex] = shadow;

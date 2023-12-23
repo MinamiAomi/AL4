@@ -11,11 +11,12 @@ public:
 
     void Initialize(const ColorBuffer& target);
     void Render(CommandContext& commandContext, ColorBuffer& texture, ColorBuffer& shadow);
-
+    void Render(CommandContext& commandContext, ColorBuffer& texture);
 
 private:
     RootSignature rootSignature_;
     PipelineState pipelineState_;
+    PipelineState pipelineStateOther_;
 
     ColorBuffer* sourceTexture_;
 };

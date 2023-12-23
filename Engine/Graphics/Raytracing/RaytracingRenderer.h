@@ -23,6 +23,7 @@ private:
     void CreateRootSignature();
     void CreateStateObject();
     void CreateShaderTables();
+    void BuildScene(CommandContext& commandContext);
 
     StateObject stateObject_;
     RootSignature globalRootSignature_;

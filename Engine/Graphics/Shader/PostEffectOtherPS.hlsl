@@ -1,7 +1,7 @@
 
 
 Texture2D<float4> texture_ : register(t0);
-Texture2D<float4> shadow_ : register(t1);
+//Texture2D<float4> shadow_ : register(t1);
 SamplerState sampler_ : register(s0);
 
 struct PSInput {
@@ -25,7 +25,7 @@ float3 LinearToSRGB(float3 color)
 PSOutput main(PSInput input) {
     PSOutput output;
     
-    output.color = texture_.Sample(sampler_, input.texcoord) * shadow_.Sample(sampler_, input.texcoord).r;
+    output.color = texture_.Sample(sampler_, input.texcoord)/* * shadow_.Sample(sampler_, input.texcoord).r*/;
     //output.color.xyz = LinearToSRGB(output.color.xyz);
     //output.color.xyz = pow(output.color.xyz, 1.0f / (1.0f / 2.2f));
     

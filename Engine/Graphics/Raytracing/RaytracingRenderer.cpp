@@ -5,6 +5,10 @@
 #include "../Core/ShaderManager.h"
 #include "../Core/CommandContext.h"
 #include "../LightManager.h"
+#include "../Model.h"
+
+#define PRIMARY_RAY_ATTRIBUTE (1 << 0)
+#define SHADOW_RAY_ATTRIBUTE  (1 << 1)
 
 static const wchar_t kRaytracingShader[] = L"Raytracing/Raytracing.hlsl";
 static const wchar_t kRayGenerationName[] = L"RayGeneration";
@@ -139,7 +143,8 @@ void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& ca
     auto sceneCB = commandContext.TransfarUploadBuffer(sizeof(scene), &scene);
 
     // TLASを生成
-    tlas_.Create(L"RaytracingRenderer TLAS", commandContext);
+    BuildScene(commandContext);
+
     commandList->SetComputeRootSignature(globalRootSignature_);
     commandList->SetPipelineState1(stateObject_);
 
@@ -259,4 +264,34 @@ void RaytracingRenderer::CreateShaderTables() {
         missShaderTable_.Create(L"RaytracingRenderer MissShaderTable", recordSize, numRecords);
         missShaderTable_.Add(ShaderRecord(missShaderIdentifier));
     }
+}
+
+void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
+    auto& instanceList = ModelInstance::GetInstanceList();
+
+    std::vector<D3D12_RAYTRACING_INSTANCE_DESC> instanceDescs;
+    instanceDescs.reserve(instanceList.size());
+    // レイトレで使用するオブジェクトをインスタンスデスクに登録
+    for (auto& instance : instanceList) {
+        if (!(instance->IsActive() && instance->GetModel())) {
+            continue;
+        }
+
+        auto& desc = instanceDescs.emplace_back();
+
+        for (uint32_t y = 0; y < 3; ++y) {
+            for (uint32_t x = 0; x < 4; ++x) {
+                desc.Transform[y][x] = instance->GetWorldMatrix().m[x][y];
+            }
+        }
+        desc.InstanceID = instance->ReciveShadow() ? 1 : 0;
+        desc.InstanceMask = PRIMARY_RAY_ATTRIBUTE;
+        if (instance->CastShadow()) {
+            desc.InstanceMask |= SHADOW_RAY_ATTRIBUTE;
+        }
+        desc.InstanceContributionToHitGroupIndex = 0;
+        desc.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
+        desc.AccelerationStructure = instance->GetModel()->GetBLAS().GetGPUVirtualAddress();
+    }
+    tlas_.Create(L"RaytracingRenderer TLAS", commandContext, instanceDescs.data(), instanceDescs.size());
 }

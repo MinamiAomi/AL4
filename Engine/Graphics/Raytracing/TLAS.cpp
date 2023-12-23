@@ -6,46 +6,17 @@
 #include "../Core/CommandContext.h"
 #include "../Core/Graphics.h"
 
-#define PRIMARY_RAY_ATTRIBUTE (1 << 0)
-#define SHADOW_RAY_ATTRIBUTE  (1 << 1)
-
-void TLAS::Create(const std::wstring& name, CommandContext& commandContext) {
+void TLAS::Create(const std::wstring& name, CommandContext& commandContext, const D3D12_RAYTRACING_INSTANCE_DESC* instanceDescs, size_t numInstanceDescs) {
 
     auto graphics = Graphics::GetInstance();
 
-    auto& instanceList = ModelInstance::GetInstanceList();
-
-    std::vector<D3D12_RAYTRACING_INSTANCE_DESC> instanceDescs;
-    instanceDescs.reserve(instanceList.size());
-    // レイトレで使用するオブジェクトをインスタンスデスクに登録
-    for (auto& instance : instanceList) {
-        if (!(instance->IsActive() && instance->GetModel())) {
-            continue;
-        }
-
-        auto& desc = instanceDescs.emplace_back();
-
-        for (uint32_t y = 0; y < 3; ++y) {
-            for (uint32_t x = 0; x < 4; ++x) {
-                desc.Transform[y][x] = instance->GetWorldMatrix().m[x][y];
-            }
-        }
-        desc.InstanceID = instance->ReciveShadow() ? 1 : 0;
-        desc.InstanceMask = PRIMARY_RAY_ATTRIBUTE;
-        if (instance->CastShadow()) {
-            desc.InstanceMask |= SHADOW_RAY_ATTRIBUTE;
-        }
-        desc.InstanceContributionToHitGroupIndex = 0;
-        desc.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
-        desc.AccelerationStructure = instance->GetModel()->GetBLAS().GetGPUVirtualAddress();
-    }
 
     D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS asInputs{};
     asInputs.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
     asInputs.Flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
     asInputs.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
-    asInputs.NumDescs = UINT(instanceDescs.size());
-    asInputs.InstanceDescs = commandContext.TransfarUploadBuffer(sizeof(instanceDescs[0]) * instanceDescs.size(), instanceDescs.data());
+    asInputs.NumDescs = UINT(numInstanceDescs);
+    asInputs.InstanceDescs = commandContext.TransfarUploadBuffer(sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * numInstanceDescs, instanceDescs);
 
     // ASのサイズを取得
     D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO asInfo{};

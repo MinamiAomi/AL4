@@ -604,6 +604,9 @@
     <None Include="Graphics\Shader\Raymarching.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
+    <None Include="Graphics\Shader\PostEffectOtherPS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\ImGui\LICENSE.txt">
