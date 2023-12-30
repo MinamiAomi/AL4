@@ -1,5 +1,8 @@
 #pragma once
 
+#include <map>
+#include <string>
+
 #include "../Core/ColorBuffer.h"
 #include "../Core/RootSignature.h"
 #include "../../Math/Camera.h"
@@ -17,7 +20,8 @@ public:
 
     void Render(CommandContext& commandContext, const Camera& camera, const DirectionalLight& sunLight);
 
-    ColorBuffer& GetResult() { return resultBuffer_; }
+    ColorBuffer& GetShadow() { return shadowBuffer_; }
+    ColorBuffer& GetReflection() { return reflectionBuffer_; }
 
 private:
     void CreateRootSignature();
@@ -27,10 +31,14 @@ private:
 
     StateObject stateObject_;
     RootSignature globalRootSignature_;
+    RootSignature hitGroupLocalRootSignature_;
     TLAS tlas_;
     ShaderTable rayGenerationShaderTable_;
     ShaderTable hitGroupShaderTable_;
     ShaderTable missShaderTable_;
 
-    ColorBuffer resultBuffer_;
+    std::map<std::wstring, void*> identifierMap_;
+
+    ColorBuffer shadowBuffer_;
+    ColorBuffer reflectionBuffer_;
 };

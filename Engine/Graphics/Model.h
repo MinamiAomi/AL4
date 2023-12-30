@@ -36,6 +36,7 @@ public:
     void SetAlpha(float alpha) { alpha_ = alpha; }
     void SetReciveShadow(bool reciveShadow) { reciveShadow_ = reciveShadow; }
     void SetCastShadow(bool castShadow) { castShadow_ = castShadow; }
+    void SetReflection(bool reflection) { reflection_ = reflection; }
     void SetUseLighting(bool useLighting) { useLighting_ = useLighting; }
     void SetIsActive(bool isActive) { isActive_ = isActive; }
 
@@ -45,6 +46,7 @@ public:
     float GetAlpha() const { return alpha_; }
     bool ReciveShadow() const { return reciveShadow_; }
     bool CastShadow() const { return castShadow_; }
+    bool Reflection() const { return reflection_; }
     bool UseLighting() const { return useLighting_; }
     bool IsActive() const { return isActive_; }
 
@@ -58,6 +60,7 @@ private:
 
     bool reciveShadow_ = true;
     bool castShadow_ = true;
+    bool reflection_ = false;
     bool useLighting_ = true;
     bool isActive_ = true;
 };

@@ -16,22 +16,6 @@
 
 #define DXR_GRAPHICS_COMMAND_LIST ID3D12GraphicsCommandList4
 
-struct DWParam {
-    DWParam(FLOAT f) : v{ .f = f } {}
-    DWParam(UINT u) : v{ .u = u } {}
-    DWParam(INT i) : v{ .i = i } {}
-
-    void operator=(FLOAT f) { v.f = f; }
-    void operator=(UINT u) { v.u = u; }
-    void operator=(INT i) { v.i = i; }
-
-    union Value {
-        FLOAT f;
-        UINT u;
-        INT i;
-    } v;
-};
-
 class CommandContext {
 public:
     void Start(D3D12_COMMAND_LIST_TYPE type);
@@ -70,22 +54,22 @@ public:
     void SetPrimitiveTopology(D3D12_PRIMITIVE_TOPOLOGY topology);
 
     void SetConstantArray(UINT rootIndex, UINT numConstants, const void* constants);
-    void SetConstant(UINT rootIndex, UINT offset, DWParam value);
-    void SetConstants(UINT rootIndex, DWParam x);
-    void SetConstants(UINT rootIndex, DWParam x, DWParam y);
-    void SetConstants(UINT rootIndex, DWParam x, DWParam y, DWParam z);
-    void SetConstants(UINT rootIndex, DWParam x, DWParam y, DWParam z, DWParam w);
+    void SetConstant(UINT rootIndex, UINT offset, Helper::DWParam value);
+    void SetConstants(UINT rootIndex, Helper::DWParam x);
+    void SetConstants(UINT rootIndex, Helper::DWParam x, Helper::DWParam y);
+    void SetConstants(UINT rootIndex, Helper::DWParam x, Helper::DWParam y, Helper::DWParam z);
+    void SetConstants(UINT rootIndex, Helper::DWParam x, Helper::DWParam y, Helper::DWParam z, Helper::DWParam w);
     void SetConstantBuffer(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address);
     void SetDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE baseDescriptor);
     void SetBindlessResource(UINT rootIndex);
     void SetBindlessSampler(UINT rootIndex);
 
     void SetComputeConstantArray(UINT rootIndex, UINT numConstants, const void* constants);
-    void SetComputeConstant(UINT rootIndex, UINT offset, DWParam value);
-    void SetComputeConstants(UINT rootIndex, DWParam x);
-    void SetComputeConstants(UINT rootIndex, DWParam x, DWParam y);
-    void SetComputeConstants(UINT rootIndex, DWParam x, DWParam y, DWParam z);
-    void SetComputeConstants(UINT rootIndex, DWParam x, DWParam y, DWParam z, DWParam w);
+    void SetComputeConstant(UINT rootIndex, UINT offset, Helper::DWParam value);
+    void SetComputeConstants(UINT rootIndex, Helper::DWParam x);
+    void SetComputeConstants(UINT rootIndex, Helper::DWParam x, Helper::DWParam y);
+    void SetComputeConstants(UINT rootIndex, Helper::DWParam x, Helper::DWParam y, Helper::DWParam z);
+    void SetComputeConstants(UINT rootIndex, Helper::DWParam x, Helper::DWParam y, Helper::DWParam z, Helper::DWParam w);
     void SetComputeConstantBuffer(UINT rootIndex, D3D12_GPU_VIRTUAL_ADDRESS address);
     void SetComputeDescriptorTable(UINT rootIndex, D3D12_GPU_DESCRIPTOR_HANDLE baseDescriptor);
     void SetComputeBindlessResource(UINT rootIndex);
@@ -307,26 +291,26 @@ inline void CommandContext::SetConstantArray(UINT rootIndex, UINT numConstants, 
     commandList_->SetGraphicsRoot32BitConstants(rootIndex, numConstants, constants, 0);
 }
 
-inline void CommandContext::SetConstant(UINT rootIndex, UINT offset, DWParam value) {
+inline void CommandContext::SetConstant(UINT rootIndex, UINT offset, Helper::DWParam value) {
     commandList_->SetGraphicsRoot32BitConstant(rootIndex, value.v.u, offset);
 }
 
-inline void CommandContext::SetConstants(UINT rootIndex, DWParam x) {
+inline void CommandContext::SetConstants(UINT rootIndex, Helper::DWParam x) {
     commandList_->SetGraphicsRoot32BitConstant(rootIndex, x.v.u, 0);
 }
 
-inline void CommandContext::SetConstants(UINT rootIndex, DWParam x, DWParam y) {
+inline void CommandContext::SetConstants(UINT rootIndex, Helper::DWParam x, Helper::DWParam y) {
     commandList_->SetGraphicsRoot32BitConstant(rootIndex, x.v.u, 0);
     commandList_->SetGraphicsRoot32BitConstant(rootIndex, y.v.u, 1);
 }
 
-inline void CommandContext::SetConstants(UINT rootIndex, DWParam x, DWParam y, DWParam z) {
+inline void CommandContext::SetConstants(UINT rootIndex, Helper::DWParam x, Helper::DWParam y, Helper::DWParam z) {
     commandList_->SetGraphicsRoot32BitConstant(rootIndex, x.v.u, 0);
     commandList_->SetGraphicsRoot32BitConstant(rootIndex, y.v.u, 1);
     commandList_->SetGraphicsRoot32BitConstant(rootIndex, z.v.u, 2);
 }
 
-inline void CommandContext::SetConstants(UINT rootIndex, DWParam x, DWParam y, DWParam z, DWParam w) {
+inline void CommandContext::SetConstants(UINT rootIndex, Helper::DWParam x, Helper::DWParam y, Helper::DWParam z, Helper::DWParam w) {
     commandList_->SetGraphicsRoot32BitConstant(rootIndex, x.v.u, 0);
     commandList_->SetGraphicsRoot32BitConstant(rootIndex, y.v.u, 1);
     commandList_->SetGraphicsRoot32BitConstant(rootIndex, z.v.u, 2);
@@ -353,26 +337,26 @@ inline void CommandContext::SetComputeConstantArray(UINT rootIndex, UINT numCons
     commandList_->SetComputeRoot32BitConstants(rootIndex, numConstants, constants, 0);
 }
 
-inline void CommandContext::SetComputeConstant(UINT rootIndex, UINT offset, DWParam value) {
+inline void CommandContext::SetComputeConstant(UINT rootIndex, UINT offset, Helper::DWParam value) {
     commandList_->SetComputeRoot32BitConstant(rootIndex, value.v.u, offset);
 }
 
-inline void CommandContext::SetComputeConstants(UINT rootIndex, DWParam x) {
+inline void CommandContext::SetComputeConstants(UINT rootIndex, Helper::DWParam x) {
     commandList_->SetComputeRoot32BitConstant(rootIndex, x.v.u, 0);
 }
 
-inline void CommandContext::SetComputeConstants(UINT rootIndex, DWParam x, DWParam y) {
+inline void CommandContext::SetComputeConstants(UINT rootIndex, Helper::DWParam x, Helper::DWParam y) {
     commandList_->SetComputeRoot32BitConstant(rootIndex, x.v.u, 0);
     commandList_->SetComputeRoot32BitConstant(rootIndex, y.v.u, 1);
 }
 
-inline void CommandContext::SetComputeConstants(UINT rootIndex, DWParam x, DWParam y, DWParam z) {
+inline void CommandContext::SetComputeConstants(UINT rootIndex, Helper::DWParam x, Helper::DWParam y, Helper::DWParam z) {
     commandList_->SetComputeRoot32BitConstant(rootIndex, x.v.u, 0);
     commandList_->SetComputeRoot32BitConstant(rootIndex, y.v.u, 1);
     commandList_->SetComputeRoot32BitConstant(rootIndex, z.v.u, 2);
 }
 
-inline void CommandContext::SetComputeConstants(UINT rootIndex, DWParam x, DWParam y, DWParam z, DWParam w) {
+inline void CommandContext::SetComputeConstants(UINT rootIndex, Helper::DWParam x, Helper::DWParam y, Helper::DWParam z, Helper::DWParam w) {
     commandList_->SetComputeRoot32BitConstant(rootIndex, x.v.u, 0);
     commandList_->SetComputeRoot32BitConstant(rootIndex, y.v.u, 1);
     commandList_->SetComputeRoot32BitConstant(rootIndex, z.v.u, 2);

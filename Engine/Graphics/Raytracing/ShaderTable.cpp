@@ -34,34 +34,62 @@ UINT ShaderRecord::GetLocalRootArgumentsSize(const D3D12_ROOT_PARAMETER* paramet
     return localRootArgumentsSize;
 }
 
-ShaderRecord::ShaderRecord(void* shaderIdentifierPtr, UINT shaderIdentifierSize, void* localRootArgumentsPtr, UINT localRootArgumentsSize) :
-    shaderIdentifier_(shaderIdentifierPtr, shaderIdentifierSize),
-    localRootArguments_(localRootArgumentsPtr, localRootArgumentsSize) {
+ShaderRecord::ShaderRecord(void* pShaderIdentifier, UINT shaderIdentifierSize) :
+    pShaderIdentifier_(pShaderIdentifier), shaderIdentifierSize_(shaderIdentifierSize) {
 }
+
+void ShaderRecord::Add(D3D12_GPU_VIRTUAL_ADDRESS gpuVirtualAddress) {
+    auto& dest = localRootArguments_.emplace_back();
+    memcpy(&dest, &gpuVirtualAddress, sizeof(gpuVirtualAddress));
+}
+
+void ShaderRecord::Add(D3D12_GPU_DESCRIPTOR_HANDLE gpuDescriptorHandle) {
+    auto& dest = localRootArguments_.emplace_back();
+    memcpy(&dest, &gpuDescriptorHandle, sizeof(gpuDescriptorHandle));
+}
+
+void ShaderRecord::Add(Helper::DWParam x, Helper::DWParam y) {
+    struct DWParam2 {
+        Helper::DWParam x;
+        Helper::DWParam y;
+    } dwParam2(x, y);
+    assert(sizeof(dwParam2) == sizeof(UINT64));
+
+    auto& dest = localRootArguments_.emplace_back();
+    memcpy(&dest, &dwParam2, sizeof(dwParam2));
+}
+
+
 
 void ShaderRecord::CopyTo(void* dest) const {
     BYTE* byteDest = static_cast<BYTE*>(dest);
-    memcpy(byteDest, shaderIdentifier_.ptr, shaderIdentifier_.size);
-    byteDest += shaderIdentifier_.size;
-    if (localRootArguments_.ptr) {
-        memcpy(byteDest, localRootArguments_.ptr, localRootArguments_.size);
+    memcpy(byteDest, pShaderIdentifier_, shaderIdentifierSize_);
+    byteDest += shaderIdentifierSize_;
+    if (!localRootArguments_.empty()) {
+        memcpy(byteDest, localRootArguments_.data(), localRootArguments_.size() * sizeof(UINT64));
     }
 }
 
-void ShaderTable::Create(const std::wstring& name, UINT shaderRecordSize, UINT numShaderRecords) {
-    shaderRecordSize_ = Helper::AlignUp(shaderRecordSize, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
-    shaderRecords_.reserve(numShaderRecords);
-    bufferSize_ = shaderRecordSize_ * numShaderRecords;
+void ShaderTable::Create(const std::wstring& name, const ShaderRecord* pShaderRecord, UINT numShaderRecords) {
+    UINT maxShaderRecordSize = 0;
+    for (UINT i = 0; i < numShaderRecords; ++i) {
+        UINT size = pShaderRecord[i].GetSize();
+        if (size > maxShaderRecordSize) {
+            maxShaderRecordSize = size;
+        }
+    }
+    
+    shaderRecordSize_ = Helper::AlignUp(maxShaderRecordSize, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
+    numShaderRecords_ = numShaderRecords;
+    bufferSize_ = shaderRecordSize_ * numShaderRecords_;
     auto heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);
     auto resourceDesc = CD3DX12_RESOURCE_DESC::Buffer(bufferSize_);
     CreateResource(name, heapProps, resourceDesc, D3D12_RESOURCE_STATE_GENERIC_READ);
     ASSERT_IF_FAILED(resource_->Map(0, nullptr, reinterpret_cast<void**>(&mappedShaderRecords_)));
     ZeroMemory(mappedShaderRecords_, bufferSize_);
-}
 
-void ShaderTable::Add(const ShaderRecord& shaderRecord) {
-    assert(shaderRecords_.size() < shaderRecords_.capacity());
-    shaderRecords_.emplace_back(shaderRecord);
-    shaderRecord.CopyTo(mappedShaderRecords_);
-    mappedShaderRecords_ += shaderRecordSize_;
+    for (UINT i = 0; i < numShaderRecords; ++i) {
+        pShaderRecord[i].CopyTo(mappedShaderRecords_);
+        mappedShaderRecords_ += shaderRecordSize_;
+    }
 }

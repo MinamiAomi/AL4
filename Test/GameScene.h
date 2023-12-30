@@ -4,6 +4,8 @@
 #include <memory>
 
 #include "Math/Camera.h"
+#include "Math/Transform.h"
+#include "Math/Random.h"
 #include "Graphics/Model.h"
 #include "Graphics/LightManager.h"
 
@@ -28,9 +30,14 @@ private:
     std::shared_ptr<Model> torus_;
     std::shared_ptr<Model> cylinder_;
     std::shared_ptr<Model> suzanne_;
+    std::shared_ptr<Model> skydome_;
 
-    std::vector<ModelInstance> models_;
+    struct Instance {
+        ModelInstance model;
+        Transform transform;
+    };
 
+    std::vector<Instance> instances_;
 
     ModelInstance floorModel_;
     ModelInstance teapotModel_;

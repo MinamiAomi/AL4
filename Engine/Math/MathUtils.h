@@ -328,7 +328,7 @@ public:
                 lhs.x * rhs.y - lhs.y * rhs.x };
     }
     static inline constexpr Vector3 Scale(const Vector3& lhs, const Vector3& rhs) noexcept {
-        return { lhs.x * rhs.x , lhs.y + rhs.y, lhs.z * rhs.z };
+        return { lhs.x * rhs.x , lhs.y * rhs.y, lhs.z * rhs.z };
     }
     static inline constexpr Vector3 Project(const Vector3& base, const Vector3& direction) noexcept {
         return Dot(base, direction) * direction;

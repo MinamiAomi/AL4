@@ -20,31 +20,47 @@ void GameScene::OnInitialize() {
     cylinder_ = Model::Load("Resources/cylinder.obj");
     torus_ = Model::Load("Resources/torus.obj");
     suzanne_ = Model::Load("Resources/suzanne.obj");
+    skydome_ = Model::Load("Resources/skydome.obj");
 
-    models_.resize(8);
+    instances_.resize(9);
     {
         size_t i = 0;
-        models_[i++].SetModel(floor_);
-        models_[i++].SetModel(teapot_);
-        models_[i++].SetModel(bunny_);
-        models_[i++].SetModel(box_);
-        models_[i++].SetModel(cone_);
-        models_[i++].SetModel(cylinder_);
-        models_[i++].SetModel(torus_);
-        models_[i++].SetModel(suzanne_);
+        instances_[i++].model.SetModel(floor_);
+        instances_[i++].model.SetModel(teapot_);
+        instances_[i++].model.SetModel(bunny_);
+        instances_[i++].model.SetModel(box_);
+        instances_[i++].model.SetModel(cone_);
+        instances_[i++].model.SetModel(cylinder_);
+        instances_[i++].model.SetModel(torus_);
+        instances_[i++].model.SetModel(suzanne_);
+        instances_[i++].model.SetModel(skydome_);
     }
 
-    for (size_t i = 1; i < models_.size(); ++i) {
-        models_[i].SetWorldMatrix(Matrix4x4::MakeTranslation({ i * 5.0f - 20.0f, 5.0f, 0.0f }));
+    for (size_t i = 1; i < instances_.size() - 1; ++i) {
+        instances_[i].transform.translate = { i * 5.0f - 20.0f, 5.0f, 0.0f };
     }
+
+    instances_[8].model.SetCastShadow(false);
+    instances_[8].model.SetReciveShadow(false);
+    instances_[8].model.SetUseLighting(false);
+
+    instances_[0].model.SetReflection(true);
+    instances_[1].model.SetReflection(true);
+    instances_[4].model.SetReflection(true);
+    instances_[6].model.SetReflection(true);
 }
 
 void GameScene::OnUpdate() {
 
     static float ror = 0.0f;
     ror += Math::ToRadian * 0.5f;
-    for (size_t i = 1; i < models_.size(); ++i) {
-        models_[i].SetWorldMatrix(Matrix4x4::MakeRotationXYZ({ 0.0f, ror, 0.0f }) * Matrix4x4::MakeTranslation({ i * 5.0f - 20.0f, 5.0f, 0.0f }));
+    for (size_t i = 1; i < instances_.size() - 1; ++i) {
+        instances_[i].transform.rotate = Quaternion::MakeFromEulerAngle({ 0.0f, ror, 0.0f });
+    }
+
+    for (auto& instance : instances_) {
+        instance.transform.UpdateMatrix();
+        instance.model.SetWorldMatrix(instance.transform.worldMatrix);
     }
 
     Input* input = Input::GetInstance();
