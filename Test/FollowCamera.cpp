@@ -12,9 +12,7 @@ void FollowCamera::Initialize() {
 
 void FollowCamera::Update() {
     
-    auto input = Input::GetInstance();
-
-
+    
 
     camera_->SetPosition(transform.translate);
     camera_->SetRotate(transform.rotate);
