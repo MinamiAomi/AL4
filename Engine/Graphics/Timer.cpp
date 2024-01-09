@@ -1,5 +1,9 @@
 #include "Timer.h"
 
+#include <Windows.h>
+
+#pragma comment(lib, "winmm.lib")
+
 using namespace std::chrono;
 
 void Timer::Initialize() {
@@ -15,10 +19,12 @@ void Timer::KeepFrameRate(uint32_t fps) {
     if (check > microseconds::zero()) {
         microseconds waitTime = minTime - elapsed;
 
+        timeBeginPeriod(1);
         steady_clock::time_point waitStart = steady_clock::now();
         do {
             std::this_thread::sleep_for(microseconds(1));
         } while (steady_clock::now() - waitStart < waitTime);
+        timeEndPeriod(1);
     }
     reference_ = steady_clock::now();
 }

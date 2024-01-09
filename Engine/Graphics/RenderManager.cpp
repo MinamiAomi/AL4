@@ -70,16 +70,19 @@ void RenderManager::Render() {
     commandContext_.ClearDepth(mainDepthBuffer_);
     commandContext_.SetViewportAndScissorRect(0, 0, mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
 
-    if (camera_ && sunLight_) {
-        //toonRenderer_.Render(commandContext_, *camera_);
-        particleRenderer_.Render(commandContext_, *camera_);
+    auto camera = camera_.lock();
+    auto sunLight = sunLight_.lock();
+
+    if (camera && sunLight) {
+        //toonRenderer_.Render(commandContext_, *camera);
+        particleRenderer_.Render(commandContext_, *camera);
         if (raymarching_) {
-            //raymarchingRenderer_.Render(commandContext_, *camera_);
-            //raytracingRenderer_.Render(commandContext_, *camera_, *sunLight_);
+            //raymarchingRenderer_.Render(commandContext_, *camera);
+            //raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
         }
         else {
-            modelRenderer.Render(commandContext_, *camera_, *sunLight_);
-            raytracingRenderer_.Render(commandContext_, *camera_, *sunLight_);
+            modelRenderer.Render(commandContext_, *camera, *sunLight);
+            raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
         }
     }
 

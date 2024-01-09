@@ -257,7 +257,7 @@ void RaytracingRenderer::CreateStateObject() {
 
     // 7.パイプラインコンフィグ
     auto pipelineConfig = stateObjectDesc.CreateSubobject<CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT>();
-    uint32_t maxTraceRecursionDepth = 3; // 一次レイ, シャドウレイ
+    uint32_t maxTraceRecursionDepth = 4; // 一次レイ, シャドウレイ
     pipelineConfig->Config(maxTraceRecursionDepth);
 
     // 8.グローバルルートシグネチャ

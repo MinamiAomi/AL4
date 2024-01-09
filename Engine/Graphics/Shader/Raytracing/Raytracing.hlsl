@@ -16,7 +16,7 @@ ConstantBuffer<Scene> g_scene : register(b1);
 struct PrimaryPayload {
     uint shadow;
     float3 reflection;
-    uint reflected;
+    uint numReflections;
 };
 
 struct Attributes {
@@ -38,6 +38,7 @@ struct Attributes {
 #define PRIMARY_RAY_ATTRIBUTE (1 << 0)
 #define SHADOW_RAY_ATTRIBUTE  (1 << 1)
 
+#define MAX_REFLECTIONS 3
 
 //////////////////////////////////////////////////
 
@@ -75,7 +76,7 @@ void RayGeneration() {
     PrimaryPayload payload;
     payload.shadow = 0;
     payload.reflection = INVALID_COLOR;
-    payload.reflected = FALSE_UINT;
+    payload.numReflections = 0;
     TraceRay(
         tlas, // RaytracingAccelerationStructure
         RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // RayFlags
@@ -92,7 +93,7 @@ void RayGeneration() {
     
     RWTexture2D<float4> reflectionBuffer = ResourceDescriptorHeap[g_descriptorIndex.reflection];
     reflectionBuffer[dispatchRaysIndex] = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    if (payload.reflected) {
+    if (payload.numReflections > 0) {
         reflectionBuffer[dispatchRaysIndex].rgb = payload.reflection;
         reflectionBuffer[dispatchRaysIndex].a = 1.0f;
     }
@@ -105,9 +106,7 @@ void RayGeneration() {
 [shader("miss")]
 void Miss(inout PrimaryPayload payload) {
     payload.shadow = FALSE_UINT;
-    if (payload.reflected == TRUE_UINT) {
-        payload.reflection = float3(0.1f, 0.4f, 0.6f);
-    }
+    payload.reflection = float3(0.1f, 0.4f, 0.6f);
 }
 
 
@@ -162,16 +161,18 @@ void PrimaryRayClosestHit(inout PrimaryPayload payload, in Attributes attributes
     float3 rayDirection = WorldRayDirection();
     // 頂点を取得
     Vertex vertex = GetVertex(attributes);
+    payload.reflection = g_texture.SampleLevel(g_sampler, vertex.texcoord, 0).rgb * g_material.color;
     // 反射
     // 反射後 色付け    
-    if (payload.reflected == TRUE_UINT) {
-        payload.reflection = g_texture.SampleLevel(g_sampler, vertex.texcoord, 0).rgb * g_material.color;
+    if (payload.numReflections >= MAX_REFLECTIONS) {
         return;
     }
+    
     // 反射前 レイ飛ばし
     if (g_material.reflection) {
-        payload.reflected = TRUE_UINT;
         float3 reflectionRayDirection = reflect(rayDirection, vertex.normal);
+        
+        payload.numReflections++;
         
         RayDesc reflectionRay;
         reflectionRay.Origin = vertex.position;

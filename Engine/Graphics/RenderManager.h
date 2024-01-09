@@ -57,8 +57,8 @@ private:
     PostEffect postEffect_;
     
     Timer timer_;
-    std::shared_ptr<const Camera> camera_;
-    std::shared_ptr<const DirectionalLight> sunLight_;
+    std::weak_ptr<const Camera> camera_;
+    std::weak_ptr<const DirectionalLight> sunLight_;
 
 
     bool raymarching_ = false;
