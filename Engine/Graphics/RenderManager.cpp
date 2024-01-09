@@ -97,7 +97,7 @@ void RenderManager::Render() {
     ImGui::Begin("Profile");
     auto io = ImGui::GetIO();
     ImGui::Text("Framerate : %f", io.Framerate);
-    ImGui::Checkbox("Raymarching", &raymarching_);
+    //ImGui::Checkbox("Raymarching", &raymarching_);
     ImGui::End();
 #endif // _DEBUG
 
