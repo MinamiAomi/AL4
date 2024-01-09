@@ -4,8 +4,9 @@
 #include <memory>
 
 #include "Graphics/Model.h"
+#include "Graphics/LightManager.h"
 
-class Floor :
+class Ground :
     public GameObject {
 public:
     void Initialize();
@@ -13,5 +14,7 @@ public:
 
 private:
     std::unique_ptr<ModelInstance> model_;
+    std::shared_ptr<DirectionalLight> sunLight_;
+    std::unique_ptr<ModelInstance> skydomeModel_;
 
 };

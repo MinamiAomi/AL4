@@ -3,6 +3,7 @@
 
 #include <memory>
 
+#include "Graphics/Model.h"
 
 class FollowCamera;
 
@@ -16,6 +17,6 @@ public:
 
 private:
     
-
+    std::unique_ptr<ModelInstance> model_;
     std::weak_ptr<FollowCamera> followCamera_;
 };

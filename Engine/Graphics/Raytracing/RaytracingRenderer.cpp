@@ -301,6 +301,7 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
     struct MaterialConstantData {
         Vector3 color;
         uint32_t reflection;
+        uint32_t useLighting;
     };
 
     std::vector<D3D12_RAYTRACING_INSTANCE_DESC> instanceDescs;
@@ -337,6 +338,7 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
         MaterialConstantData material;
         material.color = instance->GetColor();
         material.reflection = instance->Reflection() ? 1 : 0;
+        material.useLighting = instance->UseLighting() ? 1 : 0;
 
         for (auto& mesh : instance->GetModel()->GetMeshes()) {
             auto& shaderRecord = shaderRecords.emplace_back(identifierMap_[kPrimaryRayHitGroupName]);

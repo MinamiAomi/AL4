@@ -19,6 +19,7 @@ public:
 
 private:
     std::shared_ptr<Camera> camera_;
-    
+    Vector3 eulerAngle_;
+
     std::weak_ptr<GameObject> target_;
 };

@@ -76,14 +76,10 @@ void RenderManager::Render() {
     if (camera && sunLight) {
         //toonRenderer_.Render(commandContext_, *camera);
         particleRenderer_.Render(commandContext_, *camera);
-        if (raymarching_) {
-            //raymarchingRenderer_.Render(commandContext_, *camera);
-            //raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
-        }
-        else {
-            modelRenderer.Render(commandContext_, *camera, *sunLight);
-            raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
-        }
+        //raymarchingRenderer_.Render(commandContext_, *camera);
+        //raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
+        modelRenderer.Render(commandContext_, *camera, *sunLight);
+        raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
     }
 
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
@@ -93,7 +89,7 @@ void RenderManager::Render() {
     commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
     postEffect_.Render(commandContext_, mainColorBuffer_, raytracingRenderer_.GetShadow(), raytracingRenderer_.GetReflection());
-    
+
 
     spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, float(swapChainBuffer.GetWidth()), float(swapChainBuffer.GetHeight()));
 

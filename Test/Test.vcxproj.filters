@@ -22,9 +22,10 @@
     <ClCompile Include="Player.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="Floor.cpp">
+    <ClCompile Include="Ground.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="TestObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Test.h">
@@ -36,13 +37,16 @@
     <ClInclude Include="FollowCamera.h">
       <Filter>Game</Filter>
     </ClInclude>
-    <ClInclude Include="Floor.h">
+    <ClInclude Include="Ground.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="Player.h">
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="TestScene.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="TestObject.h">
       <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>

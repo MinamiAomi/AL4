@@ -14,14 +14,14 @@ void TestScene::OnInitialize() {
     RenderManager::GetInstance()->SetSunLight(sunLight_);
 
     floor_ = Model::Load("Resources/Floor/Floor.obj");
-    teapot_ = Model::Load("Resources/Teapot/teapot.obj");
-    bunny_ = Model::Load("Resources/Bunny/bunny.obj");
-    box_ = Model::Load("Resources/box.obj");
-    cone_ = Model::Load("Resources/cone.obj");
+    teapot_ =   Model::Load("Resources/Teapot/teapot.obj");
+    bunny_ =    Model::Load("Resources/Bunny/bunny.obj");
+    box_ =      Model::Load("Resources/box.obj");
+    cone_ =     Model::Load("Resources/cone.obj");
     cylinder_ = Model::Load("Resources/cylinder.obj");
-    torus_ = Model::Load("Resources/torus.obj");
-    suzanne_ = Model::Load("Resources/suzanne.obj");
-    skydome_ = Model::Load("Resources/skydome.obj");
+    torus_ =    Model::Load("Resources/torus.obj");
+    suzanne_ =  Model::Load("Resources/suzanne.obj");
+    skydome_ =  Model::Load("Resources/skydome.obj");
 
     instances_.resize(9);
     {

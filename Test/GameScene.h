@@ -2,6 +2,7 @@
 #include "Scene/BaseScene.h"
 
 #include <memory>
+#include <vector>
 
 #include "Math/Camera.h"
 #include "Math/Transform.h"
@@ -11,7 +12,8 @@
 
 #include "FollowCamera.h"
 #include "Player.h"
-#include "Floor.h"
+#include "Ground.h"
+#include "TestObject.h"
 
 class GameScene :
     public BaseScene {
@@ -24,5 +26,6 @@ public:
 private:
     std::shared_ptr<FollowCamera> followCamera_;
     std::shared_ptr<Player> player_;
-    std::shared_ptr<Floor> floor_;
+    std::shared_ptr<Ground> ground;
+    std::vector<std::shared_ptr<TestObject>> testObjects_;
 };

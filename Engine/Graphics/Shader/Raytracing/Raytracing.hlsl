@@ -1,3 +1,5 @@
+#include "../Lighting.hlsli"
+
 struct DescriptorIndex {
     uint tlas;
     uint shadow;
@@ -122,6 +124,7 @@ struct Vertex {
 struct Material {
     float3 color;
     uint reflection;
+    uint useLighting;
 };
 
 StructuredBuffer<Vertex> g_vertexBuffer : register(t0, space1);
@@ -162,6 +165,7 @@ void PrimaryRayClosestHit(inout PrimaryPayload payload, in Attributes attributes
     // 頂点を取得
     Vertex vertex = GetVertex(attributes);
     payload.reflection = g_texture.SampleLevel(g_sampler, vertex.texcoord, 0).rgb * g_material.color;
+    payload.reflection *= g_material.useLighting ? Lighting::HalfLambertReflection(vertex.normal, normalize(g_scene.sunLightDirection)) : 1.0f;
     // 反射
     // 反射後 色付け    
     if (payload.numReflections >= MAX_REFLECTIONS) {
