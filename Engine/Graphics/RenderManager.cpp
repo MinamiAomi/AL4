@@ -70,17 +70,16 @@ void RenderManager::Render() {
     commandContext_.ClearDepth(mainDepthBuffer_);
     commandContext_.SetViewportAndScissorRect(0, 0, mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
 
-    if (camera_ && sunLight_) {
-        //toonRenderer_.Render(commandContext_, *camera_);
-        particleRenderer_.Render(commandContext_, *camera_);
-        if (raymarching_) {
-            //raymarchingRenderer_.Render(commandContext_, *camera_);
-            //raytracingRenderer_.Render(commandContext_, *camera_, *sunLight_);
-        }
-        else {
-            modelRenderer.Render(commandContext_, *camera_, *sunLight_);
-            raytracingRenderer_.Render(commandContext_, *camera_, *sunLight_);
-        }
+    auto camera = camera_.lock();
+    auto sunLight = sunLight_.lock();
+
+    if (camera && sunLight) {
+        //toonRenderer_.Render(commandContext_, *camera);
+        particleRenderer_.Render(commandContext_, *camera);
+        //raymarchingRenderer_.Render(commandContext_, *camera);
+        //raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
+        modelRenderer.Render(commandContext_, *camera, *sunLight);
+        raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
     }
 
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
@@ -90,7 +89,7 @@ void RenderManager::Render() {
     commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
     postEffect_.Render(commandContext_, mainColorBuffer_, raytracingRenderer_.GetShadow(), raytracingRenderer_.GetReflection());
-    
+
 
     spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, float(swapChainBuffer.GetWidth()), float(swapChainBuffer.GetHeight()));
 

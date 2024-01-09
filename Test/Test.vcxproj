@@ -16,13 +16,23 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Ground.cpp" />
+    <ClCompile Include="FollowCamera.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Test.cpp" />
     <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="TestObject.cpp" />
+    <ClCompile Include="TestScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Ground.h" />
+    <ClInclude Include="FollowCamera.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Test.h" />
     <ClInclude Include="GameScene.h" />
+    <ClInclude Include="TestObject.h" />
+    <ClInclude Include="TestScene.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

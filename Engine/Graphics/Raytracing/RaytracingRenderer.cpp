@@ -257,7 +257,7 @@ void RaytracingRenderer::CreateStateObject() {
 
     // 7.パイプラインコンフィグ
     auto pipelineConfig = stateObjectDesc.CreateSubobject<CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT>();
-    uint32_t maxTraceRecursionDepth = 3; // 一次レイ, シャドウレイ
+    uint32_t maxTraceRecursionDepth = 4; // 一次レイ, シャドウレイ
     pipelineConfig->Config(maxTraceRecursionDepth);
 
     // 8.グローバルルートシグネチャ
@@ -301,6 +301,7 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
     struct MaterialConstantData {
         Vector3 color;
         uint32_t reflection;
+        uint32_t useLighting;
     };
 
     std::vector<D3D12_RAYTRACING_INSTANCE_DESC> instanceDescs;
@@ -337,6 +338,7 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
         MaterialConstantData material;
         material.color = instance->GetColor();
         material.reflection = instance->Reflection() ? 1 : 0;
+        material.useLighting = instance->UseLighting() ? 1 : 0;
 
         for (auto& mesh : instance->GetModel()->GetMeshes()) {
             auto& shaderRecord = shaderRecords.emplace_back(identifierMap_[kPrimaryRayHitGroupName]);
