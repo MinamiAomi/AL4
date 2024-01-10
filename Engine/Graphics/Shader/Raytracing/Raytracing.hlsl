@@ -10,7 +10,10 @@ ConstantBuffer<DescriptorIndex> g_descriptorIndex : register(b0);
 
 struct Scene {
     float4x4 viewProjectionInverseMatrix;
+    float3 cameraPosition;
     float3 sunLightDirection;
+    float sunLightIntensity;
+    float3 sunLightColor;
 };
 ConstantBuffer<Scene> g_scene : register(b1);
 
@@ -18,7 +21,15 @@ ConstantBuffer<Scene> g_scene : register(b1);
 struct PrimaryPayload {
     uint shadow;
     float3 reflection;
-    uint numReflections;
+};
+// シャドウレイ用ペイロード
+struct ShadowPayload {
+    uint isHit;
+};
+// 反射レイ用ペイロード
+struct ReflectionPayload {
+    uint isHit;
+    float3 color;
 };
 
 struct Attributes {
@@ -35,12 +46,13 @@ struct Attributes {
 // 影ヒットグループ
 #define SHADOW_HIT_GROUP_INDEX 1
 
-#define MISS_SHADER_INDEX 0
+#define PRIMARY_MISS_SHADER_INDEX 0
+#define SHADOW_MISS_SHADER_INDEX 1
+#define REFLECTION_MISS_SHADER_INDEX 2
 
 #define PRIMARY_RAY_ATTRIBUTE (1 << 0)
 #define SHADOW_RAY_ATTRIBUTE  (1 << 1)
 
-#define MAX_REFLECTIONS 3
 
 //////////////////////////////////////////////////
 
@@ -78,27 +90,23 @@ void RayGeneration() {
     PrimaryPayload payload;
     payload.shadow = 0;
     payload.reflection = INVALID_COLOR;
-    payload.numReflections = 0;
     TraceRay(
         tlas, // RaytracingAccelerationStructure
         RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // RayFlags
         PRIMARY_RAY_ATTRIBUTE, // InstanceInclusionMask
         1, // RayContributionToHitGroupIndex
         1, // MultiplierForGeometryContributionToHitGroupIndex
-        MISS_SHADER_INDEX, // MissShaderIndex
+        PRIMARY_MISS_SHADER_INDEX, // MissShaderIndex
         rayDesc, // Ray
         payload); // Payload
 
-    float shadow = lerp(1.0f, 0.5f, payload.shadow);
+    float shadow = lerp(0.5f, 1.0f, payload.shadow);
     RWTexture2D<float> shadowBuffer = ResourceDescriptorHeap[g_descriptorIndex.shadow];
     shadowBuffer[dispatchRaysIndex] = shadow;
     
     RWTexture2D<float4> reflectionBuffer = ResourceDescriptorHeap[g_descriptorIndex.reflection];
-    reflectionBuffer[dispatchRaysIndex] = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    if (payload.numReflections > 0) {
-        reflectionBuffer[dispatchRaysIndex].rgb = payload.reflection;
-        reflectionBuffer[dispatchRaysIndex].a = 1.0f;
-    }
+    reflectionBuffer[dispatchRaysIndex].rgb = payload.reflection;
+    reflectionBuffer[dispatchRaysIndex].a = 1.0f;
 }
 
 
@@ -106,9 +114,27 @@ void RayGeneration() {
 
 
 [shader("miss")]
-void Miss(inout PrimaryPayload payload) {
+void PrimaryMiss(inout PrimaryPayload payload) {
     payload.shadow = FALSE_UINT;
-    payload.reflection = float3(0.1f, 0.4f, 0.6f);
+    payload.reflection = float3(0.0f, 0.0f, 0.0f);
+}
+
+
+//////////////////////////////////////////////////
+
+
+[shader("miss")]
+void ShadowMiss(inout ShadowPayload payload) {
+    payload.isHit = FALSE_UINT;
+}
+
+
+//////////////////////////////////////////////////
+
+
+[shader("miss")]
+void ReflectionMiss(inout ReflectionPayload payload) {
+    payload.isHit = FALSE_UINT;
 }
 
 
@@ -123,8 +149,9 @@ struct Vertex {
 
 struct Material {
     float3 color;
-    uint reflection;
     uint useLighting;
+    float3 diffuse;
+    float3 specular;
 };
 
 StructuredBuffer<Vertex> g_vertexBuffer : register(t0, space1);
@@ -156,7 +183,7 @@ Vertex GetVertex(Attributes attributes) {
 }
     
 [shader("closesthit")]
-void PrimaryRayClosestHit(inout PrimaryPayload payload, in Attributes attributes) {
+void PrimaryClosestHit(inout PrimaryPayload payload, in Attributes attributes) {
 
     // レイの情報    
     float hitT = RayTCurrent();
@@ -165,7 +192,9 @@ void PrimaryRayClosestHit(inout PrimaryPayload payload, in Attributes attributes
     // 頂点を取得
     Vertex vertex = GetVertex(attributes);
     payload.reflection = g_texture.SampleLevel(g_sampler, vertex.texcoord, 0).rgb * g_material.color;
+    
     payload.reflection *= g_material.useLighting ? Lighting::HalfLambertReflection(vertex.normal, normalize(g_scene.sunLightDirection)) : 1.0f;
+    
     // 反射
     // 反射後 色付け    
     if (payload.numReflections >= MAX_REFLECTIONS) {
@@ -192,7 +221,7 @@ void PrimaryRayClosestHit(inout PrimaryPayload payload, in Attributes attributes
                 PRIMARY_RAY_ATTRIBUTE, // InstanceInclusionMask
                 1, // RayContributionToHitGroupIndex
                 1, // MultiplierForGeometryContributionToHitGroupIndex
-                MISS_SHADER_INDEX, // MissShaderIndex
+                REFLECTION_MISS_SHADER_INDEX, // MissShaderIndex
                 reflectionRay, // Ray
                 payload); // Payload
     }
@@ -221,7 +250,7 @@ void PrimaryRayClosestHit(inout PrimaryPayload payload, in Attributes attributes
     //    SHADOW_RAY_ATTRIBUTE,
     //    SHADOW_HIT_GROUP_INDEX,
     //    0,
-    //    MISS_SHADER_INDEX,
+    //    SHADOW_MISS_SHADER_INDEX,
     //    rayDesc,
     //    payload);
     //    }
@@ -236,7 +265,15 @@ void PrimaryRayClosestHit(inout PrimaryPayload payload, in Attributes attributes
 
 
 [shader("closesthit")]
-void ShadowRayClosestHit(inout PrimaryPayload payload, in BuiltInTriangleIntersectionAttributes attribs) {
-    payload.shadow = TRUE_UINT;
+void ShadowClosestHit(inout ShadowPayload payload, in Attributes attribs) {
+    payload.isHit = TRUE_UINT;
 }
 
+
+//////////////////////////////////////////////////
+
+
+[shader("closesthit")]
+void ReflectionClosestHit(inout ReflectionPayload payload, in Attributes attribs) {
+    payload.isHit = TRUE_UINT;
+}

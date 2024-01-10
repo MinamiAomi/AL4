@@ -14,11 +14,13 @@
 
 static const wchar_t kRaytracingShader[] = L"Raytracing/Raytracing.hlsl";
 static const wchar_t kRayGenerationName[] = L"RayGeneration";
-static const wchar_t kMissName[] = L"Miss";
-static const wchar_t kPrimaryRayClosestHitName[] = L"PrimaryRayClosestHit";
-static const wchar_t kShadowRayClosestHitName[] = L"ShadowRayClosestHit";
-static const wchar_t kPrimaryRayHitGroupName[] = L"PrimaryRayHitGroup";
-static const wchar_t kShadowRayHitGroupName[] = L"ShadowRayHitGroup";
+static const wchar_t kPrimaryMissName[] = L"PrimaryMiss";
+static const wchar_t kShadowMissName[] = L"ShadowMiss";
+static const wchar_t kReflectionMissName[] = L"ReflectionMiss";
+static const wchar_t kPrimaryRayClosestHitName[] = L"PrimaryClosestHit";
+static const wchar_t kShadowRayClosestHitName[] = L"ShadowClosestHit";
+static const wchar_t kPrimaryRayHitGroupName[] = L"PrimaryHitGroup";
+static const wchar_t kShadowRayHitGroupName[] = L"ShadowHitGroup";
 
 void PrintStateObjectDesc(const D3D12_STATE_OBJECT_DESC* desc) {
     std::wstringstream wstr;
@@ -128,7 +130,7 @@ void RaytracingRenderer::Create(uint32_t width, uint32_t height) {
     CreateStateObject();
     CreateShaderTables();
     shadowBuffer_.Create(L"RaytracingRenderer ResultBuffer", width, height, DXGI_FORMAT_R16_FLOAT);
-    reflectionBuffer_.Create(L"RaytracingRenderer ReflectionBuffer", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
+    specularBuffer_.Create(L"RaytracingRenderer ReflectionBuffer", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
 }
 
 void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& camera, const DirectionalLight& sunLight) {
@@ -137,12 +139,19 @@ void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& ca
     // シーン定数
     struct Scene {
         Matrix4x4 viewProjectionInverseMatrix;
+        Vector3 cameraPosition;
+        float pad;
         Vector3 sunLightDirection;
+        float sunLightIntensity;
+        Vector3 sunLightColor;
     };
     // シーン定数を送る
     Scene scene;
     scene.viewProjectionInverseMatrix = camera.GetViewProjectionMatrix().Inverse();
+    scene.cameraPosition = camera.GetPosition();
     scene.sunLightDirection = sunLight.direction;
+    scene.sunLightIntensity = sunLight.intensity;
+    scene.sunLightColor = sunLight.color;
     auto sceneCB = commandContext.TransfarUploadBuffer(sizeof(scene), &scene);
     sceneCB;
     commandList;
@@ -155,7 +164,7 @@ void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& ca
 
     commandList->SetComputeRoot32BitConstant(0, tlas_.GetSRV().GetIndex(), 0);
     commandList->SetComputeRoot32BitConstant(0, shadowBuffer_.GetUAV().GetIndex(), 1);
-    commandList->SetComputeRoot32BitConstant(0, reflectionBuffer_.GetUAV().GetIndex(), 2);
+    commandList->SetComputeRoot32BitConstant(0, specularBuffer_.GetUAV().GetIndex(), 2);
     commandList->SetComputeRootConstantBufferView(1, sceneCB);
 
     D3D12_DISPATCH_RAYS_DESC rayDesc{};
@@ -173,7 +182,7 @@ void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& ca
     commandList->DispatchRays(&rayDesc);
 
     commandContext.UAVBarrier(shadowBuffer_);
-    commandContext.UAVBarrier(reflectionBuffer_);
+    commandContext.UAVBarrier(specularBuffer_);
 }
 
 void RaytracingRenderer::CreateRootSignature() {
@@ -224,7 +233,9 @@ void RaytracingRenderer::CreateStateObject() {
     auto dxilLibSubobject = stateObjectDesc.CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
     dxilLibSubobject->SetDXILLibrary(&shaderByteCode);
     dxilLibSubobject->DefineExport(kRayGenerationName);
-    dxilLibSubobject->DefineExport(kMissName);
+    dxilLibSubobject->DefineExport(kPrimaryMissName);
+    dxilLibSubobject->DefineExport(kShadowMissName);
+    dxilLibSubobject->DefineExport(kReflectionMissName);
     dxilLibSubobject->DefineExport(kPrimaryRayClosestHitName);
     dxilLibSubobject->DefineExport(kShadowRayClosestHitName);
 
@@ -281,7 +292,9 @@ void RaytracingRenderer::CreateShaderTables() {
         InsertIdentifier(kRayGenerationName);
         InsertIdentifier(kPrimaryRayHitGroupName);
         InsertIdentifier(kShadowRayHitGroupName);
-        InsertIdentifier(kMissName);
+        InsertIdentifier(kPrimaryMissName);
+        InsertIdentifier(kShadowMissName);
+        InsertIdentifier(kReflectionMissName);
     }
 
     {
@@ -290,8 +303,10 @@ void RaytracingRenderer::CreateShaderTables() {
     }
     // ヒットグループは毎フレーム更新
     {
-        ShaderRecord missShaderRecord(identifierMap_[kMissName]);
-        missShaderTable_.Create(L"RaytracingRenderer MissShaderTable", &missShaderRecord, 1);
+        std::vector<ShaderRecord> shaderRecords;
+        shaderRecords.emplace_back(identifierMap_[kShadowMissName]);
+        shaderRecords.emplace_back(identifierMap_[kReflectionMissName]);
+        missShaderTable_.Create(L"RaytracingRenderer MissShaderTable", shaderRecords.data(), (UINT)shaderRecords.size());
     }
 }
 
@@ -300,8 +315,10 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
 
     struct MaterialConstantData {
         Vector3 color;
-        uint32_t reflection;
         uint32_t useLighting;
+        Vector3 diffuse;
+        float pad;
+        Vector3 specular;
     };
 
     std::vector<D3D12_RAYTRACING_INSTANCE_DESC> instanceDescs;
@@ -318,6 +335,8 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
             continue;
         }
 
+        auto model = instance->GetModel();
+
         auto& desc = instanceDescs.emplace_back();
 
         for (uint32_t y = 0; y < 3; ++y) {
@@ -332,15 +351,14 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
         }
         desc.InstanceContributionToHitGroupIndex = (UINT)shaderRecords.size() - 1;
         desc.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
-        desc.AccelerationStructure = instance->GetModel()->GetBLAS().GetGPUVirtualAddress();
+        desc.AccelerationStructure = model->GetBLAS().GetGPUVirtualAddress();
 
 
         MaterialConstantData material;
         material.color = instance->GetColor();
-        material.reflection = instance->Reflection() ? 1 : 0;
         material.useLighting = instance->UseLighting() ? 1 : 0;
 
-        for (auto& mesh : instance->GetModel()->GetMeshes()) {
+        for (auto& mesh : model->GetMeshes()) {
             auto& shaderRecord = shaderRecords.emplace_back(identifierMap_[kPrimaryRayHitGroupName]);
             shaderRecord.Add(mesh.vertexBuffer.GetGPUVirtualAddress());
             shaderRecord.Add(mesh.indexBuffer.GetGPUVirtualAddress());
@@ -354,7 +372,8 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
             shaderRecord.Add(SamplerManager::AnisotropicWrap);
 
             if (mesh.material && instance->UseLighting()) {
-                material.color = Vector3::Scale(material.color, mesh.material->diffuse);
+                material.diffuse = mesh.material->diffuse;
+                material.specular = mesh.material->specular;
             }
             D3D12_GPU_VIRTUAL_ADDRESS materialCB = commandContext.TransfarUploadBuffer(sizeof(material), &material);
             shaderRecord.Add(materialCB);

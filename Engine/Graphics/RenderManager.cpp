@@ -61,7 +61,15 @@ void RenderManager::Render() {
 
     uint32_t targetSwapChainBufferIndex = (swapChain_.GetCurrentBackBufferIndex() + 1) % SwapChain::kNumBuffers;
 
+    auto camera = camera_.lock();
+    auto sunLight = sunLight_.lock();
+
     commandContext_.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+    if (camera && sunLight) {
+        // 影、スペキュラ
+        raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
+    }
 
     commandContext_.TransitionResource(mainColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
@@ -70,17 +78,14 @@ void RenderManager::Render() {
     commandContext_.ClearDepth(mainDepthBuffer_);
     commandContext_.SetViewportAndScissorRect(0, 0, mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
 
-    auto camera = camera_.lock();
-    auto sunLight = sunLight_.lock();
 
     if (camera && sunLight) {
-        //toonRenderer_.Render(commandContext_, *camera);
-        particleRenderer_.Render(commandContext_, *camera);
-        //raymarchingRenderer_.Render(commandContext_, *camera);
-        //raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
+        // モデル描画
         modelRenderer.Render(commandContext_, *camera, *sunLight);
-        raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
     }
+    // レイトレの結果を加算合成
+    postEffect_.RenderAddTexture(commandContext_, raytracingRenderer_.GetSpecular());
+    postEffect_.RenderMultiplyTexture(commandContext_, raytracingRenderer_.GetShadow());
 
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
     commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -88,8 +93,7 @@ void RenderManager::Render() {
     commandContext_.ClearColor(swapChainBuffer);
     commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
-    postEffect_.Render(commandContext_, mainColorBuffer_, raytracingRenderer_.GetShadow(), raytracingRenderer_.GetReflection());
-
+    postEffect_.Render(commandContext_, mainColorBuffer_);
 
     spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, float(swapChainBuffer.GetWidth()), float(swapChainBuffer.GetHeight()));
 

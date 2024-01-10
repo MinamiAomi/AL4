@@ -23,6 +23,7 @@ void GameScene::OnInitialize() {
         testObjects_[i]->Initialize(kTestObjectNames[i], Vector3(i * 3 - (float)testObjects_.size() * 0.5f * 3, 1.5f, 5.0f));
     }
 
+
     player_->SetFollowCamera(followCamera_);
     followCamera_->SetTarget(player_);
 

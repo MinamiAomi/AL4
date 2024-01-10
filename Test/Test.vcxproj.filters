@@ -25,7 +25,9 @@
     <ClCompile Include="Ground.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="TestObject.cpp" />
+    <ClCompile Include="TestObject.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Test.h">

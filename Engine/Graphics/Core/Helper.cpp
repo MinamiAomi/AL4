@@ -135,7 +135,7 @@ namespace Helper {
         CreateBlendDesc(TRUE,
             D3D12_BLEND_SRC_ALPHA,
             D3D12_BLEND_ONE,
-            D3D12_BLEND_OP_REV_SUBTRACT,
+            D3D12_BLEND_OP_SUBTRACT,
             D3D12_BLEND_ONE,
             D3D12_BLEND_ZERO,
             D3D12_BLEND_OP_ADD,

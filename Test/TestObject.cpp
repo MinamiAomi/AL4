@@ -11,6 +11,7 @@ void TestObject::Initialize(const std::string& name, const Vector3& position) {
 
     model_->SetModel(ResourceManager::GetInstance()->FindModel(name));
     model_->SetIsActive(true);
+    //model_->SetReflection(true);
 }
 
 void TestObject::Update() {
