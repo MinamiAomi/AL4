@@ -33,6 +33,10 @@ private:
     RootSignature globalRootSignature_;
     RootSignature hitGroupLocalRootSignature_;
     TLAS tlas_;
+
+    TLAS mainTLAS_;
+    TLAS castShadowTLAS_;
+
     ShaderTable rayGenerationShaderTable_;
     ShaderTable hitGroupShaderTable_;
     ShaderTable missShaderTable_;

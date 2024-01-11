@@ -1,41 +1,5 @@
 #include "../Lighting.hlsli"
 
-struct DescriptorIndex {
-    uint tlas;
-    uint shadow;
-    uint reflection;
-};
-
-ConstantBuffer<DescriptorIndex> g_descriptorIndex : register(b0);
-
-struct Scene {
-    float4x4 viewProjectionInverseMatrix;
-    float3 cameraPosition;
-    float3 sunLightDirection;
-    float sunLightIntensity;
-    float3 sunLightColor;
-};
-ConstantBuffer<Scene> g_scene : register(b1);
-
-// 一次レイ用ペイロード
-struct PrimaryPayload {
-    uint shadow;
-    float3 reflection;
-};
-// シャドウレイ用ペイロード
-struct ShadowPayload {
-    uint isHit;
-};
-// 反射レイ用ペイロード
-struct ReflectionPayload {
-    uint isHit;
-    float3 color;
-};
-
-struct Attributes {
-    float2 barycentrics;
-};
-
 #define TRUE_UINT 1
 #define FALSE_UINT 0
 
@@ -53,6 +17,51 @@ struct Attributes {
 #define PRIMARY_RAY_ATTRIBUTE (1 << 0)
 #define SHADOW_RAY_ATTRIBUTE  (1 << 1)
 
+// ディスクリプタ
+struct DescriptorIndex {
+    uint tlas;
+    uint shadow;
+    uint reflection;
+};
+
+// シーン
+struct Scene {
+    float4x4 viewProjectionInverseMatrix;
+    float3 cameraPosition;
+    float3 sunLightDirection;
+    float sunLightIntensity;
+    float3 sunLightColor;
+};
+
+// 一次レイ用ペイロード
+struct PrimaryPayload {
+    float shadow;
+    float3 reflection;
+};
+// シャドウレイ用ペイロード
+struct ShadowPayload {
+    uint isHit;
+};
+// 反射レイ用ペイロード
+struct ReflectionPayload {
+    uint isHit;
+    float3 color;
+};
+
+struct Attributes {
+    float2 barycentrics;
+};
+
+ConstantBuffer<DescriptorIndex> g_DescriptorIndex : register(b0);
+ConstantBuffer<Scene> g_Scene : register(b1);
+
+
+//////////////////////////////////////////////////
+// R + M * G + I HitGroupShaderRecordIndex      | R = RayContributionToHitGroupIndex
+// 0 + 0 * G + 0 ShadowHitGroup                 | M = MultiplierForGeometryContributionToHitGroupIndex
+// 1 + 2 * G + I PrimaryHitGroup                | G = GeometryContributionToHitGroupIndex
+// 2 + 2 * G + I ReflectionHitGroup             | I = InstanceContributionToHitGroupIndex
+//////////////////////////////////////////////////
 
 //////////////////////////////////////////////////
 
@@ -78,66 +87,40 @@ void RayGeneration() {
     
     //ConstantBuffer<Scene> scene = ResourceDescriptorHeap[descriptorIndex.scene];
     // 近面から遠面へのレイ
-    RayDesc rayDesc;
+    RayDesc primaryRay;
     float3 rayOrigin = GetWorldPosition(texcoord, 0.0f, g_scene.viewProjectionInverseMatrix);
-    rayDesc.Origin = rayOrigin;
+    primaryRay.Origin = rayOrigin;
     float3 rayDiff = GetWorldPosition(texcoord, 1.0f, g_scene.viewProjectionInverseMatrix) - rayOrigin;
-    rayDesc.Direction = normalize(rayDiff);
-    rayDesc.TMin = 0.0f;
-    rayDesc.TMax = length(rayDiff);
+    primaryRay.Direction = normalize(rayDiff);
+    primaryRay.TMin = 0.0f;
+    primaryRay.TMax = length(rayDiff);
     // レイを飛ばす
     RaytracingAccelerationStructure tlas = ResourceDescriptorHeap[g_descriptorIndex.tlas];
-    PrimaryPayload payload;
-    payload.shadow = 0;
-    payload.reflection = INVALID_COLOR;
+    PrimaryPayload primaryPayload;
+    primaryPayload.shadow = 1.0f;
+    primaryPayload.reflection = float3(0.0f, 0.0f, 0.0f);
     TraceRay(
         tlas, // RaytracingAccelerationStructure
         RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // RayFlags
         PRIMARY_RAY_ATTRIBUTE, // InstanceInclusionMask
         1, // RayContributionToHitGroupIndex
-        1, // MultiplierForGeometryContributionToHitGroupIndex
+        2, // MultiplierForGeometryContributionToHitGroupIndex
         PRIMARY_MISS_SHADER_INDEX, // MissShaderIndex
-        rayDesc, // Ray
-        payload); // Payload
+        primaryRay, // Ray
+        primaryPayload); // Payload
 
-    float shadow = lerp(0.5f, 1.0f, payload.shadow);
+    float shadow = primaryPayload.shadow;
     RWTexture2D<float> shadowBuffer = ResourceDescriptorHeap[g_descriptorIndex.shadow];
     shadowBuffer[dispatchRaysIndex] = shadow;
     
     RWTexture2D<float4> reflectionBuffer = ResourceDescriptorHeap[g_descriptorIndex.reflection];
-    reflectionBuffer[dispatchRaysIndex].rgb = payload.reflection;
+    reflectionBuffer[dispatchRaysIndex].rgb = primaryPayload.reflection;
     reflectionBuffer[dispatchRaysIndex].a = 1.0f;
 }
 
 
 //////////////////////////////////////////////////
-
-
-[shader("miss")]
-void PrimaryMiss(inout PrimaryPayload payload) {
-    payload.shadow = FALSE_UINT;
-    payload.reflection = float3(0.0f, 0.0f, 0.0f);
-}
-
-
 //////////////////////////////////////////////////
-
-
-[shader("miss")]
-void ShadowMiss(inout ShadowPayload payload) {
-    payload.isHit = FALSE_UINT;
-}
-
-
-//////////////////////////////////////////////////
-
-
-[shader("miss")]
-void ReflectionMiss(inout ReflectionPayload payload) {
-    payload.isHit = FALSE_UINT;
-}
-
-
 //////////////////////////////////////////////////
 
 
@@ -151,14 +134,15 @@ struct Material {
     float3 color;
     uint useLighting;
     float3 diffuse;
+    float shininess;
     float3 specular;
 };
 
-StructuredBuffer<Vertex> g_vertexBuffer : register(t0, space1);
-StructuredBuffer<uint> g_indexBuffer : register(t1, space1);
-Texture2D<float4> g_texture : register(t2, space1);
-SamplerState g_sampler : register(s0, space1);
-ConstantBuffer<Material> g_material : register(b0, space1);
+StructuredBuffer<Vertex> l_VertexBuffer : register(t0, space1);
+StructuredBuffer<uint> l_IndexBuffer : register(t1, space1);
+Texture2D<float4> l_Texture : register(t2, space1);
+SamplerState l_Sampler : register(s0, space1);
+ConstantBuffer<Material> l_Material : register(b0, space1);
 
 float3 CalcBarycentrics(float2 barycentrics) {
     return float3(1.0f - barycentrics.x - barycentrics.y, barycentrics.x, barycentrics.y);
@@ -170,10 +154,10 @@ Vertex GetVertex(Attributes attributes) {
     uint primitiveID = PrimitiveIndex() * 3;
 
     for (uint i = 0; i < 3; ++i) {
-        uint index = g_indexBuffer[primitiveID + i];
-        vertex.position += g_vertexBuffer[index].position * barycentrics[i];
-        vertex.normal += g_vertexBuffer[index].normal * barycentrics[i];
-        vertex.texcoord += g_vertexBuffer[index].texcoord * barycentrics[i];
+        uint index = l_IndexBuffer[primitiveID + i];
+        vertex.position += l_VertexBuffer[index].position * barycentrics[i];
+        vertex.normal += l_VertexBuffer[index].normal * barycentrics[i];
+        vertex.texcoord += l_VertexBuffer[index].texcoord * barycentrics[i];
     }
     vertex.normal = normalize(vertex.normal);
     vertex.position = mul(float4(vertex.position, 1.0f), ObjectToWorld4x3());
@@ -191,81 +175,84 @@ void PrimaryClosestHit(inout PrimaryPayload payload, in Attributes attributes) {
     float3 rayDirection = WorldRayDirection();
     // 頂点を取得
     Vertex vertex = GetVertex(attributes);
-    payload.reflection = g_texture.SampleLevel(g_sampler, vertex.texcoord, 0).rgb * g_material.color;
     
-    payload.reflection *= g_material.useLighting ? Lighting::HalfLambertReflection(vertex.normal, normalize(g_scene.sunLightDirection)) : 1.0f;
-    
-    // 反射
-    // 反射後 色付け    
-    if (payload.numReflections >= MAX_REFLECTIONS) {
-        return;
-    }
-    
-    // 反射前 レイ飛ばし
-    if (g_material.reflection) {
-        float3 reflectionRayDirection = reflect(rayDirection, vertex.normal);
+    // 影
+    bool reciveShadow = (InstanceID() == 1);
+    if (reciveShadow) {        
+        // 衝突点からライトへのレイ
+        RayDesc shadowRay;
+        shadowRay.Origin = vertex.position;
+        shadowRay.Direction = -g_Scene.sunLightDirection;
+        shadowRay.TMin = 0.001f; // 少し浮かす
+        shadowRay.TMax = 100000.0f; // 
         
-        payload.numReflections++;
-        
-        RayDesc reflectionRay;
-        reflectionRay.Origin = vertex.position;
-        reflectionRay.Direction = normalize(reflectionRayDirection);
-        reflectionRay.TMin = 0.0001f;
-        reflectionRay.TMax = 10000.0f;
+        ShadowPayload shadowPayload;
+        shadowPayload.isHit = 0;
         
         RaytracingAccelerationStructure tlas = ResourceDescriptorHeap[g_descriptorIndex.tlas];
-        
         TraceRay(
+        tlas,
+        RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH,
+        SHADOW_RAY_ATTRIBUTE,
+        0,
+        0,
+        SHADOW_MISS_SHADER_INDEX,
+        shadowRay,
+        shadowPayload);
+        
+        payload.shadow = lerp(0.5f, 1.0f, shadowPayload.isHit);
+    }
+
+    
+    if (l_Material.useLighting == 0) {
+        return;
+    } 
+        
+    // 反射したレイの方向
+    float3 reflectionRayDirection = reflect(rayDirection, vertex.normal);
+    RayDesc reflectionRay;
+    reflectionRay.Origin = vertex.position;
+    reflectionRay.Direction = normalize(reflectionRayDirection);
+    reflectionRay.TMin = 0.0001f;
+    reflectionRay.TMax = 10000.0f;
+    
+    RaytracingAccelerationStructure tlas = ResourceDescriptorHeap[g_descriptorIndex.tlas];
+    
+    ReflectionPayload reflectionPayload;
+    TraceRay(
                 tlas, // RaytracingAccelerationStructure
                 RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // RayFlags
                 PRIMARY_RAY_ATTRIBUTE, // InstanceInclusionMask
-                1, // RayContributionToHitGroupIndex
-                1, // MultiplierForGeometryContributionToHitGroupIndex
+                2, // RayContributionToHitGroupIndex
+                2, // MultiplierForGeometryContributionToHitGroupIndex
                 REFLECTION_MISS_SHADER_INDEX, // MissShaderIndex
                 reflectionRay, // Ray
-                payload); // Payload
-    }
+                reflectionPayload); // Payload
     
-    //// InstanceIDが1なら影を受ける
-    //    if (InstanceID() == 1) {
-    //    // シャドウレイを飛ばす
-    //        float hitT = RayTCurrent();
-    //        float3 rayOrigin = WorldRayOrigin();
-    //        float3 rayDirection = WorldRayDirection();
-    //    // ヒットしたポジション
-    //        float3 hitPosition = rayOrigin + (hitT - 0.001f) * rayDirection;
-    
-    //   // ConstantBuffer<Scene> scene = ResourceDescriptorHeap[descriptorIndex.scene];
-    //    // 衝突点からライトへのレイ
-    //        RayDesc rayDesc;
-    //        rayDesc.Origin = hitPosition;
-    //        rayDesc.Direction = -g_scene.sunLightDirection;
-    //        rayDesc.TMin = 0.001f; // 少し浮かす
-    //        rayDesc.TMax = 100000.0f; // 
-        
-    //        RaytracingAccelerationStructure tlas = ResourceDescriptorHeap[g_descriptorIndex.tlas];
-    //        TraceRay(
-    //    tlas,
-    //    RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH,
-    //    SHADOW_RAY_ATTRIBUTE,
-    //    SHADOW_HIT_GROUP_INDEX,
-    //    0,
-    //    SHADOW_MISS_SHADER_INDEX,
-    //    rayDesc,
-    //    payload);
-    //    }
-    //    else {
-    //    // 影を受けない
-    //        payload.shadow = FALSE_UINT;
-    //    }
+    float3 specular = l_Material.specular;
+    specular *= Lighting::BlinnPhongReflection(vertex.normal, WorldRayDirection(), g_Scene.sunLightDirection, l_Material.shininess);
+    specular *= (reflectionPayload.isHit == 1) ? reflectionPayload.color : g_Scene.sunLightColor * g_Scene.sunLightIntensity;
+    payload.reflection = specular;
 }
 
 
 //////////////////////////////////////////////////
 
 
+[shader("miss")]
+void PrimaryMiss(inout PrimaryPayload payload) {
+    payload.shadow = 1.0f;
+    payload.reflection = float3(0.0f, 0.0f, 0.0f);
+}
+
+
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
+
+
 [shader("closesthit")]
-void ShadowClosestHit(inout ShadowPayload payload, in Attributes attribs) {
+void ShadowClosestHit(inout ShadowPayload payload, in Attributes attributes) {
     payload.isHit = TRUE_UINT;
 }
 
@@ -273,7 +260,39 @@ void ShadowClosestHit(inout ShadowPayload payload, in Attributes attribs) {
 //////////////////////////////////////////////////
 
 
+[shader("miss")]
+void ShadowMiss(inout ShadowPayload payload) {
+    payload.isHit = FALSE_UINT;
+}
+
+
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
+//////////////////////////////////////////////////
+
+// 反射レイ
 [shader("closesthit")]
-void ReflectionClosestHit(inout ReflectionPayload payload, in Attributes attribs) {
+void ReflectionClosestHit(inout ReflectionPayload payload, in Attributes attributes) {
     payload.isHit = TRUE_UINT;
+    // 頂点
+    Vertex vertex = GetVertex(attributes);
+    // 拡散反射
+    float3 diffuse = l_Material.diffuse;
+    diffuse *= l_Material.color;
+    diffuse *= l_Texture.Sample(l_Sampler, vertex.texcoord).rgb;
+    diffuse *= Lighting::HalfLambertReflection(vertex.normal, g_Scene.sunLightDirection);
+    // 鏡面反射
+    float3 specular = l_Material.specular;
+    specular *= Lighting::BlinnPhongReflection(vertex.normal, WorldRayDirection(), g_Scene.sunLightDirection, l_Material.shininess);
+    
+    // シェーディングによる色
+    payload.color = (diffuse + specular) * g_Scene.sunLightColor * g_Scene.sunLightIntensity;
+}
+
+//////////////////////////////////////////////////
+
+[shader("miss")]
+void ReflectionMiss(inout ReflectionPayload payload) {
+    payload.isHit = FALSE_UINT;
+    payload.color = float3(0.0f, 0.0f, 0.0f);
 }

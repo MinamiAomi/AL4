@@ -19,8 +19,10 @@ static const wchar_t kShadowMissName[] = L"ShadowMiss";
 static const wchar_t kReflectionMissName[] = L"ReflectionMiss";
 static const wchar_t kPrimaryRayClosestHitName[] = L"PrimaryClosestHit";
 static const wchar_t kShadowRayClosestHitName[] = L"ShadowClosestHit";
+static const wchar_t kReflectionRayClosestHitName[] = L"ReflectionClosestHit";
 static const wchar_t kPrimaryRayHitGroupName[] = L"PrimaryHitGroup";
 static const wchar_t kShadowRayHitGroupName[] = L"ShadowHitGroup";
+static const wchar_t kReflectionRayHitGroupName[] = L"ReflectionHitGroup";
 
 void PrintStateObjectDesc(const D3D12_STATE_OBJECT_DESC* desc) {
     std::wstringstream wstr;
@@ -238,12 +240,18 @@ void RaytracingRenderer::CreateStateObject() {
     dxilLibSubobject->DefineExport(kReflectionMissName);
     dxilLibSubobject->DefineExport(kPrimaryRayClosestHitName);
     dxilLibSubobject->DefineExport(kShadowRayClosestHitName);
+    dxilLibSubobject->DefineExport(kReflectionRayClosestHitName);
 
     // 2.一次レイヒットグループ
     auto primaryRayHitGroup = stateObjectDesc.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
     primaryRayHitGroup->SetClosestHitShaderImport(kPrimaryRayClosestHitName);
     primaryRayHitGroup->SetHitGroupExport(kPrimaryRayHitGroupName);
     primaryRayHitGroup->SetHitGroupType(D3D12_HIT_GROUP_TYPE_TRIANGLES);
+
+    auto reflectionRayHitGroup = stateObjectDesc.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
+    reflectionRayHitGroup->SetClosestHitShaderImport(kReflectionRayClosestHitName);
+    reflectionRayHitGroup->SetHitGroupExport(kReflectionRayHitGroupName);
+    reflectionRayHitGroup->SetHitGroupType(D3D12_HIT_GROUP_TYPE_TRIANGLES);
 
     // 3.ヒットグループのローカルルートシグネチャ
     auto primaryHitGroupRootSignature = stateObjectDesc.CreateSubobject<CD3DX12_LOCAL_ROOT_SIGNATURE_SUBOBJECT>();
@@ -253,6 +261,7 @@ void RaytracingRenderer::CreateStateObject() {
     auto primaryHitGroupRootSignatureAssociation = stateObjectDesc.CreateSubobject<CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT>();
     primaryHitGroupRootSignatureAssociation->SetSubobjectToAssociate(*primaryHitGroupRootSignature);
     primaryHitGroupRootSignatureAssociation->AddExport(kPrimaryRayHitGroupName);
+    primaryHitGroupRootSignatureAssociation->AddExport(kReflectionRayHitGroupName);
 
     // 5.シャドウレイヒットグループ
     auto shadowRayHitGroup = stateObjectDesc.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
@@ -292,6 +301,7 @@ void RaytracingRenderer::CreateShaderTables() {
         InsertIdentifier(kRayGenerationName);
         InsertIdentifier(kPrimaryRayHitGroupName);
         InsertIdentifier(kShadowRayHitGroupName);
+        InsertIdentifier(kReflectionRayHitGroupName);
         InsertIdentifier(kPrimaryMissName);
         InsertIdentifier(kShadowMissName);
         InsertIdentifier(kReflectionMissName);
@@ -317,7 +327,7 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
         Vector3 color;
         uint32_t useLighting;
         Vector3 diffuse;
-        float pad;
+        float shininess;
         Vector3 specular;
     };
 
@@ -325,7 +335,7 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
     instanceDescs.reserve(instanceList.size());
 
     std::vector<ShaderRecord> shaderRecords;
-    shaderRecords.reserve(instanceList.size() + 1);
+    shaderRecords.reserve(instanceList.size() * 2 + 1);
 
     shaderRecords.emplace_back(identifierMap_[kShadowRayHitGroupName]);
 
@@ -359,24 +369,35 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
         material.useLighting = instance->UseLighting() ? 1 : 0;
 
         for (auto& mesh : model->GetMeshes()) {
-            auto& shaderRecord = shaderRecords.emplace_back(identifierMap_[kPrimaryRayHitGroupName]);
-            shaderRecord.Add(mesh.vertexBuffer.GetGPUVirtualAddress());
-            shaderRecord.Add(mesh.indexBuffer.GetGPUVirtualAddress());
+            auto& primaryShaderRecord = shaderRecords.emplace_back(identifierMap_[kPrimaryRayHitGroupName]);
+            auto& reflectionShaderRecord = shaderRecords.emplace_back(identifierMap_[kReflectionRayHitGroupName]);
+
+            primaryShaderRecord.Add(mesh.vertexBuffer.GetGPUVirtualAddress());
+            primaryShaderRecord.Add(mesh.indexBuffer.GetGPUVirtualAddress());
+            
+            reflectionShaderRecord.Add(mesh.vertexBuffer.GetGPUVirtualAddress());
+            reflectionShaderRecord.Add(mesh.indexBuffer.GetGPUVirtualAddress());
 
             if (mesh.material && mesh.material->diffuseMap) {
-                shaderRecord.Add(mesh.material->diffuseMap->GetSRV().GetGPU());
+                primaryShaderRecord.Add(mesh.material->diffuseMap->GetSRV().GetGPU());
+                reflectionShaderRecord.Add(mesh.material->diffuseMap->GetSRV().GetGPU());
             }
             else {
-                shaderRecord.Add(DefaultTexture::White.GetSRV().GetGPU());
+                primaryShaderRecord.Add(DefaultTexture::White.GetSRV().GetGPU());
+                reflectionShaderRecord.Add(DefaultTexture::White.GetSRV().GetGPU());
             }
-            shaderRecord.Add(SamplerManager::AnisotropicWrap);
+            primaryShaderRecord.Add(SamplerManager::LinearWrap);
+            reflectionShaderRecord.Add(SamplerManager::LinearWrap);
 
             if (mesh.material && instance->UseLighting()) {
                 material.diffuse = mesh.material->diffuse;
                 material.specular = mesh.material->specular;
+                material.shininess = mesh.material->shininess;
             }
+
             D3D12_GPU_VIRTUAL_ADDRESS materialCB = commandContext.TransfarUploadBuffer(sizeof(material), &material);
-            shaderRecord.Add(materialCB);
+            primaryShaderRecord.Add(materialCB);
+            reflectionShaderRecord.Add(materialCB);
         }
     }
 
