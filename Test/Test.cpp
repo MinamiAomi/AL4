@@ -20,7 +20,7 @@ void Test::OnInitialize() {
 	resourceManager->AddModel("teapot", Model::Load("Resources/Teapot/teapot.obj"));
 	resourceManager->AddModel("bunny",  Model::Load("Resources/Bunny/bunny.obj"));
 	resourceManager->AddModel("box",  Model::Load("Resources/box.obj"));
-	resourceManager->AddModel("cone",    Model::Load("Resources/cone.obj"));
+	resourceManager->AddModel("sphere",    Model::Load("Resources/sphere.obj"));
 	resourceManager->AddModel("cylinder", Model::Load("Resources/cylinder.obj"));
 	resourceManager->AddModel("torus",   Model::Load("Resources/torus.obj"));
 	resourceManager->AddModel("suzanne", Model::Load("Resources/suzanne.obj"));

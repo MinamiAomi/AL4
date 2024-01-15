@@ -3,6 +3,8 @@
 #include "Graphics/ResourceManager.h"
 #include "Graphics/RenderManager.h"
 
+#include "Graphics/ImGuiManager.h"
+
 void Ground::Initialize() {
     model_ = std::make_unique<ModelInstance>();
     skydomeModel_ = std::make_unique<ModelInstance>();
@@ -23,4 +25,14 @@ void Ground::Update() {
 
     transform.UpdateMatrix();
     model_->SetWorldMatrix(transform.worldMatrix);
+
+#ifdef _DEBUG
+    if (ImGui::TreeNode("SunLight")) {
+        ImGui::DragFloat3("Direction", &sunLight_->direction.x, 0.01f, -1.0f, 1.0f);
+        sunLight_->direction = sunLight_->direction.Normalized();
+        ImGui::ColorEdit3("Color", &sunLight_->color.x);
+        ImGui::DragFloat("Intensity", &sunLight_->intensity, 0.01f);
+        ImGui::TreePop();
+    }
+#endif // _DEBUG
 }

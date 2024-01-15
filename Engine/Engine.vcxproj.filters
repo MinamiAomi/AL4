@@ -607,7 +607,7 @@
     <None Include="Graphics\Shader\PostEffectOtherPS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
-    <None Include="PostEffectAddPS.hlsl">
+    <None Include="Graphics\Shader\PostEffectAddPS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
   </ItemGroup>

@@ -5,24 +5,38 @@
 
 #define INVALID_COLOR float3(-1.0f, -1.0f, -1.0f)
 
-// 一次レイヒットグループ
-#define PRIMARY_HIT_GROUP_INDEX 0
-// 影ヒットグループ
-#define SHADOW_HIT_GROUP_INDEX 1
 
+//////////////////////////////////////////////////
+// R + M * G + I HitGroupShaderRecordIndex      | R = RayContributionToHitGroupIndex
+// 0 + 0 * G + 0 ShadowHitGroup                 | M = MultiplierForGeometryContributionToHitGroupIndex
+// 1 + 2 * G + I PrimaryHitGroup                | G = GeometryContributionToHitGroupIndex
+// 2 + 2 * G + I ReflectionHitGroup             | I = InstanceContributionToHitGroupIndex
+//////////////////////////////////////////////////
+
+//////////////////////////////////////////////////
+// 1 + 2 * G + I PrimaryHitGroup
+#define PRIMARY_RAY_CONTRIBUTION_TO_HIT_GROUP_INDEX 1
+#define PRIMARY_MULTIPLIER_FOR_GEOMETRY_CONTRIBUTION_TO_HIT_GROUP_INDEX 2
 #define PRIMARY_MISS_SHADER_INDEX 0
+//////////////////////////////////////////////////
+
+//////////////////////////////////////////////////
+// 0 + 0 * G + 0 ShadowHitGroup
+#define SHADOW_RAY_CONTRIBUTION_TO_HIT_GROUP_INDEX 0
+#define SHADOW_MULTIPLIER_FOR_GEOMETRY_CONTRIBUTION_TO_HIT_GROUP_INDEX 0
 #define SHADOW_MISS_SHADER_INDEX 1
+//////////////////////////////////////////////////
+
+//////////////////////////////////////////////////
+// 2 + 2 * G + I ReflectionHitGroup
+#define REFLECTION_RAY_CONTRIBUTION_TO_HIT_GROUP_INDEX 2
+#define REFLECTION_MULTIPLIER_FOR_GEOMETRY_CONTRIBUTION_TO_HIT_GROUP_INDEX 2
 #define REFLECTION_MISS_SHADER_INDEX 2
+//////////////////////////////////////////////////
 
 #define PRIMARY_RAY_ATTRIBUTE (1 << 0)
 #define SHADOW_RAY_ATTRIBUTE  (1 << 1)
 
-// ディスクリプタ
-struct DescriptorIndex {
-    uint tlas;
-    uint shadow;
-    uint reflection;
-};
 
 // シーン
 struct Scene {
@@ -52,16 +66,13 @@ struct Attributes {
     float2 barycentrics;
 };
 
-ConstantBuffer<DescriptorIndex> g_DescriptorIndex : register(b0);
-ConstantBuffer<Scene> g_Scene : register(b1);
+ConstantBuffer<Scene> g_Scene : register(b0);
 
+RaytracingAccelerationStructure g_TLAS : register(t0);
+RaytracingAccelerationStructure g_CastShadowTLAS : register(t1);
+RWTexture2D<float4> g_Shadow : register(u0);
+RWTexture2D<float4> g_Reflection : register(u1);
 
-//////////////////////////////////////////////////
-// R + M * G + I HitGroupShaderRecordIndex      | R = RayContributionToHitGroupIndex
-// 0 + 0 * G + 0 ShadowHitGroup                 | M = MultiplierForGeometryContributionToHitGroupIndex
-// 1 + 2 * G + I PrimaryHitGroup                | G = GeometryContributionToHitGroupIndex
-// 2 + 2 * G + I ReflectionHitGroup             | I = InstanceContributionToHitGroupIndex
-//////////////////////////////////////////////////
 
 //////////////////////////////////////////////////
 
@@ -88,34 +99,32 @@ void RayGeneration() {
     //ConstantBuffer<Scene> scene = ResourceDescriptorHeap[descriptorIndex.scene];
     // 近面から遠面へのレイ
     RayDesc primaryRay;
-    float3 rayOrigin = GetWorldPosition(texcoord, 0.0f, g_scene.viewProjectionInverseMatrix);
+    float3 rayOrigin = GetWorldPosition(texcoord, 0.0f, g_Scene.viewProjectionInverseMatrix);
     primaryRay.Origin = rayOrigin;
-    float3 rayDiff = GetWorldPosition(texcoord, 1.0f, g_scene.viewProjectionInverseMatrix) - rayOrigin;
+    float3 rayDiff = GetWorldPosition(texcoord, 1.0f, g_Scene.viewProjectionInverseMatrix) - rayOrigin;
     primaryRay.Direction = normalize(rayDiff);
     primaryRay.TMin = 0.0f;
     primaryRay.TMax = length(rayDiff);
     // レイを飛ばす
-    RaytracingAccelerationStructure tlas = ResourceDescriptorHeap[g_descriptorIndex.tlas];
     PrimaryPayload primaryPayload;
     primaryPayload.shadow = 1.0f;
     primaryPayload.reflection = float3(0.0f, 0.0f, 0.0f);
     TraceRay(
-        tlas, // RaytracingAccelerationStructure
+        g_TLAS, // RaytracingAccelerationStructure
         RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // RayFlags
         PRIMARY_RAY_ATTRIBUTE, // InstanceInclusionMask
-        1, // RayContributionToHitGroupIndex
-        2, // MultiplierForGeometryContributionToHitGroupIndex
+        PRIMARY_RAY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // RayContributionToHitGroupIndex
+        PRIMARY_MULTIPLIER_FOR_GEOMETRY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // MultiplierForGeometryContributionToHitGroupIndex
         PRIMARY_MISS_SHADER_INDEX, // MissShaderIndex
         primaryRay, // Ray
         primaryPayload); // Payload
 
     float shadow = primaryPayload.shadow;
-    RWTexture2D<float> shadowBuffer = ResourceDescriptorHeap[g_descriptorIndex.shadow];
-    shadowBuffer[dispatchRaysIndex] = shadow;
+    g_Shadow[dispatchRaysIndex].rgb = shadow;
+    g_Shadow[dispatchRaysIndex].a = 1.0f;
     
-    RWTexture2D<float4> reflectionBuffer = ResourceDescriptorHeap[g_descriptorIndex.reflection];
-    reflectionBuffer[dispatchRaysIndex].rgb = primaryPayload.reflection;
-    reflectionBuffer[dispatchRaysIndex].a = 1.0f;
+    g_Reflection[dispatchRaysIndex].rgb = primaryPayload.reflection;
+    g_Reflection[dispatchRaysIndex].a = 1.0f;
 }
 
 
@@ -178,7 +187,7 @@ void PrimaryClosestHit(inout PrimaryPayload payload, in Attributes attributes) {
     
     // 影
     bool reciveShadow = (InstanceID() == 1);
-    if (reciveShadow) {        
+    if (reciveShadow) {
         // 衝突点からライトへのレイ
         RayDesc shadowRay;
         shadowRay.Origin = vertex.position;
@@ -189,24 +198,22 @@ void PrimaryClosestHit(inout PrimaryPayload payload, in Attributes attributes) {
         ShadowPayload shadowPayload;
         shadowPayload.isHit = 0;
         
-        RaytracingAccelerationStructure tlas = ResourceDescriptorHeap[g_descriptorIndex.tlas];
         TraceRay(
-        tlas,
-        RAY_FLAG_ACCEPT_FIRST_HIT_AND_END_SEARCH,
-        SHADOW_RAY_ATTRIBUTE,
-        0,
-        0,
-        SHADOW_MISS_SHADER_INDEX,
-        shadowRay,
-        shadowPayload);
+            g_CastShadowTLAS,
+            RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
+            SHADOW_RAY_ATTRIBUTE,
+            SHADOW_RAY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // RayContributionToHitGroupIndex
+            SHADOW_MULTIPLIER_FOR_GEOMETRY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // MultiplierForGeometryContributionToHitGroupIndex
+            SHADOW_MISS_SHADER_INDEX, // MissShaderIndex
+            shadowRay,
+            shadowPayload);
         
-        payload.shadow = lerp(0.5f, 1.0f, shadowPayload.isHit);
+        payload.shadow = lerp(1.0f, 0.5f, shadowPayload.isHit);
     }
 
-    
     if (l_Material.useLighting == 0) {
         return;
-    } 
+    }
         
     // 反射したレイの方向
     float3 reflectionRayDirection = reflect(rayDirection, vertex.normal);
@@ -216,23 +223,22 @@ void PrimaryClosestHit(inout PrimaryPayload payload, in Attributes attributes) {
     reflectionRay.TMin = 0.0001f;
     reflectionRay.TMax = 10000.0f;
     
-    RaytracingAccelerationStructure tlas = ResourceDescriptorHeap[g_descriptorIndex.tlas];
-    
     ReflectionPayload reflectionPayload;
     TraceRay(
-                tlas, // RaytracingAccelerationStructure
-                RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // RayFlags
-                PRIMARY_RAY_ATTRIBUTE, // InstanceInclusionMask
-                2, // RayContributionToHitGroupIndex
-                2, // MultiplierForGeometryContributionToHitGroupIndex
-                REFLECTION_MISS_SHADER_INDEX, // MissShaderIndex
-                reflectionRay, // Ray
-                reflectionPayload); // Payload
+        g_TLAS, // RaytracingAccelerationStructure
+        RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // RayFlags
+        PRIMARY_RAY_ATTRIBUTE, // InstanceInclusionMask
+        REFLECTION_RAY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // RayContributionToHitGroupIndex
+        REFLECTION_MULTIPLIER_FOR_GEOMETRY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // MultiplierForGeometryContributionToHitGroupIndex
+        REFLECTION_MISS_SHADER_INDEX, // MissShaderIndex
+        reflectionRay, // Ray
+        reflectionPayload); // Payload
     
     float3 specular = l_Material.specular;
-    specular *= Lighting::BlinnPhongReflection(vertex.normal, WorldRayDirection(), g_Scene.sunLightDirection, l_Material.shininess);
+    specular *= Lighting::PhongReflection(vertex.normal, WorldRayDirection(), g_Scene.sunLightDirection, 10);
     specular *= (reflectionPayload.isHit == 1) ? reflectionPayload.color : g_Scene.sunLightColor * g_Scene.sunLightIntensity;
     payload.reflection = specular;
+   // payload.reflection = (reflectionPayload.isHit == 1) ? reflectionPayload.color : g_Scene.sunLightColor * g_Scene.sunLightIntensity;
 }
 
 
@@ -276,17 +282,22 @@ void ReflectionClosestHit(inout ReflectionPayload payload, in Attributes attribu
     payload.isHit = TRUE_UINT;
     // 頂点
     Vertex vertex = GetVertex(attributes);
-    // 拡散反射
-    float3 diffuse = l_Material.diffuse;
-    diffuse *= l_Material.color;
-    diffuse *= l_Texture.Sample(l_Sampler, vertex.texcoord).rgb;
-    diffuse *= Lighting::HalfLambertReflection(vertex.normal, g_Scene.sunLightDirection);
-    // 鏡面反射
-    float3 specular = l_Material.specular;
-    specular *= Lighting::BlinnPhongReflection(vertex.normal, WorldRayDirection(), g_Scene.sunLightDirection, l_Material.shininess);
+    if (l_Material.useLighting == 1) {
+        // 拡散反射
+        float3 diffuse = l_Material.diffuse;
+        diffuse *= l_Material.color;
+        diffuse *= l_Texture.SampleLevel(l_Sampler, vertex.texcoord, 0).rgb;
+        diffuse *= Lighting::HalfLambertReflection(vertex.normal, g_Scene.sunLightDirection);
+        // 鏡面反射
+        float3 specular = l_Material.specular;
+        specular *= Lighting::PhongReflection(vertex.normal, WorldRayDirection(), g_Scene.sunLightDirection, l_Material.shininess);
     
-    // シェーディングによる色
-    payload.color = (diffuse + specular) * g_Scene.sunLightColor * g_Scene.sunLightIntensity;
+        // シェーディングによる色
+        payload.color = (diffuse + specular) * g_Scene.sunLightColor * g_Scene.sunLightIntensity;
+    }
+    else {
+        payload.color = l_Texture.SampleLevel(l_Sampler, vertex.texcoord, 0).rgb * l_Material.color;
+    }
 }
 
 //////////////////////////////////////////////////

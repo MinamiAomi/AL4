@@ -101,6 +101,13 @@ void RenderManager::Render() {
     ImGui::Begin("Profile");
     auto io = ImGui::GetIO();
     ImGui::Text("Framerate : %f", io.Framerate);
+    ImTextureID image = reinterpret_cast<ImTextureID>(mainColorBuffer_.GetSRV().GetGPU().ptr);
+    ImGui::Image(image, { 160.0f, 90.0f });
+    image = reinterpret_cast<ImTextureID>(raytracingRenderer_.GetSpecular().GetSRV().GetGPU().ptr);
+    ImGui::Image(image, { 160.0f, 90.0f });
+    image = reinterpret_cast<ImTextureID>(raytracingRenderer_.GetShadow().GetSRV().GetGPU().ptr);
+    ImGui::Image(image, { 160.0f, 90.0f });
+
     //ImGui::Checkbox("Raymarching", &raymarching_);
     ImGui::End();
 #endif // _DEBUG

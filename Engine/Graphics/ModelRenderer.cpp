@@ -67,6 +67,7 @@ void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera,
 
             InstanceConstant data;
             data.worldMatrix = instance->GetWorldMatrix();
+            data.worldInverseTransposeMatrix = instance->GetWorldMatrix().Inverse().Transpose();
             data.color = instance->GetColor();
             data.alpha = instance->GetAlpha();
             data.useLighting = instance->UseLighting() ? 1 : 0;

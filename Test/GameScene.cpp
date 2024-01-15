@@ -12,7 +12,7 @@ void GameScene::OnInitialize() {
         "teapot",
         "bunny",
         "box",
-        "cone",
+        "sphere",
         "cylinder",
         "torus",
         "suzanne",
