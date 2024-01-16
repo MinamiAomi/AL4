@@ -43,7 +43,7 @@ void RenderManager::Initialize() {
     raytracingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
     raymarchingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
     
-    computeShaderTester_.Initialize(1280, 720);
+    computeShaderTester_.Initialize(32, 32);
     commandContext_.Start(D3D12_COMMAND_LIST_TYPE_COMPUTE);
     computeShaderTester_.Dispatch(commandContext_);
     commandContext_.Finish(true);
@@ -126,7 +126,7 @@ void RenderManager::Render() {
     ImagePreview("MainDepthBuffer", mainDepthBuffer_.GetSRV(), { 320.0f, 180.0f });
     ImagePreview("SpecularBuffer", raytracingRenderer_.GetSpecular().GetSRV(), { 320.0f, 180.0f });
     ImagePreview("ShadowBuffer", raytracingRenderer_.GetShadow().GetSRV(), { 320.0f, 180.0f });
-    ImagePreview("Noise", computeShaderTester_.GetTexture().GetSRV(), { 320.0f, 180.0f });
+    ImagePreview("Noise", computeShaderTester_.GetTexture().GetSRV(), { 320.0f, 320.0f });
 
     //ImGui::Checkbox("Raymarching", &raymarching_);
     ImGui::End();
