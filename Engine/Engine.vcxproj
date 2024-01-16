@@ -129,6 +129,7 @@
     <ClCompile Include="Framework\Engine.cpp" />
     <ClCompile Include="Graphics\Animation.cpp" />
     <ClCompile Include="Graphics\Bloom.cpp" />
+    <ClCompile Include="Graphics\ComputeShader.cpp" />
     <ClCompile Include="Graphics\Core\ColorBuffer.cpp" />
     <ClCompile Include="Graphics\Core\CommandAllocatorPool.cpp" />
     <ClCompile Include="Graphics\Core\CommandContext.cpp" />
@@ -228,6 +229,7 @@
     <ClInclude Include="Framework\Game.h" />
     <ClInclude Include="Graphics\Animation.h" />
     <ClInclude Include="Graphics\Bloom.h" />
+    <ClInclude Include="Graphics\ComputeShader.h" />
     <ClInclude Include="Graphics\Core\ColorBuffer.h" />
     <ClInclude Include="Graphics\Core\CommandAllocatorPool.h" />
     <ClInclude Include="Graphics\Core\CommandContext.h" />
@@ -457,6 +459,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\PostEffectAddPS.hlsl">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Graphics\Shader\TestCS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>

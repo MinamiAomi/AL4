@@ -424,6 +424,6 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
 
 
     hitGroupShaderTable_.Create(L"RaytracingRenderer HitGroupShaderTable", shaderRecords.data(), (UINT)shaderRecords.size());
-    tlas_.Create(L"RaytracingRenderer TLAS", commandContext, instanceDescs.data(), instanceDescs.size());
     castShadowTLAS_.Create(L"RaytracingRenderer TLAS", commandContext, castShadowTLASInstanceDesc.data(), castShadowTLASInstanceDesc.size());
+    tlas_.Create(L"RaytracingRenderer TLAS", commandContext, instanceDescs.data(), instanceDescs.size());
 }

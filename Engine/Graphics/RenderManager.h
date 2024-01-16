@@ -16,6 +16,7 @@
 #include "PostEffect.h"
 #include "Timer.h"
 #include "LightManager.h"
+#include "ComputeShader.h"
 
 #ifdef _DEBUG
 #define SHADER_DIRECTORY "../Engine/Graphics/Shader"
@@ -55,11 +56,12 @@ private:
     ModelRenderer modelRenderer;
     //Bloom bloom_;
     PostEffect postEffect_;
+    ComputeShaderTester computeShaderTester_;
     
     Timer timer_;
     std::weak_ptr<const Camera> camera_;
     std::weak_ptr<const DirectionalLight> sunLight_;
 
-
+    UINT64 frameCount_;
     bool raymarching_ = false;
 };

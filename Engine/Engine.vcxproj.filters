@@ -264,6 +264,7 @@
     <ClCompile Include="Graphics\RaymarchingRenderer.cpp">
       <Filter>Graphics\Raymarching</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\ComputeShader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -521,6 +522,9 @@
     <ClInclude Include="Graphics\RaymarchingRenderer.h">
       <Filter>Graphics\Raymarching</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\ComputeShader.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\Lighting.hlsli">
@@ -608,6 +612,9 @@
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Graphics\Shader\PostEffectAddPS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\TestCS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
   </ItemGroup>

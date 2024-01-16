@@ -42,12 +42,19 @@ void RenderManager::Initialize() {
     modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
     raytracingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
     raymarchingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
+    
+    computeShaderTester_.Initialize(1280, 720);
+    commandContext_.Start(D3D12_COMMAND_LIST_TYPE_COMPUTE);
+    computeShaderTester_.Dispatch(commandContext_);
+    commandContext_.Finish(true);
 
     timer_.Initialize();
 
     auto imguiManager = ImGuiManager::GetInstance();
     imguiManager->Initialize(window->GetHWND(), swapChainBuffer.GetRTVFormat());
     imguiManager->NewFrame();
+
+    frameCount_ = 0;
 }
 
 void RenderManager::Finalize() {
@@ -101,12 +108,25 @@ void RenderManager::Render() {
     ImGui::Begin("Profile");
     auto io = ImGui::GetIO();
     ImGui::Text("Framerate : %f", io.Framerate);
-    ImTextureID image = reinterpret_cast<ImTextureID>(mainColorBuffer_.GetSRV().GetGPU().ptr);
-    ImGui::Image(image, { 160.0f, 90.0f });
-    image = reinterpret_cast<ImTextureID>(raytracingRenderer_.GetSpecular().GetSRV().GetGPU().ptr);
-    ImGui::Image(image, { 160.0f, 90.0f });
-    image = reinterpret_cast<ImTextureID>(raytracingRenderer_.GetShadow().GetSRV().GetGPU().ptr);
-    ImGui::Image(image, { 160.0f, 90.0f });
+    ImGui::Text("FrameCount : %d", frameCount_);
+    
+    auto ImagePreview = [](const char* name, const DescriptorHandle& srv, const ImVec2& size) {
+        if (ImGui::TreeNode(name)) {
+            ImTextureID image = reinterpret_cast<ImTextureID>(srv.GetGPU().ptr);
+            ImGui::Image(image, size);
+            ImGui::TreePop();
+        }
+    };
+    
+    commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    commandContext_.FlushResourceBarriers();
+
+
+    ImagePreview("MainColorBuffer", mainColorBuffer_.GetSRV(), { 320.0f, 180.0f });
+    ImagePreview("MainDepthBuffer", mainDepthBuffer_.GetSRV(), { 320.0f, 180.0f });
+    ImagePreview("SpecularBuffer", raytracingRenderer_.GetSpecular().GetSRV(), { 320.0f, 180.0f });
+    ImagePreview("ShadowBuffer", raytracingRenderer_.GetShadow().GetSRV(), { 320.0f, 180.0f });
+    ImagePreview("Noise", computeShaderTester_.GetTexture().GetSRV(), { 320.0f, 180.0f });
 
     //ImGui::Checkbox("Raymarching", &raymarching_);
     ImGui::End();
@@ -117,12 +137,14 @@ void RenderManager::Render() {
     imguiManager->Render(commandContext_);
 
     commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_PRESENT);
+    commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
     // コマンドリスト完成(クローズ)
     commandContext_.Close();
 
     // バックバッファをフリップ
     swapChain_.Present();
+    frameCount_++;
     // シグナルを発行し待つ
     auto& commandQueue = graphics_->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
     commandQueue.WaitForIdle();

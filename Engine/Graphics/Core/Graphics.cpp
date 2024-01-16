@@ -17,7 +17,7 @@
 using namespace Microsoft::WRL;
 
 #define ENABLED_DEBUG_LAYER 1
-#define ENABLED_GPU_BASED_DEBUGGER 1
+#define ENABLED_GPU_BASED_DEBUGGER 0
 
 #ifdef _DEBUG
 
@@ -108,9 +108,11 @@ void Graphics::CreateDevice() {
     if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(debugController.GetAddressOf())))) {
 #if ENABLED_DEBUG_LAYER 
         debugController->EnableDebugLayer();
+        OutputDebugStringA("Enable DebugLayer!\n");
 #endif
 #if ENABLED_GPU_BASED_DEBUGGER
         debugController->SetEnableGPUBasedValidation(TRUE);
+        OutputDebugStringA("Enable GPU-based validation!\n");
 #endif
     }
 #endif
