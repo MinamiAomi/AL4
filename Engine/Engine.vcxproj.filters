@@ -264,7 +264,9 @@
     <ClCompile Include="Graphics\RaymarchingRenderer.cpp">
       <Filter>Graphics\Raymarching</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ComputeShader.cpp" />
+    <ClCompile Include="Graphics\ComputeShader.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">

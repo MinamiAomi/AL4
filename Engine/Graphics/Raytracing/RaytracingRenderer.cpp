@@ -161,6 +161,10 @@ void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& ca
     // TLASを生成
     BuildScene(commandContext);
 
+    commandContext.TransitionResource(shadowBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    commandContext.TransitionResource(specularBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    commandContext.FlushResourceBarriers();
+
     commandList->SetComputeRootSignature(globalRootSignature_);
     commandList->SetPipelineState1(stateObject_);
 
@@ -424,6 +428,6 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
 
 
     hitGroupShaderTable_.Create(L"RaytracingRenderer HitGroupShaderTable", shaderRecords.data(), (UINT)shaderRecords.size());
-    castShadowTLAS_.Create(L"RaytracingRenderer TLAS", commandContext, castShadowTLASInstanceDesc.data(), castShadowTLASInstanceDesc.size());
+    castShadowTLAS_.Create(L"RaytracingRenderer CastShadowTLAS", commandContext, castShadowTLASInstanceDesc.data(), castShadowTLASInstanceDesc.size());
     tlas_.Create(L"RaytracingRenderer TLAS", commandContext, instanceDescs.data(), instanceDescs.size());
 }

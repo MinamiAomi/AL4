@@ -35,6 +35,8 @@ void TLAS::Create(const std::wstring& name, CommandContext& commandContext, cons
     asDesc.DestAccelerationStructureData = resource_->GetGPUVirtualAddress();
     asDesc.ScratchAccelerationStructureData = scratchResource->GetGPUVirtualAddress();
 
+    commandContext.TransitionResource(scratchResource, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    commandContext.FlushResourceBarriers();
     commandContext.GetDXRCommandList()->BuildRaytracingAccelerationStructure(&asDesc, 0, nullptr);
     // 生成完了までUAVバリアを張る
     commandContext.UAVBarrier(*this);

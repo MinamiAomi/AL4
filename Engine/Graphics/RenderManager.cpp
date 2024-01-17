@@ -43,8 +43,8 @@ void RenderManager::Initialize() {
     raytracingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
     raymarchingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
     
-    computeShaderTester_.Initialize(32, 32);
-    commandContext_.Start(D3D12_COMMAND_LIST_TYPE_COMPUTE);
+    computeShaderTester_.Initialize(1024, 1024);
+    commandContext_.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
     computeShaderTester_.Dispatch(commandContext_);
     commandContext_.Finish(true);
 
