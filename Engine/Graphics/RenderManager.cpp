@@ -42,7 +42,7 @@ void RenderManager::Initialize() {
     modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
     raytracingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
     raymarchingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
-    
+
     computeShaderTester_.Initialize(1024, 1024);
     commandContext_.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
     computeShaderTester_.Dispatch(commandContext_);
@@ -109,7 +109,7 @@ void RenderManager::Render() {
     auto io = ImGui::GetIO();
     ImGui::Text("Framerate : %f", io.Framerate);
     ImGui::Text("FrameCount : %d", frameCount_);
-    
+
     auto ImagePreview = [](const char* name, const DescriptorHandle& srv, const ImVec2& size) {
         if (ImGui::TreeNode(name)) {
             ImTextureID image = reinterpret_cast<ImTextureID>(srv.GetGPU().ptr);
@@ -117,7 +117,7 @@ void RenderManager::Render() {
             ImGui::TreePop();
         }
     };
-    
+
     commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandContext_.FlushResourceBarriers();
 

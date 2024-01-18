@@ -17,7 +17,7 @@
 using namespace Microsoft::WRL;
 
 #define ENABLED_DEBUG_LAYER 1
-#define ENABLED_GPU_BASED_DEBUGGER 0
+#define ENABLED_GPU_BASED_DEBUGGER 1
 
 #ifdef _DEBUG
 
@@ -78,6 +78,10 @@ void Graphics::Initialize() {
         descriptorHeaps_[i]->Create(D3D12_DESCRIPTOR_HEAP_TYPE(i), numDescriptorsTable[i]);
     }
 
+    for (int i = 0; i < LinearAllocatorType::Count; ++i) {
+        linearAllocatorPagePools_[i].Initialize((LinearAllocatorType::Type)i);
+    }
+
     SamplerManager::Initialize();
     CreateDynamicResourcesRootSignature();
 }
@@ -87,7 +91,9 @@ void Graphics::Finalize() {
     computeCommandSet_.queue.WaitForIdle();
     copyCommandSet_.queue.WaitForIdle();
     TextureLoader::ReleaseAll();
-    LinearAllocator::Finalize();
+    for (int i = 0; i < LinearAllocatorType::Count; ++i) {
+        linearAllocatorPagePools_[i].Finalize();
+    }
     releasedObjectTracker_.AllRelease();
 }
 
@@ -167,7 +173,7 @@ void Graphics::CreateDevice() {
         // エラーの時に止まる
         infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_ERROR, true);
         // 警告時に止まる
-        //infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
+        infoQueue->SetBreakOnSeverity(D3D12_MESSAGE_SEVERITY_WARNING, true);
         // 抑制するメッセージのID
         D3D12_MESSAGE_ID denyIds[] = {
             D3D12_MESSAGE_ID_RESOURCE_BARRIER_MISMATCHING_COMMAND_LIST_TYPE
