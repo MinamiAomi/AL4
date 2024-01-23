@@ -9,6 +9,8 @@
 
 #define REPETITION(x, y) (x - floor(x / y) * y - y * 0.5f)
 
+#define REPETITION_CYCLE 5.0f
+
 struct Scene {
     float4x4 viewProjectionInverse;
     float3 cameraPosition;
@@ -27,8 +29,12 @@ float3 GetWorldPosition(in float2 texcoord, in float depth, in float4x4 viewProj
     return position.xyz;
 }
 
-float Random(in float2 seed) {
-    return frac(sin(dot(seed, float2(12.9898f, 78.233f))) * 43758.5453f);
+float mod(float x, float y) {
+    return x - y * floor(x / y);
+}
+
+float Random(in float2 uv) {
+    return frac(sin(dot(uv, float2(12.9898f, 78.233f))) * 43758.5453f);
 
 }
 
@@ -41,16 +47,21 @@ float sdBox(in float3 p, in float3 b) {
     return min(max(d.x, max(d.y, d.z)), 0.0f) + length(max(d, 0.0f));
 }
 
+float Foldback(float t) {
+    return -abs(2.0f * t - 1.0f) + 1.0f;
+}
+
 float GetDistance(in float3 position) {
     //float r = 1.0f;
     //float distance = length(Trans(position)) - r;
     
     // XZ軸に繰り返し
-    float2 r = REPETITION(position.xz, 5.0f);
+    float2 r = REPETITION(position.xz, REPETITION_CYCLE);
     float3 rayPos = float3(r.x, position.y, r.y);
     //float height = sin(r.x / 5.0f);
-    //float height = lerp(0.0f, 5.0f, Random((float2)(int2) ((position.xz / 5.0f))));
-    float distance = sdBox(rayPos - float3(0.0f, -50.0f, 0.0f), float3(2.25f, 1.0f, 2.25f)) - 0.25f;
+    float t = Random((float2) (int2) ((position.xz / REPETITION_CYCLE)));
+    float height = lerp(0.0f, 5.0f, t * Foldback(frac(g_Scene.time + t)));
+    float distance = sdBox(rayPos - float3(0.0f, -5.0f + height * 0.5f, 0.0f), float3(2.25f, height, 2.25f)) - 0.25f;
     
     return distance;
 }
@@ -68,11 +79,15 @@ float3 GetNormal(in float3 position) {
 float Raymarch(in float3 rayOrigin, in float3 rayDirection) {
     
     float distance = 0.0f;
+    float3 rayDirectionInv = 1.0f / rayDirection ;
     
     for (uint i = 0; i < MAX_STEPS; ++i) {
         float3 position = rayOrigin + rayDirection * distance;
         float d = GetDistance(position);
-        distance += d;
+        
+        distance += min(min((step(0.0, rayDirection.x) * 5.0f - mod(position.x, 5.0f)) * rayDirectionInv.x, (step(0.0, rayDirection.z) * 5.0f - mod(position.z, 5.0f)) * rayDirectionInv.z) + 0.05f, d);
+        
+       //distance += d;
         
         if (distance > MAX_DISTANCE || d < EPSILON) {
             break;
@@ -110,7 +125,7 @@ void main(uint3 DTid : SV_DispatchThreadID) {
         float3 normal = GetNormal(position);
         float3 pixelToCamera = normalize(g_Scene.cameraPosition - position);
         color.rgb = Lighting::HalfLambertReflection(normal, lightDirection) + Lighting::BlinnPhongReflection(normal, pixelToCamera, lightDirection, 10.0f);
-        color.rgb *= lerp(float3(1.0f, 1.0f, 1.0f), float3(1.0f, 0.0f, 0.0f), abs(floor(position.x / 5.0f) + floor(position.z / 5.0f)) % 2);
+        color.rgb *= lerp(float3(1.0f, 1.0f, 1.0f), float3(1.0f, 0.0f, 0.0f), abs(floor(position.x / REPETITION_CYCLE) + floor(position.z / REPETITION_CYCLE)) % 2);
         
         color.rgb = Fog(color.rgb, float3(0.0f, 0.0f, 0.0f), distance);
         

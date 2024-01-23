@@ -1,4 +1,13 @@
+struct Constant {
+    float time;
+};
+
 RWTexture2D<float4> g_Texture : register(u0);
+ConstantBuffer<Constant> g_Constant : register(b0);
+
+float2 mod(float2 x, float2 y) {
+    return x - y * floor(x / y);
+}
 
 float Random(float2 uv, float seed) {
     return frac(sin(dot(uv, float2(12.9898f, 78.233f)) + seed) * 43758.5453f);
@@ -54,11 +63,36 @@ float PerlinNoise(float2 uv, float density) {
 
 float FractalSumNoise(float2 uv, float density) {
     float fn;
-    fn  = PerlinNoise(uv, density * 1.0f);
+    fn = PerlinNoise(uv, density * 1.0f);
     //fn += PerlinNoise(uv, density * 2.0f) * 1.0f /  4.0f;
     //fn += PerlinNoise(uv, density * 4.0f) * 1.0f /  8.0f;
     //fn += PerlinNoise(uv, density * 8.0f) * 1.0f / 16.0f;
     return fn;
+}
+
+
+float4 NoiseTest(in float2 uv) {
+    float random = FractalSumNoise(uv, 10.0f);
+    return lerp(float4(1.0f, 1.0f, 1.0f, 1.0f), float4(0.2f, 0.3f, 0.6f, 1.0f), 1.0f - pow(1.0f - random, 3.0f));
+}
+
+float4 Hexagon(in float2 uv) {
+    
+    uv = uv * 2.0f - 1.0f;
+    
+    uv *= 4.0;
+
+    float3 color = 0.0f;
+    
+    float2 r = normalize(float2(1.0f, 1.73f));
+    float2 h = r * 0.5f;
+    float2 a = mod(uv, r) - h;
+    float2 b = mod(uv - h, r) - h;
+
+    float2 gv = length(a) < length(b) ? a : b;
+    float2 id = uv - gv;
+    
+    return float4(color, 1.0f);
 }
 
 [numthreads(8, 8, 1)]
@@ -67,8 +101,7 @@ void main(uint3 DTid : SV_DispatchThreadID) {
     float2 textureSize;
     g_Texture.GetDimensions(textureSize.x, textureSize.y);
     float2 uv = DTid.xy / textureSize;
-    
-    float random = FractalSumNoise(uv, 10.0f);
-    
-    g_Texture[DTid.xy] = lerp(float4(1.0f, 1.0f, 1.0f, 1.0f), float4(0.2f, 0.3f, 0.6f, 1.0f), 1.0f - pow(1.0f - random, 3.0f));
+    g_Texture[DTid.xy] = Hexagon(uv);
+        
+    //g_Texture[DTid.xy] = NoiseTest(uv); 
 }

@@ -29,11 +29,17 @@ void ComputeShaderTester::Initialize(uint32_t width, uint32_t height) {
 
 
 void ComputeShaderTester::Dispatch(CommandContext& commandContext) {
+    static const float cycle = 120.0f;
+    static float time = 0.0f;
+
+    time += 1.0f / cycle;
+
     commandContext.TransitionResource(texture_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     commandContext.SetComputeRootSignature(rootSignature_);
     commandContext.SetPipelineState(pipelineState_);
 
     commandContext.SetComputeDescriptorTable(0, texture_.GetUAV());
+    commandContext.SetComputeDynamicConstantBufferView(1, sizeof(time), &time);
 
     commandContext.Dispatch((UINT)std::floor(texture_.GetWidth() / 8), (UINT)std::floor(texture_.GetHeight() / 8));
     commandContext.UAVBarrier(texture_);

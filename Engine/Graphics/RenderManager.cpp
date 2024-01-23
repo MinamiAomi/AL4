@@ -89,6 +89,7 @@ void RenderManager::Render() {
     if (camera && sunLight) {
         // モデル描画
         modelRenderer.Render(commandContext_, *camera, *sunLight);
+        raymarchingRenderer_.Render(commandContext_, *camera);
     }
     // レイトレの結果を加算合成
     postEffect_.RenderAddTexture(commandContext_, raytracingRenderer_.GetSpecular());
@@ -100,7 +101,7 @@ void RenderManager::Render() {
     commandContext_.ClearColor(swapChainBuffer);
     commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
-    postEffect_.Render(commandContext_, mainColorBuffer_);
+    postEffect_.Render(commandContext_, raymarchingRenderer_.GetResult());
 
     spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, float(swapChainBuffer.GetWidth()), float(swapChainBuffer.GetHeight()));
 
@@ -126,6 +127,7 @@ void RenderManager::Render() {
     ImagePreview("MainDepthBuffer", mainDepthBuffer_.GetSRV(), { 320.0f, 180.0f });
     ImagePreview("SpecularBuffer", raytracingRenderer_.GetSpecular().GetSRV(), { 320.0f, 180.0f });
     ImagePreview("ShadowBuffer", raytracingRenderer_.GetShadow().GetSRV(), { 320.0f, 180.0f });
+    ImagePreview("Raymatching", raymarchingRenderer_.GetResult().GetSRV(), {320.0f, 180.0f});
     ImagePreview("Noise", computeShaderTester_.GetTexture().GetSRV(), { 320.0f, 320.0f });
 
     //ImGui::Checkbox("Raymarching", &raymarching_);

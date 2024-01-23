@@ -55,4 +55,7 @@ void RaymarchingRenderer::Render(CommandContext& commandContext, const Camera& c
     const UINT kNumThreadsPerGroupX = 8;
     const UINT kNumThreadsPerGroupY = 8;
     commandContext.Dispatch(resultBuffer_.GetWidth() / kNumThreadsPerGroupX, resultBuffer_.GetHeight() / kNumThreadsPerGroupY);
+    commandContext.UAVBarrier(resultBuffer_);
+    commandContext.TransitionResource(resultBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    commandContext.FlushResourceBarriers();
 }
