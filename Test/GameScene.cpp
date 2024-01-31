@@ -2,6 +2,9 @@
 
 #include "Input/Input.h"
 #include "Graphics/RenderManager.h"
+#include "Scene/SceneManager.h"
+
+#include "TitleScene.h"
 
 void GameScene::OnInitialize() {
     followCamera_ = std::make_shared<FollowCamera>();
@@ -40,6 +43,11 @@ void GameScene::OnUpdate() {
 
     for (auto& testObject : testObjects_) {
         testObject->Update();
+    }
+
+    bool changeScene = Input::GetInstance()->IsKeyTrigger(DIK_SPACE) || (Input::GetInstance()->GetXInputState().Gamepad.wButtons & XINPUT_GAMEPAD_A);
+    if (changeScene && !SceneManager::GetInstance()->GetSceneTransition().IsPlaying()) {
+        SceneManager::GetInstance()->ChangeScene<TitleScene>();
     }
 }
 

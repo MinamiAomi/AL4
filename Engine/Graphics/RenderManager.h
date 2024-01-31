@@ -17,6 +17,7 @@
 #include "Timer.h"
 #include "LightManager.h"
 #include "ComputeShader.h"
+#include "Transition.h"
 
 #define SHADER_DIRECTORY "../Engine/Graphics/Shader"
 #ifdef _DEBUG
@@ -36,6 +37,9 @@ public:
     void SetCamera(const std::shared_ptr<Camera>& camera) { camera_ = camera; }
     void SetSunLight(const std::shared_ptr<DirectionalLight>& light) { sunLight_ = light; }
 
+
+    Transition& GetTransition() { return transition_; }
+
 private:
     RenderManager() = default;
     RenderManager(const RenderManager&) = delete;
@@ -47,13 +51,14 @@ private:
 
     ColorBuffer mainColorBuffer_;
     DepthBuffer mainDepthBuffer_;
+    ColorBuffer preSwapChainBuffer_;
 
-    ToonRenderer toonRenderer_;
     ParticleRenderer particleRenderer_;
     SpriteRenderer spriteRenderer_;
     RaytracingRenderer raytracingRenderer_;
     RaymarchingRenderer raymarchingRenderer_;
     ModelRenderer modelRenderer;
+    Transition transition_;
     //Bloom bloom_;
     PostEffect postEffect_;
     ComputeShaderTester computeShaderTester_;

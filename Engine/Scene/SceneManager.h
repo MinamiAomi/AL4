@@ -2,6 +2,8 @@
 
 #include <memory>
 
+#include "SceneTransition.h"
+
 class BaseScene;
 
 class SceneManager {
@@ -14,7 +16,10 @@ public:
     void ChangeScene() {
         static_assert(std::is_base_of<BaseScene, T>::value, "BaseSceneを継承していません。");
         nextScene_ = std::make_unique<T>();
+        sceneTransition_.Start(SceneTransition::Mode::In);
     }
+
+    SceneTransition& GetSceneTransition() { return sceneTransition_; }
 
 private:
     SceneManager();
@@ -24,4 +29,6 @@ private:
 
     std::unique_ptr<BaseScene> currentScene_;
     std::unique_ptr<BaseScene> nextScene_;
+    SceneTransition sceneTransition_;
+
 };

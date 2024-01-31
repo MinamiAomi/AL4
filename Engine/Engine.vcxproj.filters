@@ -267,6 +267,15 @@
     <ClCompile Include="Graphics\ComputeShader.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Transition.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\SceneTransition.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\AnimationNode.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -527,6 +536,15 @@
     <ClInclude Include="Graphics\ComputeShader.h">
       <Filter>Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Transition.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\SceneTransition.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\AnimationNode.h">
+      <Filter>Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\Lighting.hlsli">
@@ -617,6 +635,9 @@
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Graphics\Shader\TestCS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\TransitionCS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
   </ItemGroup>

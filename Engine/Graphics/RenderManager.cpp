@@ -32,14 +32,15 @@ void RenderManager::Initialize() {
     float clearColor[4] = { 0.1f, 0.4f, 0.6f, 0.0f };
     mainColorBuffer_.SetClearColor(clearColor);
     mainColorBuffer_.Create(L"MainColorBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R8G8B8A8_UNORM);
+    preSwapChainBuffer_.Create(L"PreSwapChainBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R8G8B8A8_UNORM);
     mainDepthBuffer_.Create(L"MainDepthBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_D32_FLOAT);
 
-    toonRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
     particleRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
-    postEffect_.Initialize(swapChainBuffer);
-    spriteRenderer_.Initialize(swapChainBuffer);
+    postEffect_.Initialize(preSwapChainBuffer_);
+    spriteRenderer_.Initialize(preSwapChainBuffer_);
 
     modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
+    transition_.Initialize();
     raytracingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
     raymarchingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
 
@@ -95,43 +96,54 @@ void RenderManager::Render() {
     postEffect_.RenderAddTexture(commandContext_, raytracingRenderer_.GetSpecular());
     postEffect_.RenderMultiplyTexture(commandContext_, raytracingRenderer_.GetShadow());
 
+    commandContext_.TransitionResource(preSwapChainBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    commandContext_.SetRenderTarget(preSwapChainBuffer_.GetRTV());
+    commandContext_.ClearColor(preSwapChainBuffer_);
+    commandContext_.SetViewportAndScissorRect(0, 0, preSwapChainBuffer_.GetWidth(), preSwapChainBuffer_.GetHeight());
+    
+    postEffect_.Render(commandContext_, mainColorBuffer_);
+    spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, float(preSwapChainBuffer_.GetWidth()), float(preSwapChainBuffer_.GetHeight()));
+
+    transition_.Dispatch(commandContext_, preSwapChainBuffer_);
+
+
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
+    commandContext_.CopyBuffer(swapChainBuffer, preSwapChainBuffer_);
+    
     commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    commandContext_.FlushResourceBarriers();
     commandContext_.SetRenderTarget(swapChainBuffer.GetRTV());
-    commandContext_.ClearColor(swapChainBuffer);
     commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
-    postEffect_.Render(commandContext_, raymarchingRenderer_.GetResult());
-
-    spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, float(swapChainBuffer.GetWidth()), float(swapChainBuffer.GetHeight()));
+   
 
 #ifdef _DEBUG
-    ImGui::Begin("Profile");
-    auto io = ImGui::GetIO();
-    ImGui::Text("Framerate : %f", io.Framerate);
-    ImGui::Text("FrameCount : %d", frameCount_);
+    //static float t = 0.0f;
+    //ImGui::Begin("Profile");
+    //auto io = ImGui::GetIO();
+    //ImGui::Text("Framerate : %f", io.Framerate);
+    //ImGui::Text("FrameCount : %d", frameCount_);
+    //ImGui::DragFloat("FadeTime", &t, 0.001f, 0.0f, 1.0f);
 
-    auto ImagePreview = [](const char* name, const DescriptorHandle& srv, const ImVec2& size) {
-        if (ImGui::TreeNode(name)) {
-            ImTextureID image = reinterpret_cast<ImTextureID>(srv.GetGPU().ptr);
-            ImGui::Image(image, size);
-            ImGui::TreePop();
-        }
-    };
-
-    commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandContext_.FlushResourceBarriers();
+    //transition_.SetTime(t);
+    //auto ImagePreview = [](const char* name, const DescriptorHandle& srv, const ImVec2& size) {
+    //    if (ImGui::TreeNode(name)) {
+    //        ImTextureID image = reinterpret_cast<ImTextureID>(srv.GetGPU().ptr);
+    //        ImGui::Image(image, size);
+    //        ImGui::TreePop();
+    //    }
+    //};
 
 
-    ImagePreview("MainColorBuffer", mainColorBuffer_.GetSRV(), { 320.0f, 180.0f });
-    ImagePreview("MainDepthBuffer", mainDepthBuffer_.GetSRV(), { 320.0f, 180.0f });
-    ImagePreview("SpecularBuffer", raytracingRenderer_.GetSpecular().GetSRV(), { 320.0f, 180.0f });
-    ImagePreview("ShadowBuffer", raytracingRenderer_.GetShadow().GetSRV(), { 320.0f, 180.0f });
-    ImagePreview("Raymatching", raymarchingRenderer_.GetResult().GetSRV(), {320.0f, 180.0f});
-    ImagePreview("Noise", computeShaderTester_.GetTexture().GetSRV(), { 320.0f, 320.0f });
+    ////ImagePreview("MainColorBuffer", mainColorBuffer_.GetSRV(), { 320.0f, 180.0f });
+    ////ImagePreview("MainDepthBuffer", mainDepthBuffer_.GetSRV(), { 320.0f, 180.0f });
+    //ImagePreview("SpecularBuffer", raytracingRenderer_.GetSpecular().GetSRV(), { 320.0f, 180.0f });
+    ////ImagePreview("ShadowBuffer", raytracingRenderer_.GetShadow().GetSRV(), { 320.0f, 180.0f });
+    ////ImagePreview("Raymatching", raymarchingRenderer_.GetResult().GetSRV(), { 320.0f, 180.0f });
+    ////ImagePreview("Noise", computeShaderTester_.GetTexture().GetSRV(), { 320.0f, 320.0f });
 
-    //ImGui::Checkbox("Raymarching", &raymarching_);
-    ImGui::End();
+    ////ImGui::Checkbox("Raymarching", &raymarching_);
+    //ImGui::End();
 #endif // _DEBUG
 
     // ImGuiを描画
@@ -139,7 +151,7 @@ void RenderManager::Render() {
     imguiManager->Render(commandContext_);
 
     commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_PRESENT);
-    commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+   // commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
     // コマンドリスト完成(クローズ)
     commandContext_.Close();

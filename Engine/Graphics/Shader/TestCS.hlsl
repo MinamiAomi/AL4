@@ -101,7 +101,16 @@ void main(uint3 DTid : SV_DispatchThreadID) {
     float2 textureSize;
     g_Texture.GetDimensions(textureSize.x, textureSize.y);
     float2 uv = DTid.xy / textureSize;
-    g_Texture[DTid.xy] = Hexagon(uv);
+    //g_Texture[DTid.xy] = Hexagon(uv);
         
-    //g_Texture[DTid.xy] = NoiseTest(uv); 
+    float r = PerlinNoise(uv, 64.0f);
+    if (r <= 0.2f) {
+    g_Texture[DTid.xy] = float4(float3(1.0f, 0, 0), 1.0f);
+    }
+    else if (r >= 0.8f) {
+        g_Texture[DTid.xy] = float4(float3(0,1,0), 1.0f);
+    }
+    else {
+        g_Texture[DTid.xy] = float4(float3(0,0,0), 1.0f);
+    }
 }

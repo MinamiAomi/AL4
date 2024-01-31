@@ -44,4 +44,5 @@ void ComputeShaderTester::Dispatch(CommandContext& commandContext) {
     commandContext.Dispatch((UINT)std::floor(texture_.GetWidth() / 8), (UINT)std::floor(texture_.GetHeight() / 8));
     commandContext.UAVBarrier(texture_);
     commandContext.TransitionResource(texture_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    commandContext.FlushResourceBarriers();
 }

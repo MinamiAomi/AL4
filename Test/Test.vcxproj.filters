@@ -4,6 +4,12 @@
     <Filter Include="Game">
       <UniqueIdentifier>{f36aec4f-fb6d-4c5e-ad63-b4ec29307422}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Scene">
+      <UniqueIdentifier>{b67a4415-e46c-4b4f-b973-4c7452dab3c3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Game\Object">
+      <UniqueIdentifier>{290ad31e-91cf-4cd6-b3fe-027fa36fb487}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -11,22 +17,31 @@
       <Filter>Game</Filter>
     </ClCompile>
     <ClCompile Include="GameScene.cpp">
-      <Filter>Game</Filter>
+      <Filter>Game\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="TitleScene.cpp">
+      <Filter>Game\Scene</Filter>
     </ClCompile>
     <ClCompile Include="TestScene.cpp">
-      <Filter>Game</Filter>
+      <Filter>Game\Scene</Filter>
     </ClCompile>
     <ClCompile Include="FollowCamera.cpp">
-      <Filter>Game</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Game</Filter>
+      <Filter>Game\Object</Filter>
     </ClCompile>
     <ClCompile Include="Ground.cpp">
-      <Filter>Game</Filter>
+      <Filter>Game\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>Game\Object</Filter>
     </ClCompile>
     <ClCompile Include="TestObject.cpp">
-      <Filter>Game</Filter>
+      <Filter>Game\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="TitleObject.cpp">
+      <Filter>Game\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerModel.cpp">
+      <Filter>Game\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -34,22 +49,31 @@
       <Filter>Game</Filter>
     </ClInclude>
     <ClInclude Include="GameScene.h">
-      <Filter>Game</Filter>
+      <Filter>Game\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="FollowCamera.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Ground.h">
-      <Filter>Game</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Game</Filter>
+    <ClInclude Include="TitleScene.h">
+      <Filter>Game\Scene</Filter>
     </ClInclude>
     <ClInclude Include="TestScene.h">
-      <Filter>Game</Filter>
+      <Filter>Game\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="FollowCamera.h">
+      <Filter>Game\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Ground.h">
+      <Filter>Game\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Game\Object</Filter>
     </ClInclude>
     <ClInclude Include="TestObject.h">
-      <Filter>Game</Filter>
+      <Filter>Game\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="TitleObject.h">
+      <Filter>Game\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerModel.h">
+      <Filter>Game\Object</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
