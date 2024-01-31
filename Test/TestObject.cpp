@@ -16,7 +16,9 @@ void TestObject::Initialize(const std::string& name, const Vector3& position) {
 
 void TestObject::Update() {
 
-    transform.rotate = Quaternion::MakeForYAxis(Math::ToRadian) * transform.rotate;
+    if (rotate_) {
+        transform.rotate = Quaternion::MakeForYAxis(Math::ToRadian) * transform.rotate;
+    }
 
     transform.UpdateMatrix();
     model_->SetWorldMatrix(transform.worldMatrix);

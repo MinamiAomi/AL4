@@ -9,11 +9,12 @@
 #include "TitleScene.h"
 #include "GameScene.h"
 #include "TestScene.h"
+#include "SponzaScene.h"
 
 void Test::OnInitialize() {
 	SceneManager* sceneManager = SceneManager::GetInstance();
 	//シーン設定
-	sceneManager->ChangeScene<TitleScene>();
+	sceneManager->ChangeScene<SponzaScene>();
 
 	ResourceManager* resourceManager = ResourceManager::GetInstance();
 	resourceManager->AddModel("Title", Model::Load("Resources/title.obj"));
@@ -43,6 +44,7 @@ void Test::OnInitialize() {
 	// カエルカバン
 	resourceManager->AddModel("FrogBag", Model::Load("Resources/Model/frog/bag.obj"));
 
+	resourceManager->AddModel("Sponza", Model::Load("Resources/Sponza/sponza.obj"));
 
 	//auto model = Model::Load("Resources/CornellBox/CornellBox-Original.obj");
 }

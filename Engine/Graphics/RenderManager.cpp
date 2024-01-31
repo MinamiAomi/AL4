@@ -118,32 +118,32 @@ void RenderManager::Render() {
    
 
 #ifdef _DEBUG
-    //static float t = 0.0f;
-    //ImGui::Begin("Profile");
-    //auto io = ImGui::GetIO();
-    //ImGui::Text("Framerate : %f", io.Framerate);
-    //ImGui::Text("FrameCount : %d", frameCount_);
-    //ImGui::DragFloat("FadeTime", &t, 0.001f, 0.0f, 1.0f);
+    static float t = 0.0f;
+    ImGui::Begin("Profile");
+    auto io = ImGui::GetIO();
+    ImGui::Text("Framerate : %f", io.Framerate);
+    ImGui::Text("FrameCount : %d", frameCount_);
+    ImGui::DragFloat("FadeTime", &t, 0.001f, 0.0f, 1.0f);
 
-    //transition_.SetTime(t);
-    //auto ImagePreview = [](const char* name, const DescriptorHandle& srv, const ImVec2& size) {
-    //    if (ImGui::TreeNode(name)) {
-    //        ImTextureID image = reinterpret_cast<ImTextureID>(srv.GetGPU().ptr);
-    //        ImGui::Image(image, size);
-    //        ImGui::TreePop();
-    //    }
-    //};
+    transition_.SetTime(t);
+    auto ImagePreview = [](const char* name, const DescriptorHandle& srv, const ImVec2& size) {
+        if (ImGui::TreeNode(name)) {
+            ImTextureID image = reinterpret_cast<ImTextureID>(srv.GetGPU().ptr);
+            ImGui::Image(image, size);
+            ImGui::TreePop();
+        }
+    };
 
 
-    ////ImagePreview("MainColorBuffer", mainColorBuffer_.GetSRV(), { 320.0f, 180.0f });
-    ////ImagePreview("MainDepthBuffer", mainDepthBuffer_.GetSRV(), { 320.0f, 180.0f });
-    //ImagePreview("SpecularBuffer", raytracingRenderer_.GetSpecular().GetSRV(), { 320.0f, 180.0f });
-    ////ImagePreview("ShadowBuffer", raytracingRenderer_.GetShadow().GetSRV(), { 320.0f, 180.0f });
-    ////ImagePreview("Raymatching", raymarchingRenderer_.GetResult().GetSRV(), { 320.0f, 180.0f });
-    ////ImagePreview("Noise", computeShaderTester_.GetTexture().GetSRV(), { 320.0f, 320.0f });
+    //ImagePreview("MainColorBuffer", mainColorBuffer_.GetSRV(), { 320.0f, 180.0f });
+    //ImagePreview("MainDepthBuffer", mainDepthBuffer_.GetSRV(), { 320.0f, 180.0f });
+    ImagePreview("SpecularBuffer", raytracingRenderer_.GetSpecular().GetSRV(), { 320.0f, 180.0f });
+    //ImagePreview("ShadowBuffer", raytracingRenderer_.GetShadow().GetSRV(), { 320.0f, 180.0f });
+    //ImagePreview("Raymatching", raymarchingRenderer_.GetResult().GetSRV(), { 320.0f, 180.0f });
+    //ImagePreview("Noise", computeShaderTester_.GetTexture().GetSRV(), { 320.0f, 320.0f });
 
-    ////ImGui::Checkbox("Raymarching", &raymarching_);
-    //ImGui::End();
+    //ImGui::Checkbox("Raymarching", &raymarching_);
+    ImGui::End();
 #endif // _DEBUG
 
     // ImGuiを描画

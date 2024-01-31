@@ -12,19 +12,23 @@ void GameScene::OnInitialize() {
     ground = std::make_shared<Ground>();
 
     const char* kTestObjectNames[] = {
-        "teapot",
+    /*    "teapot",
         "bunny",
         "box",
         "sphere",
         "cylinder",
         "torus",
-        "suzanne",
+        "suzanne",*/
+        "Sponza"
     };
     testObjects_.resize(_countof(kTestObjectNames));
     for (size_t i = 0; i < testObjects_.size(); ++i) {
         testObjects_[i] = std::make_shared<TestObject>();
         testObjects_[i]->Initialize(kTestObjectNames[i], Vector3(i * 3 - (float)testObjects_.size() * 0.5f * 3, 1.5f, 5.0f));
     }
+
+    testObjects_.back()->SetRotate(false);
+    testObjects_.back()->transform.scale = {0.01f, 0.01f, 0.01f};
 
 
     player_->SetFollowCamera(followCamera_);

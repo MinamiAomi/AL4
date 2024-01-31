@@ -10,7 +10,9 @@ class TestObject :
 public:
     void Initialize(const std::string& name, const Vector3& position);
     void Update();
+    void SetRotate(bool rotate) { rotate_ = rotate; }
 
 private:
     std::unique_ptr<ModelInstance> model_;
+    bool rotate_ = true;
 };

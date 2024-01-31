@@ -15,7 +15,7 @@
 #include "ReleasedObjectTracker.h"
 #include "LinearAllocator.h"
 
-#define BINDLESS_RESOURCE_MAX 1024
+#define BINDLESS_RESOURCE_MAX (1 << 13)
 #define DXR_DEVICE ID3D12Device5
 
 class Graphics {
