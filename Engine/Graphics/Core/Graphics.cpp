@@ -16,7 +16,7 @@
 
 using namespace Microsoft::WRL;
 
-#define ENABLED_DEBUG_LAYER 1
+#define ENABLED_DEBUG_LAYER 0
 #define ENABLED_GPU_BASED_DEBUGGER 0
 
 #ifdef _DEBUG

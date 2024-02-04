@@ -46,7 +46,9 @@
     <ClCompile Include="DebugCamera.cpp">
       <Filter>Game\Object</Filter>
     </ClCompile>
-    <ClCompile Include="SponzaScene.cpp" />
+    <ClCompile Include="SponzaScene.cpp">
+      <Filter>Game\Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Test.h">

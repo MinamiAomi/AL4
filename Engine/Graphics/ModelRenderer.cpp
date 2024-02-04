@@ -29,6 +29,9 @@ void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera,
         float pad1;
         Vector3 sunLightDirection;
         float sunLightIntensity;
+        //uint32_t numDirectionalLights;
+        //uint32_t numPointLights;
+        //uint32_t numSpotLights;
     };
 
     struct InstanceConstant {
@@ -44,6 +47,31 @@ void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera,
         float shininess = 0.0f;
         Vector3 specular = Vector3::zero;
     };
+
+    //struct DirectionalLight {
+    //    Vector3 direction;
+    //    float intensity;
+    //    Vector3 color;
+    //};
+
+    //struct PointLight {
+    //    Vector3 position;
+    //    float intensity;
+    //    Vector3 color;
+    //    float radius;
+    //    float decay;
+    //};
+
+    //struct SpotLight {
+    //    Vector3 direction;
+    //    float intensity;
+    //    Vector3 position;
+    //    float distance;
+    //    Vector3 color;
+    //    float decay;
+    //    float cosAngle;
+    //    float cosFalloffStart;
+    //};
 
     auto& instanceList = ModelInstance::GetInstanceList();
 
@@ -61,6 +89,43 @@ void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera,
     scene.sunLightDirection = sunLight.direction;
     scene.sunLightIntensity = sunLight.intensity;
     commandContext.SetDynamicConstantBufferView(RootIndex::Scene, sizeof(scene), &scene);
+
+    /*{
+        auto& srcDL = lightManager.GetDirectionalLights();
+        std::vector<DirectionalLight> directionalLights;
+        directionalLights.reserve(srcDL.size());
+
+        for (const auto& light : srcDL) {
+            if (light) {
+                directionalLights.emplace_back(light->direction, light->intensity, light->color);
+            }
+        }
+        commandContext.SetDynamicShaderResourceView(RootIndex::DirectionalLights, sizeof(DirectionalLights[0])* directionalLights.size(), directionalLights.data());
+    }
+    {
+        auto& srcPL = lightManager.GetPointLights();
+        std::vector<PointLight> pointLights;
+        pointLights.reserve(srcPL.size());
+
+        for (const auto& light : srcPL) {
+            if (light) {
+                pointLights.emplace_back(light->direction, light->intensity, light->color);
+            }
+        }
+        commandContext.SetDynamicShaderResourceView(RootIndex::DirectionalLights, sizeof(DirectionalLights[0]) * directionalLights.size(), directionalLights.data());
+    }
+    {
+        auto& srcDL = lightManager.GetDirectionalLights();
+        std::vector<DirectionalLight> directionalLights;
+        directionalLights.reserve(srcDL.size());
+
+        for (const auto& light : srcDL) {
+            if (light) {
+                directionalLights.emplace_back(light->direction, light->intensity, light->color);
+            }
+        }
+        commandContext.SetDynamicShaderResourceView(RootIndex::DirectionalLights, sizeof(DirectionalLights[0]) * directionalLights.size(), directionalLights.data());
+    }*/
 
     for (auto& instance : instanceList) {
         if (instance->IsActive() && instance->GetModel()) {
@@ -112,6 +177,9 @@ void ModelRenderer::InitializeRootSignature() {
     rootParameters[RootIndex::Material].InitAsConstantBufferView(2);
     rootParameters[RootIndex::Texture].InitAsDescriptorTable(1, &srvRange);
     rootParameters[RootIndex::Sampler].InitAsDescriptorTable(1, &samplerRange);
+    rootParameters[RootIndex::DirectionalLights].InitAsShaderResourceView(1);
+    rootParameters[RootIndex::PointLights].InitAsShaderResourceView(2);
+    rootParameters[RootIndex::SpotLights].InitAsShaderResourceView(3);
 
     D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
     rootSignatureDesc.NumParameters = _countof(rootParameters);

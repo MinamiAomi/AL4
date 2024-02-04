@@ -42,12 +42,12 @@ void RenderManager::Initialize() {
     modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
     transition_.Initialize();
     raytracingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
-    raymarchingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
+    //raymarchingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
 
-    computeShaderTester_.Initialize(1024, 1024);
-    commandContext_.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
-    computeShaderTester_.Dispatch(commandContext_);
-    commandContext_.Finish(true);
+    //computeShaderTester_.Initialize(1024, 1024);
+    //commandContext_.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
+    //computeShaderTester_.Dispatch(commandContext_);
+    //commandContext_.Finish(true);
 
     timer_.Initialize();
 
@@ -90,7 +90,7 @@ void RenderManager::Render() {
     if (camera && sunLight) {
         // モデル描画
         modelRenderer.Render(commandContext_, *camera, *sunLight);
-        raymarchingRenderer_.Render(commandContext_, *camera);
+        //raymarchingRenderer_.Render(commandContext_, *camera);
     }
     // レイトレの結果を加算合成
     postEffect_.RenderAddTexture(commandContext_, raytracingRenderer_.GetSpecular());
@@ -100,7 +100,7 @@ void RenderManager::Render() {
     commandContext_.SetRenderTarget(preSwapChainBuffer_.GetRTV());
     commandContext_.ClearColor(preSwapChainBuffer_);
     commandContext_.SetViewportAndScissorRect(0, 0, preSwapChainBuffer_.GetWidth(), preSwapChainBuffer_.GetHeight());
-    
+
     postEffect_.Render(commandContext_, mainColorBuffer_);
     spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, float(preSwapChainBuffer_.GetWidth()), float(preSwapChainBuffer_.GetHeight()));
 
@@ -109,13 +109,12 @@ void RenderManager::Render() {
 
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
     commandContext_.CopyBuffer(swapChainBuffer, preSwapChainBuffer_);
-    
+
     commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext_.FlushResourceBarriers();
     commandContext_.SetRenderTarget(swapChainBuffer.GetRTV());
     commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
-   
 
 #ifdef _DEBUG
     static float t = 0.0f;
@@ -125,19 +124,19 @@ void RenderManager::Render() {
     ImGui::Text("FrameCount : %d", frameCount_);
     ImGui::DragFloat("FadeTime", &t, 0.001f, 0.0f, 1.0f);
 
-    transition_.SetTime(t);
-    auto ImagePreview = [](const char* name, const DescriptorHandle& srv, const ImVec2& size) {
+    //transition_.SetTime(t);
+    /*auto ImagePreview = [](const char* name, const DescriptorHandle& srv, const ImVec2& size) {
         if (ImGui::TreeNode(name)) {
             ImTextureID image = reinterpret_cast<ImTextureID>(srv.GetGPU().ptr);
             ImGui::Image(image, size);
             ImGui::TreePop();
         }
-    };
+        };*/
 
 
     //ImagePreview("MainColorBuffer", mainColorBuffer_.GetSRV(), { 320.0f, 180.0f });
     //ImagePreview("MainDepthBuffer", mainDepthBuffer_.GetSRV(), { 320.0f, 180.0f });
-    ImagePreview("SpecularBuffer", raytracingRenderer_.GetSpecular().GetSRV(), { 320.0f, 180.0f });
+    //ImagePreview("SpecularBuffer", raytracingRenderer_.GetSpecular().GetSRV(), { 320.0f, 180.0f });
     //ImagePreview("ShadowBuffer", raytracingRenderer_.GetShadow().GetSRV(), { 320.0f, 180.0f });
     //ImagePreview("Raymatching", raymarchingRenderer_.GetResult().GetSRV(), { 320.0f, 180.0f });
     //ImagePreview("Noise", computeShaderTester_.GetTexture().GetSRV(), { 320.0f, 320.0f });
@@ -151,9 +150,9 @@ void RenderManager::Render() {
     imguiManager->Render(commandContext_);
 
     commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_PRESENT);
-   // commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
+    // commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
-    // コマンドリスト完成(クローズ)
+     // コマンドリスト完成(クローズ)
     commandContext_.Close();
 
     // バックバッファをフリップ

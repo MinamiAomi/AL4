@@ -19,10 +19,10 @@
 #include "ComputeShader.h"
 #include "Transition.h"
 
-#define SHADER_DIRECTORY "../Engine/Graphics/Shader"
+#define SHADER_DIRECTORY "Resources/Shader"
 #ifdef _DEBUG
+//#define SHADER_DIRECTORY "../Engine/Graphics/Shader"
 #else
-//#define SHADER_DIRECTORY "Resources/Shader"
 #endif // _DEBUG
 
 class RenderManager {
@@ -37,7 +37,7 @@ public:
     void SetCamera(const std::shared_ptr<Camera>& camera) { camera_ = camera; }
     void SetSunLight(const std::shared_ptr<DirectionalLight>& light) { sunLight_ = light; }
 
-
+    //LightManager& GetLightManager() { return lightManager_; }
     Transition& GetTransition() { return transition_; }
 
 private:
@@ -62,6 +62,7 @@ private:
     //Bloom bloom_;
     PostEffect postEffect_;
     ComputeShaderTester computeShaderTester_;
+    //LightManager lightManager_;
     
     Timer timer_;
     std::weak_ptr<const Camera> camera_;

@@ -8,6 +8,7 @@ class CommandContext;
 class ColorBuffer;
 class DepthBuffer;
 class Camera;
+class LightManager;
 class DirectionalLight;
 
 class ModelRenderer {
@@ -18,6 +19,9 @@ public:
         Material,
         Texture,
         Sampler,
+        DirectionalLights,
+        PointLights,
+        SpotLights,
 
         NumParameters
     };

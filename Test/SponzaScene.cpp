@@ -38,6 +38,7 @@ void SponzaScene::OnUpdate() {
         ImGui::TreePop();
     }
 #endif // _DEBUG
+
 }
 
 void SponzaScene::OnFinalize() {

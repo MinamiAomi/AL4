@@ -6,6 +6,9 @@ struct Scene {
     float3 sunLightColor;
     float3 sunLightDirection;
     float sunLightIntensity;
+    //uint numDirectionalLights;
+    //uint numPointLights;
+    //uint numSpotLights;
 };
 ConstantBuffer<Scene> g_Scene : register(b0);
 
@@ -27,3 +30,31 @@ ConstantBuffer<Material> g_Material : register(b2);
 
 Texture2D<float4> g_Texture : register(t0);
 SamplerState g_Sampler : register(s0);
+
+struct DirectionalLight {
+    float3 direction;
+    float intensity;
+    float3 color;
+};
+StructuredBuffer<DirectionalLight> g_DirectionalLights : register(t1);
+
+//struct PointLight {
+//    float3 position;
+//    float intensity;
+//    float3 color;
+//    float radius;
+//    float decay;
+//};
+//StructuredBuffer<PointLight> g_PointLights : register(t2);
+
+//struct SpotLight {
+//    float3 direction;
+//    float intensity;
+//    float3 position;
+//    float distance;
+//    float3 color;
+//    float decay;
+//    float cosAngle;
+//    float cosFalloffStart;
+//};
+//StructuredBuffer<SpotLight> g_SpotLights : register(t2);
