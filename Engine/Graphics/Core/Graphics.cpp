@@ -16,10 +16,11 @@
 
 using namespace Microsoft::WRL;
 
-#define ENABLED_DEBUG_LAYER 0
-#define ENABLED_GPU_BASED_DEBUGGER 0
+#define DEBUG_DIRECTX
+#define ENABLED_DEBUG_LAYER 1
+#define ENABLED_GPU_BASED_DEBUGGER 1
 
-#ifdef _DEBUG
+#ifdef DEBUG_DIRECTX
 
 #include <dxgidebug.h>
 
@@ -36,7 +37,7 @@ namespace {
     } leakChecker;
 
 }
-#endif // _DEBUG
+#endif // DEBUG_DIRECTX
 
 Graphics* Graphics::GetInstance() {
     static Graphics instance;
@@ -108,7 +109,7 @@ Graphics::Graphics() :
 }
 
 void Graphics::CreateDevice() {
-#ifdef _DEBUG
+#ifdef DEBUG_DIRECTX
 #if ENABLED_DEBUG_LAYER || ENABLED_GPU_BASED_DEBUGGER
     ComPtr<ID3D12Debug1> debugController;
     if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(debugController.GetAddressOf())))) {
@@ -122,7 +123,7 @@ void Graphics::CreateDevice() {
 #endif
     }
 #endif
-#endif // _DEBUG
+#endif // DEBUG_DIRECTX
 
     ComPtr<IDXGIFactory7> factory;
     ASSERT_IF_FAILED(CreateDXGIFactory(IID_PPV_ARGS(factory.GetAddressOf())));
@@ -164,7 +165,7 @@ void Graphics::CreateDevice() {
     }
     assert(device_);
 
-#ifdef _DEBUG
+#ifdef DEBUG_DIRECTX
     // デバッグ時のみ
     ComPtr<ID3D12InfoQueue> infoQueue;
     if (SUCCEEDED(device_->QueryInterface(IID_PPV_ARGS(infoQueue.GetAddressOf())))) {
@@ -188,7 +189,7 @@ void Graphics::CreateDevice() {
         // 指定したメッセージの表示を抑制する
         infoQueue->PushStorageFilter(&filter);
     }
-#endif
+#endif // DEBUG_DIRECTX
 }
 
 void Graphics::CreateDynamicResourcesRootSignature() {

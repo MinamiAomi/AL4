@@ -7,6 +7,7 @@
 struct Particle {
     Vector3 position;       // 位置
     Vector3 velocity;       // 速度
+    Vector3 acceleration;
     float startSize;        // 開始時の大きさ
     float endSize;          // 終了時の大きさ
     Vector3 startColor;     // 開始時の色

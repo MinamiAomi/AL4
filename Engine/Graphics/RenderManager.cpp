@@ -42,6 +42,7 @@ void RenderManager::Initialize() {
     modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
     transition_.Initialize();
     raytracingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
+    particleRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
     //raymarchingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
 
     //computeShaderTester_.Initialize(1024, 1024);
@@ -90,6 +91,7 @@ void RenderManager::Render() {
     if (camera && sunLight) {
         // モデル描画
         modelRenderer.Render(commandContext_, *camera, *sunLight);
+        particleRenderer_.Render(commandContext_, *camera);
         //raymarchingRenderer_.Render(commandContext_, *camera);
     }
     // レイトレの結果を加算合成
@@ -116,7 +118,7 @@ void RenderManager::Render() {
     commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
 
-#ifdef _DEBUG
+#ifdef ENABLE_IMGUI
     static float t = 0.0f;
     ImGui::Begin("Profile");
     auto io = ImGui::GetIO();
@@ -143,7 +145,7 @@ void RenderManager::Render() {
 
     //ImGui::Checkbox("Raymarching", &raymarching_);
     ImGui::End();
-#endif // _DEBUG
+#endif // ENABLE_IMGUI
 
     // ImGuiを描画
     auto imguiManager = ImGuiManager::GetInstance();

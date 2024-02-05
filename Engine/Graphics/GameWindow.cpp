@@ -1,9 +1,9 @@
 #include "GameWindow.h"
 
-#ifdef _DEBUG
+#ifdef ENABLE_IMGUI
 #include "Externals/ImGui/imgui.h"
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-#endif // _DEBUG
+#endif // ENABLE_IMGUI
 
 #include "Core/Helper.h"
 
@@ -11,9 +11,9 @@ extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg
 namespace {
     // ウィンドウプロシージャ
     LRESULT CALLBACK WindowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
-#ifdef _DEBUG
+#ifdef ENABLE_IMGUI
         if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam)) { return true; }
-#endif // _DEBUG
+#endif // ENABLE_IMGUI
 
         // メッセージに対してゲーム固有の処理を行う
         switch (msg) {
@@ -67,7 +67,7 @@ void GameWindow::Initialize(const wchar_t* title, uint32_t clientWidth, uint32_t
 
     SetWindowLongPtr(hWnd_, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
-       ShowWindow(hWnd_, SW_SHOW);
+    ShowWindow(hWnd_, SW_SHOW);
 }
 
 bool GameWindow::ProcessMessage() const {

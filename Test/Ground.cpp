@@ -27,7 +27,7 @@ void Ground::Update() {
     transform.UpdateMatrix();
     model_->SetWorldMatrix(transform.worldMatrix);
 
-#ifdef _DEBUG
+#ifdef ENABLE_IMGUI
     if (ImGui::TreeNode("SunLight")) {
         ImGui::DragFloat3("Direction", &sunLight_->direction.x, 0.01f, -1.0f, 1.0f);
         sunLight_->direction = sunLight_->direction.Normalized();
@@ -35,5 +35,5 @@ void Ground::Update() {
         ImGui::DragFloat("Intensity", &sunLight_->intensity, 0.01f);
         ImGui::TreePop();
     }
-#endif // _DEBUG
+#endif // ENABLE_IMGUI
 }

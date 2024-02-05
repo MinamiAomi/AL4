@@ -1,8 +1,8 @@
 #pragma once
 
-#ifdef _DEBUG
+#ifdef ENABLE_IMGUI
 #include "Externals/ImGui/imgui.h"
-#endif // _DEBUG
+#endif // ENABLE_IMGUI
 
 
 #include <Windows.h>

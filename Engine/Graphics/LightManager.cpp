@@ -4,7 +4,7 @@
 
 void DirectionalLight::DrawImGui(const std::string& label) {
     (void)label;
-#ifdef _DEBUG
+#ifdef ENABLE_IMGUI
     bool openTree = ImGui::TreeNode(label.c_str());
     if (openTree) {
         ImGui::ColorEdit3("Color", &color.x);
@@ -13,5 +13,5 @@ void DirectionalLight::DrawImGui(const std::string& label) {
         ImGui::DragFloat("Intensity", &intensity, 0.01f, 0.0f, 100.0f);
         ImGui::TreePop();
     }
-#endif //_DEBUG
+#endif //ENABLE_IMGUI
 }

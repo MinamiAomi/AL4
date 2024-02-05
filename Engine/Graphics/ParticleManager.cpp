@@ -8,6 +8,7 @@ ParticleManager* ParticleManager::GetInstance() {
 void ParticleManager::Update() {
     std::erase_if(particles_, 
         [](Particle& particle) { 
+            particle.velocity += particle.acceleration;
             particle.position += particle.velocity;
             ++particle.existenceTime;
             return particle.existenceTime >= particle.lifeTime; 

@@ -26,4 +26,12 @@ private:
     std::shared_ptr<DirectionalLight> sunLight_;
 
     std::vector<std::shared_ptr<TestObject>> testObjects_;
+
+    struct ParticleConstant {
+        uint32_t spawnCount = 2;
+        uint32_t spawnCycle = 2;
+    } particleConstant_;
+    int32_t particleTimer_;
+
+    Random::RandomNumberGenerator rng_;
 };
