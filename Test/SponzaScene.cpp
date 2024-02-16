@@ -12,7 +12,7 @@ void SponzaScene::OnInitialize() {
 
     sunLight_ = std::make_shared<DirectionalLight>();
     RenderManager::GetInstance()->SetSunLight(sunLight_);
-    sunLight_->direction = Vector3(0.0f, -1.0f, 0.001f).Normalized();
+    sunLight_->direction = Vector3(0.1f, -1.0f, 0.1f).Normalized();
 
     testObjects_.emplace_back(std::make_shared<TestObject>());
     testObjects_.back()->Initialize("Sponza", {});
@@ -48,23 +48,21 @@ void SponzaScene::OnUpdate() {
 
     debugCamera_->Update();
 
-    const int32_t kParticleSpawnCycle = 10;
     particleTimer_ += 1;
-    if (particleTimer_ > kParticleSpawnCycle) {
+    if (particleTimer_ > particleConstant_.spawnCycle) {
         particleTimer_ = 0;
         auto particleManager = ParticleManager::GetInstance();
         std::list<Particle> particles;
-        for (uint32_t i = 0; i < particleConstant_.spawnCount; ++i) {
+        for (int32_t i = 0; i < particleConstant_.spawnCount; ++i) {
             Particle particle;
             particle.position = { 0.0f, 1.0f, -2.0f };       // 位置
-            particle.velocity = Vector3(rng_.NextFloatUnit() * 2.0f - 1.0f, 2.0f, rng_.NextFloatUnit() * 2.0f - 1.0f).Normalized() * 0.05f;       // 速度
-            particle.acceleration = -particle.velocity.Normalized() * 0.0002f;
-            particle.startSize = 0.3f;        // 開始時の大きさ
+            particle.velocity = Vector3(rng_.NextFloatUnit() * 2.0f - 1.0f, 2.0f, rng_.NextFloatUnit() * 2.0f - 1.0f).Normalized() * particleConstant_.speed;       // 速度
+            particle.startSize = 0.1f;        // 開始時の大きさ
             particle.endSize = 0.0f;          // 終了時の大きさ
             particle.startColor = Vector3(1.0f, 1.0f, 1.0f);      // 開始時の色
             particle.endColor = Vector3(1.0f, 1.0f, 1.0f);       // 終了時の色
             particle.startAlpha = 1.0f;       // 開始時の透明度
-            particle.endAlpha = 1.0f;         // 終了時の透明度
+            particle.endAlpha = 0.0f;         // 終了時の透明度
             particle.existenceTime = 0; // 存在時間
             particle.lifeTime = 300;      // 寿命
             particles.emplace_back(particle);
@@ -78,6 +76,12 @@ void SponzaScene::OnUpdate() {
         sunLight_->direction = sunLight_->direction.Normalized();
         ImGui::ColorEdit3("Color", &sunLight_->color.x);
         ImGui::DragFloat("Intensity", &sunLight_->intensity, 0.01f);
+        ImGui::TreePop();
+    }
+    if (ImGui::TreeNode("Particle")) {
+        
+        ImGui::SliderInt("SpawnCycle", &particleConstant_.spawnCycle, 1, 10);
+        ImGui::SliderInt("SpawnCount", &particleConstant_.spawnCount, 1, 10);
         ImGui::TreePop();
     }
 #endif // ENABLE_IMGUI

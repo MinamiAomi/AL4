@@ -236,7 +236,7 @@ void PrimaryClosestHit(inout PrimaryPayload payload, in Attributes attributes) {
         reflectionPayload); // Payload
     
     float3 specular = l_Material.specular;
-    specular *= Lighting::PhongReflection(vertex.normal, WorldRayDirection(), g_Scene.sunLightDirection, 10);
+    specular *= Lighting::PhongReflection(vertex.normal, WorldRayDirection(), g_Scene.sunLightDirection, l_Material.shininess);
     specular *= (reflectionPayload.isHit == 1) ? reflectionPayload.color : g_Scene.sunLightColor * g_Scene.sunLightIntensity;
     payload.reflection = specular;
    // payload.reflection = (reflectionPayload.isHit == 1) ? reflectionPayload.color : g_Scene.sunLightColor * g_Scene.sunLightIntensity;

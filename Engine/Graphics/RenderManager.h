@@ -19,8 +19,8 @@
 #include "ComputeShader.h"
 #include "Transition.h"
 
-#define SHADER_DIRECTORY "../Engine/Graphics/Shader"
-//#define SHADER_DIRECTORY "Resources/Shader"
+//#define SHADER_DIRECTORY "../Engine/Graphics/Shader"
+#define SHADER_DIRECTORY "Resources/Shader"
 #ifdef _DEBUG
 #else
 #endif // _DEBUG

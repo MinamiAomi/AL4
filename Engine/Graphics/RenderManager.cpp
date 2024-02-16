@@ -119,12 +119,10 @@ void RenderManager::Render() {
 
 
 #ifdef ENABLE_IMGUI
-    static float t = 0.0f;
     ImGui::Begin("Profile");
     auto io = ImGui::GetIO();
     ImGui::Text("Framerate : %f", io.Framerate);
     ImGui::Text("FrameCount : %d", frameCount_);
-    ImGui::DragFloat("FadeTime", &t, 0.001f, 0.0f, 1.0f);
 
     //transition_.SetTime(t);
     /*auto ImagePreview = [](const char* name, const DescriptorHandle& srv, const ImVec2& size) {

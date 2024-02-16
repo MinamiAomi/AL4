@@ -28,8 +28,9 @@ private:
     std::vector<std::shared_ptr<TestObject>> testObjects_;
 
     struct ParticleConstant {
-        uint32_t spawnCount = 2;
-        uint32_t spawnCycle = 2;
+        int32_t spawnCount = 4;
+        int32_t spawnCycle = 1;
+        float speed = 0.01f;
     } particleConstant_;
     int32_t particleTimer_;
 
