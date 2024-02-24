@@ -74,14 +74,14 @@ void RenderManager::Render() {
     auto sunLight = sunLight_.lock();
 
     commandContext_.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
+    commandContext_.TransitionResource(mainColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
     if (camera && sunLight) {
         // 影、スペキュラ
         raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
     }
 
-    commandContext_.TransitionResource(mainColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
     commandContext_.SetRenderTarget(mainColorBuffer_.GetRTV(), mainDepthBuffer_.GetDSV());
     commandContext_.ClearColor(mainColorBuffer_);
     commandContext_.ClearDepth(mainDepthBuffer_);
@@ -91,7 +91,7 @@ void RenderManager::Render() {
     if (camera && sunLight) {
         // モデル描画
         modelRenderer.Render(commandContext_, *camera, *sunLight);
-        particleRenderer_.Render(commandContext_, *camera);
+        //particleRenderer_.Render(commandContext_, *camera);
         //raymarchingRenderer_.Render(commandContext_, *camera);
     }
     // レイトレの結果を加算合成
@@ -106,7 +106,7 @@ void RenderManager::Render() {
     postEffect_.Render(commandContext_, mainColorBuffer_);
     spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, float(preSwapChainBuffer_.GetWidth()), float(preSwapChainBuffer_.GetHeight()));
 
-    transition_.Dispatch(commandContext_, preSwapChainBuffer_);
+   // transition_.Dispatch(commandContext_, preSwapChainBuffer_);
 
 
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
@@ -124,19 +124,18 @@ void RenderManager::Render() {
     ImGui::Text("Framerate : %f", io.Framerate);
     ImGui::Text("FrameCount : %d", frameCount_);
 
-    //transition_.SetTime(t);
-    /*auto ImagePreview = [](const char* name, const DescriptorHandle& srv, const ImVec2& size) {
-        if (ImGui::TreeNode(name)) {
-            ImTextureID image = reinterpret_cast<ImTextureID>(srv.GetGPU().ptr);
-            ImGui::Image(image, size);
-            ImGui::TreePop();
-        }
-        };*/
+    //auto ImagePreview = [](const char* name, const DescriptorHandle& srv, const ImVec2& size) {
+    //    if (ImGui::TreeNode(name)) {
+    //        ImTextureID image = reinterpret_cast<ImTextureID>(srv.GetGPU().ptr);
+    //        ImGui::Image(image, size);
+    //        ImGui::TreePop();
+    //    }
+    //    };
 
 
     //ImagePreview("MainColorBuffer", mainColorBuffer_.GetSRV(), { 320.0f, 180.0f });
-    //ImagePreview("MainDepthBuffer", mainDepthBuffer_.GetSRV(), { 320.0f, 180.0f });
-    //ImagePreview("SpecularBuffer", raytracingRenderer_.GetSpecular().GetSRV(), { 320.0f, 180.0f });
+    ////ImagePreview("MainDepthBuffer", mainDepthBuffer_.GetSRV(), { 320.0f, 180.0f });
+   // ImagePreview("SpecularBuffer", raytracingRenderer_.GetSpecular().GetSRV(), { 320.0f, 180.0f });
     //ImagePreview("ShadowBuffer", raytracingRenderer_.GetShadow().GetSRV(), { 320.0f, 180.0f });
     //ImagePreview("Raymatching", raymarchingRenderer_.GetResult().GetSRV(), { 320.0f, 180.0f });
     //ImagePreview("Noise", computeShaderTester_.GetTexture().GetSRV(), { 320.0f, 320.0f });

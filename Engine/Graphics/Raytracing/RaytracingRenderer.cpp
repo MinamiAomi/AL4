@@ -188,9 +188,9 @@ void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& ca
     rayDesc.Depth = 1;
     commandList->DispatchRays(&rayDesc);
 
-    commandContext.UAVBarrier(shadowBuffer_);
-    commandContext.UAVBarrier(specularBuffer_);
-    commandContext.FlushResourceBarriers();
+ ///*   commandContext.UAVBarrier(shadowBuffer_);
+ //   commandContext.UAVBarrier(specularBuffer_);
+ //   commandContext.FlushResourceBarriers();*/
 }
 
 void RaytracingRenderer::CreateRootSignature() {

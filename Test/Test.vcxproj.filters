@@ -19,35 +19,11 @@
     <ClCompile Include="GameScene.cpp">
       <Filter>Game\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="TitleScene.cpp">
-      <Filter>Game\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="TestScene.cpp">
-      <Filter>Game\Scene</Filter>
-    </ClCompile>
-    <ClCompile Include="FollowCamera.cpp">
-      <Filter>Game\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="Ground.cpp">
-      <Filter>Game\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="Player.cpp">
-      <Filter>Game\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="TestObject.cpp">
-      <Filter>Game\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="TitleObject.cpp">
-      <Filter>Game\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="PlayerModel.cpp">
-      <Filter>Game\Object</Filter>
-    </ClCompile>
     <ClCompile Include="DebugCamera.cpp">
       <Filter>Game\Object</Filter>
     </ClCompile>
-    <ClCompile Include="SponzaScene.cpp">
-      <Filter>Game\Scene</Filter>
+    <ClCompile Include="Map.cpp">
+      <Filter>Game\Object</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -57,35 +33,11 @@
     <ClInclude Include="GameScene.h">
       <Filter>Game\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="TitleScene.h">
-      <Filter>Game\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="TestScene.h">
-      <Filter>Game\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="FollowCamera.h">
-      <Filter>Game\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Ground.h">
-      <Filter>Game\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Player.h">
-      <Filter>Game\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="TestObject.h">
-      <Filter>Game\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="TitleObject.h">
-      <Filter>Game\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="PlayerModel.h">
-      <Filter>Game\Object</Filter>
-    </ClInclude>
     <ClInclude Include="DebugCamera.h">
       <Filter>Game\Object</Filter>
     </ClInclude>
-    <ClInclude Include="SponzaScene.h">
-      <Filter>Game\Scene</Filter>
+    <ClInclude Include="Map.h">
+      <Filter>Game\Object</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

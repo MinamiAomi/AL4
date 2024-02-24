@@ -18,7 +18,7 @@ using namespace Microsoft::WRL;
 
 #define DEBUG_DIRECTX
 #define ENABLED_DEBUG_LAYER 1
-#define ENABLED_GPU_BASED_DEBUGGER 1
+#define ENABLED_GPU_BASED_DEBUGGER 0
 
 #ifdef DEBUG_DIRECTX
 

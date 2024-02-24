@@ -6,6 +6,7 @@
 void DebugCamera::Initialize() {
     camera_ = std::make_shared<Camera>();
     RenderManager::GetInstance()->SetCamera(camera_);
+    //camera_->SetOrthographic(1280.0f / 100.0f, 720.0f / 100.0f, 0.1f, 100.0f);
 
     transform.rotate = Quaternion::MakeForXAxis(10.0f * Math::ToRadian);
 

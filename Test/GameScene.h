@@ -10,10 +10,8 @@
 #include "Graphics/Model.h"
 #include "Graphics/LightManager.h"
 
-#include "FollowCamera.h"
-#include "Player.h"
-#include "Ground.h"
-#include "TestObject.h"
+#include "DebugCamera.h"
+#include "Map.h"
 
 class GameScene :
     public BaseScene {
@@ -24,8 +22,7 @@ public:
     void OnFinalize() override;
 
 private:
-    std::shared_ptr<FollowCamera> followCamera_;
-    std::shared_ptr<Player> player_;
-    std::shared_ptr<Ground> ground;
-    std::vector<std::shared_ptr<TestObject>> testObjects_;
+    std::shared_ptr<DirectionalLight> sunLight_;
+    std::shared_ptr<DebugCamera> debugCamera_;
+    std::shared_ptr<Map> map_;
 };

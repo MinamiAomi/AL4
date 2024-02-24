@@ -4,55 +4,38 @@
 #include "Graphics/RenderManager.h"
 #include "Scene/SceneManager.h"
 
-#include "TitleScene.h"
-
 void GameScene::OnInitialize() {
-    followCamera_ = std::make_shared<FollowCamera>();
-    player_ = std::make_shared<Player>();
-    ground = std::make_shared<Ground>();
+    sunLight_ = std::make_shared<DirectionalLight>();
+    debugCamera_ = std::make_shared<DebugCamera>();
+    map_ = std::make_shared<Map>();
 
-    const char* kTestObjectNames[] = {
-    /*    "teapot",
-        "bunny",
-        "box",
-        "sphere",
-        "cylinder",
-        "torus",
-        "suzanne",*/
-        "Sponza"
-    };
-    testObjects_.resize(_countof(kTestObjectNames));
-    for (size_t i = 0; i < testObjects_.size(); ++i) {
-        testObjects_[i] = std::make_shared<TestObject>();
-        testObjects_[i]->Initialize(kTestObjectNames[i], Vector3(i * 3 - (float)testObjects_.size() * 0.5f * 3, 1.5f, 5.0f));
+    sunLight_->direction = Vector3(0.5f, -1.0f, 0.5f).Normalized();
+    RenderManager::GetInstance()->SetSunLight(sunLight_);
+
+    debugCamera_->Initialize();
+
+    uint32_t xMax = 30;
+    uint32_t yMax = 10;
+    uint32_t zMax = 30;
+
+    map_->Initialize(xMax, yMax, zMax);
+
+    for (uint32_t y = 0; y < yMax; ++y) {
+        for (uint32_t z = 0; z < zMax; ++z) {
+            for (uint32_t x = 0; x < xMax; ++x) {
+                if ((x + z) + 1 > y) {
+                    map_->GetTile(x, y, z) = Map::kNormalTile;
+                }
+            }
+        }
     }
-
-    testObjects_.back()->SetRotate(false);
-    testObjects_.back()->transform.scale = {0.01f, 0.01f, 0.01f};
-
-
-    player_->SetFollowCamera(followCamera_);
-    followCamera_->SetTarget(player_);
-
-    followCamera_->Initialize();
-    player_->Initialize();
-    ground->Initialize();
-
+    map_->SetupModel();
 }
 
 void GameScene::OnUpdate() {
-    player_->Update();
-    ground->Update();
-    followCamera_->Update();
 
-    for (auto& testObject : testObjects_) {
-        testObject->Update();
-    }
 
-    bool changeScene = Input::GetInstance()->IsKeyTrigger(DIK_SPACE) || (Input::GetInstance()->GetXInputState().Gamepad.wButtons & XINPUT_GAMEPAD_A);
-    if (changeScene && !SceneManager::GetInstance()->GetSceneTransition().IsPlaying()) {
-        SceneManager::GetInstance()->ChangeScene<TitleScene>();
-    }
+    debugCamera_->Update();
 }
 
 void GameScene::OnFinalize() {
