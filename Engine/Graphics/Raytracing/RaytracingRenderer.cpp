@@ -157,7 +157,7 @@ void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& ca
     scene.sunLightDirection = sunLight.direction;
     scene.sunLightIntensity = sunLight.intensity;
     scene.sunLightColor = sunLight.color;
-    scene.ambientOcclusionRadius = 3.0f;
+    scene.ambientOcclusionRadius = 0.5f;
     scene.randomSeed = 0;
     auto sceneCB = commandContext.TransfarUploadBuffer(sizeof(scene), &scene);
     sceneCB;
