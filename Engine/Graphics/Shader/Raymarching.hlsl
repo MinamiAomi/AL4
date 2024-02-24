@@ -41,7 +41,6 @@ float mod(float x, float y) {
 
 float Random(in float2 uv) {
     return frac(sin(dot(uv, float2(12.9898f, 78.233f))) * 43758.5453f);
-
 }
 
 float Random(float2 uv, float seed) {

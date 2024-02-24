@@ -6,6 +6,7 @@
 #include "../Core/ColorBuffer.h"
 #include "../Core/RootSignature.h"
 #include "../../Math/Camera.h"
+#include "../../Math/Random.h"
 
 #include "StateObject.h"
 #include "TLAS.h"
@@ -45,4 +46,6 @@ private:
 
     ColorBuffer shadowBuffer_;
     ColorBuffer specularBuffer_;
+
+    Random::RandomNumberGenerator rng_;
 };

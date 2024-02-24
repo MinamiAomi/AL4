@@ -13,6 +13,7 @@ struct Material {
     Vector3 ambient{ 0.0f, 0.0f, 0.0f };
     float shininess{ 10.0f };
     std::shared_ptr<TextureResource> diffuseMap;
+    std::shared_ptr<TextureResource> normalMap;
 };
 
 struct PBRMaterial {

@@ -17,6 +17,7 @@ void Test::OnInitialize() {
 	sceneManager->ChangeScene<SponzaScene>();
 
 	ResourceManager* resourceManager = ResourceManager::GetInstance();
+	resourceManager->AddModel("Sponza", Model::Load("Resources/Sponza/sponza.obj"));
 	resourceManager->AddModel("Title", Model::Load("Resources/title.obj"));
 	resourceManager->AddModel("Player", Model::Load("Resources/Player/Player.obj"));
 	resourceManager->AddModel("Floor", Model::Load("Resources/Floor/Floor.obj"));
@@ -44,7 +45,6 @@ void Test::OnInitialize() {
 	// カエルカバン
 	resourceManager->AddModel("FrogBag", Model::Load("Resources/Model/frog/bag.obj"));
 
-	resourceManager->AddModel("Sponza", Model::Load("Resources/Sponza/sponza.obj"));
 
 	//auto model = Model::Load("Resources/CornellBox/CornellBox-Original.obj");
 }

@@ -91,6 +91,15 @@ namespace {
                 std::string filename(path.C_Str());
                 destMaterial->diffuseMap = TextureLoader::Load(directory / filename);
             }
+            if (srcMaterial->GetTextureCount(aiTextureType_NORMALS) > 0) {
+                aiString path;
+                srcMaterial->GetTexture(aiTextureType_NORMALS, 0, &path);
+                // 読み込む
+                // TextureLoader内で多重読み込み対応済み
+                std::string filename(path.C_Str());
+                destMaterial->normalMap= TextureLoader::Load(directory / filename);
+            }
+
             ++materialIndex;
         }
         return materials;

@@ -125,19 +125,19 @@ void RenderManager::Render() {
     ImGui::DragFloat("FadeTime", &t, 0.001f, 0.0f, 1.0f);
 
     //transition_.SetTime(t);
-    /*auto ImagePreview = [](const char* name, const DescriptorHandle& srv, const ImVec2& size) {
+    auto ImagePreview = [](const char* name, const DescriptorHandle& srv, const ImVec2& size) {
         if (ImGui::TreeNode(name)) {
             ImTextureID image = reinterpret_cast<ImTextureID>(srv.GetGPU().ptr);
             ImGui::Image(image, size);
             ImGui::TreePop();
         }
-        };*/
+        };
 
 
     //ImagePreview("MainColorBuffer", mainColorBuffer_.GetSRV(), { 320.0f, 180.0f });
     //ImagePreview("MainDepthBuffer", mainDepthBuffer_.GetSRV(), { 320.0f, 180.0f });
-    //ImagePreview("SpecularBuffer", raytracingRenderer_.GetSpecular().GetSRV(), { 320.0f, 180.0f });
-    //ImagePreview("ShadowBuffer", raytracingRenderer_.GetShadow().GetSRV(), { 320.0f, 180.0f });
+    ImagePreview("ShadowBuffer", raytracingRenderer_.GetShadow().GetSRV(), { 320.0f, 180.0f });
+    ImagePreview("SpecularBuffer", raytracingRenderer_.GetSpecular().GetSRV(), { 320.0f, 180.0f });
     //ImagePreview("Raymatching", raymarchingRenderer_.GetResult().GetSRV(), { 320.0f, 180.0f });
     //ImagePreview("Noise", computeShaderTester_.GetTexture().GetSRV(), { 320.0f, 320.0f });
 

@@ -146,6 +146,9 @@ void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& ca
         Vector3 sunLightDirection;
         float sunLightIntensity;
         Vector3 sunLightColor;
+        float ambientOcclusionRadius;
+    
+        uint32_t randomSeed;
     };
     // シーン定数を送る
     Scene scene;
@@ -154,6 +157,8 @@ void RaytracingRenderer::Render(CommandContext& commandContext, const Camera& ca
     scene.sunLightDirection = sunLight.direction;
     scene.sunLightIntensity = sunLight.intensity;
     scene.sunLightColor = sunLight.color;
+    scene.ambientOcclusionRadius = 3.0f;
+    scene.randomSeed = 0;
     auto sceneCB = commandContext.TransfarUploadBuffer(sizeof(scene), &scene);
     sceneCB;
     commandList;
@@ -286,13 +291,13 @@ void RaytracingRenderer::CreateStateObject() {
 
     // 6.シェーダーコンフィグ
     auto shaderConfig = stateObjectDesc.CreateSubobject<CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
-    size_t maxPayloadSize = 4 * sizeof(float);      // 最大ペイロードサイズ
+    size_t maxPayloadSize = 5 * sizeof(float);      // 最大ペイロードサイズ
     size_t maxAttributeSize = 2 * sizeof(float);   // 最大アトリビュートサイズ
     shaderConfig->Config((UINT)maxPayloadSize, (UINT)maxAttributeSize);
 
     // 7.パイプラインコンフィグ
     auto pipelineConfig = stateObjectDesc.CreateSubobject<CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT>();
-    uint32_t maxTraceRecursionDepth = 4; // 一次レイ, シャドウレイ
+    uint32_t maxTraceRecursionDepth = 6; // 一次レイ, シャドウレイ
     pipelineConfig->Config(maxTraceRecursionDepth);
 
     // 8.グローバルルートシグネチャ

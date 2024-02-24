@@ -1,5 +1,7 @@
 #include "../Lighting.hlsli"
 
+#define AMBIENT_OCCLUSION_RAY_COUNT 3
+
 #define TRUE_UINT 1
 #define FALSE_UINT 0
 
@@ -45,12 +47,16 @@ struct Scene {
     float3 sunLightDirection;
     float sunLightIntensity;
     float3 sunLightColor;
+    
+    float ambientOcclusionRadius;
+    uint randomSeed;
 };
 
 // 一次レイ用ペイロード
 struct PrimaryPayload {
     float shadow;
     float3 reflection;
+    float ambientOcclusion;
 };
 // シャドウレイ用ペイロード
 struct ShadowPayload {
@@ -73,6 +79,22 @@ RaytracingAccelerationStructure g_CastShadowTLAS : register(t1);
 RWTexture2D<float4> g_Shadow : register(u0);
 RWTexture2D<float4> g_Reflection : register(u1);
 
+static uint g_Seed;
+
+uint XOrShift() {
+    g_Seed ^= (g_Seed << 13);
+    g_Seed ^= (g_Seed >> 17);
+    g_Seed ^= (g_Seed << 5);
+    return g_Seed;
+}
+
+float Random(in float2 uv) {
+    return frac(sin(dot(uv, float2(12.9898f, 78.233f))) * 43758.5453f);
+}
+
+float GetRandomUnit() {
+    return float(XOrShift()) * (1.0f / 4294967296.0f);
+}
 
 //////////////////////////////////////////////////
 
@@ -96,6 +118,8 @@ void RayGeneration() {
     // テクスチャ座標系を求める    
     float2 texcoord = ((float2) dispatchRaysIndex + 0.5f) / (float2) dispatchRaysDimensions;
     
+    g_Seed = Random(texcoord) * 4294967296.0f + g_Scene.randomSeed;
+    
     //ConstantBuffer<Scene> scene = ResourceDescriptorHeap[descriptorIndex.scene];
     // 近面から遠面へのレイ
     RayDesc primaryRay;
@@ -109,6 +133,7 @@ void RayGeneration() {
     PrimaryPayload primaryPayload;
     primaryPayload.shadow = 1.0f;
     primaryPayload.reflection = float3(0.0f, 0.0f, 0.0f);
+    primaryPayload.ambientOcclusion = 1.0f;
     TraceRay(
         g_TLAS, // RaytracingAccelerationStructure
         RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // RayFlags
@@ -119,7 +144,7 @@ void RayGeneration() {
         primaryRay, // Ray
         primaryPayload); // Payload
 
-    float shadow = primaryPayload.shadow;
+    float shadow = /*primaryPayload.shadow * */primaryPayload.ambientOcclusion;
     g_Shadow[dispatchRaysIndex].rgb = shadow;
     g_Shadow[dispatchRaysIndex].a = 1.0f;
     
@@ -174,6 +199,40 @@ Vertex GetVertex(Attributes attributes) {
     
     return vertex;
 }
+
+float CalcAmbientOcclusion(in float3 position, in float3 normal) {
+    uint ao = 0;
+    
+    for (uint i = 0; i < AMBIENT_OCCLUSION_RAY_COUNT; ++i) {
+        RayDesc ray;
+        ray.Origin = position;
+        ray.TMin = 0.001f;
+        ray.TMax = g_Scene.ambientOcclusionRadius;
+
+        float theta = 6.2831853f * GetRandomUnit();
+        float z = 2.0f * GetRandomUnit() - 1.0f;
+        float r = sqrt(1.0f - z * z);
+        float3 ptOnSphere = float3(r * cos(theta), r * sin(theta), z);
+        ray.Direction = normalize(ptOnSphere + normal);
+        
+        
+        ShadowPayload shadowPayload;
+        shadowPayload.isHit = 0;
+        
+        TraceRay(
+            g_CastShadowTLAS,
+            RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
+            SHADOW_RAY_ATTRIBUTE,
+            SHADOW_RAY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // RayContributionToHitGroupIndex
+            SHADOW_MULTIPLIER_FOR_GEOMETRY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // MultiplierForGeometryContributionToHitGroupIndex
+            SHADOW_MISS_SHADER_INDEX, // MissShaderIndex
+            ray,
+            shadowPayload);
+            
+        ao += (shadowPayload.isHit == TRUE_UINT) ? 0 : 1;
+    }
+    return float(ao) / AMBIENT_OCCLUSION_RAY_COUNT;
+}
     
 [shader("closesthit")]
 void PrimaryClosestHit(inout PrimaryPayload payload, in Attributes attributes) {
@@ -210,6 +269,8 @@ void PrimaryClosestHit(inout PrimaryPayload payload, in Attributes attributes) {
             shadowPayload);
         
         payload.shadow = lerp(1.0f, 0.5f, shadowPayload.isHit);
+ 
+        payload.ambientOcclusion = CalcAmbientOcclusion(vertex.position, vertex.normal);
     }
 
     if (l_Material.useLighting == 0) {
