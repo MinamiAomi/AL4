@@ -16,10 +16,10 @@ struct Material {
 };
 
 struct PBRMaterial {
-    Vector3 baseColor;
+    Vector3 albedo;
     float metallic;
     float roughness;
-    std::shared_ptr<TextureResource> baseColorMap;
+    std::shared_ptr<TextureResource> albedoMap;
     std::shared_ptr<TextureResource> metallicRoughnessMap;
     std::shared_ptr<TextureResource> noramlMap;
 };

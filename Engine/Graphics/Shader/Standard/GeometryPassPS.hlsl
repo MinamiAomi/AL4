@@ -1,5 +1,7 @@
 #include "GeometryPass.hlsli"
 
+static const float PI = 3.1415926535f;
+
 struct PSInput {
     float4 svPosition : SV_POSITION;
     float3 worldPosition : POSITION0;
@@ -9,42 +11,38 @@ struct PSInput {
 };
 
 struct PSOutput {
-    float3 baseColor : SV_TARGET0;
+    float3 albedo : SV_TARGET0;
     float2 metallicRoughness : SV_TARGET1;
     float3 normal : SV_TARGET2;
 };
+
+// 法線マップから法線を取得
+float3 GetNormal(in float3 normal, in float3 tangent, in float2 texcoord) {
+    // 法線マップからサンプリング
+    float3 normalMap = g_BindlessTextures[g_Material.normalMapIndex].SampleLevel(g_Sampler, texcoord, 0).xyz;
+    // UNORMからSNORMに変換
+    normalMap = normalMap * 2.0f - 1.0f;
+    // NormalとTangentに垂直なベクトル
+    float3 binormal = normalize(cross(tangent, normal));
+    // 新しい法線
+    float3 newNormal = normalMap.x * tangent + normalMap.y * binormal + normalMap.z * normal;
+    return newNormal;
+}
 
 PSOutput main(PSInput input) {
 
     PSOutput output;
     
-    // マテリアル定数
-    ConstantBuffer<Material> material = ResourceDescriptorHeap[descriptorIndex.material];
-    // ベースカラー
-    Texture2D<float3> baseColorMap = ResourceDescriptorHeap[descriptorIndex.baseColorMap];
-    SamplerState baseColorSampler = SamplerDescriptorHeap[descriptorIndex.baseColorSampler];
-    // メタリックとラフネス
-    Texture2D<float2> metallicRoughnessMap = ResourceDescriptorHeap[descriptorIndex.metallicRoughnessMap];
-    SamplerState metallicRoughnessSampler = SamplerDescriptorHeap[descriptorIndex.metallicRoughnessSampler];
-    // 法線 
-    Texture2D<float3> normalMap = ResourceDescriptorHeap[descriptorIndex.normalMap];
-    SamplerState normalSampler = SamplerDescriptorHeap[descriptorIndex.normalSampler];
-    
-    output.baseColor = material.baseColorFactor * baseColorMap.Sample(baseColorSampler, input.texcoord);
-    output.metallicRoughness = material.metallicRoughnessFactor * metallicRoughnessMap.Sample(metallicRoughnessSampler, input.texcoord);
-    
-    float3 normal = normalize(input.normal);
-    float3 tangent = normalize(input.tangent);
-    float3 binormal = normalize(cross(normal, tangent));
-    float3x3 tangentSpace = float3x3(tangent, binormal, normal);
-    
-    // UNORMからSNORMに変換
-    normal = normalMap.Sample(normalSampler, input.texcoord) * 2.0f - 1.0f;
-    // 接空間に変換
-    normal = mul(normal, tangentSpace);
-    // 0~1に収める
+    float3 normal = GetNormal(normalize(input.normal), normalize(input.tangent), input.texcoord);
     output.normal = (normal + 1.0f) * 0.5f;
+   
+    float3 albedo = g_BindlessTextures[g_Material.albedoMapIndex].Sample(g_Sampler, input.texcoord).xyz;
+    albedo *= g_Material.albedo;
+    output.albedo = albedo;
     
+    float metallicRoughness = g_BindlessTextures[g_Material.metallicRoughnessMapIndex].Sample(g_Sampler, input.texcoord).xy;
+    metallicRoughness *= float2(g_Material.metallic, g_Material.roughness);
+    output.metallicRoughness = metallicRoughness;    
     
     return output;
 }

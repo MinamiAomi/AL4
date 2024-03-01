@@ -29,34 +29,30 @@ VSOutput main(VSInput input) {
         
 #ifdef ENABLE_SKINNING
     // スキニング計算
-    StructuredBuffer<Bone> bones = ResourceDescriptorHeap[descriptorIndex.bone];
 
     float4x4 boneMatrix =
-        mul(bones[input.boneIndices.x].boneMatrix, input.boneWeights.x) +
-        mul(bones[input.boneIndices.y].boneMatrix, input.boneWeights.y) +
-        mul(bones[input.boneIndices.z].boneMatrix, input.boneWeights.z) +
-        mul(bones[input.boneIndices.w].boneMatrix, input.boneWeights.w);
+        mul(g_Bones[input.boneIndices.x].boneMatrix, input.boneWeights.x) +
+        mul(g_Bones[input.boneIndices.y].boneMatrix, input.boneWeights.y) +
+        mul(g_Bones[input.boneIndices.z].boneMatrix, input.boneWeights.z) +
+        mul(g_Bones[input.boneIndices.w].boneMatrix, input.boneWeights.w);
     
     localPosition = mul(localPosition, boneMatrix);
     
     float4x4 boneMatrixInverseTranspose = 
-        mul(bones[input.boneIndices.x].boneInverseTransposeMatrix, input.boneWeights.x) +
-        mul(bones[input.boneIndices.y].boneInverseTransposeMatrix, input.boneWeights.y) +
-        mul(bones[input.boneIndices.z].boneInverseTransposeMatrix, input.boneWeights.z) +
-        mul(bones[input.boneIndices.w].boneInverseTransposeMatrix, input.boneWeights.w);
+        mul(g_Bones[input.boneIndices.x].boneInverseTransposeMatrix, input.boneWeights.x) +
+        mul(g_Bones[input.boneIndices.y].boneInverseTransposeMatrix, input.boneWeights.y) +
+        mul(g_Bones[input.boneIndices.z].boneInverseTransposeMatrix, input.boneWeights.z) +
+        mul(g_Bones[input.boneIndices.w].boneInverseTransposeMatrix, input.boneWeights.w);
     
     localNormal = normalize(mul(localNormal, (float3x3) boneMatrixInverseTranspose));
     localTangent = normalize(mul(localTangent, (float3x3) boneMatrixInverseTranspose));
 #endif
-    
-    ConstantBuffer<Scene> scene = ResourceDescriptorHeap[descriptorIndex.scene];
-    ConstantBuffer<Instance> instance = ResourceDescriptorHeap[descriptorIndex.instance];
-    
-    float4 worldPosition = mul(localPosition, instance.worldMatrix);
-    output.svPosition = mul(worldPosition, mul(scene.viewMatrix, scene.projectionMatrix));
+        
+    float4 worldPosition = mul(localPosition, g_Instance.worldMatrix);
+    output.svPosition = mul(worldPosition, mul(g_Scene.viewMatrix, g_Scene.projectionMatrix));
     output.worldPosition = worldPosition.xyz;
-    output.normal = mul(localNormal, (float3x3) instance.worldInverseTransposeMatrix);
-    output.tangent = mul(localTangent, (float3x3) instance.worldInverseTransposeMatrix);
+    output.normal = mul(localNormal, (float3x3) g_Instance.worldInverseTransposeMatrix);
+    output.tangent = mul(localTangent, (float3x3) g_Instance.worldInverseTransposeMatrix);
     output.texcoord = input.texcoord;
     
     return output;

@@ -640,6 +640,9 @@
     <None Include="Graphics\Shader\TransitionCS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
+    <None Include="Graphics\Shader\Standard\LightingPass.hlsli">
+      <Filter>Graphics\Shader\Standard</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\ImGui\LICENSE.txt">

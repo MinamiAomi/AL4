@@ -32,7 +32,7 @@ void SponzaScene::OnInitialize() {
             "suzanne",
     };
     testObjects_.resize(_countof(kTestObjectNames));
-    for (size_t i = 2; i < testObjects_.size(); ++i) {
+    for (size_t i = 1; i < testObjects_.size(); ++i) {
         testObjects_[i] = std::make_shared<TestObject>();
         testObjects_[i]->Initialize(kTestObjectNames[i], Vector3(i * 3 - (float)testObjects_.size() * 0.5f * 3, 1.0f, 5.0f));
     }
