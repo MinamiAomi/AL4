@@ -1,25 +1,3 @@
-
-struct DescriptorIndex {
-    uint scene;
-    uint instance;
-    
-    uint material;
-    
-    uint baseColorMap;
-    uint baseColorSampler;
-    
-    uint metallicRoughnessMap;
-    uint metallicRoughnessSampler;
-    
-    uint normalMap;
-    uint normalSampler;
-
-#ifdef ENABLE_SKINNING
-    uint bone;
-#endif
-};
-ConstantBuffer<DescriptorIndex> descriptorIndex : register(b0);
-
 Texture2D<float4> g_BindlessTextures[] : register(t0, space1);
 SamplerState g_Sampler : register(s0);
 
