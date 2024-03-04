@@ -318,6 +318,7 @@
     <ClInclude Include="Graphics\Core\TextureResource.h" />
     <ClInclude Include="Graphics\Core\UploadBuffer.h" />
     <ClInclude Include="Graphics\DefaultTextures.h" />
+    <ClInclude Include="Graphics\DeferredRenderer.h" />
     <ClInclude Include="Graphics\GameWindow.h" />
     <ClInclude Include="Graphics\GaussianBlur.h" />
     <ClInclude Include="Graphics\ImGuiManager.h" />

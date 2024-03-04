@@ -56,7 +56,7 @@ private:
     ParticleRenderer particleRenderer_;
     SpriteRenderer spriteRenderer_;
     RaytracingRenderer raytracingRenderer_;
-    RaymarchingRenderer raymarchingRenderer_;
+    //RaymarchingRenderer raymarchingRenderer_;
     ModelRenderer modelRenderer;
     Transition transition_;
     //Bloom bloom_;

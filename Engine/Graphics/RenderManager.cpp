@@ -43,6 +43,7 @@ void RenderManager::Initialize() {
     transition_.Initialize();
     raytracingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
     particleRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
+
     //raymarchingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
 
     //computeShaderTester_.Initialize(1024, 1024);
