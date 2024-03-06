@@ -1,7 +1,5 @@
 #include "GeometryPass.hlsli"
 
-static const float PI = 3.1415926535f;
-
 struct PSInput {
     float4 svPosition : SV_POSITION;
     float3 worldPosition : POSITION0;
@@ -40,9 +38,11 @@ PSOutput main(PSInput input) {
     albedo *= g_Material.albedo;
     output.albedo = albedo;
     
-    float3 metallicRoughness = g_BindlessTextures[g_Material.metallicRoughnessMapIndex].Sample(g_Sampler, input.texcoord).xy;
-    metallicRoughness *= float2(g_Material.metallic, g_Material.roughness);
-    output.metallicRoughness = metallicRoughness;    
+    float metallic = g_BindlessTextures[g_Material.metallicMapIndex].Sample(g_Sampler, input.texcoord).x;
+    metallic *= g_Material.metallic;
+    float roughness = g_BindlessTextures[g_Material.roughnessMapIndex].Sample(g_Sampler, input.texcoord).x;
+    roughness *= g_Material.roughness;
+    output.metallicRoughness = float2(metallic, roughness);
     
     return output;
 }

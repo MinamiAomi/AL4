@@ -12,20 +12,22 @@
 #include "Material.h"
 
 namespace {
-    std::vector<Mesh> ParseMeshes(const aiScene* scene, const std::vector<std::shared_ptr<Material>>& materials) {
+    std::vector<Mesh> ParseMeshes(const aiScene* scene, const std::vector<std::shared_ptr<PBRMaterial>>& materials) {
         std::vector<Mesh> meshes(scene->mNumMeshes);
 
         for (uint32_t meshIndex = 0; auto & destMesh : meshes) {
             const aiMesh* srcMesh = scene->mMeshes[meshIndex];
-            assert(srcMesh->HasNormals());
+            assert(srcMesh->HasNormals() && srcMesh->HasTangentsAndBitangents());
 
             destMesh.vertices.resize(srcMesh->mNumVertices);
             for (uint32_t vertexIndex = 0; auto & destVertex : destMesh.vertices) {
                 aiVector3D& srcPosition = srcMesh->mVertices[vertexIndex];
                 aiVector3D& srcNormal = srcMesh->mNormals[vertexIndex];
+                aiVector3D& srcTangent = srcMesh->mTangents[vertexIndex];
                 // セット
                 destVertex.position = { srcPosition.x, srcPosition.y, srcPosition.z };
                 destVertex.normal = { srcNormal.x, srcNormal.y, srcNormal.z };
+                destVertex.tangent = { srcTangent.x, srcTangent.y, srcTangent.z };
                 if (srcMesh->HasTextureCoords(0)) {
                     aiVector3D& srcTexcoord = srcMesh->mTextureCoords[0][vertexIndex];
                     destVertex.texcood = { srcTexcoord.x, srcTexcoord.y };
@@ -36,6 +38,7 @@ namespace {
                 // 左手座標系に変換
                 destVertex.position.x *= -1.0f;
                 destVertex.normal.x *= -1.0f;
+                destVertex.tangent.x *= -1.0f;
 
                 vertexIndex++;
             }
@@ -95,6 +98,66 @@ namespace {
         }
         return materials;
     }
+    std::vector<std::shared_ptr<PBRMaterial>> ParsePBRMaterials(const aiScene* scene, const std::filesystem::path& directory) {
+        std::vector<std::shared_ptr<PBRMaterial>> materials(scene->mNumMaterials);
+
+        for (uint32_t materialIndex = 0; auto & destMaterial : materials) {
+            const aiMaterial* srcMaterial = scene->mMaterials[materialIndex];
+            destMaterial = std::make_shared<PBRMaterial>();
+
+            aiColor3D albedo{};
+            if (srcMaterial->Get(AI_MATKEY_BASE_COLOR, albedo) == aiReturn_SUCCESS) {
+                destMaterial->albedo = { albedo.r, albedo.g, albedo.b };
+            }
+            float metallic{};
+            if (srcMaterial->Get(AI_MATKEY_METALLIC_FACTOR, metallic) == aiReturn_SUCCESS) {
+                destMaterial->metallic = metallic;
+            }
+            float roughness{};
+            if (srcMaterial->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness) == aiReturn_SUCCESS) {
+                destMaterial->roughness = roughness;
+            }
+
+            // テクスチャが一つ以上ある
+            if (srcMaterial->GetTextureCount(aiTextureType_BASE_COLOR) > 0) {
+                aiString path;
+                srcMaterial->GetTexture(aiTextureType_BASE_COLOR, 0, &path);
+                // 読み込む
+                // TextureLoader内で多重読み込み対応済み
+                std::string filename(path.C_Str());
+                destMaterial->albedoMap = TextureLoader::Load(directory / filename);
+            }
+            // テクスチャが一つ以上ある
+            if (srcMaterial->GetTextureCount(aiTextureType_METALNESS) > 0) {
+                aiString path;
+                srcMaterial->GetTexture(aiTextureType_METALNESS, 0, &path);
+                // 読み込む
+                // TextureLoader内で多重読み込み対応済み
+                std::string filename(path.C_Str());
+                destMaterial->metallicMap = TextureLoader::Load(directory / filename);
+            }
+            // テクスチャが一つ以上ある
+            if (srcMaterial->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0) {
+                aiString path;
+                srcMaterial->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path);
+                // 読み込む
+                // TextureLoader内で多重読み込み対応済み
+                std::string filename(path.C_Str());
+                destMaterial->roughnessMap = TextureLoader::Load(directory / filename);
+            }
+            // テクスチャが一つ以上ある
+            if (srcMaterial->GetTextureCount(aiTextureType_NORMALS) > 0) {
+                aiString path;
+                srcMaterial->GetTexture(aiTextureType_NORMALS, 0, &path);
+                // 読み込む
+                // TextureLoader内で多重読み込み対応済み
+                std::string filename(path.C_Str());
+                destMaterial->normalMap = TextureLoader::Load(directory / filename);
+            }
+            ++materialIndex;
+        }
+        return materials;
+    }
 
 }
 
@@ -117,8 +180,8 @@ std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
     // 左手座標系に変換
     flags |= aiProcess_FlipUVs;
     // 接空間を計算
-    //flags |= aiProcess_CalcTangentSpace;
     flags |= aiProcess_GenNormals;
+    flags |= aiProcess_CalcTangentSpace;
     const aiScene* scene = importer.ReadFile(path.string(), flags);
     // 読み込めた
     if (!scene) {
@@ -127,7 +190,7 @@ std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
     }
     assert(scene->HasMeshes());
 
-    std::vector<std::shared_ptr<Material>> materials = ParseMaterials(scene, directory);
+    auto materials = ParsePBRMaterials(scene, directory);
     model->meshes_ = ParseMeshes(scene, materials);
 
     // 中間リソースをコピーする

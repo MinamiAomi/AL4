@@ -11,8 +11,10 @@
 #include "DefaultTextures.h"
 #include "LightManager.h"
 
-const wchar_t kVertexShader[] = L"Standard/StandardModelVS.hlsl";
-const wchar_t kPixelShader[] = L"Standard/StandardModelPS.hlsl";
+namespace {
+    const wchar_t kVertexShader[] = L"Standard/StandardModelVS.hlsl";
+    const wchar_t kPixelShader[] = L"Standard/StandardModelPS.hlsl";
+}
 
 void ModelRenderer::Initialize(const ColorBuffer& colorBuffer, const DepthBuffer& depthBuffer) {
     InitializeRootSignature();

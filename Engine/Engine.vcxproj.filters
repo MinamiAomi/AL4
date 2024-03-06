@@ -276,6 +276,12 @@
     <ClCompile Include="Math\AnimationNode.cpp">
       <Filter>Math</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\GeometryRenderingPass.cpp">
+      <Filter>Graphics\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\LightingRenderingPass.cpp">
+      <Filter>Graphics\Standard</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -545,7 +551,13 @@
     <ClInclude Include="Math\AnimationNode.h">
       <Filter>Math</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\DeferredRenderer.h">
+    <ClInclude Include="Graphics\GeometryRenderingPass.h">
+      <Filter>Graphics\Standard</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelScene.h">
+      <Filter>Graphics\Standard</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\LightingRenderingPass.h">
       <Filter>Graphics\Standard</Filter>
     </ClInclude>
   </ItemGroup>
