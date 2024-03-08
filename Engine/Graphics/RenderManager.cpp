@@ -17,12 +17,6 @@ void RenderManager::Initialize() {
     shaderManager->Initialize();
     shaderManager->SetDirectory(std::filesystem::current_path() / SHADER_DIRECTORY);
 
-    auto vs = shaderManager->Compile(L"Standard/GeometryPassVS.hlsl", ShaderType::Vertex, 6, 6);
-    auto ps = shaderManager->Compile(L"Standard/GeometryPassPS.hlsl", ShaderType::Pixel, 6, 6);
-    auto lps = shaderManager->Compile(L"Standard/LightingPassPS.hlsl", ShaderType::Pixel, 6, 6);
-    auto rt = shaderManager->Compile(L"Raytracing/Raytracing.hlsl", ShaderType::Library, 6, 6);
-
-
     auto window = GameWindow::GetInstance();
     swapChain_.Create(window->GetHWND());
 
@@ -39,7 +33,10 @@ void RenderManager::Initialize() {
     postEffect_.Initialize(preSwapChainBuffer_);
     spriteRenderer_.Initialize(preSwapChainBuffer_);
 
-    modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
+    geometryRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
+    lightingRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
+
+//    modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
     transition_.Initialize();
     raytracingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
     particleRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
@@ -78,8 +75,11 @@ void RenderManager::Render() {
 
     if (camera && sunLight) {
         // 影、スペキュラ
-        raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
+    //    raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
+        geometryRenderingPass_.Render(commandContext_, *camera);
+        lightingRenderingPass_.Render(commandContext_, geometryRenderingPass_, *camera, *sunLight);
     }
+
 
     commandContext_.TransitionResource(mainColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
@@ -91,13 +91,13 @@ void RenderManager::Render() {
 
     if (camera && sunLight) {
         // モデル描画
-        modelRenderer.Render(commandContext_, *camera, *sunLight);
+        //modelRenderer.Render(commandContext_, *camera, *sunLight);
         particleRenderer_.Render(commandContext_, *camera);
         //raymarchingRenderer_.Render(commandContext_, *camera);
     }
     // レイトレの結果を加算合成
-    postEffect_.RenderAddTexture(commandContext_, raytracingRenderer_.GetSpecular());
-    postEffect_.RenderMultiplyTexture(commandContext_, raytracingRenderer_.GetShadow());
+    //postEffect_.RenderAddTexture(commandContext_, raytracingRenderer_.GetSpecular());
+   // postEffect_.RenderMultiplyTexture(commandContext_, raytracingRenderer_.GetShadow());
 
     commandContext_.TransitionResource(preSwapChainBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext_.SetRenderTarget(preSwapChainBuffer_.GetRTV());
@@ -109,9 +109,9 @@ void RenderManager::Render() {
 
     transition_.Dispatch(commandContext_, preSwapChainBuffer_);
 
-
+    
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
-    commandContext_.CopyBuffer(swapChainBuffer, preSwapChainBuffer_);
+    commandContext_.CopyBuffer(swapChainBuffer, lightingRenderingPass_.GetResult());
 
     commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext_.FlushResourceBarriers();
@@ -126,14 +126,22 @@ void RenderManager::Render() {
     ImGui::Text("FrameCount : %d", frameCount_);
 
     //transition_.SetTime(t);
-    /*auto ImagePreview = [](const char* name, const DescriptorHandle& srv, const ImVec2& size) {
+    auto ImagePreview = [](const char* name, const DescriptorHandle& srv, const ImVec2& size) {
         if (ImGui::TreeNode(name)) {
             ImTextureID image = reinterpret_cast<ImTextureID>(srv.GetGPU().ptr);
             ImGui::Image(image, size);
             ImGui::TreePop();
         }
-        };*/
-
+        };
+    commandContext_.TransitionResource(geometryRenderingPass_.GetAlbedo(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    commandContext_.TransitionResource(geometryRenderingPass_.GetMetallicRoughness(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    commandContext_.TransitionResource(geometryRenderingPass_.GetNormal(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    commandContext_.TransitionResource(geometryRenderingPass_.GetDepth(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    commandContext_.FlushResourceBarriers();
+    ImagePreview("Albedo", geometryRenderingPass_.GetAlbedo().GetSRV(), {360.0f, 180.0f});
+    ImagePreview("MetallicRoughness", geometryRenderingPass_.GetMetallicRoughness().GetSRV(), { 360.0f, 180.0f });
+    ImagePreview("Normal", geometryRenderingPass_.GetNormal().GetSRV(), { 360.0f, 180.0f });
+    ImagePreview("Depth", geometryRenderingPass_.GetDepth().GetSRV(), { 360.0f, 180.0f });
 
     //ImagePreview("MainColorBuffer", mainColorBuffer_.GetSRV(), { 320.0f, 180.0f });
     //ImagePreview("MainDepthBuffer", mainDepthBuffer_.GetSRV(), { 320.0f, 180.0f });

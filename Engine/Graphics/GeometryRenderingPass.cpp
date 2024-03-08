@@ -10,14 +10,20 @@
 #include "DefaultTextures.h"
 
 namespace {
-    const wchar_t kVertexShader[] = L"Standard/GeometryPassVS.hlsl";;
+    const wchar_t kVertexShader[] = L"Standard/GeometryPassVS.hlsl";
     const wchar_t kPixelShader[] = L"Standard/GeometryPassPS.hlsl";
 }
 
 void GeometryRenderingPass::Initialize(uint32_t width, uint32_t height) {
 
+    float albedoClearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    albedo_.SetClearColor(albedoClearColor);
     albedo_.Create(L"GeometryRenderingPass Albedo", width, height, DXGI_FORMAT_R8G8B8A8_UNORM);
+    float metallicRoughnessClearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    metallicRoughness_.SetClearColor(metallicRoughnessClearColor);
     metallicRoughness_.Create(L"GeometryRenderingPass MetallicRoughness", width, height, DXGI_FORMAT_R16G16_UNORM);
+    float normalClearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    normal_.SetClearColor(normalClearColor);
     normal_.Create(L"GeometryRenderingPass Normal", width, height, DXGI_FORMAT_R10G10B10A2_UNORM);
     depth_.Create(L"GeometryRenderingPass Depth", width, height, DXGI_FORMAT_D32_FLOAT);
 
@@ -33,12 +39,13 @@ void GeometryRenderingPass::Initialize(uint32_t width, uint32_t height) {
         rootParameters[RootIndex::BindlessTexture].InitAsDescriptorTable(1, &srvRange);
 
         CD3DX12_STATIC_SAMPLER_DESC staticSamplerDesc[1]{};
-        staticSamplerDesc[0].Init(0, D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR);
+        staticSamplerDesc[0].Init(0, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
 
         D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
         rootSignatureDesc.NumParameters = _countof(rootParameters);
         rootSignatureDesc.pParameters = rootParameters;
         rootSignatureDesc.NumStaticSamplers = _countof(staticSamplerDesc);
+        rootSignatureDesc.pStaticSamplers = staticSamplerDesc;
         rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
         rootSignature_.Create(L"GeometryRenderingPass RootSignature", rootSignatureDesc);
     }
@@ -50,7 +57,7 @@ void GeometryRenderingPass::Initialize(uint32_t width, uint32_t height) {
         D3D12_INPUT_ELEMENT_DESC inputElements[] = {
            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
            { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
-           { "TARGET", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
+           { "TANGENT", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
            { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, D3D12_APPEND_ALIGNED_ELEMENT, D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA, 0 },
         };
         D3D12_INPUT_LAYOUT_DESC inputLayout{};
@@ -64,21 +71,23 @@ void GeometryRenderingPass::Initialize(uint32_t width, uint32_t height) {
         pipelineStateDesc.VS = CD3DX12_SHADER_BYTECODE(vs->GetBufferPointer(), vs->GetBufferSize());
         pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
         pipelineStateDesc.BlendState = Helper::BlendDisable;
+        pipelineStateDesc.DepthStencilState = Helper::DepthStateReadWrite;
         pipelineStateDesc.RasterizerState = Helper::RasterizerDefault;
         pipelineStateDesc.NumRenderTargets = 3;
         pipelineStateDesc.RTVFormats[0] = albedo_.GetRTVFormat();
         pipelineStateDesc.RTVFormats[1] = metallicRoughness_.GetRTVFormat();
         pipelineStateDesc.RTVFormats[2] = normal_.GetRTVFormat();
+        pipelineStateDesc.DSVFormat = depth_.GetFormat();
         pipelineStateDesc.SampleMask = D3D12_DEFAULT_SAMPLE_MASK;
         pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
         pipelineStateDesc.SampleDesc.Count = 1;
 
-        pipelineState_.Create(L"PostEffect PipelineState", pipelineStateDesc);
+        pipelineState_.Create(L"GeometryRenderingPass PipelineState", pipelineStateDesc);
     }
 
 }
 
-void GeometryRenderingPass::Render(CommandContext& commandContext, std::shared_ptr<Camera> camera) {
+void GeometryRenderingPass::Render(CommandContext& commandContext, const Camera& camera) {
 
     struct SceneData {
         Matrix4x4 viewMatrix;
@@ -112,7 +121,7 @@ void GeometryRenderingPass::Render(CommandContext& commandContext, std::shared_p
         materialData.roughness = 0.0f;
         materialData.albedoMapIndex = defaultWhiteTextureIndex;
         materialData.metallicMapIndex = defaultWhiteTextureIndex;
-        materialData.roughness = defaultWhiteTextureIndex;
+        materialData.roughnessMapIndex = defaultWhiteTextureIndex;
         materialData.normalMapIndex = defaultNormalTextureIndex;
         return materialData;
     };
@@ -122,21 +131,29 @@ void GeometryRenderingPass::Render(CommandContext& commandContext, std::shared_p
     commandContext.TransitionResource(normal_, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext.TransitionResource(depth_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
+    commandContext.ClearColor(albedo_);
+    commandContext.ClearColor(metallicRoughness_);
+    commandContext.ClearColor(normal_);
+    commandContext.ClearDepth(depth_);
+
     D3D12_CPU_DESCRIPTOR_HANDLE rtvs[] = {
         albedo_.GetRTV(),
         metallicRoughness_.GetRTV(),
         normal_.GetRTV()
     };
     commandContext.SetRenderTargets(_countof(rtvs), rtvs, depth_.GetDSV());
+    commandContext.SetViewportAndScissorRect(0, 0, albedo_.GetWidth(), albedo_.GetHeight());
     commandContext.SetRootSignature(rootSignature_);
     commandContext.SetPipelineState(pipelineState_);
     commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     SceneData sceneData;
-    sceneData.viewMatrix = camera->GetViewMatrix();
-    sceneData.projectionMatrix = camera->GetProjectionMatrix();
-    sceneData.cameraPosition = camera->GetPosition();
+    sceneData.viewMatrix = camera.GetViewMatrix();
+    sceneData.projectionMatrix = camera.GetProjectionMatrix();
+    sceneData.cameraPosition = camera.GetPosition();
     commandContext.SetDynamicConstantBufferView(RootIndex::Scene, sizeof(sceneData), &sceneData);
+
+    commandContext.SetBindlessResource(RootIndex::BindlessTexture);
 
     auto& instances = ModelInstance::GetInstanceList();
     for (auto const instance : instances) {

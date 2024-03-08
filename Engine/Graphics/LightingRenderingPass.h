@@ -5,6 +5,7 @@
 #include "Core/RootSignature.h"
 #include "Core/PipelineState.h"
 #include "Math/Camera.h"
+#include "LightManager.h"
 
 class CommandContext;
 class GeometryRenderingPass;
@@ -24,7 +25,7 @@ public:
     };
 
     void Initialize(uint32_t width, uint32_t height);
-    void Render(CommandContext& commandContext, GeometryRenderingPass& geometryRenderingPass, const std::shared_ptr<Camera>& camera);
+    void Render(CommandContext& commandContext, GeometryRenderingPass& geometryRenderingPass, const Camera& camera, const DirectionalLight& light);
 
     ColorBuffer& GetResult() { return result_; }
 

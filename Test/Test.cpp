@@ -14,7 +14,7 @@
 void Test::OnInitialize() {
 	SceneManager* sceneManager = SceneManager::GetInstance();
 	//シーン設定
-	sceneManager->ChangeScene<TestScene>();
+	sceneManager->ChangeScene<TestScene>(false);
 
 	ResourceManager* resourceManager = ResourceManager::GetInstance();
 	resourceManager->AddModel("Title", Model::Load("Resources/title.obj"));
@@ -28,23 +28,9 @@ void Test::OnInitialize() {
 	resourceManager->AddModel("torus",   Model::Load("Resources/torus.obj"));
 	resourceManager->AddModel("suzanne", Model::Load("Resources/suzanne.obj"));
 	resourceManager->AddModel("skydome", Model::Load("Resources/skydome.obj"));
+	resourceManager->AddModel("handgun", Model::Load("Resources/pbr_sphere/scene.gltf"));
 
-	// カエルからだ
-	resourceManager->AddModel("FrogBody", Model::Load("Resources/Model/frog/Body.obj"));
-	// カエル頭
-	resourceManager->AddModel("FrogHead", Model::Load("Resources/Model/frog/Head.obj"));
-	// カエル左腕
-	resourceManager->AddModel("FrogLeftArm", Model::Load("Resources/Model/frog/leftarm.obj"));
-	// カエル右腕
-	resourceManager->AddModel("FrogRightArm", Model::Load("Resources/Model/frog/rightarm.obj"));
-	// カエル左脚
-	resourceManager->AddModel("FrogLeftFoot", Model::Load("Resources/Model/frog/leftfoot.obj"));
-	// カエル右脚
-	resourceManager->AddModel("FrogRightFoot", Model::Load("Resources/Model/frog/rightfoot.obj"));
-	// カエルカバン
-	resourceManager->AddModel("FrogBag", Model::Load("Resources/Model/frog/bag.obj"));
-
-	resourceManager->AddModel("Sponza", Model::Load("Resources/Sponza/sponza.obj"));
+	//resourceManager->AddModel("Sponza", Model::Load("Resources/Sponza/sponza.obj"));
 
 	//auto model = Model::Load("Resources/CornellBox/CornellBox-Original.obj");
 }

@@ -6,14 +6,13 @@
 void TestScene::OnInitialize() {
 
     camera_ = std::make_shared<Camera>();
-    camera_->SetPosition(camera_->GetPosition() + Vector3{ 0.0f, 3.0f, -2.0f });
     camera_->UpdateMatrices();
     RenderManager::GetInstance()->SetCamera(camera_);
 
     sunLight_ = std::make_shared<DirectionalLight>();
     RenderManager::GetInstance()->SetSunLight(sunLight_);
 
-  
+    testObject_.Initialize("handgun", {});
 }
 
 void TestScene::OnUpdate() {
@@ -52,7 +51,7 @@ void TestScene::OnUpdate() {
     camera_->UpdateMatrices();
 
     sunLight_->DrawImGui("SunLight");
-
+    testObject_.DrawImGui("Sphere");
 }
 
 void TestScene::OnFinalize() {

@@ -5,8 +5,10 @@
 class SceneTransition {
 public: 
     enum class Mode {
+        Ready,
         In,
-        Out
+        Wait,
+        Out,
     };
 
     void Update();

@@ -9,9 +9,9 @@ struct PSInput {
 };
 
 struct PSOutput {
-    float3 albedo : SV_TARGET0;
+    float4 albedo : SV_TARGET0;
     float2 metallicRoughness : SV_TARGET1;
-    float3 normal : SV_TARGET2;
+    float4 normal : SV_TARGET2;
 };
 
 // 法線マップから法線を取得
@@ -31,12 +31,10 @@ PSOutput main(PSInput input) {
 
     PSOutput output;
     
-    float3 normal = GetNormal(normalize(input.normal), normalize(input.tangent), input.texcoord);
-    output.normal = (normal + 1.0f) * 0.5f;
-   
     float3 albedo = g_BindlessTextures[g_Material.albedoMapIndex].Sample(g_Sampler, input.texcoord).xyz;
     albedo *= g_Material.albedo;
-    output.albedo = albedo;
+    output.albedo.xyz = albedo;
+    output.albedo.w = 1.0f;
     
     float metallic = g_BindlessTextures[g_Material.metallicMapIndex].Sample(g_Sampler, input.texcoord).x;
     metallic *= g_Material.metallic;
@@ -44,5 +42,9 @@ PSOutput main(PSInput input) {
     roughness *= g_Material.roughness;
     output.metallicRoughness = float2(metallic, roughness);
     
+    float3 normal = GetNormal(normalize(input.normal), normalize(input.tangent), input.texcoord);
+    output.normal.xyz = (normal + 1.0f) * 0.5f;
+    output.normal.w = 1.0f;
+  
     return output;
 }

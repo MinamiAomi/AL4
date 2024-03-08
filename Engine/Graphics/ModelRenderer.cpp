@@ -144,19 +144,19 @@ void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera,
             commandContext.SetPipelineState(pipelineState_);
 
             for (auto& mesh : instance->GetModel()->GetMeshes()) {
-                MaterialConstant material;
-                D3D12_GPU_DESCRIPTOR_HANDLE texture = DefaultTexture::White.GetSRV();
-                if (mesh.material) {
-                    material.diffuse = mesh.material->diffuse;
-                    material.shininess = mesh.material->shininess;
-                    material.specular = mesh.material->specular;
-                    if (mesh.material->diffuseMap) {
-                        texture = mesh.material->diffuseMap->GetSRV();
-                    }
-                }
+               // MaterialConstant material;
+               // D3D12_GPU_DESCRIPTOR_HANDLE texture = DefaultTexture::White.GetSRV();
+               // if (mesh.material) {
+               //     material.diffuse = mesh.material->diffuse;
+               //     material.shininess = mesh.material->shininess;
+               //     material.specular = mesh.material->specular;
+               //     if (mesh.material->diffuseMap) {
+               //         texture = mesh.material->diffuseMap->GetSRV();
+               //     }
+               // }
 
-                commandContext.SetDynamicConstantBufferView(RootIndex::Material, sizeof(material), &material);
-                commandContext.SetDescriptorTable(RootIndex::Texture, texture);
+               // commandContext.SetDynamicConstantBufferView(RootIndex::Material, sizeof(material), &material);
+               // commandContext.SetDescriptorTable(RootIndex::Texture, texture);
                 commandContext.SetDescriptorTable(RootIndex::Sampler, SamplerManager::AnisotropicWrap);
                 commandContext.SetVertexBuffer(0, mesh.vertexBuffer.GetVertexBufferView());
                 commandContext.SetIndexBuffer(mesh.indexBuffer.GetIndexBufferView());

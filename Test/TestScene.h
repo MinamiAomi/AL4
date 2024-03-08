@@ -8,6 +8,7 @@
 #include "Math/Random.h"
 #include "Graphics/Model.h"
 #include "Graphics/LightManager.h"
+#include "TestObject.h"
 
 class TestScene :
     public BaseScene {
@@ -22,5 +23,5 @@ private:
     Vector3 euler_;
     std::shared_ptr<DirectionalLight> sunLight_;
 
-
+    TestObject testObject_;
 };

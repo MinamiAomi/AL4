@@ -23,7 +23,7 @@ public:
     };
     
     void Initialize(uint32_t width, uint32_t height);
-    void Render(CommandContext& commandContext, std::shared_ptr<Camera> camera);
+    void Render(CommandContext& commandContext, const Camera& camera);
 
     ColorBuffer& GetAlbedo() { return albedo_; }
     ColorBuffer& GetMetallicRoughness() { return metallicRoughness_; }

@@ -13,10 +13,12 @@ public:
     void Update();
 
     template<class T>
-    void ChangeScene() {
+    void ChangeScene(bool useTransition = true) {
         static_assert(std::is_base_of<BaseScene, T>::value, "BaseSceneを継承していません。");
         nextScene_ = std::make_unique<T>();
-        sceneTransition_.Start(SceneTransition::Mode::In);
+        if (useTransition) {
+            sceneTransition_.Start(SceneTransition::Mode::In);
+        }
     }
 
     SceneTransition& GetSceneTransition() { return sceneTransition_; }

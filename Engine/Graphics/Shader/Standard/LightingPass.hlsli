@@ -19,4 +19,3 @@ Texture2D<float3> g_Normal : register(t2);
 Texture2D<float> g_Depth : register(t3);
 
 SamplerState g_Sampler : register(s0);
-

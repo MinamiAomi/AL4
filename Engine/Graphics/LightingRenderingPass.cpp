@@ -14,7 +14,9 @@ namespace {
 }
 
 void LightingRenderingPass::Initialize(uint32_t width, uint32_t height) {
-    result_.Create(L"LightingRenderingPass Result", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
+    float clearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    result_.SetClearColor(clearColor);
+    result_.Create(L"LightingRenderingPass Result", width, height, DXGI_FORMAT_R8G8B8A8_UNORM);
 
     // ルートシグネチャ
     {
@@ -31,12 +33,13 @@ void LightingRenderingPass::Initialize(uint32_t width, uint32_t height) {
         rootParameters[RootIndex::Depth].InitAsDescriptorTable(1, &depthRange);
 
         CD3DX12_STATIC_SAMPLER_DESC staticSamplerDesc[1]{};
-        staticSamplerDesc[0].Init(0, D3D12_FILTER_COMPARISON_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP);
+        staticSamplerDesc[0].Init(0, D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP);
 
         D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
         rootSignatureDesc.NumParameters = _countof(rootParameters);
         rootSignatureDesc.pParameters = rootParameters;
         rootSignatureDesc.NumStaticSamplers = _countof(staticSamplerDesc);
+        rootSignatureDesc.pStaticSamplers = staticSamplerDesc;
         rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
         rootSignature_.Create(L"LightingRenderingPass RootSignature", rootSignatureDesc);
     }
@@ -58,12 +61,12 @@ void LightingRenderingPass::Initialize(uint32_t width, uint32_t height) {
         pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
         pipelineStateDesc.SampleDesc.Count = 1;
 
-        pipelineState_.Create(L"PostEffect PipelineState", pipelineStateDesc);
+        pipelineState_.Create(L"LightingRenderingPass PipelineState", pipelineStateDesc);
     }
 
 }
 
-void LightingRenderingPass::Render(CommandContext& commandContext, GeometryRenderingPass& geometryRenderingPass, const std::shared_ptr<Camera>& camera) {
+void LightingRenderingPass::Render(CommandContext& commandContext, GeometryRenderingPass& geometryRenderingPass, const Camera& camera, const DirectionalLight& light) {
 
     struct SceneData {
         Matrix4x4 viewProjectionInverseMatrix;
@@ -78,16 +81,22 @@ void LightingRenderingPass::Render(CommandContext& commandContext, GeometryRende
     commandContext.TransitionResource(geometryRenderingPass.GetMetallicRoughness(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandContext.TransitionResource(geometryRenderingPass.GetNormal(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandContext.TransitionResource(geometryRenderingPass.GetDepth(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    commandContext.TransitionResource(result_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    commandContext.FlushResourceBarriers();
+    
+    commandContext.ClearColor(result_);
+    commandContext.SetRenderTarget(result_.GetRTV());
+    commandContext.SetViewportAndScissorRect(0, 0, result_.GetWidth(), result_.GetHeight());
 
     commandContext.SetRootSignature(rootSignature_);
     commandContext.SetPipelineState(pipelineState_);
     commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
     SceneData sceneData;
-    sceneData.viewProjectionInverseMatrix = camera->GetViewProjectionMatrix().Inverse();
-    sceneData.cameraPosition = camera->GetPosition();
-    sceneData.lightColor = { 1.0f, 1.0f, 1.0f };
-    sceneData.lightDirection = Vector3::down;
+    sceneData.viewProjectionInverseMatrix = camera.GetViewProjectionMatrix().Inverse();
+    sceneData.cameraPosition = camera.GetPosition();
+    sceneData.lightColor = light.color;
+    sceneData.lightDirection = light.direction;
     commandContext.SetDynamicConstantBufferView(RootIndex::Scene, sizeof(sceneData), &sceneData);
     commandContext.SetDescriptorTable(RootIndex::Albedo, geometryRenderingPass.GetAlbedo().GetSRV());
     commandContext.SetDescriptorTable(RootIndex::MetallicRoughness, geometryRenderingPass.GetMetallicRoughness().GetSRV());

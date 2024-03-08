@@ -19,6 +19,7 @@ void RootSignature::Create(const std::wstring& name, const D3D12_ROOT_SIGNATURE_
         D3D_ROOT_SIGNATURE_VERSION_1,
         blob.GetAddressOf(),
         errorBlob.GetAddressOf()))) {
+
         MessageBoxA(nullptr, static_cast<char*>(errorBlob->GetBufferPointer()), "Failed create RootSignature!!", S_OK);
         OutputDebugStringA(static_cast<char*>(errorBlob->GetBufferPointer()));
         assert(false);

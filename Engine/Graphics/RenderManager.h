@@ -19,8 +19,11 @@
 #include "ComputeShader.h"
 #include "Transition.h"
 
-//#define SHADER_DIRECTORY "../Engine/Graphics/Shader"
-#define SHADER_DIRECTORY "Resources/Shader"
+#include "GeometryRenderingPass.h"
+#include "LightingRenderingPass.h"
+
+#define SHADER_DIRECTORY "../Engine/Graphics/Shader"
+//#define SHADER_DIRECTORY "Resources/Shader"
 #ifdef _DEBUG
 #else
 #endif // _DEBUG
@@ -55,9 +58,13 @@ private:
 
     ParticleRenderer particleRenderer_;
     SpriteRenderer spriteRenderer_;
+
+    GeometryRenderingPass geometryRenderingPass_;
+    LightingRenderingPass lightingRenderingPass_;
+
     RaytracingRenderer raytracingRenderer_;
     //RaymarchingRenderer raymarchingRenderer_;
-    ModelRenderer modelRenderer;
+    //ModelRenderer modelRenderer;
     Transition transition_;
     //Bloom bloom_;
     PostEffect postEffect_;

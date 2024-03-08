@@ -30,5 +30,5 @@ struct Bone {
     float4x4 boneMatrix;
     float4x4 boneInverseTransposeMatrix;
 };
-StructuredBuffer<Bone> g_Bones : register(s0);
+StructuredBuffer<Bone> g_Bones : register(t0);
 #endif // ENABLE_SKINNING

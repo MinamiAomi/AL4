@@ -410,22 +410,22 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
             reflectionShaderRecord.Add(mesh.vertexBuffer.GetGPUVirtualAddress());
             reflectionShaderRecord.Add(mesh.indexBuffer.GetGPUVirtualAddress());
 
-            if (mesh.material && mesh.material->diffuseMap) {
-                primaryShaderRecord.Add(mesh.material->diffuseMap->GetSRV().GetGPU());
-                reflectionShaderRecord.Add(mesh.material->diffuseMap->GetSRV().GetGPU());
-            }
-            else {
-                primaryShaderRecord.Add(DefaultTexture::White.GetSRV().GetGPU());
-                reflectionShaderRecord.Add(DefaultTexture::White.GetSRV().GetGPU());
-            }
-            primaryShaderRecord.Add(SamplerManager::LinearWrap);
-            reflectionShaderRecord.Add(SamplerManager::LinearWrap);
-
-            if (mesh.material && instance->UseLighting()) {
-                material.diffuse = mesh.material->diffuse;
-                material.specular = mesh.material->specular;
-                material.shininess = mesh.material->shininess;
-            }
+          //  if (mesh.material && mesh.material->diffuseMap) {
+          //      primaryShaderRecord.Add(mesh.material->diffuseMap->GetSRV().GetGPU());
+          //      reflectionShaderRecord.Add(mesh.material->diffuseMap->GetSRV().GetGPU());
+          //  }
+          //  else {
+          //      primaryShaderRecord.Add(DefaultTexture::White.GetSRV().GetGPU());
+          //      reflectionShaderRecord.Add(DefaultTexture::White.GetSRV().GetGPU());
+          //  }
+          //  primaryShaderRecord.Add(SamplerManager::LinearWrap);
+          //  reflectionShaderRecord.Add(SamplerManager::LinearWrap);
+          //
+          //  if (mesh.material && instance->UseLighting()) {
+          //      material.diffuse = mesh.material->diffuse;
+          //      material.specular = mesh.material->specular;
+          //      material.shininess = mesh.material->shininess;
+          //  }
 
             D3D12_GPU_VIRTUAL_ADDRESS materialCB = commandContext.TransfarUploadBuffer(sizeof(material), &material);
             primaryShaderRecord.Add(materialCB);
