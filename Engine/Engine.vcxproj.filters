@@ -560,6 +560,9 @@
     <ClInclude Include="Graphics\LightingRenderingPass.h">
       <Filter>Graphics\Standard</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\SphereMapConverter.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\Lighting.hlsli">

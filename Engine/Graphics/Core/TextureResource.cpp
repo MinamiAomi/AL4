@@ -30,7 +30,6 @@ void TextureResource::CreateFromWICFile(CommandContext& commandContext, const st
     // ファイルを読み込む
     DirectX::ScratchImage image{};
     ASSERT_IF_FAILED(DirectX::LoadFromWICFile(path.wstring().c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image));
-
     // ミップマップを生成
     DirectX::ScratchImage mipImages{};
     ASSERT_IF_FAILED(DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages));

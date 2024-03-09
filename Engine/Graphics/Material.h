@@ -20,7 +20,6 @@ struct PBRMaterial {
     float metallic = 0.0f;
     float roughness = 0.5f;
     std::shared_ptr<TextureResource> albedoMap;
-    std::shared_ptr<TextureResource> metallicMap;
-    std::shared_ptr<TextureResource> roughnessMap;
+    std::shared_ptr<TextureResource> metallicRoughnessMap;
     std::shared_ptr<TextureResource> normalMap;
 };

@@ -28,7 +28,7 @@ void Test::OnInitialize() {
 	resourceManager->AddModel("torus",   Model::Load("Resources/torus.obj"));
 	resourceManager->AddModel("suzanne", Model::Load("Resources/suzanne.obj"));
 	resourceManager->AddModel("skydome", Model::Load("Resources/skydome.obj"));
-	resourceManager->AddModel("handgun", Model::Load("Resources/pbr_sphere/scene.gltf"));
+	resourceManager->AddModel("pbr", Model::Load("Resources/pbr/pbr.gltf"));
 
 	//resourceManager->AddModel("Sponza", Model::Load("Resources/Sponza/sponza.obj"));
 

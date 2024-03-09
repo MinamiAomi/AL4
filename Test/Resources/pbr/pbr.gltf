@@ -1,0 +1,254 @@
+{
+    "asset" : {
+        "generator" : "Khronos glTF Blender I/O v3.3.32",
+        "version" : "2.0"
+    },
+    "scene" : 0,
+    "scenes" : [
+        {
+            "name" : "Scene",
+            "nodes" : [
+                0
+            ]
+        }
+    ],
+    "nodes" : [
+        {
+            "mesh" : 0,
+            "name" : "Spheres"
+        }
+    ],
+    "materials" : [
+        {
+            "doubleSided" : true,
+            "name" : "MetallicRoughness",
+            "pbrMetallicRoughness" : {
+                "metallicRoughnessTexture" : {
+                    "index" : 0
+                }
+            }
+        }
+    ],
+    "meshes" : [
+        {
+            "name" : "\u7403.018",
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "POSITION" : 0,
+                        "NORMAL" : 1,
+                        "TANGENT" : 2,
+                        "TEXCOORD_0" : 3,
+                        "TEXCOORD_1" : 4
+                    },
+                    "indices" : 5,
+                    "material" : 0
+                },
+                {
+                    "attributes" : {
+                        "POSITION" : 6,
+                        "NORMAL" : 7,
+                        "TANGENT" : 8,
+                        "TEXCOORD_0" : 9,
+                        "TEXCOORD_1" : 10
+                    },
+                    "indices" : 11,
+                    "material" : 0
+                }
+            ]
+        }
+    ],
+    "textures" : [
+        {
+            "sampler" : 0,
+            "source" : 0
+        }
+    ],
+    "images" : [
+        {
+            "mimeType" : "image/png",
+            "name" : "Metallic-Roughness",
+            "uri" : "Metallic-Roughness.png"
+        }
+    ],
+    "accessors" : [
+        {
+            "bufferView" : 0,
+            "componentType" : 5126,
+            "count" : 13222,
+            "max" : [
+                13.500000953674316,
+                2,
+                2.000004291534424
+            ],
+            "min" : [
+                -13.499999046325684,
+                0,
+                -3.0000030994415283
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 1,
+            "componentType" : 5126,
+            "count" : 13222,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 2,
+            "componentType" : 5126,
+            "count" : 13222,
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 3,
+            "componentType" : 5126,
+            "count" : 13222,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 4,
+            "componentType" : 5126,
+            "count" : 13222,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 5,
+            "componentType" : 5123,
+            "count" : 63360,
+            "type" : "SCALAR"
+        },
+        {
+            "bufferView" : 6,
+            "componentType" : 5126,
+            "count" : 20081,
+            "max" : [
+                22.969005584716797,
+                5.960464477539063e-08,
+                5.763999938964844
+            ],
+            "min" : [
+                -13.369251251220703,
+                -0.009999990463256836,
+                -2.4635050296783447
+            ],
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 7,
+            "componentType" : 5126,
+            "count" : 20081,
+            "type" : "VEC3"
+        },
+        {
+            "bufferView" : 8,
+            "componentType" : 5126,
+            "count" : 20081,
+            "type" : "VEC4"
+        },
+        {
+            "bufferView" : 9,
+            "componentType" : 5126,
+            "count" : 20081,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 10,
+            "componentType" : 5126,
+            "count" : 20081,
+            "type" : "VEC2"
+        },
+        {
+            "bufferView" : 11,
+            "componentType" : 5123,
+            "count" : 31344,
+            "type" : "SCALAR"
+        }
+    ],
+    "bufferViews" : [
+        {
+            "buffer" : 0,
+            "byteLength" : 158664,
+            "byteOffset" : 0,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 158664,
+            "byteOffset" : 158664,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 211552,
+            "byteOffset" : 317328,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 105776,
+            "byteOffset" : 528880,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 105776,
+            "byteOffset" : 634656,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 126720,
+            "byteOffset" : 740432,
+            "target" : 34963
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 240972,
+            "byteOffset" : 867152,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 240972,
+            "byteOffset" : 1108124,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 321296,
+            "byteOffset" : 1349096,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 160648,
+            "byteOffset" : 1670392,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 160648,
+            "byteOffset" : 1831040,
+            "target" : 34962
+        },
+        {
+            "buffer" : 0,
+            "byteLength" : 62688,
+            "byteOffset" : 1991688,
+            "target" : 34963
+        }
+    ],
+    "samplers" : [
+        {
+            "magFilter" : 9729,
+            "minFilter" : 9987
+        }
+    ],
+    "buffers" : [
+        {
+            "byteLength" : 2054376,
+            "uri" : "pbr.bin"
+        }
+    ]
+}

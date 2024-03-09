@@ -36,11 +36,9 @@ PSOutput main(PSInput input) {
     output.albedo.xyz = albedo;
     output.albedo.w = 1.0f;
     
-    float metallic = g_BindlessTextures[g_Material.metallicMapIndex].Sample(g_Sampler, input.texcoord).x;
-    metallic *= g_Material.metallic;
-    float roughness = g_BindlessTextures[g_Material.roughnessMapIndex].Sample(g_Sampler, input.texcoord).x;
-    roughness *= g_Material.roughness;
-    output.metallicRoughness = float2(metallic, roughness);
+    float2 metallicRoughness = g_BindlessTextures[g_Material.metallicRoughnessMapIndex].Sample(g_Sampler, input.texcoord).zy;
+    metallicRoughness *= float2(g_Material.metallic, g_Material.roughness);
+    output.metallicRoughness = metallicRoughness;
     
     float3 normal = GetNormal(normalize(input.normal), normalize(input.tangent), input.texcoord);
     output.normal.xyz = (normal + 1.0f) * 0.5f;

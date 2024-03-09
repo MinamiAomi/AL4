@@ -128,22 +128,19 @@ namespace {
                 destMaterial->albedoMap = TextureLoader::Load(directory / filename);
             }
             // テクスチャが一つ以上ある
-            if (srcMaterial->GetTextureCount(aiTextureType_METALNESS) > 0) {
-                aiString path;
-                srcMaterial->GetTexture(aiTextureType_METALNESS, 0, &path);
-                // 読み込む
-                // TextureLoader内で多重読み込み対応済み
-                std::string filename(path.C_Str());
-                destMaterial->metallicMap = TextureLoader::Load(directory / filename);
-            }
-            // テクスチャが一つ以上ある
-            if (srcMaterial->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0) {
-                aiString path;
-                srcMaterial->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &path);
-                // 読み込む
-                // TextureLoader内で多重読み込み対応済み
-                std::string filename(path.C_Str());
-                destMaterial->roughnessMap = TextureLoader::Load(directory / filename);
+            if (srcMaterial->GetTextureCount(aiTextureType_METALNESS) > 0 &&
+                srcMaterial->GetTextureCount(aiTextureType_DIFFUSE_ROUGHNESS) > 0) {
+                aiString metallicPath;
+                aiString roughnessPath;
+                srcMaterial->GetTexture(aiTextureType_METALNESS, 0, &metallicPath);
+                srcMaterial->GetTexture(aiTextureType_DIFFUSE_ROUGHNESS, 0, &roughnessPath);
+                // 同じテクスチャの場合使用
+                if (metallicPath == roughnessPath) {
+                    // 読み込む
+                    // TextureLoader内で多重読み込み対応済み
+                    std::string filename(metallicPath.C_Str());
+                    destMaterial->metallicRoughnessMap = TextureLoader::Load(directory / filename);
+                }
             }
             // テクスチャが一つ以上ある
             if (srcMaterial->GetTextureCount(aiTextureType_NORMALS) > 0) {

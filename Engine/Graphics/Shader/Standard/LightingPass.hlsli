@@ -13,7 +13,7 @@ struct Scene {
 ConstantBuffer<Scene> g_Scene : register(b0);
 
 // G-Buffers
-Texture2D<float3> g_Albedo : register(t0);
+Texture2D<float4> g_Albedo : register(t0);
 Texture2D<float2> g_MetallicRoughness : register(t1);
 Texture2D<float3> g_Normal : register(t2);
 Texture2D<float> g_Depth : register(t3);

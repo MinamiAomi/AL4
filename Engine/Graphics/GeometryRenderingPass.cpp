@@ -16,7 +16,7 @@ namespace {
 
 void GeometryRenderingPass::Initialize(uint32_t width, uint32_t height) {
 
-    float albedoClearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+    float albedoClearColor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
     albedo_.SetClearColor(albedoClearColor);
     albedo_.Create(L"GeometryRenderingPass Albedo", width, height, DXGI_FORMAT_R8G8B8A8_UNORM);
     float metallicRoughnessClearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -106,8 +106,7 @@ void GeometryRenderingPass::Render(CommandContext& commandContext, const Camera&
         float metallic;
         float roughness;
         uint32_t albedoMapIndex;
-        uint32_t metallicMapIndex;
-        uint32_t roughnessMapIndex;
+        uint32_t metallicRoughnessMapIndex;
         uint32_t normalMapIndex;
     };
 
@@ -120,8 +119,7 @@ void GeometryRenderingPass::Render(CommandContext& commandContext, const Camera&
         materialData.metallic = 0.0f;
         materialData.roughness = 0.0f;
         materialData.albedoMapIndex = defaultWhiteTextureIndex;
-        materialData.metallicMapIndex = defaultWhiteTextureIndex;
-        materialData.roughnessMapIndex = defaultWhiteTextureIndex;
+        materialData.metallicRoughnessMapIndex = defaultWhiteTextureIndex;
         materialData.normalMapIndex = defaultNormalTextureIndex;
         return materialData;
     };
@@ -172,8 +170,7 @@ void GeometryRenderingPass::Render(CommandContext& commandContext, const Camera&
                 materialData.metallic = mesh.material->metallic;
                 materialData.roughness = mesh.material->roughness;
                 if (mesh.material->albedoMap) { materialData.albedoMapIndex = mesh.material->albedoMap->GetSRV().GetIndex(); }
-                if (mesh.material->metallicMap) { materialData.metallicMapIndex = mesh.material->metallicMap->GetSRV().GetIndex(); }
-                if (mesh.material->roughnessMap) { materialData.roughnessMapIndex = mesh.material->roughnessMap->GetSRV().GetIndex(); }
+                if (mesh.material->metallicRoughnessMap) { materialData.metallicRoughnessMapIndex = mesh.material->metallicRoughnessMap->GetSRV().GetIndex(); }
                 if (mesh.material->normalMap) { materialData.normalMapIndex = mesh.material->normalMap->GetSRV().GetIndex(); }
             }
             commandContext.SetDynamicConstantBufferView(RootIndex::Material, sizeof(materialData), &materialData);

@@ -32,7 +32,7 @@ void InitializeSurfaceProperties(PSInput input) {
     Position = tmpPosition.xyz / tmpPosition.w;
     Normal = g_Normal.SampleLevel(g_Sampler, input.texcoord, 0) * 2.0f - 1.0f;
     ViewDirection = normalize(g_Scene.cameraPosition  - Position);
-    Albedo = g_Albedo.SampleLevel(g_Sampler, input.texcoord, 0);
+    Albedo = g_Albedo.SampleLevel(g_Sampler, input.texcoord, 0).xyz;
     Metallic = g_MetallicRoughness.SampleLevel(g_Sampler, input.texcoord, 0).x;
     Roughness = g_MetallicRoughness.SampleLevel(g_Sampler, input.texcoord, 0).y;
     Alpha = Roughness * Roughness;
@@ -74,16 +74,16 @@ float3 NormalizedDisneyDiffuse(float NdotL, float LdotH) {
 // GGX法線分布関数
 float D_GGX(float NdotH) {
     float t = (NdotH * NdotH * (AlphaSq - 1.0f)) + 1.0f;
-    return AlphaSq / (t * t * PI + 1e-6f);
+    return AlphaSq / (t * t * PI);
 }
 
-//// GGXシャドウマスキング関数
-//float G_Smith(float NdotL) {
-//    float k = AlphaSq / 2.0f;
-//    float G_Schlick_V = NdotV / (NdotV * (1.0f - k) + k);
-//    float G_Schlick_L = NdotL / (NdotL * (1.0f - k) + k);
-//    return G_Schlick_V + G_Schlick_L;
-//}
+// GGXシャドウマスキング関数
+float G_Smith(float NdotL) {
+    float k = AlphaSq / 2.0f;
+    float G_Schlick_V = NdotV / (NdotV * (1.0f - k) + k);
+    float G_Schlick_L = NdotL / (NdotL * (1.0f - k) + k);
+    return G_Schlick_V + G_Schlick_L;
+}
 
 // GGXシャドウマスキング関数
 float G_GGX(float NdotL) {
@@ -113,10 +113,13 @@ float3 BRDF(float3 lightDirection, float3 lightColor) {
     float LdotH = saturate(dot(lightDirection, halfVector));
     float NdotH = saturate(dot(Normal, halfVector));
     
+    //float3 diffuse = BurleyDiffuse(NdotL, LdotH);
     //float3 diffuse = NormalizedDisneyDiffuse(NdotL, LdotH);
     float3 diffuse = LambertDiffuse(NdotL);
+    //float3 diffuse = Albedo * (1.0f / PI);
     float3 specular = SpecularBRDF(NdotL, LdotH, NdotH);
-    //specular = 0.0f;
+    //diffuse = 0.0f;
+    // = 0.0f;
     return (diffuse * (1.0f - Metallic) + specular) * lightColor;
 }
 
@@ -126,8 +129,10 @@ PSOutput main(PSInput input) {
    
     InitializeSurfaceProperties(input);
     
-    // 法線がないピクセルは使われていない
-    clip(length(Normal) - 0.9f);
+    // AlbedoのWが0の場合は計算しない
+    if (g_Albedo.SampleLevel(g_Sampler, input.texcoord, 0).w == 0.0f) {
+        discard;
+    }
     
     
     float3 pixel = BRDF(-g_Scene.directionalLight.direction, g_Scene.directionalLight.color);

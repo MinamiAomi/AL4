@@ -2,7 +2,7 @@
 
 Camera::Camera(ProjectionType projectionType) {
     projectionType_ = projectionType;
-    position_ = { 0.0f, 0.0f, -6.0f };
+    position_ = { 0.0f, 1.0f, -6.0f };
     rotate_ = Quaternion::MakeLookRotation(-position_);
 
     projection_.perspective.fovY = 45.0f * Math::ToRadian;
