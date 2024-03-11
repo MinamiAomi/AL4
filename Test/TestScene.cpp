@@ -6,16 +6,19 @@
 void TestScene::OnInitialize() {
 
     camera_ = std::make_shared<Camera>();
-    camera_->SetPosition({ 0.0f, 35.0f, 0.0f });
+    camera_->SetPosition({ 0.0f, 0.0f, -35.0f });
     camera_->UpdateMatrices();
     RenderManager::GetInstance()->SetCamera(camera_);
 
     sunLight_ = std::make_shared<DirectionalLight>();
+    sunLight_->direction = Vector3(1.0f, -1.0f, 1.0f).Normalized();
     RenderManager::GetInstance()->SetSunLight(sunLight_);
 
     testObject_.Initialize("pbr", {});
+    testObject_.transform.rotate = Quaternion::MakeForXAxis(-90.0f * Math::ToRadian);
+    testObject_.Update();
 
-    euler_.x = Math::ToRadian * 90.0f;
+    euler_.x = Math::ToRadian;
 }
 
 void TestScene::OnUpdate() {

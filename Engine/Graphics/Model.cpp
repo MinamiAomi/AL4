@@ -36,9 +36,9 @@ namespace {
                     destVertex.texcood = Vector2::zero;
                 }
                 // 左手座標系に変換
-                destVertex.position.x *= -1.0f;
-                destVertex.normal.x *= -1.0f;
-                destVertex.tangent.x *= -1.0f;
+               destVertex.position.z *= -1.0f;
+               destVertex.normal.z *= -1.0f;
+               destVertex.tangent.z *= -1.0f;
 
                 vertexIndex++;
             }

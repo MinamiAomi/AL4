@@ -1,6 +1,8 @@
 #include "LightingPass.hlsli"
 
-static const float PI = 3.1415926535f;
+static const float PI = 3.14159265359f;
+static const float INV_PI = 0.31830988618f;
+static const float EPSILON = 0.00001f;
 
 static float3 Position;
 static float3 Normal;
@@ -8,6 +10,8 @@ static float3 ViewDirection;
 static float3 Albedo;
 static float Metallic;
 static float Roughness;
+static float3 DiffuseReflectance;
+static float3 SpecularReflectance;
 static float Alpha;
 static float AlphaSq;
 static float NdotV;
@@ -35,7 +39,10 @@ void InitializeSurfaceProperties(PSInput input) {
     Albedo = g_Albedo.SampleLevel(g_Sampler, input.texcoord, 0).xyz;
     Metallic = g_MetallicRoughness.SampleLevel(g_Sampler, input.texcoord, 0).x;
     Roughness = g_MetallicRoughness.SampleLevel(g_Sampler, input.texcoord, 0).y;
-    Alpha = Roughness * Roughness;
+    Roughness = max(Roughness, EPSILON);
+    DiffuseReflectance = lerp(Albedo, 0.0f, Metallic);
+    SpecularReflectance = lerp(0.04f, Albedo, Metallic);
+    Alpha = Roughness;
     AlphaSq = Alpha * Alpha;
     NdotV = saturate(dot(Normal, ViewDirection));
 }
@@ -74,15 +81,15 @@ float3 NormalizedDisneyDiffuse(float NdotL, float LdotH) {
 // GGX法線分布関数
 float D_GGX(float NdotH) {
     float t = (NdotH * NdotH * (AlphaSq - 1.0f)) + 1.0f;
-    return AlphaSq / (t * t * PI);
+    return AlphaSq / (t * t * PI + EPSILON);
 }
 
 // GGXシャドウマスキング関数
-float G_Smith(float NdotL) {
-    float k = AlphaSq / 2.0f;
-    float G_Schlick_V = NdotV / (NdotV * (1.0f - k) + k);
-    float G_Schlick_L = NdotL / (NdotL * (1.0f - k) + k);
-    return G_Schlick_V + G_Schlick_L;
+float G_Smith_Schlick_GGX(float NdotL) {
+    float k = AlphaSq * 0.5f + EPSILON;
+    float GV = NdotV / (NdotV * (1.0f - k) + k);
+    float GL = NdotL / (NdotL * (1.0f - k) + k);
+    return GV * GL;
 }
 
 // GGXシャドウマスキング関数
@@ -92,19 +99,23 @@ float G_GGX(float NdotL) {
     return 0.5f / (Gv + Gl + 1e-6f);
 }
 
+float3 F_Schlick(float VdotH) {
+    return (SpecularReflectance + (1.0f - SpecularReflectance) * Pow5(NdotV));
+}
 //float ShlickSmithHable(SurfaceProperties surface, LightProperties light) {
 //    return 1.0f / lerp(light.LdotH * light.LdotH, 1.0f, surface.alphaSq * 0.25f);
 //}
 
-float3 SpecularBRDF(float NdotL, float LdotH, float NdotH) {
+float3 DiffuseBRDF() { 
+    return DiffuseReflectance / PI;
+}
+
+float3 SpecularBRDF(float NdotL, float LdotH, float NdotH, float VdotH) {
     
-    static const float dielectricF0 = 0.04f;
-    float3 f0 = lerp(dielectricF0, Albedo, Metallic);
-    
-    float3 F = SchlickFresnel(f0, 1.0f, LdotH);
+    float3 F = F_Schlick(VdotH);
     float D = D_GGX(NdotH);
-    float V = G_GGX(NdotL);
-    return D * F * V;
+    float G = G_Smith_Schlick_GGX(NdotL);
+    return (F * (D * G)) / (4.0f * NdotV * NdotL + EPSILON);
 }
 
 float3 BRDF(float3 lightDirection, float3 lightColor) {
@@ -112,15 +123,19 @@ float3 BRDF(float3 lightDirection, float3 lightColor) {
     float NdotL = saturate(dot(Normal, lightDirection));
     float LdotH = saturate(dot(lightDirection, halfVector));
     float NdotH = saturate(dot(Normal, halfVector));
+    float VdotH = saturate(dot(ViewDirection, halfVector));
+    
+    float3 irradiance = NdotL * lightColor;
+    irradiance *= PI;
     
     //float3 diffuse = BurleyDiffuse(NdotL, LdotH);
     //float3 diffuse = NormalizedDisneyDiffuse(NdotL, LdotH);
-    float3 diffuse = LambertDiffuse(NdotL);
+    float3 diffuse = irradiance * DiffuseBRDF();
     //float3 diffuse = Albedo * (1.0f / PI);
-    float3 specular = SpecularBRDF(NdotL, LdotH, NdotH);
+    float3 specular = irradiance * SpecularBRDF(NdotL, LdotH, NdotH, VdotH);
     //diffuse = 0.0f;
-    // = 0.0f;
-    return (diffuse * (1.0f - Metallic) + specular) * lightColor;
+    //specular = 0.0f;
+    return diffuse + specular;
 }
 
 PSOutput main(PSInput input) {

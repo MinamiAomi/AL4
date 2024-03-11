@@ -14,7 +14,7 @@ namespace {
 }
 
 void LightingRenderingPass::Initialize(uint32_t width, uint32_t height) {
-    float clearColor[] = { 0.2f, 0.3f, 0.6f, 1.0f };
+    float clearColor[] = { 0.3f, 0.4f, 0.6f, 1.0f };
     result_.SetClearColor(clearColor);
     result_.Create(L"LightingRenderingPass Result", width, height, DXGI_FORMAT_R8G8B8A8_UNORM);
 

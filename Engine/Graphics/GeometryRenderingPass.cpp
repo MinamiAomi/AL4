@@ -39,7 +39,7 @@ void GeometryRenderingPass::Initialize(uint32_t width, uint32_t height) {
         rootParameters[RootIndex::BindlessTexture].InitAsDescriptorTable(1, &srvRange);
 
         CD3DX12_STATIC_SAMPLER_DESC staticSamplerDesc[1]{};
-        staticSamplerDesc[0].Init(0, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
+        staticSamplerDesc[0].Init(0, D3D12_FILTER_MIN_MAG_MIP_POINT);
 
         D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
         rootSignatureDesc.NumParameters = _countof(rootParameters);
