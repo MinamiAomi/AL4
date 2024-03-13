@@ -36,6 +36,8 @@ void RenderManager::Initialize() {
     geometryRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
     lightingRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
+    fxaa_.Initialize();
+
 //    modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
     transition_.Initialize();
     raytracingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
@@ -80,6 +82,7 @@ void RenderManager::Render() {
         lightingRenderingPass_.Render(commandContext_, geometryRenderingPass_, *camera, *sunLight);
     }
 
+    fxaa_.Render(commandContext_, lightingRenderingPass_.GetResult());
 
     commandContext_.TransitionResource(mainColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
@@ -98,6 +101,7 @@ void RenderManager::Render() {
     // レイトレの結果を加算合成
     //postEffect_.RenderAddTexture(commandContext_, raytracingRenderer_.GetSpecular());
    // postEffect_.RenderMultiplyTexture(commandContext_, raytracingRenderer_.GetShadow());
+
 
     commandContext_.TransitionResource(preSwapChainBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext_.SetRenderTarget(preSwapChainBuffer_.GetRTV());

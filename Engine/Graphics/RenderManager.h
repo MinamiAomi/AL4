@@ -10,6 +10,7 @@
 #include "RaymarchingRenderer.h"
 #include "ModelRenderer.h"
 #include "Bloom.h"
+#include "FXAA.h"
 #include "ToonRenderer.h"
 #include "ParticleRenderer.h"
 #include "SpriteRenderer.h"
@@ -67,6 +68,7 @@ private:
     //ModelRenderer modelRenderer;
     Transition transition_;
     //Bloom bloom_;
+    FXAA fxaa_;
     PostEffect postEffect_;
     ComputeShaderTester computeShaderTester_;
     //LightManager lightManager_;
