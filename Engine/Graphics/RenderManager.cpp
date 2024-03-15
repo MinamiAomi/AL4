@@ -36,7 +36,7 @@ void RenderManager::Initialize() {
     geometryRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
     lightingRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
-    fxaa_.Initialize();
+    fxaa_.Initialize(&lightingRenderingPass_.GetResult());
 
 //    modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
     transition_.Initialize();
@@ -82,7 +82,7 @@ void RenderManager::Render() {
         lightingRenderingPass_.Render(commandContext_, geometryRenderingPass_, *camera, *sunLight);
     }
 
-    fxaa_.Render(commandContext_, lightingRenderingPass_.GetResult());
+    fxaa_.Render(commandContext_);
 
     commandContext_.TransitionResource(mainColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
@@ -115,7 +115,7 @@ void RenderManager::Render() {
 
     
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
-    commandContext_.CopyBuffer(swapChainBuffer, lightingRenderingPass_.GetResult());
+    commandContext_.CopyBuffer(swapChainBuffer, fxaa_.GetResult());
 
     commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext_.FlushResourceBarriers();

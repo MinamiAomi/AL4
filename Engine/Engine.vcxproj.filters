@@ -216,9 +216,6 @@
     <ClCompile Include="Graphics\Animation.cpp">
       <Filter>Graphics\Standard</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Model.cpp">
-      <Filter>Graphics\Standard</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\Core\TextureLoader.cpp">
       <Filter>Graphics\Core</Filter>
     </ClCompile>
@@ -284,6 +281,9 @@
     </ClCompile>
     <ClCompile Include="Graphics\FXAA.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Model.cpp">
+      <Filter>Graphics\Standard</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -661,13 +661,13 @@
     <None Include="Graphics\Shader\TestCS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
-    <None Include="Graphics\Shader\TransitionCS.hlsl">
-      <Filter>Graphics\Shader</Filter>
-    </None>
     <None Include="Graphics\Shader\Standard\LightingPass.hlsli">
       <Filter>Graphics\Shader\Standard</Filter>
     </None>
-    <None Include="Graphics\Shader\FXAACS.hlsl">
+    <None Include="Graphics\Shader\FXAAPS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\TransitionCS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
   </ItemGroup>

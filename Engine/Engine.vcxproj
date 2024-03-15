@@ -606,7 +606,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Graphics\Shader\FXAACS.hlsl">
+    <None Include="Graphics\Shader\FXAAPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
