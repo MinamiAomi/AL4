@@ -13,8 +13,8 @@ class CommandContext;
 struct Mesh {
     struct Vertex {
         Vector3 position;
-        Vector3 normal;
-        Vector3 tangent;
+        uint32_t normal;
+        uint32_t tangent;
         Vector2 texcood;
     };
 

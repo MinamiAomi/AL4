@@ -35,11 +35,11 @@ void InitializeSurfaceProperties(PSInput input) {
     tmpPosition = mul(tmpPosition, g_Scene.viewProjectionInverseMatrix);
     Position = tmpPosition.xyz / tmpPosition.w;
     Normal = g_Normal.SampleLevel(g_Sampler, input.texcoord, 0) * 2.0f - 1.0f;
-    ViewDirection = normalize(g_Scene.cameraPosition  - Position);
+    ViewDirection = normalize(g_Scene.cameraPosition - Position);
     Albedo = g_Albedo.SampleLevel(g_Sampler, input.texcoord, 0).xyz;
     Metallic = g_MetallicRoughness.SampleLevel(g_Sampler, input.texcoord, 0).x;
     Roughness = g_MetallicRoughness.SampleLevel(g_Sampler, input.texcoord, 0).y;
-    Roughness = max(Roughness, EPSILON);
+    Roughness = max(Roughness, 0.02f);
     DiffuseReflectance = lerp(Albedo, 0.0f, Metallic);
     SpecularReflectance = lerp(0.04f, Albedo, Metallic);
     Alpha = Roughness;
@@ -52,90 +52,93 @@ float Pow5(float n) {
     return n2 * n2 * n;
 }
 
-float SchlickFresnel(float f0, float f90, float cosine) {
-    return lerp(f0, f90, Pow5(1.0f - cosine));
-}
+//float SchlickFresnel(float f0, float f90, float cosine) {
+//    return lerp(f0, f90, Pow5(1.0f - cosine));
+//}
 
-float3 SchlickFresnel(float3 f0, float3 f90, float cosine) {
-    return lerp(f0, f90, Pow5(1.0f - cosine));
-}
+//float3 SchlickFresnel(float3 f0, float3 f90, float cosine) {
+//    return lerp(f0, f90, Pow5(1.0f - cosine));
+//}
 
-float3 LambertDiffuse(float NdotL) {
-    return Albedo * NdotL / PI;
-}
+//float3 BurleyDiffuse(float NdotL, float LdotH) {
+//    float f90 = 0.5f + 2.0f * Roughness * LdotH * LdotH;
+//    return DiffuseReflectance * SchlickFresnel(1.0f, f90, NdotL) * SchlickFresnel(1.0f, f90, NdotV);
+//}
 
-float3 BurleyDiffuse(float NdotL, float LdotH) {
-    float f90 = 0.5f + 2.0f * Roughness * LdotH * LdotH;
-    return Albedo * SchlickFresnel(1.0f, f90, NdotL) * SchlickFresnel(1.0f, f90, NdotV);
-}
-
-float3 NormalizedDisneyDiffuse(float NdotL, float LdotH) {
-    float energyBias = lerp(0.0f, 0.5f, Roughness);
-    float energyFactor = lerp(1.0f, 1.0f / 1.51f, Roughness);
-    float f90 = energyBias + 2.0f * Roughness * LdotH * LdotH;
-    float FL = SchlickFresnel(1.0f, f90, NdotL);
-    float FV = SchlickFresnel(1.0f, f90, NdotV);
-    return Albedo * FL * FV * energyFactor/* * (1.0f / PI)*/;
-}
+//float3 NormalizedDisneyDiffuse(float NdotL, float LdotH) {
+//    float energyBias = lerp(0.0f, 0.5f, Roughness);
+//    float energyFactor = lerp(1.0f, 1.0f / 1.51f, Roughness);
+//    float f90 = energyBias + 2.0f * Roughness * LdotH * LdotH;
+//    float FL = SchlickFresnel(1.0f, f90, NdotL);
+//    float FV = SchlickFresnel(1.0f, f90, NdotV);
+//    return DiffuseReflectance * FL * FV * energyFactor * (1.0f / PI);
+//}
 
 // GGX法線分布関数
 float D_GGX(float NdotH) {
     float t = (NdotH * NdotH * (AlphaSq - 1.0f)) + 1.0f;
-    return AlphaSq / (t * t * PI + EPSILON);
+    return AlphaSq / (t * t * PI);
 }
 
 // GGXシャドウマスキング関数
 float G_Smith_Schlick_GGX(float NdotL) {
-    float k = AlphaSq * 0.5f + EPSILON;
+    float k = Alpha * 0.5f + EPSILON;
     float GV = NdotV / (NdotV * (1.0f - k) + k);
     float GL = NdotL / (NdotL * (1.0f - k) + k);
     return GV * GL;
 }
 
 // GGXシャドウマスキング関数
-float G_GGX(float NdotL) {
-    float Gv = NdotL * sqrt((-NdotV * AlphaSq + NdotV) * NdotV + AlphaSq);
-    float Gl = NdotV * sqrt((-NdotL * AlphaSq + NdotL) * NdotL + AlphaSq);
-    return 0.5f / (Gv + Gl + 1e-6f);
-}
-
-float3 F_Schlick(float VdotH) {
-    return (SpecularReflectance + (1.0f - SpecularReflectance) * Pow5(NdotV));
-}
-//float ShlickSmithHable(SurfaceProperties surface, LightProperties light) {
-//    return 1.0f / lerp(light.LdotH * light.LdotH, 1.0f, surface.alphaSq * 0.25f);
+//float G_GGX(float NdotL) {
+//    float Gv = NdotL * sqrt((-NdotV * AlphaSq + NdotV) * NdotV + AlphaSq);
+//    float Gl = NdotV * sqrt((-NdotL * AlphaSq + NdotL) * NdotL + AlphaSq);
+//    return 0.5f / (Gv + Gl + 1e-6f);
 //}
 
-float3 DiffuseBRDF() { 
-    return DiffuseReflectance / PI;
+float3 F_Schlick(float LdotH) {
+    return (SpecularReflectance + (1.0f - SpecularReflectance) * Pow5(1.0f - LdotH));
 }
 
-float3 SpecularBRDF(float NdotL, float LdotH, float NdotH, float VdotH) {
-    
-    float3 F = F_Schlick(VdotH);
+float3 DiffuseBRDF() {
+    return DiffuseReflectance * INV_PI;
+}
+
+float3 SpecularBRDF(float NdotL, float LdotH, float NdotH) {
+    float3 F = F_Schlick(LdotH);
     float D = D_GGX(NdotH);
     float G = G_Smith_Schlick_GGX(NdotL);
     return (F * (D * G)) / (4.0f * NdotV * NdotL + EPSILON);
 }
 
-float3 BRDF(float3 lightDirection, float3 lightColor) {
+float3 ShadeDirectionalLight(DirectionalLight light) {
+    float3 lightDirection = -light.direction;
     float3 halfVector = normalize(lightDirection + ViewDirection);
     float NdotL = saturate(dot(Normal, lightDirection));
     float LdotH = saturate(dot(lightDirection, halfVector));
     float NdotH = saturate(dot(Normal, halfVector));
-    float VdotH = saturate(dot(ViewDirection, halfVector));
+        
+    float3 diffuse = DiffuseBRDF();
+    float3 specular = SpecularBRDF(NdotL, LdotH, NdotH);
+    float3 BRDF = diffuse + specular;
+    return BRDF * NdotL * light.color;
+}
+
+float3 ShadePointLight(PointLight light) {
+    float3 diff = light.position - Position;
+    float3 lightDirection = diff;  
     
-    float3 irradiance = NdotL * lightColor;
-    irradiance *= PI;
+    float3 halfVector = normalize(lightDirection + ViewDirection);
+    float NdotL = saturate(dot(Normal, lightDirection));
+    float LdotH = saturate(dot(lightDirection, halfVector));
+    float NdotH = saturate(dot(Normal, halfVector));
+        
+    float3 diffuse = DiffuseBRDF();
+    float3 specular = SpecularBRDF(NdotL, LdotH, NdotH);
+    float3 BRDF = diffuse + specular;
     
-    //float3 diffuse = BurleyDiffuse(NdotL, LdotH);
-    //float3 diffuse = NormalizedDisneyDiffuse(NdotL, LdotH);
-    float3 diffuse = irradiance * DiffuseBRDF();
-    //float3 diffuse = Albedo * (1.0f / PI);
-    float3 specular = irradiance * SpecularBRDF(NdotL, LdotH, NdotH, VdotH);
-    //diffuse = 0.0f;
-    //specular = 0.0f;
-    return diffuse + specular;
+    float attenuation = (1.0f / max(dot(diff, diff), EPSILON));
+    
+    return BRDF * NdotL * light.color * attenuation;  
 }
 
 PSOutput main(PSInput input) {
@@ -149,8 +152,7 @@ PSOutput main(PSInput input) {
         discard;
     }
     
-    
-    float3 pixel = BRDF(-g_Scene.directionalLight.direction, g_Scene.directionalLight.color);
+    float3 pixel = ShadeDirectionalLight(g_Scene.directionalLight);
     
     output.color.rgb = pixel;
     output.color.a = 1.0f;

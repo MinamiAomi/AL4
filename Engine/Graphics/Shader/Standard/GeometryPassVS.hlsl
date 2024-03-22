@@ -1,10 +1,9 @@
 #include "GeometryPass.hlsli"
 
-
 struct VSInput {
     float3 position : POSITION0;
-    float3 normal : NORMAL0;
-    float3 tangent : TANGENT0;
+    float4 normal : NORMAL0;
+    float4 tangent : TANGENT0;
     float2 texcoord : TEXCOORD0;
 #ifdef ENABLE_SKINNING
     uint4 boneIndices : BLENDINDICES0;
@@ -24,8 +23,8 @@ VSOutput main(VSInput input) {
     VSOutput output;
         
     float4 localPosition = float4(input.position, 1.0f);
-    float3 localNormal = input.normal;
-    float3 localTangent = input.tangent;
+    float3 localNormal = input.normal.xyz * 2.0f - 1.0f;
+    float3 localTangent = input.tangent.xyz * 2.0f - 1.0f;
         
 #ifdef ENABLE_SKINNING
     // スキニング計算

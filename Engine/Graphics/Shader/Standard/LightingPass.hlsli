@@ -1,6 +1,13 @@
 struct DirectionalLight {
     float3 color;
+    float intensity;
     float3 direction;
+};
+
+struct PointLight{
+    float3 color;
+    float intensity;
+    float3 position;
 };
 
 struct Scene {

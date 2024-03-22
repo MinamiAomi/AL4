@@ -12,6 +12,14 @@
 #include "Material.h"
 
 namespace {
+
+    uint32_t R32G32B32ToR10G10B10A2(const Vector3& in) {
+        uint32_t x = static_cast<uint32_t>(std::clamp((in.x + 1.0f) * 0.5f, 0.0f, 1.0f) * 0x3FF) & 0x3FF;
+        uint32_t y = static_cast<uint32_t>(std::clamp((in.y + 1.0f) * 0.5f, 0.0f, 1.0f) * 0x3FF) & 0x3FF;
+        uint32_t z = static_cast<uint32_t>(std::clamp((in.z + 1.0f) * 0.5f, 0.0f, 1.0f) * 0x3FF) & 0x3FF;
+        return x | y << 10 | z << 20;
+    }
+
     std::vector<Mesh> ParseMeshes(const aiScene* scene, const std::vector<std::shared_ptr<PBRMaterial>>& materials) {
         std::vector<Mesh> meshes(scene->mNumMeshes);
 
@@ -26,8 +34,8 @@ namespace {
                 aiVector3D& srcTangent = srcMesh->mTangents[vertexIndex];
                 // セット
                 destVertex.position = { srcPosition.x, srcPosition.y, srcPosition.z };
-                destVertex.normal = { srcNormal.x, srcNormal.y, srcNormal.z };
-                destVertex.tangent = { srcTangent.x, srcTangent.y, srcTangent.z };
+                Vector3 tmpNormal = { srcNormal.x, srcNormal.y, srcNormal.z };
+                Vector3 tmpTangent = { srcTangent.x, srcTangent.y, srcTangent.z };
                 if (srcMesh->HasTextureCoords(0)) {
                     aiVector3D& srcTexcoord = srcMesh->mTextureCoords[0][vertexIndex];
                     destVertex.texcood = { srcTexcoord.x, srcTexcoord.y };
@@ -36,9 +44,12 @@ namespace {
                     destVertex.texcood = Vector2::zero;
                 }
                 // 左手座標系に変換
-               destVertex.position.z *= -1.0f;
-               destVertex.normal.z *= -1.0f;
-               destVertex.tangent.z *= -1.0f;
+                destVertex.position.z *= -1.0f;
+                tmpNormal.z *= -1.0f;
+                tmpTangent.z *= -1.0f;
+
+                destVertex.normal = R32G32B32ToR10G10B10A2(tmpNormal);
+                destVertex.tangent = R32G32B32ToR10G10B10A2(tmpTangent);
 
                 vertexIndex++;
             }
@@ -190,16 +201,15 @@ std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
     auto materials = ParsePBRMaterials(scene, directory);
     model->meshes_ = ParseMeshes(scene, materials);
 
-    // 中間リソースをコピーする
     CommandContext commandContext;
     commandContext.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
-
+    // 中間リソースをコピーする
     for (auto& mesh : model->meshes_) {
         mesh.CreateBuffers(commandContext);
     }
     model->blas_.Create(L"ModelBLAS", commandContext, model->meshes_);
-
     commandContext.Finish(true);
+
 
     return model;
 }
@@ -210,8 +220,8 @@ ModelInstance::ModelInstance() {
 
 ModelInstance::~ModelInstance() {
     std::erase(instanceLists_, this);
-   // auto iter = std::find(instanceLists_.begin(), instanceLists_.end(), this);
-   // if (iter != instanceLists_.end()) {
-   //     instanceLists_.erase(iter);
-   // }
+    // auto iter = std::find(instanceLists_.begin(), instanceLists_.end(), this);
+    // if (iter != instanceLists_.end()) {
+    //     instanceLists_.erase(iter);
+    // }
 }
