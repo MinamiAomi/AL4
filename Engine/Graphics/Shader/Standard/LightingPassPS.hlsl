@@ -123,9 +123,15 @@ float3 ShadeDirectionalLight(DirectionalLight light) {
     return BRDF * NdotL * light.color;
 }
 
+float GetDistanceAttenuation(float3 unNormalizedLightVector) {
+    float distSq = dot(unNormalizedLightVector, unNormalizedLightVector);
+    float attenuation = 1.0f / max(distSq, EPSILON);
+    return attenuation;
+}
+
 float3 ShadePointLight(PointLight light) {
     float3 diff = light.position - Position;
-    float3 lightDirection = diff;  
+    float3 lightDirection = normalize(diff);
     
     float3 halfVector = normalize(lightDirection + ViewDirection);
     float NdotL = saturate(dot(Normal, lightDirection));
@@ -136,9 +142,35 @@ float3 ShadePointLight(PointLight light) {
     float3 specular = SpecularBRDF(NdotL, LdotH, NdotH);
     float3 BRDF = diffuse + specular;
     
-    float attenuation = (1.0f / max(dot(diff, diff), EPSILON));
+    float attenuation = GetDistanceAttenuation(diff);
     
-    return BRDF * NdotL * light.color * attenuation;  
+    return BRDF * NdotL * light.color * attenuation * INV_PI;  
+}
+
+float GetAngleAttenuation(float3 unNormalizedLightVector, float3 lightDirection, float lightAngleScale, float lightAngleOffset) {
+    float cd = dot(lightDirection, unNormalizedLightVector);
+    float attenuation = saturate(cd * lightAngleScale + lightAngleOffset);
+    attenuation *= attenuation;
+    return attenuation;
+}
+
+float3 ShadeSpotLight(SpotLight light) {
+    float3 diff = light.position - Position;
+    float3 lightDirection = normalize(diff);
+    
+    float3 halfVector = normalize(lightDirection + ViewDirection);
+    float NdotL = saturate(dot(Normal, lightDirection));
+    float LdotH = saturate(dot(lightDirection, halfVector));
+    float NdotH = saturate(dot(Normal, halfVector));
+        
+    float3 diffuse = DiffuseBRDF();
+    float3 specular = SpecularBRDF(NdotL, LdotH, NdotH);
+    float3 BRDF = diffuse + specular;
+    
+    float attenuation = GetDistanceAttenuation(diff);
+    attenuation = GetAngleAttenuation(-lightDirection, light.direction, light.angleScale, light.angleOffset);
+    
+    return BRDF * NdotL * light.color * attenuation * INV_PI;
 }
 
 PSOutput main(PSInput input) {
@@ -152,9 +184,10 @@ PSOutput main(PSInput input) {
         discard;
     }
     
-    float3 pixel = ShadeDirectionalLight(g_Scene.directionalLight);
+    float3 color = 0.0f;
+    color += ShadeDirectionalLight(g_Scene.directionalLight);
     
-    output.color.rgb = pixel;
+    output.color.rgb = color;
     output.color.a = 1.0f;
     
     return output;

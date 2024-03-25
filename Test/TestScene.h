@@ -24,4 +24,5 @@ private:
     std::shared_ptr<DirectionalLight> sunLight_;
 
     TestObject testObject_;
+    TestObject boxObject_;
 };

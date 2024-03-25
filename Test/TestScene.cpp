@@ -16,7 +16,10 @@ void TestScene::OnInitialize() {
 
     testObject_.Initialize("pbr", {});
     testObject_.transform.rotate = Quaternion::MakeForXAxis(-90.0f * Math::ToRadian);
+    testObject_.transform.translate = { 40.0f, 0.0f, 0.0f };
     testObject_.Update();
+    boxObject_.Initialize("box", {});
+    boxObject_.Update();
 
     euler_.x = Math::ToRadian;
 }
@@ -57,7 +60,7 @@ void TestScene::OnUpdate() {
     camera_->UpdateMatrices();
 
     sunLight_->DrawImGui("SunLight");
-    testObject_.DrawImGui("Sphere");
+    //testObject_.DrawImGui("Sphere");
 }
 
 void TestScene::OnFinalize() {

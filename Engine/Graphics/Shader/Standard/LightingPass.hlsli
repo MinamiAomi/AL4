@@ -10,6 +10,15 @@ struct PointLight{
     float3 position;
 };
 
+struct SpotLight {
+    float3 color;
+    float intensity;
+    float3 position;
+    float angleScale;
+    float3 direction;
+    float angleOffset;
+};
+
 struct Scene {
     float4x4 viewProjectionInverseMatrix;
     float3 cameraPosition;
