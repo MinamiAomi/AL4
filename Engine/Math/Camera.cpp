@@ -2,13 +2,13 @@
 
 Camera::Camera(ProjectionType projectionType) {
     projectionType_ = projectionType;
-    position_ = { 0.0f,1.0f, -6.0f };
+    position_ = { 0.0f, 1.0f, -6.0f };
     rotate_ = Quaternion::MakeLookRotation(-position_);
 
     projection_.perspective.fovY = 45.0f * Math::ToRadian;
     projection_.perspective.aspectRaito = 1280.0f / 720.0f;
-    nearClip_ = 0.1f;
-    farClip_ = 1000.0f;
+    nearClip_ = 1.0f;
+    farClip_ = 100.0f;
 
     needUpdateing_ = true;
 

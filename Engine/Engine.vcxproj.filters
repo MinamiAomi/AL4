@@ -216,9 +216,6 @@
     <ClCompile Include="Graphics\Animation.cpp">
       <Filter>Graphics\Standard</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Model.cpp">
-      <Filter>Graphics\Standard</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\Core\TextureLoader.cpp">
       <Filter>Graphics\Core</Filter>
     </ClCompile>
@@ -263,6 +260,30 @@
     </ClCompile>
     <ClCompile Include="Graphics\RaymarchingRenderer.cpp">
       <Filter>Graphics\Raymarching</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ComputeShader.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Transition.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\SceneTransition.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Math\AnimationNode.cpp">
+      <Filter>Math</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GeometryRenderingPass.cpp">
+      <Filter>Graphics\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\LightingRenderingPass.cpp">
+      <Filter>Graphics\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\FXAA.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Model.cpp">
+      <Filter>Graphics\Standard</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -521,6 +542,33 @@
     <ClInclude Include="Graphics\RaymarchingRenderer.h">
       <Filter>Graphics\Raymarching</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\ComputeShader.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Transition.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\SceneTransition.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Math\AnimationNode.h">
+      <Filter>Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GeometryRenderingPass.h">
+      <Filter>Graphics\Standard</Filter>
+    </ClInclude>
+    <ClInclude Include="ModelScene.h">
+      <Filter>Graphics\Standard</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\LightingRenderingPass.h">
+      <Filter>Graphics\Standard</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\SphereMapConverter.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\FXAA.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\Lighting.hlsli">
@@ -605,6 +653,21 @@
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Graphics\Shader\PostEffectOtherPS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\PostEffectAddPS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\TestCS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\Standard\LightingPass.hlsli">
+      <Filter>Graphics\Shader\Standard</Filter>
+    </None>
+    <None Include="Graphics\Shader\FXAAPS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\TransitionCS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
   </ItemGroup>

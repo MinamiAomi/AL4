@@ -8,7 +8,15 @@ SceneManager* SceneManager::GetInstance() {
 }
 
 void SceneManager::Update() {
-    if (nextScene_) {
+    // フェードイン中
+    if (sceneTransition_.IsPlaying()) {
+        sceneTransition_.Update();
+    }
+    // フェードイン終了、次のシーンに移行しフェードアウト始動
+    if (nextScene_ && !sceneTransition_.IsPlaying()) {
+        if (sceneTransition_.GetMode() == SceneTransition::Mode::Wait) {
+            sceneTransition_.Start(SceneTransition::Mode::Out);
+        }
         if (currentScene_) { currentScene_->OnFinalize(); }
         currentScene_ = std::move(nextScene_);
         nextScene_ = nullptr;

@@ -15,6 +15,8 @@ public:
 private:
     void CreateView();
 
+    GPUResource scratchResource_;
     DescriptorHandle srvHandle_;
-    
+    size_t reservedSize_ = 0;
+    size_t scratchResourceReservedSize_ = 0;
 };

@@ -6,14 +6,17 @@
 
 void Player::Initialize() {
 
-    model_ = std::make_unique<ModelInstance>();
+    //model_ = std::make_unique<ModelInstance>();
+    //model_->SetModel(ResourceManager::GetInstance()->FindModel("Player"));
+    //model_->SetIsActive(true);
+
 
     transform.translate = Vector3::zero;
     transform.rotate = Quaternion::identity;
     transform.scale = Vector3::one;
 
-    model_->SetModel(ResourceManager::GetInstance()->FindModel("Player"));
-    model_->SetIsActive(true);
+    playerModel_.Initialize(&transform);
+    playerModel_.PlayAnimation(PlayerModel::kWait, true);
 }
 
 void Player::Update() {
@@ -56,9 +59,19 @@ void Player::Update() {
         move = transform.rotate.Conjugate() * move;
         Quaternion diff = Quaternion::MakeFromTwoVector(Vector3::unitZ, move);
         transform.rotate = Quaternion::Slerp(0.2f, Quaternion::identity, diff) * transform.rotate;
+
+        if (playerModel_.GetAnimationType() != PlayerModel::AnimationType::kWalk) {
+            playerModel_.PlayAnimation(PlayerModel::kWalk, true);
+        }
+    }
+    else {
+        if (playerModel_.GetAnimationType() != PlayerModel::AnimationType::kWait) {
+            playerModel_.PlayAnimation(PlayerModel::kWait, true);
+        }
     }
 
 
     transform.UpdateMatrix();
-    model_->SetWorldMatrix(transform.worldMatrix);
+    playerModel_.Update();
+    //model_->SetWorldMatrix(transform.worldMatrix);
 }

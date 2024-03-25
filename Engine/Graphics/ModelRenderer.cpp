@@ -11,8 +11,10 @@
 #include "DefaultTextures.h"
 #include "LightManager.h"
 
-const wchar_t kVertexShader[] = L"Standard/StandardModelVS.hlsl";
-const wchar_t kPixelShader[] = L"Standard/StandardModelPS.hlsl";
+namespace {
+    const wchar_t kVertexShader[] = L"Standard/StandardModelVS.hlsl";
+    const wchar_t kPixelShader[] = L"Standard/StandardModelPS.hlsl";
+}
 
 void ModelRenderer::Initialize(const ColorBuffer& colorBuffer, const DepthBuffer& depthBuffer) {
     InitializeRootSignature();
@@ -29,6 +31,9 @@ void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera,
         float pad1;
         Vector3 sunLightDirection;
         float sunLightIntensity;
+        //uint32_t numDirectionalLights;
+        //uint32_t numPointLights;
+        //uint32_t numSpotLights;
     };
 
     struct InstanceConstant {
@@ -44,6 +49,31 @@ void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera,
         float shininess = 0.0f;
         Vector3 specular = Vector3::zero;
     };
+
+    //struct DirectionalLight {
+    //    Vector3 direction;
+    //    float intensity;
+    //    Vector3 color;
+    //};
+
+    //struct PointLight {
+    //    Vector3 position;
+    //    float intensity;
+    //    Vector3 color;
+    //    float radius;
+    //    float decay;
+    //};
+
+    //struct SpotLight {
+    //    Vector3 direction;
+    //    float intensity;
+    //    Vector3 position;
+    //    float distance;
+    //    Vector3 color;
+    //    float decay;
+    //    float cosAngle;
+    //    float cosFalloffStart;
+    //};
 
     auto& instanceList = ModelInstance::GetInstanceList();
 
@@ -62,11 +92,49 @@ void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera,
     scene.sunLightIntensity = sunLight.intensity;
     commandContext.SetDynamicConstantBufferView(RootIndex::Scene, sizeof(scene), &scene);
 
+    /*{
+        auto& srcDL = lightManager.GetDirectionalLights();
+        std::vector<DirectionalLight> directionalLights;
+        directionalLights.reserve(srcDL.size());
+
+        for (const auto& light : srcDL) {
+            if (light) {
+                directionalLights.emplace_back(light->direction, light->intensity, light->color);
+            }
+        }
+        commandContext.SetDynamicShaderResourceView(RootIndex::DirectionalLights, sizeof(DirectionalLights[0])* directionalLights.size(), directionalLights.data());
+    }
+    {
+        auto& srcPL = lightManager.GetPointLights();
+        std::vector<PointLight> pointLights;
+        pointLights.reserve(srcPL.size());
+
+        for (const auto& light : srcPL) {
+            if (light) {
+                pointLights.emplace_back(light->direction, light->intensity, light->color);
+            }
+        }
+        commandContext.SetDynamicShaderResourceView(RootIndex::DirectionalLights, sizeof(DirectionalLights[0]) * directionalLights.size(), directionalLights.data());
+    }
+    {
+        auto& srcDL = lightManager.GetDirectionalLights();
+        std::vector<DirectionalLight> directionalLights;
+        directionalLights.reserve(srcDL.size());
+
+        for (const auto& light : srcDL) {
+            if (light) {
+                directionalLights.emplace_back(light->direction, light->intensity, light->color);
+            }
+        }
+        commandContext.SetDynamicShaderResourceView(RootIndex::DirectionalLights, sizeof(DirectionalLights[0]) * directionalLights.size(), directionalLights.data());
+    }*/
+
     for (auto& instance : instanceList) {
         if (instance->IsActive() && instance->GetModel()) {
 
             InstanceConstant data;
             data.worldMatrix = instance->GetWorldMatrix();
+            data.worldInverseTransposeMatrix = instance->GetWorldMatrix().Inverse().Transpose();
             data.color = instance->GetColor();
             data.alpha = instance->GetAlpha();
             data.useLighting = instance->UseLighting() ? 1 : 0;
@@ -76,19 +144,19 @@ void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera,
             commandContext.SetPipelineState(pipelineState_);
 
             for (auto& mesh : instance->GetModel()->GetMeshes()) {
-                MaterialConstant material;
-                D3D12_GPU_DESCRIPTOR_HANDLE texture = DefaultTexture::White.GetSRV();
-                if (mesh.material) {
-                    material.diffuse = mesh.material->diffuse;
-                    material.shininess = mesh.material->shininess;
-                    material.specular = mesh.material->specular;
-                    if (mesh.material->diffuseMap) {
-                        texture = mesh.material->diffuseMap->GetSRV();
-                    }
-                }
+               // MaterialConstant material;
+               // D3D12_GPU_DESCRIPTOR_HANDLE texture = DefaultTexture::White.GetSRV();
+               // if (mesh.material) {
+               //     material.diffuse = mesh.material->diffuse;
+               //     material.shininess = mesh.material->shininess;
+               //     material.specular = mesh.material->specular;
+               //     if (mesh.material->diffuseMap) {
+               //         texture = mesh.material->diffuseMap->GetSRV();
+               //     }
+               // }
 
-                commandContext.SetDynamicConstantBufferView(RootIndex::Material, sizeof(material), &material);
-                commandContext.SetDescriptorTable(RootIndex::Texture, texture);
+               // commandContext.SetDynamicConstantBufferView(RootIndex::Material, sizeof(material), &material);
+               // commandContext.SetDescriptorTable(RootIndex::Texture, texture);
                 commandContext.SetDescriptorTable(RootIndex::Sampler, SamplerManager::AnisotropicWrap);
                 commandContext.SetVertexBuffer(0, mesh.vertexBuffer.GetVertexBufferView());
                 commandContext.SetIndexBuffer(mesh.indexBuffer.GetIndexBufferView());
@@ -111,6 +179,9 @@ void ModelRenderer::InitializeRootSignature() {
     rootParameters[RootIndex::Material].InitAsConstantBufferView(2);
     rootParameters[RootIndex::Texture].InitAsDescriptorTable(1, &srvRange);
     rootParameters[RootIndex::Sampler].InitAsDescriptorTable(1, &samplerRange);
+    rootParameters[RootIndex::DirectionalLights].InitAsShaderResourceView(1);
+    rootParameters[RootIndex::PointLights].InitAsShaderResourceView(2);
+    rootParameters[RootIndex::SpotLights].InitAsShaderResourceView(3);
 
     D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
     rootSignatureDesc.NumParameters = _countof(rootParameters);

@@ -9,7 +9,7 @@ class CommandContext;
 
 class RaymarchingRenderer {
 public:
-    static const uint32_t kCycle = 120;
+    static const uint32_t kCycle = 300;
   
     void Create(uint32_t width, uint32_t height);
 

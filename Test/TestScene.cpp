@@ -6,63 +6,27 @@
 void TestScene::OnInitialize() {
 
     camera_ = std::make_shared<Camera>();
-    camera_->SetPosition(camera_->GetPosition() + Vector3{ 0.0f, 3.0f, -2.0f });
+    camera_->SetPosition({ 0.0f, 0.0f, -35.0f });
     camera_->UpdateMatrices();
     RenderManager::GetInstance()->SetCamera(camera_);
 
     sunLight_ = std::make_shared<DirectionalLight>();
+    sunLight_->direction = Vector3(1.0f, -1.0f, 1.0f).Normalized();
     RenderManager::GetInstance()->SetSunLight(sunLight_);
 
-    floor_ = Model::Load("Resources/Floor/Floor.obj");
-    teapot_ =   Model::Load("Resources/Teapot/teapot.obj");
-    bunny_ =    Model::Load("Resources/Bunny/bunny.obj");
-    box_ =      Model::Load("Resources/box.obj");
-    cone_ =     Model::Load("Resources/cone.obj");
-    cylinder_ = Model::Load("Resources/cylinder.obj");
-    torus_ =    Model::Load("Resources/torus.obj");
-    suzanne_ =  Model::Load("Resources/suzanne.obj");
-    skydome_ =  Model::Load("Resources/skydome.obj");
+    testObject_.Initialize("pbr", {});
+    testObject_.transform.rotate = Quaternion::MakeForXAxis(-90.0f * Math::ToRadian);
+    testObject_.transform.translate = { 40.0f, 0.0f, 0.0f };
+    testObject_.Update();
+    boxObject_.Initialize("box", {});
+    boxObject_.Update();
 
-    instances_.resize(9);
-    {
-        size_t i = 0;
-        instances_[i++].model.SetModel(floor_);
-        instances_[i++].model.SetModel(teapot_);
-        instances_[i++].model.SetModel(bunny_);
-        instances_[i++].model.SetModel(box_);
-        instances_[i++].model.SetModel(cone_);
-        instances_[i++].model.SetModel(cylinder_);
-        instances_[i++].model.SetModel(torus_);
-        instances_[i++].model.SetModel(suzanne_);
-        instances_[i++].model.SetModel(skydome_);
-    }
-
-    for (size_t i = 1; i < instances_.size() - 1; ++i) {
-        instances_[i].transform.translate = { i * 5.0f - 20.0f, 5.0f, 0.0f };
-    }
-
-    instances_[8].model.SetCastShadow(false);
-    instances_[8].model.SetReciveShadow(false);
-    instances_[8].model.SetUseLighting(false);
-
-    instances_[0].model.SetReflection(true);
-    instances_[1].model.SetReflection(true);
-    instances_[4].model.SetReflection(true);
-    instances_[6].model.SetReflection(true);
+    euler_.x = Math::ToRadian;
 }
 
 void TestScene::OnUpdate() {
 
-    static float ror = 0.0f;
-    ror += Math::ToRadian * 0.5f;
-    for (size_t i = 1; i < instances_.size() - 1; ++i) {
-        instances_[i].transform.rotate = Quaternion::MakeFromEulerAngle({ 0.0f, ror, 0.0f });
-    }
-
-    for (auto& instance : instances_) {
-        instance.transform.UpdateMatrix();
-        instance.model.SetWorldMatrix(instance.transform.worldMatrix);
-    }
+  
 
     Input* input = Input::GetInstance();
 
@@ -96,7 +60,7 @@ void TestScene::OnUpdate() {
     camera_->UpdateMatrices();
 
     sunLight_->DrawImGui("SunLight");
-
+    //testObject_.DrawImGui("Sphere");
 }
 
 void TestScene::OnFinalize() {
