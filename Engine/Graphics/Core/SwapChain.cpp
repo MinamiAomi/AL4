@@ -54,5 +54,6 @@ void SwapChain::Create(HWND hWnd) {
 void SwapChain::Present() {
     static constexpr int32_t kThreasholdRefreshRate = 58;
     int vsync = refreshRate_ < kThreasholdRefreshRate ? 0 : 1;
-    swapChain_->Present(vsync, 0);
+    HRESULT hr = swapChain_->Present(vsync, 0);
+    Graphics::GetInstance()->CheckDRED(hr);
 }

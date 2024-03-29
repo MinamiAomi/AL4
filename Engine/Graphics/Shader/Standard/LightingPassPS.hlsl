@@ -16,6 +16,8 @@ static float Alpha;
 static float AlphaSq;
 static float NdotV;
 
+// 変更
+
 struct PSInput {
     float4 svPosition : SV_POSITION0;
     float2 texcoord : TEXCOORD0;
