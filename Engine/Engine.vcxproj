@@ -150,6 +150,7 @@
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Collision\Collider.cpp" />
     <ClCompile Include="Collision\CollisionManager.cpp" />
+    <ClCompile Include="Debug\Debug.cpp" />
     <ClCompile Include="Externals\ImGui\imgui.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">false</ExcludedFromBuild>
@@ -180,6 +181,7 @@
     </ClCompile>
     <ClCompile Include="Framework\Engine.cpp" />
     <ClCompile Include="Graphics\Animation.cpp" />
+    <ClCompile Include="Graphics\Animation.h" />
     <ClCompile Include="Graphics\Bloom.cpp" />
     <ClCompile Include="Graphics\ComputeShader.cpp" />
     <ClCompile Include="Graphics\Core\ColorBuffer.cpp" />
@@ -249,6 +251,7 @@
     <ClInclude Include="Collision\Collider.h" />
     <ClInclude Include="Collision\CollisionManager.h" />
     <ClInclude Include="Collision\GameObject.h" />
+    <ClInclude Include="Debug\Debug.h" />
     <ClInclude Include="Externals\DirectXTex\Include\BC.h" />
     <ClInclude Include="Externals\DirectXTex\Include\BCDirectCompute.h" />
     <ClInclude Include="Externals\DirectXTex\Include\d3dx12.h" />
@@ -293,7 +296,6 @@
     <ClInclude Include="Externals\nlohmann\json_fwd.hpp" />
     <ClInclude Include="Framework\Engine.h" />
     <ClInclude Include="Framework\Game.h" />
-    <ClInclude Include="Graphics\Animation.h" />
     <ClInclude Include="Graphics\Bloom.h" />
     <ClInclude Include="Graphics\ComputeShader.h" />
     <ClInclude Include="Graphics\Core\ColorBuffer.h" />
@@ -333,6 +335,7 @@
     <ClInclude Include="Graphics\Model.h" />
     <ClInclude Include="Graphics\ModelLoader.h" />
     <ClInclude Include="Graphics\ModelRenderer.h" />
+    <ClInclude Include="Graphics\Node.h" />
     <ClInclude Include="Graphics\ParticleManager.h" />
     <ClInclude Include="Graphics\ParticleRenderer.h" />
     <ClInclude Include="Graphics\PostEffect.h" />

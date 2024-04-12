@@ -12,14 +12,14 @@
 #include "Material.h"
 
 namespace {
-
+    // Vector3からuint32_tに変換する
     uint32_t R32G32B32ToR10G10B10A2(const Vector3& in) {
         uint32_t x = static_cast<uint32_t>(std::clamp((in.x + 1.0f) * 0.5f, 0.0f, 1.0f) * 0x3FF) & 0x3FF;
         uint32_t y = static_cast<uint32_t>(std::clamp((in.y + 1.0f) * 0.5f, 0.0f, 1.0f) * 0x3FF) & 0x3FF;
         uint32_t z = static_cast<uint32_t>(std::clamp((in.z + 1.0f) * 0.5f, 0.0f, 1.0f) * 0x3FF) & 0x3FF;
         return x | y << 10 | z << 20;
     }
-
+    // aiSceneからメッシュ配列を解析する
     std::vector<Mesh> ParseMeshes(const aiScene* scene, const std::vector<std::shared_ptr<PBRMaterial>>& materials) {
         std::vector<Mesh> meshes(scene->mNumMeshes);
 
@@ -71,7 +71,7 @@ namespace {
         }
         return meshes;
     }
-
+    // aiSceneからマテリアル配列を解析する
     std::vector<std::shared_ptr<Material>> ParseMaterials(const aiScene* scene, const std::filesystem::path& directory) {
         std::vector<std::shared_ptr<Material>> materials(scene->mNumMaterials);
 
@@ -109,6 +109,7 @@ namespace {
         }
         return materials;
     }
+    // aiSceneからPBRマテリアル配列を解析する
     std::vector<std::shared_ptr<PBRMaterial>> ParsePBRMaterials(const aiScene* scene, const std::filesystem::path& directory) {
         std::vector<std::shared_ptr<PBRMaterial>> materials(scene->mNumMaterials);
 
@@ -166,6 +167,27 @@ namespace {
         }
         return materials;
     }
+    // 再起的にノードを解析する
+    Node ParseNode(const aiNode* node) {
+        Node result;
+        // LocalMatrixを取得
+        aiMatrix4x4 aiLocalMatrix = node->mTransformation;
+        // 列ベクトルを行ベクトルに転置
+        aiLocalMatrix.Transpose();
+        for (uint32_t i = 0; i < 4; ++i) {
+            for (uint32_t j = 0; j < 4; ++j) {
+                result.localMatrix.m[i][j] = aiLocalMatrix[i][j];
+            }
+        }
+        result.name = node->mName.C_Str();
+        // 子供も解析する
+        result.children.resize(node->mNumChildren);
+        for (uint32_t i = 0; i < node->mNumChildren; ++i) {
+            result.children[i] = ParseNode(node->mChildren[i]);
+        }
+        return result;
+    }
+
 
 }
 
@@ -200,6 +222,7 @@ std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
 
     auto materials = ParsePBRMaterials(scene, directory);
     model->meshes_ = ParseMeshes(scene, materials);
+    model->rootNode_ = ParseNode(scene->mRootNode);
 
     CommandContext commandContext;
     commandContext.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);

@@ -40,7 +40,7 @@ public:
 
     bool IsDXRSupported() const { return dxrDevice_; }
 
-    void CheckDRED(HRESULT presentReturnValue);
+    //void CheckDRED(HRESULT presentReturnValue);
 
 private:
     static const uint32_t kNumRTVs = 16;

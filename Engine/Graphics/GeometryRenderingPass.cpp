@@ -155,15 +155,16 @@ void GeometryRenderingPass::Render(CommandContext& commandContext, const Camera&
 
     auto& instances = ModelInstance::GetInstanceList();
     for (auto const instance : instances) {
+        auto model = instance->GetModel();
         // アクティブかつモデルありのみ描画
-        if (!instance->IsActive() || !instance->GetModel()) { continue; }
+        if (!instance->IsActive() || !model) { continue; }
 
         InstanceData instanceData;
-        instanceData.worldMatrix = instance->GetWorldMatrix();
-        instanceData.worldInverseTransposeMatrix = instance->GetWorldMatrix().Inverse().Transpose();
+        instanceData.worldMatrix = model->GetRootNode().localMatrix * instance->GetWorldMatrix();
+        instanceData.worldInverseTransposeMatrix = instanceData.worldMatrix.Inverse().Transpose();
         commandContext.SetDynamicConstantBufferView(RootIndex::Instance, sizeof(instanceData), &instanceData);
 
-        for (auto& mesh : instance->GetModel()->GetMeshes()) {
+        for (auto& mesh : model->GetMeshes()) {
             MaterialData materialData = ErrorMaterial();
             if (mesh.material) {
                 materialData.albedo = mesh.material->albedo;

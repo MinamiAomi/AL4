@@ -58,6 +58,9 @@
     <Filter Include="Graphics\Raymarching">
       <UniqueIdentifier>{715d8bf0-90b2-46d9-af00-f83058a2e0f0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Debug">
+      <UniqueIdentifier>{1e0a1032-8de3-4f63-94db-08262459abfd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene\SceneManager.cpp">
@@ -213,7 +216,7 @@
     <ClCompile Include="Graphics\ParticleRenderer.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Animation.cpp">
+    <ClCompile Include="Graphics\Animation.h">
       <Filter>Graphics\Standard</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Core\TextureLoader.cpp">
@@ -284,6 +287,12 @@
     </ClCompile>
     <ClCompile Include="Graphics\Model.cpp">
       <Filter>Graphics\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Animation.cpp">
+      <Filter>Graphics\Standard</Filter>
+    </ClCompile>
+    <ClCompile Include="Debug\Debug.cpp">
+      <Filter>Debug</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -500,9 +509,6 @@
     <ClInclude Include="Graphics\Material.h">
       <Filter>Graphics\Standard</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Animation.h">
-      <Filter>Graphics\Standard</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\Core\TextureLoader.h">
       <Filter>Graphics\Core</Filter>
     </ClInclude>
@@ -568,6 +574,12 @@
     </ClInclude>
     <ClInclude Include="Graphics\FXAA.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Node.h">
+      <Filter>Graphics\Standard</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug\Debug.h">
+      <Filter>Debug</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

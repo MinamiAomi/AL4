@@ -6,6 +6,7 @@
 #include "Math/MathUtils.h"
 #include "Core/GPUBuffer.h"
 #include "Mesh.h"
+#include "Node.h"
 #include "Raytracing/BLAS.h"
 
 class Model {
@@ -14,6 +15,7 @@ public:
 
     const BLAS& GetBLAS() const { return blas_; }
     const std::vector<Mesh>& GetMeshes() const { return meshes_; }
+    const Node& GetRootNode() const { return rootNode_; }
 
 private:
     Model() = default;
@@ -21,6 +23,7 @@ private:
 
     std::vector<Mesh> meshes_;
     BLAS blas_;
+    Node rootNode_;
 };
 
 class ModelInstance {
