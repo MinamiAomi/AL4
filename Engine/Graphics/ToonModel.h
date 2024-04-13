@@ -2,6 +2,8 @@
 
 #include <memory>
 #include <vector>
+#include <list>
+#include <vector>
 
 #include "Core/GPUBuffer.h"
 #include "Core/UploadBuffer.h"

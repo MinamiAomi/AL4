@@ -1,6 +1,8 @@
 #pragma once
 #include <memory>
 #include <filesystem>
+#include <list>
+#include <vector>
 
 #include "Core/TextureResource.h"
 
