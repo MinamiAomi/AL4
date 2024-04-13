@@ -1,7 +1,9 @@
 #pragma once
 
-#include <memory>
 #include <filesystem>
+#include <memory>
+#include <list>
+#include <vector>
 
 #include "Math/MathUtils.h"
 #include "Core/GPUBuffer.h"

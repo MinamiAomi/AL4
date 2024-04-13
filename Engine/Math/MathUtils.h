@@ -5,13 +5,13 @@
 #include <limits>
 
 namespace Math {
-    constexpr float Pi = 3.141592653589793f;
-    constexpr float TwoPi = Pi * 2.0f;
-    constexpr float HalfPi = Pi * 0.5f;
-    constexpr float ToRadian = Pi / 180.0f;
-    constexpr float ToDegree = 180.0f / Pi;
-    constexpr float positiveInfinity = (std::numeric_limits<float>::max)();
-    constexpr float negativeInfinity = (std::numeric_limits<float>::min)();
+    inline constexpr float Pi = 3.141592653589793f;
+    inline constexpr float TwoPi = Pi * 2.0f;
+    inline constexpr float HalfPi = Pi * 0.5f;
+    inline constexpr float ToRadian = Pi / 180.0f;
+    inline constexpr float ToDegree = 180.0f / Pi;
+    inline constexpr float positiveInfinity = (std::numeric_limits<float>::max)();
+    inline constexpr float negativeInfinity = (std::numeric_limits<float>::min)();
 
     inline uint32_t Digit(int32_t num) {
         uint32_t digit = 1;

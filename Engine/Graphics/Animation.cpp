@@ -34,7 +34,7 @@ namespace {
                 auto& srcKey = srcNodeAnimation->mRotationKeys[keyIndex];
                 auto& destKey = destNodeAnimation.rotate.keyframes[keyIndex];
                 destKey.time = float(srcKey.mTime / animation->mTicksPerSecond);
-                destKey.value = { srcKey.mValue.x, srcKey.mValue.y, srcKey.mValue.z, srcKey.mValue.w };
+                destKey.value = Quaternion{ srcKey.mValue.x, srcKey.mValue.y, srcKey.mValue.z, srcKey.mValue.w };
                 // 右手→左手
                 destKey.value.y *= -1.0f;
                 destKey.value.z *= -1.0f;
