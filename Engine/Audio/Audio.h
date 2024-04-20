@@ -3,6 +3,8 @@
 #include <xaudio2.h>
 #include <wrl.h>
 
+#include <memory>
+#include <filesystem>
 #include <fstream>
 #include <vector>
 

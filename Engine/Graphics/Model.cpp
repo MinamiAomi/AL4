@@ -63,12 +63,31 @@ namespace {
                 destMesh.indices.emplace_back(srcFace.mIndices[1]);
             }
 
+            for (uint32_t boneIndex = 0; boneIndex < srcMesh->mNumBones; ++boneIndex) {
+                aiBone* bone = srcMesh->mBones[boneIndex];
+                std::string jointName = bone->mName.C_Str();
+                Mesh::JointWeightData& jointWeightData = destMesh.skinClusterData[jointName];
+                
+                aiMatrix4x4 bindPoseMatrixAssimp = bone->mOffsetMatrix.Inverse();
+                aiVector3D translate, scale;
+                aiQuaternion rotate;
+                bindPoseMatrixAssimp.Decompose(scale, rotate, translate);
+                Matrix4x4 bindPoseMatrix = Matrix4x4::MakeAffineTransform({ scale.x, scale.y, scale.z }, Quaternion{ rotate.x, -rotate.y, -rotate.z, rotate.w }, { translate.x, translate.y, -translate.z });
+                jointWeightData.inverseBindPoseMatrix = bindPoseMatrix.Inverse();
+
+                for (uint32_t weightIndex = 0; weightIndex < bone->mNumWeights; ++weightIndex) {
+                    jointWeightData.vertexWeights.push_back({ bone->mWeights[weightIndex].mWeight, bone->mWeights[weightIndex].mVertexId });
+                }
+            }
+
             // マテリアルが読み込まれてない
             assert(srcMesh->mMaterialIndex < materials.size());
             destMesh.material = materials[srcMesh->mMaterialIndex];
 
-            ++meshIndex;
+            ++meshIndex;        
         }
+        
+
         return meshes;
     }
     // aiSceneからマテリアル配列を解析する
@@ -170,15 +189,13 @@ namespace {
     // 再起的にノードを解析する
     Node ParseNode(const aiNode* node) {
         Node result;
-        // LocalMatrixを取得
-        aiMatrix4x4 aiLocalMatrix = node->mTransformation;
-        // 列ベクトルを行ベクトルに転置
-        aiLocalMatrix.Transpose();
-        for (uint32_t i = 0; i < 4; ++i) {
-            for (uint32_t j = 0; j < 4; ++j) {
-                result.localMatrix.m[i][j] = aiLocalMatrix[i][j];
-            }
-        }
+        aiVector3D translate, scale;
+        aiQuaternion rotate;
+        node->mTransformation.Decompose(scale, rotate, translate);
+        result.transform.translate = { translate.x, translate.y, -translate.z };
+        result.transform.rotate = Quaternion{ rotate.x, -rotate.y, -rotate.z, rotate.w };
+        result.transform.scale = { scale.x, scale.y, scale.z };
+        result.localMatrix = Matrix4x4::MakeAffineTransform(result.transform.scale, result.transform.rotate, result.transform.translate);
         result.name = node->mName.C_Str();
         // 子供も解析する
         result.children.resize(node->mNumChildren);

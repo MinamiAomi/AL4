@@ -115,7 +115,7 @@ private:
     Microsoft::WRL::ComPtr<DXR_GRAPHICS_COMMAND_LIST> dxrCommandList_;
 
     D3D12_RESOURCE_BARRIER resourceBarriers_[kMaxNumResourceBarriers]{};
-    uint32_t numResourceBarriers_;
+    uint32_t numResourceBarriers_ = 0;
 
     ID3D12RootSignature* rootSignature_;
     ID3D12PipelineState* pipelineState_;

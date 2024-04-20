@@ -3,6 +3,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <map>
 
 #include "Core/GPUBuffer.h"
 #include "Math/MathUtils.h"
@@ -18,14 +19,27 @@ struct Mesh {
         Vector2 texcood;
     };
 
+    struct VertexWeightData {
+        float weight;
+        uint32_t vertexIndex;
+    };
+
+    struct JointWeightData {
+        Matrix4x4 inverseBindPoseMatrix;
+        std::vector<VertexWeightData> vertexWeights;
+    };
+
     using Index = uint32_t;
 
     StructuredBuffer vertexBuffer;
     StructuredBuffer indexBuffer;
+    StructuredBuffer influenceBuffer;
 
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
+    std::map<std::string, JointWeightData> skinClusterData;
     std::shared_ptr<PBRMaterial> material;
+
 
     void CreateBuffers(CommandContext& commandContext);
 };

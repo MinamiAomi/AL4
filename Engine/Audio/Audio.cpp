@@ -1,8 +1,18 @@
 #include "Audio.h"
 
 #include <cassert>
+#include <mfapi.h>
+#include <mfidl.h>
+#include <mfreadwrite.h>
 
 #pragma comment(lib,"xaudio2.lib")
+#pragma comment(lib, "Mf.lib")
+#pragma comment(lib, "mfplat.lib")
+#pragma comment(lib, "Mfreadwrite.lib")
+#pragma comment(lib, "mfuuid.lib")
+
+template<class T>
+using ComPtr = Microsoft::WRL::ComPtr<T>;
 
 Audio* Audio::GetInstance() {
     static Audio instans;

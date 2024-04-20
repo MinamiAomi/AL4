@@ -99,6 +99,6 @@ private:
     LinearAllocatorType type_;
 
     std::vector<LinearAllocatorPage*> usedPages_;
-    LinearAllocatorPage* currentPage_;
-    size_t currentOffset_;
+    LinearAllocatorPage* currentPage_ = nullptr;
+    size_t currentOffset_ = 0;
 };

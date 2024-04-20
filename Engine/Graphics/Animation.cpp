@@ -57,7 +57,7 @@ namespace {
 }
 
 std::shared_ptr<Animation> Animation::Load(const std::filesystem::path& path) {
-   
+
     // privateコンストラクタをmake_sharedで呼ぶためのヘルパー
     struct Helper : Animation {
         Helper() : Animation() {}
@@ -65,7 +65,7 @@ std::shared_ptr<Animation> Animation::Load(const std::filesystem::path& path) {
     std::shared_ptr<Animation> animation = std::make_shared<Helper>();
 
     auto directory = path.parent_path();
-    
+
     Assimp::Importer importer;
     int flags = 0;
     const aiScene* scene = importer.ReadFile(path.string(), flags);
@@ -83,4 +83,86 @@ std::shared_ptr<Animation> Animation::Load(const std::filesystem::path& path) {
     }
 
     return animation;
+}
+
+Vector3 CalculateValue(const AnimationCurve<Vector3>& animationCurve, float time) {
+    assert(!animationCurve.keyframes.empty());
+    if (animationCurve.keyframes.size() == 1 || time <= animationCurve.keyframes[1].time) {
+        return animationCurve.keyframes[1].value;
+    }
+
+    for (size_t index = 0; index < animationCurve.keyframes.size() - 1; ++index) {
+        size_t nextIndex = index + 1;
+        if (animationCurve.keyframes[index].time <= time && time <= animationCurve.keyframes[nextIndex].time) {
+            float t = (time - animationCurve.keyframes[index].time) / (animationCurve.keyframes[nextIndex].time - animationCurve.keyframes[index].time);
+            return Vector3::Lerp(t, animationCurve.keyframes[index].value, animationCurve.keyframes[nextIndex].value);
+        }
+    }
+    return animationCurve.keyframes.rbegin()->value;
+}
+
+Quaternion CalculateValue(const AnimationCurve<Quaternion>& animationCurve, float time) {
+    assert(!animationCurve.keyframes.empty());
+    if (animationCurve.keyframes.size() == 1 || time <= animationCurve.keyframes[1].time) {
+        return animationCurve.keyframes[1].value;
+    }
+
+    for (size_t index = 0; index < animationCurve.keyframes.size() - 1; ++index) {
+        size_t nextIndex = index + 1;
+        if (animationCurve.keyframes[index].time <= time && time <= animationCurve.keyframes[nextIndex].time) {
+            float t = (time - animationCurve.keyframes[index].time) / (animationCurve.keyframes[nextIndex].time - animationCurve.keyframes[index].time);
+            return Quaternion::Slerp(t, animationCurve.keyframes[index].value, animationCurve.keyframes[nextIndex].value);
+        }
+    }
+    return animationCurve.keyframes.rbegin()->value;
+}
+
+
+
+int32_t CreateJoint(const Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints) {
+    Joint joint;
+    joint.name = node.name;
+    joint.localMatrix = node.localMatrix;
+    joint.skeletonSpaceMatrix = Matrix4x4::identity;
+    joint.transform.translate = node.transform.translate;
+    joint.transform.rotate = node.transform.rotate;
+    joint.transform.scale = node.transform.scale;
+    joint.index = int32_t(joints.size());
+    joint.parent = parent;
+    for (const Node& child : node.children) {
+        int32_t childIndex = CreateJoint(child, joint.index, joints);
+        joints[joint.index].children.push_back(childIndex);
+    }
+    return joint.index;
+}
+
+Skeleton CreateSkeleton(const Node& rootNode) {
+    Skeleton skeleton;
+    skeleton.root = CreateJoint(rootNode, {}, skeleton.joints);
+    for (const Joint& joint : skeleton.joints) {
+        skeleton.jointMap.emplace(joint.name, joint.index);
+    }
+    return skeleton;
+}
+
+void Skeleton::Update() {
+    // すべてのjointを更新。親が若いので通常ループで処理可能になっている
+    for (Joint& joint : joints) {
+        joint.skeletonSpaceMatrix = joint.localMatrix = Matrix4x4::MakeAffineTransform(joint.transform.scale, joint.transform.rotate, joint.transform.translate);
+        // 親がいれば親の行列をかける
+        if (joint.parent) {
+            joint.skeletonSpaceMatrix = joint.skeletonSpaceMatrix * joints[*joint.parent].skeletonSpaceMatrix;
+        }
+    }
+}
+
+void Skeleton::ApplyAnimation(const AnimationSet& animation, float animationTime) {
+    for (Joint& joint : joints) {
+        if (auto it = animation.nodeAnimations.find(joint.name); it != animation.nodeAnimations.end()) {
+            const NodeAnimation& rootNodeAnimation = (*it).second;
+            joint.transform.translate = CalculateValue(rootNodeAnimation.translate, animationTime);
+            joint.transform.rotate = CalculateValue(rootNodeAnimation.rotate, animationTime);
+            joint.transform.scale = CalculateValue(rootNodeAnimation.scale, animationTime);
+        }
+    }
 }
