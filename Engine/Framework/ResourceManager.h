@@ -6,6 +6,7 @@
 
 class Model;
 class Texture;
+class Sound;
 
 class ResourceManager {
 public:
@@ -19,6 +20,11 @@ public:
     }
     std::shared_ptr<Texture> FindTexture(const std::string& name) const { return textureMap_.at(name); }
 
+    void AddSound(const std::string& name, const std::shared_ptr<Sound>& sound) {
+        soundMap_.emplace(std::make_pair(name, sound));
+    }
+    std::shared_ptr<Sound> FindSound(const std::string& name) const { return soundMap_.at(name); }
+
 private:
     ResourceManager() = default;
     ~ResourceManager() = default;
@@ -27,4 +33,5 @@ private:
 
     std::map<std::string, std::shared_ptr<Model>> modelMap_;
     std::map<std::string, std::shared_ptr<Texture>> textureMap_;
+    std::map<std::string, std::shared_ptr<Sound>> soundMap_;
 };

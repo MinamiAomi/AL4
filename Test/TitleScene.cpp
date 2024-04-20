@@ -2,7 +2,7 @@
 
 #include "Scene/SceneManager.h"
 #include "Graphics/RenderManager.h"
-#include "Graphics/ResourceManager.h"
+#include "Framework/ResourceManager.h"
 #include "Input/Input.h"
 
 #include "GameScene.h"

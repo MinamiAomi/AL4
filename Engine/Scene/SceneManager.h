@@ -11,6 +11,7 @@ public:
     static SceneManager* GetInstance();
 
     void Update();
+    void Finalize();
 
     template<class T>
     void ChangeScene(bool useTransition = true) {

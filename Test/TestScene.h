@@ -9,6 +9,7 @@
 #include "Graphics/Model.h"
 #include "Graphics/LightManager.h"
 #include "TestObject.h"
+#include "Audio/AudioSource.h"
 
 class TestScene :
     public BaseScene {
@@ -22,6 +23,8 @@ private:
     std::shared_ptr<Camera> camera_;
     Vector3 euler_;
     std::shared_ptr<DirectionalLight> sunLight_;
+    
+    AudioSource audioSource_;
 
     TestObject testObject_;
     TestObject boxObject_;

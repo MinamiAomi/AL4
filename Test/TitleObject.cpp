@@ -1,6 +1,6 @@
 #include "TitleObject.h"
 
-#include "Graphics/ResourceManager.h"
+#include "Framework/ResourceManager.h"
 
 void TitleObject::Initialize() {
     model_ = std::make_unique<ModelInstance>();

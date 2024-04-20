@@ -1,6 +1,6 @@
 #include "PlayerModel.h"
 
-#include "Graphics/ResourceManager.h"
+#include "Framework/ResourceManager.h"
 
 const Vector3 PlayerModel::kInitialTranslates[PlayerModel::kNumParts] = {
     {  0.0f,  1.0f,  0.0f },

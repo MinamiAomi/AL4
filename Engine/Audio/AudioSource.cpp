@@ -1,14 +1,14 @@
-#include "Speaker.h"
+#include "AudioSource.h"
 
 #include <cassert>
 
 #include "AudioDevice.h"
 
-Speaker::~Speaker() {
+AudioSource::~AudioSource() {
     Destroy();
 }
 
-Speaker& Speaker::operator=(const std::shared_ptr<Sound>& sound) {
+AudioSource& AudioSource::operator=(const std::shared_ptr<Sound>& sound) {
     if (sound_ != sound) {
         sound_ = sound;
         Create();
@@ -16,11 +16,11 @@ Speaker& Speaker::operator=(const std::shared_ptr<Sound>& sound) {
     return *this;
 }
 
-void Speaker::Play(bool loop) {
+void AudioSource::Play(bool loop) {
     HRESULT hr = S_FALSE;
     XAUDIO2_BUFFER buffer{};
     buffer.pAudioData = sound_->GetMediaData().data();
-    buffer.AudioBytes = sizeof(BYTE) * sound_->GetMediaData().size();
+    buffer.AudioBytes = static_cast<UINT32>(sizeof(BYTE) * sound_->GetMediaData().size());
     buffer.Flags = XAUDIO2_END_OF_STREAM;
     if (loop) {
         buffer.LoopCount = XAUDIO2_LOOP_INFINITE;
@@ -31,35 +31,35 @@ void Speaker::Play(bool loop) {
     assert(SUCCEEDED(hr));
 }
 
-void Speaker::Stop() {
+void AudioSource::Stop() {
     assert(sourceVoice_);
     HRESULT hr = S_FALSE;
     hr = sourceVoice_->Stop();
     assert(SUCCEEDED(hr));
 }
 
-void Speaker::SetVolume(float volume) {
+void AudioSource::SetVolume(float volume) {
     assert(sourceVoice_);
     HRESULT hr = S_FALSE;
     hr = sourceVoice_->SetVolume(volume);
     assert(SUCCEEDED(hr));
 }
 
-void Speaker::SetPitch(float pitch) {
+void AudioSource::SetPitch(float pitch) {
     assert(sourceVoice_);
     HRESULT hr = S_FALSE;
     hr = sourceVoice_->SetFrequencyRatio(pitch);
     assert(SUCCEEDED(hr));
 }
 
-bool Speaker::IsPlaying() const {
+bool AudioSource::IsPlaying() const {
     if (!sound_ || !sourceVoice_) { return false; }
     XAUDIO2_VOICE_STATE state{};
     sourceVoice_->GetState(&state);
     return state.BuffersQueued > 0;
 }
 
-void Speaker::Create() {
+void AudioSource::Create() {
     assert(sound_);
     Destroy();
     HRESULT hr = S_FALSE;
@@ -68,7 +68,7 @@ void Speaker::Create() {
 
 }
 
-void Speaker::Destroy() {
+void AudioSource::Destroy() {
     if (sourceVoice_) {
         sourceVoice_->DestroyVoice();
         sourceVoice_ = nullptr;

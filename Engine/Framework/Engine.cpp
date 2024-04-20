@@ -35,6 +35,7 @@ void Engine::Run(Game* game) {
         renderManager->Render();
     }
 
+    sceneManager->Finalize();
     game->OnFinalize();
 
     audio->Finalize();

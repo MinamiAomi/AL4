@@ -7,11 +7,11 @@
 
 #include "Sound.h"
 
-class Speaker {
+class AudioSource {
 public:
-    ~Speaker();
+    ~AudioSource();
 
-    Speaker& operator=(const std::shared_ptr<Sound>& sound);
+    AudioSource& operator=(const std::shared_ptr<Sound>& sound);
 
     void Play(bool loop = false);
     void Stop();

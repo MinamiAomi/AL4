@@ -3,8 +3,9 @@
 #include <memory>
 
 #include "Scene/SceneManager.h"
-#include "Graphics/ResourceManager.h"
+#include "Framework/ResourceManager.h"
 #include "Graphics/Model.h"
+#include "Audio/Sound.h"
 
 #include "TitleScene.h"
 #include "GameScene.h"
@@ -19,6 +20,8 @@ void Test::OnInitialize() {
     ResourceManager* resourceManager = ResourceManager::GetInstance();
     resourceManager->AddModel("pbr", Model::Load("Resources/pbr/pbr.gltf"));
     resourceManager->AddModel("box", Model::Load("Resources/test/test.gltf"));
+
+    resourceManager->AddSound("sazanami", Sound::Load("Resources/sazanami.mp3"));
 }
 
 void Test::OnFinalize() {

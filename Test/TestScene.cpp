@@ -2,6 +2,7 @@
 
 #include "Input/Input.h"
 #include "Graphics/RenderManager.h"
+#include "Framework/ResourceManager.h"
 
 void TestScene::OnInitialize() {
 
@@ -22,6 +23,9 @@ void TestScene::OnInitialize() {
     boxObject_.Update();
 
     euler_.x = Math::ToRadian;
+
+    audioSource_ = ResourceManager::GetInstance()->FindSound("sazanami");
+    audioSource_.Play(true);
 }
 
 void TestScene::OnUpdate() {

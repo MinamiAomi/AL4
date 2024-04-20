@@ -150,7 +150,7 @@
   <ItemGroup>
     <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Audio\AudioDevice.cpp" />
-    <ClCompile Include="Audio\Speaker.cpp" />
+    <ClCompile Include="Audio\AudioSource.cpp" />
     <ClCompile Include="Audio\Sound.cpp" />
     <ClCompile Include="Collision\Collider.cpp" />
     <ClCompile Include="Collision\CollisionManager.cpp" />
@@ -184,10 +184,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="Framework\Engine.cpp" />
+    <ClCompile Include="Framework\ResourceManager.cpp" />
     <ClCompile Include="Graphics\Animation.cpp" />
     <ClInclude Include="Audio\AudioDevice.h" />
-    <ClInclude Include="Audio\Speaker.h" />
+    <ClInclude Include="Audio\AudioSource.h" />
     <ClInclude Include="Audio\Sound.h" />
+    <ClInclude Include="Framework\ResourceManager.h" />
     <ClInclude Include="Graphics\Animation.h" />
     <ClCompile Include="Graphics\Bloom.cpp" />
     <ClCompile Include="Graphics\ComputeShader.cpp" />
@@ -237,7 +239,6 @@
     <ClCompile Include="Graphics\Raytracing\StateObject.cpp" />
     <ClCompile Include="Graphics\Raytracing\TLAS.cpp" />
     <ClCompile Include="Graphics\RenderManager.cpp" />
-    <ClCompile Include="Graphics\ResourceManager.cpp" />
     <ClCompile Include="Graphics\Sprite.cpp" />
     <ClCompile Include="Graphics\SpriteRenderer.cpp" />
     <ClCompile Include="Graphics\Timer.cpp" />
@@ -353,7 +354,6 @@
     <ClInclude Include="Graphics\Raytracing\StateObject.h" />
     <ClInclude Include="Graphics\Raytracing\TLAS.h" />
     <ClInclude Include="Graphics\RenderManager.h" />
-    <ClInclude Include="Graphics\ResourceManager.h" />
     <ClInclude Include="Graphics\SphereMapConverter.h" />
     <ClInclude Include="Graphics\Sprite.h" />
     <ClInclude Include="Graphics\SpriteRenderer.h" />

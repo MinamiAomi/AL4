@@ -29,11 +29,11 @@ std::shared_ptr<Sound> Sound::Load(const std::filesystem::path& path) {
     assert(SUCCEEDED(hr));
     hr = mfMediaType->SetGUID(MF_MT_SUBTYPE, MFAudioFormat_PCM);
     assert(SUCCEEDED(hr));
-    hr = mfSourceReader->SetCurrentMediaType(MF_SOURCE_READER_FIRST_AUDIO_STREAM, nullptr, mfMediaType.Get());
+    hr = mfSourceReader->SetCurrentMediaType((DWORD)MF_SOURCE_READER_FIRST_AUDIO_STREAM, nullptr, mfMediaType.Get());
     assert(SUCCEEDED(hr));
 
     mfMediaType = nullptr;
-    hr = mfSourceReader->GetCurrentMediaType(MF_SOURCE_READER_FIRST_AUDIO_STREAM, mfMediaType.GetAddressOf());
+    hr = mfSourceReader->GetCurrentMediaType((DWORD)MF_SOURCE_READER_FIRST_AUDIO_STREAM, mfMediaType.GetAddressOf());
     assert(SUCCEEDED(hr));
 
     hr = MFCreateWaveFormatExFromMFMediaType(mfMediaType.Get(), &sound->waveFormat_, nullptr);
@@ -42,7 +42,7 @@ std::shared_ptr<Sound> Sound::Load(const std::filesystem::path& path) {
     while (true) {
         ComPtr<IMFSample> mfSample;
         DWORD dwStreamFlags = 0;
-        hr = mfSourceReader->ReadSample(MF_SOURCE_READER_FIRST_AUDIO_STREAM, 0, nullptr, &dwStreamFlags, nullptr, mfSample.GetAddressOf());
+        hr = mfSourceReader->ReadSample((DWORD)MF_SOURCE_READER_FIRST_AUDIO_STREAM, 0, nullptr, &dwStreamFlags, nullptr, mfSample.GetAddressOf());
         assert(SUCCEEDED(hr));
 
         if (dwStreamFlags & MF_SOURCE_READERF_ENDOFSTREAM) { break; }
