@@ -159,9 +159,6 @@
     <ClCompile Include="Graphics\Core\UploadBuffer.cpp">
       <Filter>Graphics\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Audio\Audio.cpp">
-      <Filter>Audio</Filter>
-    </ClCompile>
     <ClCompile Include="Externals\ImGui\imgui.cpp">
       <Filter>Externals\ImGui</Filter>
     </ClCompile>
@@ -412,9 +409,6 @@
     </ClInclude>
     <ClInclude Include="Graphics\Core\UploadBuffer.h">
       <Filter>Graphics\Core</Filter>
-    </ClInclude>
-    <ClInclude Include="Audio\Audio.h">
-      <Filter>Audio</Filter>
     </ClInclude>
     <ClInclude Include="Externals\DirectXTex\Include\BC.h">
       <Filter>Externals\DirectXTex</Filter>

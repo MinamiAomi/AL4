@@ -148,7 +148,6 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Audio\Audio.cpp" />
     <ClCompile Include="Audio\AudioDevice.cpp" />
     <ClCompile Include="Audio\AudioSource.cpp" />
     <ClCompile Include="Audio\Sound.cpp" />
@@ -255,7 +254,6 @@
     <ClCompile Include="Scene\SceneTransition.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Audio\Audio.h" />
     <ClInclude Include="Collision\Collider.h" />
     <ClInclude Include="Collision\CollisionManager.h" />
     <ClInclude Include="Collision\GameObject.h" />
