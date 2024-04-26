@@ -7,7 +7,8 @@
 void TestScene::OnInitialize() {
 
     camera_ = std::make_shared<Camera>();
-    camera_->SetPosition({ 0.0f, 0.0f, -35.0f });
+    camera_->SetPosition({ 0.0f, 1.0f, -5.0f });
+    camera_->SetRotate(Quaternion::MakeLookRotation({ 0.0f, -1.0f, 5.0f }));
     camera_->UpdateMatrices();
     RenderManager::GetInstance()->SetCamera(camera_);
 
@@ -15,22 +16,21 @@ void TestScene::OnInitialize() {
     sunLight_->direction = Vector3(1.0f, -1.0f, 1.0f).Normalized();
     RenderManager::GetInstance()->SetSunLight(sunLight_);
 
+    door_.Initialize();
+
     testObject_.Initialize("pbr", {});
     testObject_.transform.rotate = Quaternion::MakeForXAxis(-90.0f * Math::ToRadian);
     testObject_.transform.translate = { 40.0f, 0.0f, 0.0f };
     testObject_.Update();
-    boxObject_.Initialize("box", {});
-    boxObject_.Update();
 
     euler_.x = Math::ToRadian;
 
-    audioSource_ = ResourceManager::GetInstance()->FindSound("sazanami");
-    audioSource_.Play(true);
 }
 
 void TestScene::OnUpdate() {
 
-  
+    door_.Update();
+
 
     Input* input = Input::GetInstance();
 

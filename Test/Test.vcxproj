@@ -16,32 +16,24 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DebugCamera.cpp" />
+    <ClCompile Include="Door.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="FollowCamera.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="PlayerModel.cpp" />
-    <ClCompile Include="SponzaScene.cpp" />
     <ClCompile Include="Test.cpp" />
-    <ClCompile Include="GameScene.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TestObject.cpp" />
     <ClCompile Include="TestScene.cpp" />
     <ClCompile Include="TitleObject.cpp" />
-    <ClCompile Include="TitleScene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DebugCamera.h" />
+    <ClInclude Include="Door.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="FollowCamera.h" />
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="PlayerModel.h" />
-    <ClInclude Include="SponzaScene.h" />
     <ClInclude Include="Test.h" />
-    <ClInclude Include="GameScene.h" />
     <ClInclude Include="TestObject.h" />
     <ClInclude Include="TestScene.h" />
     <ClInclude Include="TitleObject.h" />
-    <ClInclude Include="TitleScene.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">

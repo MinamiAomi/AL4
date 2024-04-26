@@ -7,7 +7,7 @@ Camera::Camera(ProjectionType projectionType) {
 
     projection_.perspective.fovY = 45.0f * Math::ToRadian;
     projection_.perspective.aspectRaito = 1280.0f / 720.0f;
-    nearClip_ = 1.0f;
+    nearClip_ = 0.1f;
     farClip_ = 100.0f;
 
     needUpdateing_ = true;

@@ -36,8 +36,9 @@ namespace {
                 destKey.time = float(srcKey.mTime / animation->mTicksPerSecond);
                 destKey.value = Quaternion{ srcKey.mValue.x, srcKey.mValue.y, srcKey.mValue.z, srcKey.mValue.w };
                 // 右手→左手
+                destKey.value.x *= -1.0f;
                 destKey.value.y *= -1.0f;
-                destKey.value.z *= -1.0f;
+                //destKey.value.z *= -1.0f;
             }
 
             destNodeAnimation.scale.keyframes.resize(srcNodeAnimation->mNumScalingKeys);
@@ -77,9 +78,9 @@ std::shared_ptr<Animation> Animation::Load(const std::filesystem::path& path) {
     // アニメーションがある
     assert(scene->mNumAnimations != 0);
     // 配列を確保しておく
-    animation->animationSet_.resize(scene->mNumAnimations);
     for (uint32_t animationIndex = 0; animationIndex < scene->mNumAnimations; ++animationIndex) {
-        animation->animationSet_[animationIndex] = ParseAnimation(scene->mAnimations[animationIndex]);
+        aiString name = scene->mAnimations[animationIndex]->mName;
+        animation->animationSet_[name.C_Str()] = ParseAnimation(scene->mAnimations[animationIndex]);
     }
 
     return animation;
@@ -87,8 +88,8 @@ std::shared_ptr<Animation> Animation::Load(const std::filesystem::path& path) {
 
 Vector3 CalculateValue(const AnimationCurve<Vector3>& animationCurve, float time) {
     assert(!animationCurve.keyframes.empty());
-    if (animationCurve.keyframes.size() == 1 || time <= animationCurve.keyframes[1].time) {
-        return animationCurve.keyframes[1].value;
+    if (animationCurve.keyframes.size() == 1 || time <= animationCurve.keyframes[0].time) {
+        return animationCurve.keyframes[0].value;
     }
 
     for (size_t index = 0; index < animationCurve.keyframes.size() - 1; ++index) {
@@ -103,8 +104,8 @@ Vector3 CalculateValue(const AnimationCurve<Vector3>& animationCurve, float time
 
 Quaternion CalculateValue(const AnimationCurve<Quaternion>& animationCurve, float time) {
     assert(!animationCurve.keyframes.empty());
-    if (animationCurve.keyframes.size() == 1 || time <= animationCurve.keyframes[1].time) {
-        return animationCurve.keyframes[1].value;
+    if (animationCurve.keyframes.size() == 1 || time <= animationCurve.keyframes[0].time) {
+        return animationCurve.keyframes[0].value;
     }
 
     for (size_t index = 0; index < animationCurve.keyframes.size() - 1; ++index) {

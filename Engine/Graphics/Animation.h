@@ -41,8 +41,10 @@ class Animation {
 public:
     static std::shared_ptr<Animation> Load(const std::filesystem::path& path);
 
+    AnimationSet& GetAnimation(const std::string& name) { return animationSet_.at(name); }
+
 private:
-    std::vector<AnimationSet> animationSet_;
+    std::map<std::string, AnimationSet> animationSet_;
 };
 
 // ジョイント

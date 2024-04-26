@@ -160,7 +160,7 @@ void GeometryRenderingPass::Render(CommandContext& commandContext, const Camera&
         if (!instance->IsActive() || !model) { continue; }
 
         InstanceData instanceData;
-        instanceData.worldMatrix = model->GetRootNode().localMatrix * instance->GetWorldMatrix();
+        instanceData.worldMatrix = /*model->GetRootNode().localMatrix **/ instance->GetWorldMatrix();
         instanceData.worldInverseTransposeMatrix = instanceData.worldMatrix.Inverse().Transpose();
         commandContext.SetDynamicConstantBufferView(RootIndex::Instance, sizeof(instanceData), &instanceData);
 

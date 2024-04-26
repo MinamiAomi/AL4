@@ -10,6 +10,7 @@
 #include "Graphics/LightManager.h"
 #include "TestObject.h"
 #include "Audio/AudioSource.h"
+#include "Door.h"
 
 class TestScene :
     public BaseScene {
@@ -24,8 +25,7 @@ private:
     Vector3 euler_;
     std::shared_ptr<DirectionalLight> sunLight_;
     
-    AudioSource audioSource_;
-
+    Door door_;
     TestObject testObject_;
     TestObject boxObject_;
 };
