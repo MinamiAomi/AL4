@@ -297,6 +297,9 @@
     <ClCompile Include="Framework\ResourceManager.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Graysale.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -593,6 +596,9 @@
     <ClInclude Include="Framework\ResourceManager.h">
       <Filter>Framework</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Graysale.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\Lighting.hlsli">
@@ -692,6 +698,9 @@
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Graphics\Shader\TransitionCS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\GrayscaleCS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
   </ItemGroup>

@@ -221,6 +221,7 @@
     <ClCompile Include="Graphics\GeometryRenderingPass.cpp" />
     <ClCompile Include="Graphics\GameWindow.cpp" />
     <ClCompile Include="Graphics\GaussianBlur.cpp" />
+    <ClCompile Include="Graphics\Graysale.cpp" />
     <ClCompile Include="Graphics\ImGuiManager.cpp" />
     <ClCompile Include="Graphics\LightingRenderingPass.cpp" />
     <ClCompile Include="Graphics\LightManager.cpp" />
@@ -333,6 +334,7 @@
     <ClInclude Include="Graphics\GeometryRenderingPass.h" />
     <ClInclude Include="Graphics\GameWindow.h" />
     <ClInclude Include="Graphics\GaussianBlur.h" />
+    <ClInclude Include="Graphics\Graysale.h" />
     <ClInclude Include="Graphics\ImGuiManager.h" />
     <ClInclude Include="Graphics\LightingRenderingPass.h" />
     <ClInclude Include="Graphics\LightManager.h" />
@@ -625,6 +627,18 @@
       <FileType>Document</FileType>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Graphics\Shader\GrayscaleCS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">4.0</ShaderModel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
     </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -5,6 +5,8 @@
 #include "GameWindow.h"
 #include "ImGuiManager.h"
 
+static bool useGrayscale = true;
+
 RenderManager* RenderManager::GetInstance() {
     static RenderManager instance;
     return &instance;
@@ -36,7 +38,9 @@ void RenderManager::Initialize() {
     geometryRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
     lightingRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
+
     fxaa_.Initialize(&lightingRenderingPass_.GetResult());
+    grayscale_.Initialize();
 
 //    modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
     transition_.Initialize();
@@ -83,6 +87,11 @@ void RenderManager::Render() {
     }
 
     fxaa_.Render(commandContext_);
+    
+    if (useGrayscale) {
+        grayscale_.Dispatch(commandContext_, fxaa_.GetResult());
+    }
+
 
     commandContext_.TransitionResource(mainColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
@@ -146,6 +155,14 @@ void RenderManager::Render() {
     ImagePreview("MetallicRoughness", geometryRenderingPass_.GetMetallicRoughness().GetSRV(), { 360.0f, 180.0f });
     ImagePreview("Normal", geometryRenderingPass_.GetNormal().GetSRV(), { 360.0f, 180.0f });
     ImagePreview("Depth", geometryRenderingPass_.GetDepth().GetSRV(), { 360.0f, 180.0f });
+    ImGui::Checkbox("##label", &useGrayscale);
+    ImGui::SameLine();
+    if (ImGui::TreeNode("Grayscale")) {
+        Vector3 color = grayscale_.GetColor();
+        ImGui::ColorEdit3("Color", &color.x);
+        grayscale_.SetColor(color);
+        ImGui::TreePop();
+    }
 
     //ImagePreview("MainColorBuffer", mainColorBuffer_.GetSRV(), { 320.0f, 180.0f });
     //ImagePreview("MainDepthBuffer", mainDepthBuffer_.GetSRV(), { 320.0f, 180.0f });

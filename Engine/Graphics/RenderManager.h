@@ -11,6 +11,7 @@
 #include "ModelRenderer.h"
 #include "Bloom.h"
 #include "FXAA.h"
+#include "Graysale.h"
 #include "ToonRenderer.h"
 #include "ParticleRenderer.h"
 #include "SpriteRenderer.h"
@@ -69,6 +70,7 @@ private:
     Transition transition_;
     //Bloom bloom_;
     FXAA fxaa_;
+    Grayscale grayscale_;
     PostEffect postEffect_;
     ComputeShaderTester computeShaderTester_;
     //LightManager lightManager_;
