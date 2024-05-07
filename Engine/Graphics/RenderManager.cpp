@@ -19,6 +19,8 @@ void RenderManager::Initialize() {
     shaderManager->Initialize();
     shaderManager->SetDirectory(std::filesystem::current_path() / SHADER_DIRECTORY);
 
+    shaderManager->Compile(L"Standard/SkinningCS.hlsl", ShaderManager::kCompute);
+
     auto window = GameWindow::GetInstance();
     swapChain_.Create(window->GetHWND());
 

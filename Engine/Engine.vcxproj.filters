@@ -61,6 +61,9 @@
     <Filter Include="Debug">
       <UniqueIdentifier>{1e0a1032-8de3-4f63-94db-08262459abfd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Graphics\PostEffect">
+      <UniqueIdentifier>{d92bfcaf-dd2d-468f-ad51-4eef09c6c778}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene\SceneManager.cpp">
@@ -81,22 +84,13 @@
     <ClCompile Include="Input\Input.cpp">
       <Filter>Input</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Bloom.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\GameWindow.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\GaussianBlur.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\ImGuiManager.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\ModelLoader.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\PostEffect.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\RenderManager.cpp">
@@ -273,9 +267,6 @@
     <ClCompile Include="Graphics\LightingRenderingPass.cpp">
       <Filter>Graphics\Standard</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\FXAA.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\Model.cpp">
       <Filter>Graphics\Standard</Filter>
     </ClCompile>
@@ -297,8 +288,20 @@
     <ClCompile Include="Framework\ResourceManager.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\FXAA.cpp">
+      <Filter>Graphics\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Bloom.cpp">
+      <Filter>Graphics\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\GaussianBlur.cpp">
+      <Filter>Graphics\PostEffect</Filter>
+    </ClCompile>
     <ClCompile Include="Graphics\Graysale.cpp">
-      <Filter>Graphics</Filter>
+      <Filter>Graphics\PostEffect</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\PostEffect.cpp">
+      <Filter>Graphics\PostEffect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -329,22 +332,13 @@
     <ClInclude Include="Input\Input.h">
       <Filter>Input</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Bloom.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\GameWindow.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\GaussianBlur.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\ImGuiManager.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\ModelLoader.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\PostEffect.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\RenderManager.h">
@@ -572,9 +566,6 @@
     <ClInclude Include="Graphics\SphereMapConverter.h">
       <Filter>Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\FXAA.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\Node.h">
       <Filter>Graphics\Standard</Filter>
     </ClInclude>
@@ -596,8 +587,20 @@
     <ClInclude Include="Framework\ResourceManager.h">
       <Filter>Framework</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\FXAA.h">
+      <Filter>Graphics\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Bloom.h">
+      <Filter>Graphics\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\GaussianBlur.h">
+      <Filter>Graphics\PostEffect</Filter>
+    </ClInclude>
     <ClInclude Include="Graphics\Graysale.h">
-      <Filter>Graphics</Filter>
+      <Filter>Graphics\PostEffect</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\PostEffect.h">
+      <Filter>Graphics\PostEffect</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -702,6 +705,9 @@
     </None>
     <None Include="Graphics\Shader\GrayscaleCS.hlsl">
       <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\Standard\SkinningCS.hlsl">
+      <Filter>Graphics\Shader\Standard</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
