@@ -11,8 +11,8 @@ struct Vertex {
 };
 
 struct VertexInfluence {
+    int32_t4 index;
     float32_t4 weight;
-    uint32_t4 index;
 };
 
 struct SkinningInformation {
@@ -41,6 +41,15 @@ uint32_t Float4ToR10G10B10A2(float32_t4 value) {
     return (x << 0) | (y << 10) | (z << 20) | (w << 30);
 }
 
+float32_t4x4 Identity() {
+    return float32_t4x4(
+        1, 0, 0, 0,
+        0, 1, 0, 0,
+        0, 0, 1, 0,
+        0, 0, 0, 1
+    );
+}
+
 [numthreads(1024, 1, 1)]
 void main(uint32_t3 DTid : SV_DispatchThreadID) {
 
@@ -54,26 +63,26 @@ void main(uint32_t3 DTid : SV_DispatchThreadID) {
     Vertex skinned;
     skinned.texcoord = input.texcoord;
 
-    float32_t4 position = float32_t4(input.position, 1.0f);
-    position  = mul(position, g_MatrixPalette[influence.index.x].skeletonSpaceMatrix) * influence.weight.x;
-    position += mul(position, g_MatrixPalette[influence.index.y].skeletonSpaceMatrix) * influence.weight.y;
-    position += mul(position, g_MatrixPalette[influence.index.z].skeletonSpaceMatrix) * influence.weight.z;
-    position += mul(position, g_MatrixPalette[influence.index.w].skeletonSpaceMatrix) * influence.weight.w;
+    float32_t4 position;
+    position  = mul(float32_t4(input.position, 1.0f), g_MatrixPalette[influence.index.x].skeletonSpaceMatrix) * influence.weight.x;
+    position += mul(float32_t4(input.position, 1.0f), g_MatrixPalette[influence.index.y].skeletonSpaceMatrix) * influence.weight.y;
+    position += mul(float32_t4(input.position, 1.0f), g_MatrixPalette[influence.index.z].skeletonSpaceMatrix) * influence.weight.z;
+    position += mul(float32_t4(input.position, 1.0f), g_MatrixPalette[influence.index.w].skeletonSpaceMatrix) * influence.weight.w;
     skinned.position = position.xyz;
 
-    float32_t3 normal = R10G10B10A2ToFloat4(input.normal).xyz * 2.0f - 1.0f;
-    normal  = mul(normal, (float32_t3x3)g_MatrixPalette[influence.index.x].skeletonSpaceInverseTransposeMatrix) * influence.weight.x;
-    normal += mul(normal, (float32_t3x3)g_MatrixPalette[influence.index.y].skeletonSpaceInverseTransposeMatrix) * influence.weight.y;
-    normal += mul(normal, (float32_t3x3)g_MatrixPalette[influence.index.z].skeletonSpaceInverseTransposeMatrix) * influence.weight.z;
-    normal += mul(normal, (float32_t3x3)g_MatrixPalette[influence.index.w].skeletonSpaceInverseTransposeMatrix) * influence.weight.w;
+    float32_t3 normal, originalNormal = R10G10B10A2ToFloat4(input.normal).xyz * 2.0f - 1.0f;
+    normal  = mul(originalNormal, (float32_t3x3)g_MatrixPalette[influence.index.x].skeletonSpaceInverseTransposeMatrix) * influence.weight.x;
+    normal += mul(originalNormal, (float32_t3x3)g_MatrixPalette[influence.index.y].skeletonSpaceInverseTransposeMatrix) * influence.weight.y;
+    normal += mul(originalNormal, (float32_t3x3)g_MatrixPalette[influence.index.z].skeletonSpaceInverseTransposeMatrix) * influence.weight.z;
+    normal += mul(originalNormal, (float32_t3x3)g_MatrixPalette[influence.index.w].skeletonSpaceInverseTransposeMatrix) * influence.weight.w;
     normal = (normalize(normal) + 1.0f) * 0.5f;
     skinned.normal = Float4ToR10G10B10A2(float32_t4(normal, 0.0f));
 
-    float32_t3 tangent = R10G10B10A2ToFloat4(input.tangent).xyz * 2.0f - 1.0f;
-    tangent  = mul(tangent, (float32_t3x3)g_MatrixPalette[influence.index.x].skeletonSpaceInverseTransposeMatrix) * influence.weight.x;
-    tangent += mul(tangent, (float32_t3x3)g_MatrixPalette[influence.index.y].skeletonSpaceInverseTransposeMatrix) * influence.weight.y;
-    tangent += mul(tangent, (float32_t3x3)g_MatrixPalette[influence.index.z].skeletonSpaceInverseTransposeMatrix) * influence.weight.z;
-    tangent += mul(tangent, (float32_t3x3)g_MatrixPalette[influence.index.w].skeletonSpaceInverseTransposeMatrix) * influence.weight.w;
+    float32_t3 tangent, originalTangent = R10G10B10A2ToFloat4(input.tangent).xyz * 2.0f - 1.0f;
+    tangent  = mul(originalTangent, (float32_t3x3)g_MatrixPalette[influence.index.x].skeletonSpaceInverseTransposeMatrix) * influence.weight.x;
+    tangent += mul(originalTangent, (float32_t3x3)g_MatrixPalette[influence.index.y].skeletonSpaceInverseTransposeMatrix) * influence.weight.y;
+    tangent += mul(originalTangent, (float32_t3x3)g_MatrixPalette[influence.index.z].skeletonSpaceInverseTransposeMatrix) * influence.weight.z;
+    tangent += mul(originalTangent, (float32_t3x3)g_MatrixPalette[influence.index.w].skeletonSpaceInverseTransposeMatrix) * influence.weight.w;
     tangent = (normalize(tangent) + 1.0f) * 0.5f;
     skinned.tangent = Float4ToR10G10B10A2(float32_t4(tangent, 0.0f));
 

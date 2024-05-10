@@ -143,7 +143,7 @@ void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera,
             // オブジェクト描画
             commandContext.SetPipelineState(pipelineState_);
 
-            for (auto& mesh : instance->GetModel()->GetMeshes()) {
+            //for (auto& mesh : instance->GetModel()->GetMeshes()) {
                // MaterialConstant material;
                // D3D12_GPU_DESCRIPTOR_HANDLE texture = DefaultTexture::White.GetSRV();
                // if (mesh.material) {
@@ -157,11 +157,11 @@ void ModelRenderer::Render(CommandContext& commandContext, const Camera& camera,
 
                // commandContext.SetDynamicConstantBufferView(RootIndex::Material, sizeof(material), &material);
                // commandContext.SetDescriptorTable(RootIndex::Texture, texture);
-                commandContext.SetDescriptorTable(RootIndex::Sampler, SamplerManager::AnisotropicWrap);
-                commandContext.SetVertexBuffer(0, mesh.vertexBuffer.GetVertexBufferView());
-                commandContext.SetIndexBuffer(mesh.indexBuffer.GetIndexBufferView());
-                commandContext.DrawIndexed((UINT)mesh.indices.size());
-            }
+               // commandContext.SetDescriptorTable(RootIndex::Sampler, SamplerManager::AnisotropicWrap);
+               // commandContext.SetVertexBuffer(0, mesh.vertexBuffer.GetVertexBufferView());
+               // commandContext.SetIndexBuffer(mesh.indexBuffer.GetIndexBufferView());
+               // commandContext.DrawIndexed((UINT)mesh.indices.size());
+            //}
         }
     }
 }

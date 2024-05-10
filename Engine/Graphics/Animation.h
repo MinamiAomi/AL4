@@ -46,29 +46,3 @@ public:
 private:
     std::map<std::string, AnimationSet> animationSet_;
 };
-
-// ジョイント
-struct Joint {
-    struct Transform {
-        Vector3 translate;
-        Quaternion rotate;
-        Vector3 scale;
-    }transform;
-    Matrix4x4 localMatrix;
-    Matrix4x4 skeletonSpaceMatrix;
-    std::string name;
-    std::vector<int32_t> children;
-    int32_t index;
-    std::optional<int32_t> parent;
-};
-int32_t CreateJoint(const Node& node, const std::optional<int32_t>& parent, std::vector<Joint>& joints);
-// スケルトン
-struct Skeleton {
-    int32_t root;
-    std::map<std::string, int32_t> jointMap;
-    std::vector<Joint> joints;
-    
-    void Update();
-    void ApplyAnimation(const AnimationSet& animation, float animationTime);
-};
-Skeleton CreateSkeleton(const Node& rootNode);

@@ -4,6 +4,8 @@
 #include "Graphics/RenderManager.h"
 #include "Framework/ResourceManager.h"
 
+Matrix4x4 mat;
+
 void TestScene::OnInitialize() {
 
     camera_ = std::make_shared<Camera>();
@@ -16,7 +18,7 @@ void TestScene::OnInitialize() {
     sunLight_->direction = Vector3(1.0f, -1.0f, 1.0f).Normalized();
     RenderManager::GetInstance()->SetSunLight(sunLight_);
 
-    door_.Initialize();
+    //door_.Initialize();
 
     testObject_.Initialize("pbr", {});
     testObject_.transform.rotate = Quaternion::MakeForXAxis(-90.0f * Math::ToRadian);
@@ -25,12 +27,23 @@ void TestScene::OnInitialize() {
 
     euler_.x = Math::ToRadian;
 
+    model_.SetModel(ResourceManager::GetInstance()->FindModel("human"));
+    walk_ = ResourceManager::GetInstance()->FindAnimation("human_walk");
+    skeleton_ = std::make_shared<Skeleton>();
+    skeleton_->Create(model_.GetModel());
+    model_.SetSkeleton(skeleton_);
+    model_.SetWorldMatrix(Matrix4x4::MakeRotationY(Math::ToRadian * 180.0f));
 }
 
 void TestScene::OnUpdate() {
 
-    door_.Update();
+    //door_.Update();
 
+    time_ += 1.0f / 60.0f;
+    time_ = std::fmod(time_, 1.0f);
+    skeleton_->ApplyAnimation(walk_->GetAnimation("situp"), time_);
+    skeleton_->Update();
+    skeleton_->DebugDraw(model_.GetWorldMatrix());
 
     Input* input = Input::GetInstance();
 

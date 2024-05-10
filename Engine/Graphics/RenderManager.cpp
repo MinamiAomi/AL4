@@ -5,7 +5,7 @@
 #include "GameWindow.h"
 #include "ImGuiManager.h"
 
-static bool useGrayscale = true;
+static bool useGrayscale = false;
 
 RenderManager* RenderManager::GetInstance() {
     static RenderManager instance;
@@ -18,8 +18,6 @@ void RenderManager::Initialize() {
     auto shaderManager = ShaderManager::GetInstance();
     shaderManager->Initialize();
     shaderManager->SetDirectory(std::filesystem::current_path() / SHADER_DIRECTORY);
-
-    shaderManager->Compile(L"Standard/SkinningCS.hlsl", ShaderManager::kCompute);
 
     auto window = GameWindow::GetInstance();
     swapChain_.Create(window->GetHWND());
@@ -36,10 +34,11 @@ void RenderManager::Initialize() {
     particleRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
     postEffect_.Initialize(preSwapChainBuffer_);
     spriteRenderer_.Initialize(preSwapChainBuffer_);
-
+    skinningManager_.Initialize();
     geometryRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
     lightingRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
+    lineDrawer_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat());
 
     fxaa_.Initialize(&lightingRenderingPass_.GetResult());
     grayscale_.Initialize();
@@ -81,11 +80,19 @@ void RenderManager::Render() {
 
     commandContext_.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
+    skinningManager_.Update(commandContext_);
+
     if (camera && sunLight) {
         // 影、スペキュラ
+        modelSorter_.Sort(*camera);;
     //    raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
-        geometryRenderingPass_.Render(commandContext_, *camera);
+        geometryRenderingPass_.Render(commandContext_, *camera, modelSorter_);
         lightingRenderingPass_.Render(commandContext_, geometryRenderingPass_, *camera, *sunLight);
+
+        commandContext_.TransitionResource(lightingRenderingPass_.GetResult(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+        commandContext_.SetRenderTarget(lightingRenderingPass_.GetResult().GetRTV());
+        commandContext_.SetViewportAndScissorRect(0, 0, lightingRenderingPass_.GetResult().GetWidth(), lightingRenderingPass_.GetResult().GetHeight());
+        lineDrawer_.Render(commandContext_, *camera);
     }
 
     fxaa_.Render(commandContext_);

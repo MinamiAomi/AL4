@@ -225,10 +225,12 @@
     <ClCompile Include="Graphics\ImGuiManager.cpp" />
     <ClCompile Include="Graphics\LightingRenderingPass.cpp" />
     <ClCompile Include="Graphics\LightManager.cpp" />
+    <ClCompile Include="Graphics\LineDrawer.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
     <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Graphics\ModelLoader.cpp" />
     <ClCompile Include="Graphics\ModelRenderer.cpp" />
+    <ClCompile Include="Graphics\ModelSorter.cpp" />
     <ClCompile Include="Graphics\ParticleManager.cpp" />
     <ClCompile Include="Graphics\ParticleRenderer.cpp" />
     <ClCompile Include="Graphics\PostEffect.cpp" />
@@ -239,6 +241,9 @@
     <ClCompile Include="Graphics\Raytracing\StateObject.cpp" />
     <ClCompile Include="Graphics\Raytracing\TLAS.cpp" />
     <ClCompile Include="Graphics\RenderManager.cpp" />
+    <ClCompile Include="Graphics\Skeleton.cpp" />
+    <ClCompile Include="Graphics\SkinCluster.cpp" />
+    <ClCompile Include="Graphics\SkinningManager.cpp" />
     <ClCompile Include="Graphics\Sprite.cpp" />
     <ClCompile Include="Graphics\SpriteRenderer.cpp" />
     <ClCompile Include="Graphics\Timer.cpp" />
@@ -338,11 +343,13 @@
     <ClInclude Include="Graphics\ImGuiManager.h" />
     <ClInclude Include="Graphics\LightingRenderingPass.h" />
     <ClInclude Include="Graphics\LightManager.h" />
+    <ClInclude Include="Graphics\LineDrawer.h" />
     <ClInclude Include="Graphics\Material.h" />
     <ClInclude Include="Graphics\Mesh.h" />
     <ClInclude Include="Graphics\Model.h" />
     <ClInclude Include="Graphics\ModelLoader.h" />
     <ClInclude Include="Graphics\ModelRenderer.h" />
+    <ClInclude Include="Graphics\ModelSorter.h" />
     <ClInclude Include="Graphics\Node.h" />
     <ClInclude Include="Graphics\ParticleManager.h" />
     <ClInclude Include="Graphics\ParticleRenderer.h" />
@@ -354,6 +361,9 @@
     <ClInclude Include="Graphics\Raytracing\StateObject.h" />
     <ClInclude Include="Graphics\Raytracing\TLAS.h" />
     <ClInclude Include="Graphics\RenderManager.h" />
+    <ClInclude Include="Graphics\Skeleton.h" />
+    <ClInclude Include="Graphics\SkinCluster.h" />
+    <ClInclude Include="Graphics\SkinningManager.h" />
     <ClInclude Include="Graphics\SphereMapConverter.h" />
     <ClInclude Include="Graphics\Sprite.h" />
     <ClInclude Include="Graphics\SpriteRenderer.h" />
@@ -651,6 +661,28 @@
       <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">4.0</ShaderModel>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Graphics\Shader\LineVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">Vertex</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Graphics\Shader\LinePS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

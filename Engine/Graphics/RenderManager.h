@@ -20,9 +20,11 @@
 #include "LightManager.h"
 #include "ComputeShader.h"
 #include "Transition.h"
-
+#include "ModelSorter.h"
+#include "SkinningManager.h"
 #include "GeometryRenderingPass.h"
 #include "LightingRenderingPass.h"
+#include "LineDrawer.h"
 
 #ifdef _DEBUG
 #define SHADER_DIRECTORY "../Engine/Graphics/Shader"
@@ -44,6 +46,8 @@ public:
 
     //LightManager& GetLightManager() { return lightManager_; }
     Transition& GetTransition() { return transition_; }
+    SkinningManager& GetSkinningManager() { return skinningManager_; }
+    LineDrawer& GetLineDrawer() { return lineDrawer_; }
 
 private:
     RenderManager() = default;
@@ -61,8 +65,11 @@ private:
     ParticleRenderer particleRenderer_;
     SpriteRenderer spriteRenderer_;
 
+    ModelSorter modelSorter_;
+    SkinningManager skinningManager_;
     GeometryRenderingPass geometryRenderingPass_;
     LightingRenderingPass lightingRenderingPass_;
+    LineDrawer lineDrawer_;
 
     RaytracingRenderer raytracingRenderer_;
     //RaymarchingRenderer raymarchingRenderer_;

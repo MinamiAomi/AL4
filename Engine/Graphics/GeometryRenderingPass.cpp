@@ -8,6 +8,7 @@
 #include "Core/SamplerManager.h"
 #include "Model.h"
 #include "DefaultTextures.h"
+#include "RenderManager.h"
 
 namespace {
     const wchar_t kVertexShader[] = L"Standard/GeometryPassVS.hlsl";
@@ -87,7 +88,7 @@ void GeometryRenderingPass::Initialize(uint32_t width, uint32_t height) {
 
 }
 
-void GeometryRenderingPass::Render(CommandContext& commandContext, const Camera& camera) {
+void GeometryRenderingPass::Render(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter) {
 
     struct SceneData {
         Matrix4x4 viewMatrix;
@@ -153,11 +154,9 @@ void GeometryRenderingPass::Render(CommandContext& commandContext, const Camera&
 
     commandContext.SetBindlessResource(RootIndex::BindlessTexture);
 
-    auto& instances = ModelInstance::GetInstanceList();
-    for (auto const instance : instances) {
+    auto& instances = modelSorter.GetDrawModels();
+    for (auto instance : instances) {
         auto model = instance->GetModel();
-        // アクティブかつモデルありのみ描画
-        if (!instance->IsActive() || !model) { continue; }
 
         InstanceData instanceData;
         instanceData.worldMatrix = /*model->GetRootNode().localMatrix **/ instance->GetWorldMatrix();
@@ -166,19 +165,29 @@ void GeometryRenderingPass::Render(CommandContext& commandContext, const Camera&
 
         for (auto& mesh : model->GetMeshes()) {
             MaterialData materialData = ErrorMaterial();
-            if (mesh.material) {
-                materialData.albedo = mesh.material->albedo;
-                materialData.metallic = mesh.material->metallic;
-                materialData.roughness = mesh.material->roughness;
-                if (mesh.material->albedoMap) { materialData.albedoMapIndex = mesh.material->albedoMap->GetSRV().GetIndex(); }
-                if (mesh.material->metallicRoughnessMap) { materialData.metallicRoughnessMapIndex = mesh.material->metallicRoughnessMap->GetSRV().GetIndex(); }
-                if (mesh.material->normalMap) { materialData.normalMapIndex = mesh.material->normalMap->GetSRV().GetIndex(); }
+            if (mesh.material < model->GetMaterials().size()) {
+                auto& material = model->GetMaterials()[mesh.material];
+                materialData.albedo = material.albedo;
+                materialData.metallic = material.metallic;
+                materialData.roughness = material.roughness;
+                if (material.albedoMap) { materialData.albedoMapIndex = material.albedoMap->GetSRV().GetIndex(); }
+                if (material.metallicRoughnessMap) { materialData.metallicRoughnessMapIndex = material.metallicRoughnessMap->GetSRV().GetIndex(); }
+                if (material.normalMap) { materialData.normalMapIndex = material.normalMap->GetSRV().GetIndex(); }
             }
             commandContext.SetDynamicConstantBufferView(RootIndex::Material, sizeof(materialData), &materialData);
-            
-            commandContext.SetVertexBuffer(0, mesh.vertexBuffer.GetVertexBufferView());
-            commandContext.SetIndexBuffer(mesh.indexBuffer.GetIndexBufferView());
-            commandContext.DrawIndexed((UINT)mesh.indices.size());
+
+            auto skeleton = instance->GetSkeleton();
+            auto vbv = model->GetVertexBuffer().GetVertexBufferView();
+            if (skeleton) {
+                auto skinCluster = RenderManager::GetInstance()->GetSkinningManager().GetSkinCluster(skeleton.get());
+                if (skinCluster) {
+                    vbv = skinCluster->GetSkinnedVertexBuffer().GetVertexBufferView();
+                }
+            }
+            commandContext.SetVertexBuffer(0, vbv);
+            commandContext.SetIndexBuffer(model->GetIndexBuffer().GetIndexBufferView());
+            commandContext.DrawIndexed((UINT)mesh.indexCount, mesh.indexOffset, mesh.vertexOffset);
         }
+
     }
 }

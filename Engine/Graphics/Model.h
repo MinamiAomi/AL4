@@ -7,23 +7,67 @@
 
 #include "Math/MathUtils.h"
 #include "Core/GPUBuffer.h"
-#include "Mesh.h"
+//#include "Mesh.h"
 #include "Node.h"
 #include "Raytracing/BLAS.h"
+#include "Skeleton.h"
 
 class Model {
 public:
+    struct Vertex {
+        Vector3 position;
+        uint32_t normal;
+        uint32_t tangent;
+        Vector2 texcood;
+    };
+
+    using Index = uint32_t;
+
+    struct VertexWeightData {
+        float weight;
+        uint32_t vertexIndex;
+    };
+
+    struct JointWeightData {
+        Matrix4x4 inverseBindPoseMatrix;
+        std::vector<VertexWeightData> vertexWeights;
+    };
+
+    struct Mesh {
+        uint32_t vertexOffset;
+        uint32_t vertexCount;
+        uint32_t indexOffset;
+        uint32_t indexCount;
+        uint32_t material;
+    };
+
     static std::shared_ptr<Model> Load(const std::filesystem::path& path);
 
     const BLAS& GetBLAS() const { return blas_; }
     const std::vector<Mesh>& GetMeshes() const { return meshes_; }
+    const StructuredBuffer& GetVertexBuffer() const { return vertexBuffer_; }
+    const StructuredBuffer& GetIndexBuffer() const { return indexBuffer_; }
+    const std::vector<Vertex>& GetVertices() const { return vertices_; }
+    const std::vector<Index>& GetIndices() const { return indices_; }
+    const std::vector<PBRMaterial>& GetMaterials() const { return materials_; }
+    const std::map<std::string, JointWeightData> GetSkinClusterData() const { return skinClusterData_; }
     const Node& GetRootNode() const { return rootNode_; }
+    size_t GetNumVertices() const { return vertices_.size(); }
+    size_t GetNumIndices() const { return indices_.size(); }
 
 private:
     Model() = default;
     ~Model() = default;
 
     std::vector<Mesh> meshes_;
+    std::vector<Vertex> vertices_;
+    std::vector<Index> indices_;
+    std::vector<PBRMaterial> materials_;
+    std::map<std::string, JointWeightData> skinClusterData_;
+    
+    StructuredBuffer vertexBuffer_;
+    StructuredBuffer indexBuffer_;
+
     BLAS blas_;
     Node rootNode_;
 };
@@ -36,6 +80,7 @@ public:
     ~ModelInstance();
 
     void SetModel(const std::shared_ptr<Model>& model) { model_ = model; }
+    void SetSkeleton(const std::shared_ptr<Skeleton> skeleton) { skeleton_ = skeleton; }
     void SetWorldMatrix(const Matrix4x4& worldMatrix) { worldMatrix_ = worldMatrix; }
     void SetColor(const Vector3& color) { color_ = color; }
     void SetAlpha(float alpha) { alpha_ = alpha; }
@@ -46,6 +91,7 @@ public:
     void SetIsActive(bool isActive) { isActive_ = isActive; }
 
     const std::shared_ptr<Model>& GetModel() const { return model_; }
+    const std::shared_ptr<Skeleton>& GetSkeleton() const { return skeleton_; }
     const Matrix4x4& GetWorldMatrix() const { return worldMatrix_; }
     const Vector3& GetColor() const { return color_; }
     float GetAlpha() const { return alpha_; }
@@ -59,6 +105,7 @@ private:
     static std::list<ModelInstance*> instanceLists_;
 
     std::shared_ptr<Model> model_;
+    std::shared_ptr<Skeleton> skeleton_;
     Matrix4x4 worldMatrix_;
     Vector3 color_ = Vector3::one;
     float alpha_ = 1.0f;

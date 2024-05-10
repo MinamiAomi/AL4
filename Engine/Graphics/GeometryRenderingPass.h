@@ -6,6 +6,7 @@
 #include "Core/RootSignature.h"
 #include "Core/PipelineState.h"
 #include "Math/Camera.h"
+#include "ModelSorter.h"
 
 class CommandContext;
 
@@ -23,7 +24,7 @@ public:
     };
     
     void Initialize(uint32_t width, uint32_t height);
-    void Render(CommandContext& commandContext, const Camera& camera);
+    void Render(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter);
 
     ColorBuffer& GetAlbedo() { return albedo_; }
     ColorBuffer& GetMetallicRoughness() { return metallicRoughness_; }

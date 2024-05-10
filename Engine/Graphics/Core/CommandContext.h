@@ -136,6 +136,7 @@ inline void CommandContext::TransitionResource(GPUResource& resource, D3D12_RESO
     if (newState != oldState) {
         assert(numResourceBarriers_ < kMaxNumResourceBarriers);
         auto& barrier = resourceBarriers_[numResourceBarriers_++];
+        barrier = D3D12_RESOURCE_BARRIER{};
         barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_TRANSITION;
         barrier.Transition.pResource = resource;
         barrier.Transition.StateBefore = oldState;
@@ -154,6 +155,7 @@ inline void CommandContext::UAVBarrier(GPUResource& resource) {
     assert(numResourceBarriers_ < kMaxNumResourceBarriers);
 
     auto& barrier = resourceBarriers_[numResourceBarriers_++];
+    barrier = D3D12_RESOURCE_BARRIER{};
     barrier.Type = D3D12_RESOURCE_BARRIER_TYPE_UAV;
     barrier.Flags = D3D12_RESOURCE_BARRIER_FLAG_NONE;
     barrier.UAV.pResource = resource;
@@ -430,6 +432,7 @@ inline void CommandContext::SetDynamicVertexBuffer(UINT slot, size_t numVertices
         .SizeInBytes = UINT(bufferSize),
         .StrideInBytes = UINT(vertexStride)
     };
+    TransitionResource(allocation.resource, D3D12_RESOURCE_STATE_GENERIC_READ);
     commandList_->IASetVertexBuffers(slot, 1, &vbv);
 }
 

@@ -33,7 +33,6 @@ struct Mesh {
 
     StructuredBuffer vertexBuffer;
     StructuredBuffer indexBuffer;
-    StructuredBuffer influenceBuffer;
 
     std::vector<Vertex> vertices;
     std::vector<Index> indices;

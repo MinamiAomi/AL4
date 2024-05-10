@@ -25,6 +25,14 @@ void Test::OnInitialize() {
     resourceManager->AddAnimation("door_panel", Animation::Load("Resources/Door/Panel.gltf"));
     resourceManager->AddAnimation("door_knob", Animation::Load("Resources/Door/Knob.gltf"));
 
+
+    //resourceManager->AddModel("human", Model::Load("Resources/human/walk.gltf"));
+    //resourceManager->AddModel("human", Model::Load("Resources/anim/anim.gltf"));
+    resourceManager->AddModel("human", Model::Load("Resources/suit/suit.gltf"));
+    //resourceManager->AddAnimation("human_walk", Animation::Load("Resources/human/walk.gltf"));
+    //resourceManager->AddAnimation("human_walk", Animation::Load("Resources/anim/anim.gltf"));
+    resourceManager->AddAnimation("human_walk", Animation::Load("Resources/suit/suit.gltf"));
+
 }
 
 void Test::OnFinalize() {

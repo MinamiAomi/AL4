@@ -403,12 +403,17 @@ void RaytracingRenderer::BuildScene(CommandContext& commandContext) {
         for (auto& mesh : model->GetMeshes()) {
             auto& primaryShaderRecord = shaderRecords.emplace_back(primaryHitGroupIdentifier);
             auto& reflectionShaderRecord = shaderRecords.emplace_back(reflectionHitGroupIdentifier);
+            
+            D3D12_GPU_VIRTUAL_ADDRESS vb = model->GetVertexBuffer().GetGPUVirtualAddress();
+            D3D12_GPU_VIRTUAL_ADDRESS ib = model->GetIndexBuffer().GetGPUVirtualAddress();
+            vb += model->GetVertexBuffer().GetElementSize() * mesh.vertexOffset;
+            ib += model->GetIndexBuffer().GetElementSize() * mesh.indexOffset;
 
-            primaryShaderRecord.Add(mesh.vertexBuffer.GetGPUVirtualAddress());
-            primaryShaderRecord.Add(mesh.indexBuffer.GetGPUVirtualAddress());
+            primaryShaderRecord.Add(vb);
+            primaryShaderRecord.Add(ib);
 
-            reflectionShaderRecord.Add(mesh.vertexBuffer.GetGPUVirtualAddress());
-            reflectionShaderRecord.Add(mesh.indexBuffer.GetGPUVirtualAddress());
+            reflectionShaderRecord.Add(vb);
+            reflectionShaderRecord.Add(ib);
 
           //  if (mesh.material && mesh.material->diffuseMap) {
           //      primaryShaderRecord.Add(mesh.material->diffuseMap->GetSRV().GetGPU());
