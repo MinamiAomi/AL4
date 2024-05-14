@@ -3,26 +3,25 @@
 #include "Core/Helper.h"
 #include "Core/ShaderManager.h"
 #include "Core/CommandContext.h"
+#ifdef ENABLE_IMGUI
+#include "ImGuiManager.h"
+#endif ENABLE_IMGUI
 
-const wchar_t kPostEffectVertexShader[] = L"ScreenQuadVS.hlsl";
-const wchar_t kPostEffectPixelShader[] = L"PostEffectPS.hlsl";
-const wchar_t kPostEffectOtherPixelShader[] = L"PostEffectOtherPS.hlsl";
-const wchar_t kPostEffectAddPixelShader[] = L"PostEffectAddPS.hlsl";
+namespace {
+    const wchar_t kPostEffectVertexShader[] = L"ScreenQuadVS.hlsl";
+    const wchar_t kPostEffectPixelShader[] = L"PostEffectPS.hlsl";
+};
 
 void PostEffect::Initialize(const ColorBuffer& target) {
-    CD3DX12_DESCRIPTOR_RANGE srvRange[3]{};
+    CD3DX12_DESCRIPTOR_RANGE srvRange[1]{};
     srvRange[0].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
-    srvRange[1].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
-    srvRange[2].Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2);
 
-    CD3DX12_ROOT_PARAMETER rootParameters[4]{};
+    CD3DX12_ROOT_PARAMETER rootParameters[2]{};
     rootParameters[0].InitAsConstantBufferView(0);
     rootParameters[1].InitAsDescriptorTable(1, &srvRange[0]);
-    rootParameters[2].InitAsDescriptorTable(1, &srvRange[1]);
-    rootParameters[3].InitAsDescriptorTable(1, &srvRange[2]);
 
     CD3DX12_STATIC_SAMPLER_DESC staticSampler[1]{};
-    staticSampler->Init(0, D3D12_FILTER_COMPARISON_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP);
+    staticSampler->Init(0, D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP);
 
     D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
     rootSignatureDesc.NumParameters = _countof(rootParameters);
@@ -50,62 +49,52 @@ void PostEffect::Initialize(const ColorBuffer& target) {
     pipelineStateDesc.SampleDesc.Count = 1;
 
     pipelineState_.Create(L"PostEffect PipelineState", pipelineStateDesc);
-
-    ps = shaderManager->Compile(kPostEffectOtherPixelShader, ShaderManager::kPixel);
-    pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
-    pipelineStateOther_.Create(L"PostEffect PipelineState", pipelineStateDesc);
-
-    ps = shaderManager->Compile(kPostEffectAddPixelShader, ShaderManager::kPixel);
-    pipelineStateDesc.PS = CD3DX12_SHADER_BYTECODE(ps->GetBufferPointer(), ps->GetBufferSize());
-    pipelineStateDesc.BlendState = Helper::BlendAdditive;
-    pipelineStateAdd_.Create(L"PostEffect PipelineState", pipelineStateDesc);
-
-    pipelineStateDesc.BlendState = Helper::BlendMultiply;
-    pipelineStateMultiply_.Create(L"PostEffect PipelineState", pipelineStateDesc);
-}
-
-void PostEffect::Render(CommandContext& commandContext, ColorBuffer& texture, ColorBuffer& shadow, ColorBuffer& reflection) {
-    commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandContext.TransitionResource(shadow, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandContext.TransitionResource(reflection, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandContext.SetRootSignature(rootSignature_);
-    commandContext.SetPipelineState(pipelineState_);
-    commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    commandContext.SetDescriptorTable(1, texture.GetSRV());
-    commandContext.SetDescriptorTable(2, shadow.GetSRV());
-    commandContext.SetDescriptorTable(3, reflection.GetSRV());
-    commandContext.Draw(3);
 }
 
 void PostEffect::Render(CommandContext& commandContext, ColorBuffer& texture) {
-    static const float cycle = 120.0f;
-    static float time = 0.0f;
 
-    time += 1.0f / cycle;
+    struct Constant {
+        Vector3 grayscaleColor;
+        uint32_t useGrayscale;
+        float vignetteIntensity;
+        float vignettePower;
+        uint32_t useVignette;
+    };
+
+    Constant constant;
+    constant.grayscaleColor = grayscale_.color;
+    constant.useGrayscale = grayscale_.isActive ? 1 : 0;
+    constant.vignetteIntensity = vignette_.intensity;
+    constant.vignettePower = vignette_.power;
+    constant.useVignette = vignette_.isActive ? 1 : 0;
 
     commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandContext.SetRootSignature(rootSignature_);
-    commandContext.SetPipelineState(pipelineStateOther_);
+    commandContext.SetPipelineState(pipelineState_);
     commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    commandContext.SetDynamicConstantBufferView(0, sizeof(time), &time);
+    commandContext.SetDynamicConstantBufferView(0, sizeof(constant), &constant);
     commandContext.SetDescriptorTable(1, texture.GetSRV());
     commandContext.Draw(3);
 }
 
-void PostEffect::RenderAddTexture(CommandContext& commandContext, ColorBuffer& texture) {
-    commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandContext.SetRootSignature(rootSignature_);
-    commandContext.SetPipelineState(pipelineStateAdd_);
-    commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    commandContext.SetDescriptorTable(1, texture.GetSRV());
-    commandContext.Draw(3);
+void PostEffect::DrawImGui(const char* label) {
+#ifdef ENABLE_IMGUI
+    if (ImGui::TreeNode(label)) {
+        ImGui::Checkbox("##GrayscaleCheck", &grayscale_.isActive);
+        ImGui::SameLine();
+        if (ImGui::TreeNode("Grayscale")) {
+            ImGui::ColorEdit3("Color", &grayscale_.color.x);
+            ImGui::TreePop();
+        }
+        ImGui::Checkbox("##VignetteCheck", &vignette_.isActive);
+        ImGui::SameLine();
+        if (ImGui::TreeNode("Vignette")) {
+            ImGui::DragFloat("Intensity", &vignette_.intensity, 0.1f);
+            ImGui::DragFloat("Power", &vignette_.power, 0.01f);
+            ImGui::TreePop();
+        }
+        ImGui::TreePop();
+    }
+#endif ENABLE_IMGUI
 }
 
-void PostEffect::RenderMultiplyTexture(CommandContext& commandContext, ColorBuffer& texture) {
-    commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandContext.SetRootSignature(rootSignature_);
-    commandContext.SetPipelineState(pipelineStateMultiply_);
-    commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    commandContext.SetDescriptorTable(1, texture.GetSRV());
-    commandContext.Draw(3);
-}

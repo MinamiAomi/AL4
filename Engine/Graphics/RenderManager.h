@@ -77,7 +77,6 @@ private:
     Transition transition_;
     //Bloom bloom_;
     FXAA fxaa_;
-    Grayscale grayscale_;
     PostEffect postEffect_;
     ComputeShaderTester computeShaderTester_;
     //LightManager lightManager_;

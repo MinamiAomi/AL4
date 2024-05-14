@@ -32,7 +32,6 @@ void RenderManager::Initialize() {
     mainDepthBuffer_.Create(L"MainDepthBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_D32_FLOAT);
 
     particleRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
-    postEffect_.Initialize(preSwapChainBuffer_);
     spriteRenderer_.Initialize(preSwapChainBuffer_);
     skinningManager_.Initialize();
     geometryRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
@@ -41,7 +40,7 @@ void RenderManager::Initialize() {
     lineDrawer_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat());
 
     fxaa_.Initialize(&lightingRenderingPass_.GetResult());
-    grayscale_.Initialize();
+    postEffect_.Initialize(swapChainBuffer);
 
 //    modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
     transition_.Initialize();
@@ -97,48 +96,17 @@ void RenderManager::Render() {
 
     fxaa_.Render(commandContext_);
     
-    if (useGrayscale) {
-        grayscale_.Dispatch(commandContext_, fxaa_.GetResult());
-    }
 
-
-    commandContext_.TransitionResource(mainColorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
-    commandContext_.SetRenderTarget(mainColorBuffer_.GetRTV(), mainDepthBuffer_.GetDSV());
-    commandContext_.ClearColor(mainColorBuffer_);
-    commandContext_.ClearDepth(mainDepthBuffer_);
-    commandContext_.SetViewportAndScissorRect(0, 0, mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
-
-
-    if (camera && sunLight) {
-        // モデル描画
-        //modelRenderer.Render(commandContext_, *camera, *sunLight);
-        particleRenderer_.Render(commandContext_, *camera);
-        //raymarchingRenderer_.Render(commandContext_, *camera);
-    }
-    // レイトレの結果を加算合成
-    //postEffect_.RenderAddTexture(commandContext_, raytracingRenderer_.GetSpecular());
-   // postEffect_.RenderMultiplyTexture(commandContext_, raytracingRenderer_.GetShadow());
-
-
-    commandContext_.TransitionResource(preSwapChainBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    commandContext_.SetRenderTarget(preSwapChainBuffer_.GetRTV());
-    commandContext_.ClearColor(preSwapChainBuffer_);
-    commandContext_.SetViewportAndScissorRect(0, 0, preSwapChainBuffer_.GetWidth(), preSwapChainBuffer_.GetHeight());
-
-    postEffect_.Render(commandContext_, mainColorBuffer_);
-    spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, float(preSwapChainBuffer_.GetWidth()), float(preSwapChainBuffer_.GetHeight()));
-
-    transition_.Dispatch(commandContext_, preSwapChainBuffer_);
-
-    
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
-    commandContext_.CopyBuffer(swapChainBuffer, fxaa_.GetResult());
-
     commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    commandContext_.FlushResourceBarriers();
     commandContext_.SetRenderTarget(swapChainBuffer.GetRTV());
+    commandContext_.ClearColor(swapChainBuffer);
     commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
+
+    postEffect_.Render(commandContext_, fxaa_.GetResult());
+    //spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, float(preSwapChainBuffer_.GetWidth()), float(preSwapChainBuffer_.GetHeight()));
+    //transition_.Dispatch(commandContext_, preSwapChainBuffer_);  
+    //commandContext_.CopyBuffer(swapChainBuffer, fxaa_.GetResult());
 
 
 #ifdef ENABLE_IMGUI
@@ -164,14 +132,7 @@ void RenderManager::Render() {
     ImagePreview("MetallicRoughness", geometryRenderingPass_.GetMetallicRoughness().GetSRV(), { 360.0f, 180.0f });
     ImagePreview("Normal", geometryRenderingPass_.GetNormal().GetSRV(), { 360.0f, 180.0f });
     ImagePreview("Depth", geometryRenderingPass_.GetDepth().GetSRV(), { 360.0f, 180.0f });
-    ImGui::Checkbox("##label", &useGrayscale);
-    ImGui::SameLine();
-    if (ImGui::TreeNode("Grayscale")) {
-        Vector3 color = grayscale_.GetColor();
-        ImGui::ColorEdit3("Color", &color.x);
-        grayscale_.SetColor(color);
-        ImGui::TreePop();
-    }
+    postEffect_.DrawImGui("PostEffect");
 
     //ImagePreview("MainColorBuffer", mainColorBuffer_.GetSRV(), { 320.0f, 180.0f });
     //ImagePreview("MainDepthBuffer", mainDepthBuffer_.GetSRV(), { 320.0f, 180.0f });
