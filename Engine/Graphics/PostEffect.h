@@ -27,7 +27,6 @@ public:
 private:
     RootSignature rootSignature_;
     PipelineState pipelineState_;
-    ColorBuffer* sourceTexture_;
     Grayscale grayscale_;
     Vignette vignette_;
 };
