@@ -1,0 +1,21 @@
+{
+    "Model" : {
+        "sphere" : "sphere/sphere.gltf",
+        "blind" : "room/blind.gltf",
+        "light" : "room/light.gltf",
+        "light_1" : "room/light_1.gltf",
+        "light_2" : "room/light_2.gltf",
+        "room" : "room/room.gltf",
+        "shelf" : "room/shelf.gltf",
+        "sofa" : "room/sofa.gltf",
+        "speaker" : "room/speaker.gltf",
+        "tv" : "room/tv.gltf",
+        "videoPlayer" : "room/videoPlayer.gltf",
+        "wall" : "room/wall.gltf",
+        "human" : "suit/suit.gltf"
+    },
+    "Animation" : {
+        "human_walk" : "suit/suit.gltf"
+    }
+    
+}

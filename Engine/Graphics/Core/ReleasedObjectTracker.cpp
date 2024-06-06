@@ -4,6 +4,7 @@
 
 void ReleasedObjectTracker::AddObject(Microsoft::WRL::ComPtr<ID3D12Object> releasedObject) {
     assert(releasedObject);
+    std::lock_guard<std::mutex> lock(mutex_);
     ReleasedObject object;
     object.ptr = releasedObject;
 
@@ -19,6 +20,7 @@ void ReleasedObjectTracker::AddObject(Microsoft::WRL::ComPtr<ID3D12Object> relea
 }
 
 void ReleasedObjectTracker::FrameIncrementForRelease() {
+    std::lock_guard<std::mutex> lock(mutex_);
     for (size_t i = 1; i < trackingObjectLists_.size(); ++i) {
         std::swap(trackingObjectLists_[i - 1], trackingObjectLists_[i]);
     }
@@ -26,6 +28,7 @@ void ReleasedObjectTracker::FrameIncrementForRelease() {
 }
 
 void ReleasedObjectTracker::AllRelease() {
+    std::lock_guard<std::mutex> lock(mutex_);
     for (auto& trackingObjecetList : trackingObjectLists_) {
         trackingObjecetList.clear();
     }

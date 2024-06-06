@@ -4,6 +4,7 @@
 #include <wrl/client.h>
 
 #include <array>
+#include <mutex>
 #include <vector>
 #include <string>
 
@@ -26,4 +27,5 @@ private:
     using TrackingObjectList = std::vector<ReleasedObject>;
     
     std::array<TrackingObjectList, kAliveFrameCount> trackingObjectLists_;
+    std::mutex mutex_;
 };

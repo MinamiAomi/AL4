@@ -20,18 +20,18 @@ public:
         Clamp
     };
 
-    void Load(const std::filesystem::path& path);
+    static std::shared_ptr<Texture> Load(const std::filesystem::path& path);
 
-    float GetWidth() const { return float(resource_.GetDesc().Width); }
-    float GetHeight() const { return float(resource_.GetDesc().Height); }
+    float GetWidth() const { return float(resource_->GetDesc().Width); }
+    float GetHeight() const { return float(resource_->GetDesc().Height); }
     const DescriptorHandle& GetSampler() const;
-    const DescriptorHandle& GetTexture() const { return resource_.GetSRV(); }
+    const DescriptorHandle& GetTexture() const { return resource_->GetSRV(); }
 
     void SetInterpolation(Interpolation interpolation) { interpolation_ = interpolation; }
     void SetExtension(Extension extension) { extension_ = extension; }
 
 private:
-    TextureResource resource_;
+    std::shared_ptr<TextureResource> resource_;
     Interpolation interpolation_ = Interpolation::Linear;
     Extension extension_ = Extension::Wrap;
 };

@@ -64,6 +64,12 @@
     <Filter Include="Graphics\PostEffect">
       <UniqueIdentifier>{d92bfcaf-dd2d-468f-ad51-4eef09c6c778}</UniqueIdentifier>
     </Filter>
+    <Filter Include="File">
+      <UniqueIdentifier>{f4fdc9be-552c-4644-a685-f1f312b8470d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GameObject">
+      <UniqueIdentifier>{b8b88e30-91f6-4857-b7e8-74d3d5a56868}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene\SceneManager.cpp">
@@ -94,12 +100,6 @@
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\RenderManager.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ToonModel.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ToonRenderer.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Core\ColorBuffer.cpp">
@@ -258,9 +258,6 @@
     <ClCompile Include="Scene\SceneTransition.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Math\AnimationNode.cpp">
-      <Filter>Math</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\GeometryRenderingPass.cpp">
       <Filter>Graphics\Standard</Filter>
     </ClCompile>
@@ -318,6 +315,18 @@
     <ClCompile Include="Graphics\LineDrawer.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Skybox.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="File\JsonConverter.cpp">
+      <Filter>File</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\GameObjectManager.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject\GameObject.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -357,12 +366,6 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\RenderManager.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ToonModel.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ToonRenderer.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Core\ColorBuffer.h">
@@ -485,9 +488,6 @@
     <ClInclude Include="Collision\Collider.h">
       <Filter>Collision</Filter>
     </ClInclude>
-    <ClInclude Include="Collision\GameObject.h">
-      <Filter>Collision</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\Core\FreeList.h">
       <Filter>Graphics\Core</Filter>
     </ClInclude>
@@ -566,9 +566,6 @@
     <ClInclude Include="Scene\SceneTransition.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Math\AnimationNode.h">
-      <Filter>Math</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\GeometryRenderingPass.h">
       <Filter>Graphics\Standard</Filter>
     </ClInclude>
@@ -631,6 +628,21 @@
     </ClInclude>
     <ClInclude Include="Graphics\LineDrawer.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Skybox.h">
+      <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="File\JsonConverter.h">
+      <Filter>File</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\GameObject.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\Component.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\GameObjectManager.h">
+      <Filter>GameObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -743,6 +755,12 @@
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Graphics\Shader\LinePS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\SkyboxVS.hlsl">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\SkyboxPS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
   </ItemGroup>

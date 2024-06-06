@@ -7,6 +7,7 @@
 #include "Math/Camera.h"
 #include "Core/SamplerManager.h"
 #include "GeometryRenderingPass.h"
+#include "DefaultTextures.h"
 
 namespace {
     const wchar_t kVertexShader[] = L"ScreenQuadVS.hlsl";
@@ -16,7 +17,7 @@ namespace {
 void LightingRenderingPass::Initialize(uint32_t width, uint32_t height) {
     float clearColor[] = { 0.04f, 0.1f, 0.6f, 1.0f };
     result_.SetClearColor(clearColor);
-    result_.Create(L"LightingRenderingPass Result", width, height, DXGI_FORMAT_R8G8B8A8_UNORM);
+    result_.Create(L"LightingRenderingPass Result", width, height, DXGI_FORMAT_R11G11B10_FLOAT);
 
     // ルートシグネチャ
     {
@@ -24,6 +25,8 @@ void LightingRenderingPass::Initialize(uint32_t width, uint32_t height) {
         CD3DX12_DESCRIPTOR_RANGE metallicRoughnessRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 1);
         CD3DX12_DESCRIPTOR_RANGE normalRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 2);
         CD3DX12_DESCRIPTOR_RANGE depthRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 3);
+        CD3DX12_DESCRIPTOR_RANGE irradianceRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 4);
+        CD3DX12_DESCRIPTOR_RANGE radianceRange(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 5);
 
         CD3DX12_ROOT_PARAMETER rootParameters[RootIndex::NumRootParameters]{};
         rootParameters[RootIndex::Scene].InitAsConstantBufferView(0);
@@ -31,9 +34,12 @@ void LightingRenderingPass::Initialize(uint32_t width, uint32_t height) {
         rootParameters[RootIndex::MetallicRoughness].InitAsDescriptorTable(1, &metallicRoughnessRange);
         rootParameters[RootIndex::Normal].InitAsDescriptorTable(1, &normalRange);
         rootParameters[RootIndex::Depth].InitAsDescriptorTable(1, &depthRange);
+        rootParameters[RootIndex::Irradiance].InitAsDescriptorTable(1, &irradianceRange);
+        rootParameters[RootIndex::Radiance].InitAsDescriptorTable(1, &radianceRange);
 
-        CD3DX12_STATIC_SAMPLER_DESC staticSamplerDesc[1]{};
+        CD3DX12_STATIC_SAMPLER_DESC staticSamplerDesc[2]{};
         staticSamplerDesc[0].Init(0, D3D12_FILTER_MIN_MAG_MIP_POINT, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP, D3D12_TEXTURE_ADDRESS_MODE_CLAMP);
+        staticSamplerDesc[1].Init(1, D3D12_FILTER_MIN_MAG_MIP_LINEAR, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP, D3D12_TEXTURE_ADDRESS_MODE_WRAP);
 
         D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
         rootSignatureDesc.NumParameters = _countof(rootParameters);
@@ -71,7 +77,7 @@ void LightingRenderingPass::Render(CommandContext& commandContext, GeometryRende
     struct SceneData {
         Matrix4x4 viewProjectionInverseMatrix;
         Vector3 cameraPosition;
-        float pad1;
+        uint32_t irradianceMipCount;
         Vector3 lightColor;
         float pad2;
         Vector3 lightDirection;
@@ -92,9 +98,14 @@ void LightingRenderingPass::Render(CommandContext& commandContext, GeometryRende
     commandContext.SetPipelineState(pipelineState_);
     commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
+    TextureResource* irradianceTexture = irradianceTexture_ ? irradianceTexture_.get() : &DefaultTexture::BlackCubeMap;
+    TextureResource* radianceTexture = radianceTexture_ ? radianceTexture_.get() : &DefaultTexture::BlackCubeMap;
+
     SceneData sceneData;
     sceneData.viewProjectionInverseMatrix = camera.GetViewProjectionMatrix().Inverse();
     sceneData.cameraPosition = camera.GetPosition();
+    auto& cubeMap = irradianceTexture->GetDesc();
+    sceneData.irradianceMipCount = cubeMap.MipLevels;
     sceneData.lightColor = light.color;
     sceneData.lightDirection = light.direction;
     commandContext.SetDynamicConstantBufferView(RootIndex::Scene, sizeof(sceneData), &sceneData);
@@ -102,5 +113,8 @@ void LightingRenderingPass::Render(CommandContext& commandContext, GeometryRende
     commandContext.SetDescriptorTable(RootIndex::MetallicRoughness, geometryRenderingPass.GetMetallicRoughness().GetSRV());
     commandContext.SetDescriptorTable(RootIndex::Normal, geometryRenderingPass.GetNormal().GetSRV());
     commandContext.SetDescriptorTable(RootIndex::Depth, geometryRenderingPass.GetDepth().GetSRV());
+    commandContext.SetDescriptorTable(RootIndex::Irradiance, irradianceTexture->GetSRV());
+    commandContext.SetDescriptorTable(RootIndex::Radiance, radianceTexture->GetSRV());
+
     commandContext.Draw(3);
 }

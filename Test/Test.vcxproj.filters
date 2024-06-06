@@ -10,6 +10,9 @@
     <Filter Include="Game\Object">
       <UniqueIdentifier>{290ad31e-91cf-4cd6-b3fe-027fa36fb487}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Game\Component">
+      <UniqueIdentifier>{787af317-f60c-4c1f-8130-6e0279e570de}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -19,16 +22,7 @@
     <ClCompile Include="TestScene.cpp">
       <Filter>Game\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="FollowCamera.cpp">
-      <Filter>Game\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="Ground.cpp">
-      <Filter>Game\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="TestObject.cpp">
-      <Filter>Game\Object</Filter>
-    </ClCompile>
-    <ClCompile Include="TitleObject.cpp">
+    <ClCompile Include="SceneObject.cpp">
       <Filter>Game\Object</Filter>
     </ClCompile>
     <ClCompile Include="DebugCamera.cpp">
@@ -36,6 +30,12 @@
     </ClCompile>
     <ClCompile Include="Door.cpp">
       <Filter>Game\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="MeshComponent.cpp">
+      <Filter>Game\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelLoader.cpp">
+      <Filter>Game</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -45,16 +45,7 @@
     <ClInclude Include="TestScene.h">
       <Filter>Game\Scene</Filter>
     </ClInclude>
-    <ClInclude Include="FollowCamera.h">
-      <Filter>Game\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Ground.h">
-      <Filter>Game\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="TestObject.h">
-      <Filter>Game\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="TitleObject.h">
+    <ClInclude Include="SceneObject.h">
       <Filter>Game\Object</Filter>
     </ClInclude>
     <ClInclude Include="DebugCamera.h">
@@ -62,6 +53,12 @@
     </ClInclude>
     <ClInclude Include="Door.h">
       <Filter>Game\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="MeshComponent.h">
+      <Filter>Game\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelLoader.h">
+      <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

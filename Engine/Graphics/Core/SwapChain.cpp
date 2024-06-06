@@ -47,7 +47,7 @@ void SwapChain::Create(HWND hWnd) {
         ComPtr<ID3D12Resource> resource;
         ASSERT_IF_FAILED(swapChain_->GetBuffer(i, IID_PPV_ARGS(resource.GetAddressOf())));
         buffers_[i] = std::make_unique<ColorBuffer>();
-        buffers_[i]->CreateFromSwapChain(L"SwapChainBuffer" + std::to_wstring(i), resource.Detach());
+        buffers_[i]->CreateFromSwapChain(L"SwapChainBuffer" + std::to_wstring(i), resource.Detach(), true);
     }
 }
 

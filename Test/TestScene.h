@@ -8,10 +8,10 @@
 #include "Math/Random.h"
 #include "Graphics/Model.h"
 #include "Graphics/LightManager.h"
-#include "TestObject.h"
 #include "Audio/AudioSource.h"
 #include "Door.h"
 #include "Graphics/Skeleton.h"
+#include "GameObject/GameObjectManager.h"
 
 class TestScene :
     public BaseScene {
@@ -26,13 +26,20 @@ private:
     Vector3 euler_;
     std::shared_ptr<DirectionalLight> sunLight_;
 
+    static const uint32_t kRowCount = 11;
+    static const uint32_t kColumnCount = 11;
+    struct PBRSphere {
+        ModelInstance model;
+        std::shared_ptr<PBRMaterial> material;
+    };
+    PBRSphere spheres_[kRowCount][kColumnCount];
+
     Door door_;
-    TestObject testObject_;
-    TestObject boxObject_;
-
-
     ModelInstance model_;
+    ModelInstance room_;
     std::shared_ptr<Skeleton> skeleton_;
     std::shared_ptr<Animation> walk_;
     float time_;
+
+    GameObjectManager gameObjectManager_;
 };

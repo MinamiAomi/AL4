@@ -182,13 +182,20 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">false</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="File\JsonConverter.cpp" />
     <ClCompile Include="Framework\Engine.cpp" />
     <ClCompile Include="Framework\ResourceManager.cpp" />
+    <ClCompile Include="GameObject\GameObject.cpp" />
+    <ClCompile Include="GameObject\GameObjectManager.cpp" />
     <ClCompile Include="Graphics\Animation.cpp" />
     <ClInclude Include="Audio\AudioDevice.h" />
     <ClInclude Include="Audio\AudioSource.h" />
     <ClInclude Include="Audio\Sound.h" />
+    <ClInclude Include="File\JsonConverter.h" />
     <ClInclude Include="Framework\ResourceManager.h" />
+    <ClInclude Include="GameObject\Component.h" />
+    <ClInclude Include="GameObject\GameObject.h" />
+    <ClInclude Include="GameObject\GameObjectManager.h" />
     <ClInclude Include="Graphics\Animation.h" />
     <ClCompile Include="Graphics\Bloom.cpp" />
     <ClCompile Include="Graphics\ComputeShader.cpp" />
@@ -244,14 +251,12 @@
     <ClCompile Include="Graphics\Skeleton.cpp" />
     <ClCompile Include="Graphics\SkinCluster.cpp" />
     <ClCompile Include="Graphics\SkinningManager.cpp" />
+    <ClCompile Include="Graphics\Skybox.cpp" />
     <ClCompile Include="Graphics\Sprite.cpp" />
     <ClCompile Include="Graphics\SpriteRenderer.cpp" />
     <ClCompile Include="Graphics\Timer.cpp" />
-    <ClCompile Include="Graphics\ToonModel.cpp" />
-    <ClCompile Include="Graphics\ToonRenderer.cpp" />
     <ClCompile Include="Graphics\Transition.cpp" />
     <ClCompile Include="Input\Input.cpp" />
-    <ClCompile Include="Math\AnimationNode.cpp" />
     <ClCompile Include="Math\Camera.cpp" />
     <ClCompile Include="Math\Color.cpp" />
     <ClCompile Include="Math\Geometry.cpp" />
@@ -262,7 +267,6 @@
   <ItemGroup>
     <ClInclude Include="Collision\Collider.h" />
     <ClInclude Include="Collision\CollisionManager.h" />
-    <ClInclude Include="Collision\GameObject.h" />
     <ClInclude Include="Debug\Debug.h" />
     <ClInclude Include="Externals\DirectXTex\Include\BC.h" />
     <ClInclude Include="Externals\DirectXTex\Include\BCDirectCompute.h" />
@@ -364,15 +368,13 @@
     <ClInclude Include="Graphics\Skeleton.h" />
     <ClInclude Include="Graphics\SkinCluster.h" />
     <ClInclude Include="Graphics\SkinningManager.h" />
+    <ClInclude Include="Graphics\Skybox.h" />
     <ClInclude Include="Graphics\SphereMapConverter.h" />
     <ClInclude Include="Graphics\Sprite.h" />
     <ClInclude Include="Graphics\SpriteRenderer.h" />
     <ClInclude Include="Graphics\Timer.h" />
-    <ClInclude Include="Graphics\ToonModel.h" />
-    <ClInclude Include="Graphics\ToonRenderer.h" />
     <ClInclude Include="Graphics\Transition.h" />
     <ClInclude Include="Input\Input.h" />
-    <ClInclude Include="Math\AnimationNode.h" />
     <ClInclude Include="Math\Camera.h" />
     <ClInclude Include="Math\Color.h" />
     <ClInclude Include="Math\Geometry.h" />
@@ -676,6 +678,28 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\LinePS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">Pixel</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Graphics\Shader\SkyboxVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">Vertex</ShaderType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <FileType>Document</FileType>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Graphics\Shader\SkyboxPS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">Pixel</ShaderType>

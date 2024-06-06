@@ -1,5 +1,4 @@
 #pragma once
-#include "Collision/GameObject.h"
 
 #include <memory>
 
@@ -7,8 +6,7 @@
 #include "Math/Transform.h"
 #include "Math/Camera.h"
 
-class DebugCamera :
-    public GameObject {
+class DebugCamera {
 public:
     void Initialize();
     void Update();
@@ -16,6 +14,7 @@ public:
     const std::shared_ptr<Camera>& GetCamera() const { return camera_; }
 
 private:
+    Transform transform;
     std::shared_ptr<Camera> camera_;
     Vector3 eulerAngle_;
 };

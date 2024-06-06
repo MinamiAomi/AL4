@@ -17,23 +17,21 @@
   <ItemGroup>
     <ClCompile Include="DebugCamera.cpp" />
     <ClCompile Include="Door.cpp" />
-    <ClCompile Include="Ground.cpp" />
-    <ClCompile Include="FollowCamera.cpp" />
+    <ClCompile Include="LevelLoader.cpp" />
+    <ClCompile Include="MeshComponent.cpp" />
     <ClCompile Include="Test.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="TestObject.cpp" />
+    <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="TestScene.cpp" />
-    <ClCompile Include="TitleObject.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="LevelLoader.h" />
+    <ClInclude Include="MeshComponent.h" />
     <ClInclude Include="DebugCamera.h" />
     <ClInclude Include="Door.h" />
-    <ClInclude Include="Ground.h" />
-    <ClInclude Include="FollowCamera.h" />
     <ClInclude Include="Test.h" />
-    <ClInclude Include="TestObject.h" />
+    <ClInclude Include="SceneObject.h" />
     <ClInclude Include="TestScene.h" />
-    <ClInclude Include="TitleObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Engine\Engine.vcxproj">

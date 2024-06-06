@@ -9,5 +9,6 @@ public:
     void OnFinalize() override;
 
 private:
+    void LoadResource();
 
 };

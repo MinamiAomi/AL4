@@ -1,9 +1,16 @@
 #include "Sprite.h"
 
+#include "Core/TextureLoader.h"
 #include "Core/SamplerManager.h"
 
-void Texture::Load(const std::filesystem::path& path) {
-    resource_.CreateFromWICFile(path.wstring());
+std::shared_ptr<Texture> Texture::Load(const std::filesystem::path& path) {
+	// privateコンストラクタをmake_sharedで呼ぶためのヘルパー
+	struct Helper : Texture {
+		Helper() : Texture() {}
+	};
+	std::shared_ptr<Texture> texture = std::make_shared<Helper>();
+	texture->resource_->Create(path);
+	return texture;
 }
 
 const DescriptorHandle& Texture::GetSampler() const {

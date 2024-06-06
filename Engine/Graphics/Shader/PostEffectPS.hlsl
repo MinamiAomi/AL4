@@ -41,6 +41,7 @@ PSOutput main(PSInput input) {
     PSOutput output;
 
     float32_t4 outputColor = g_Texture.Sample(g_Sampler, input.texcoord);
+
     float32_t3 grayscale = Grayscale(outputColor.rgb);
     outputColor.rgb = lerp(outputColor.rgb, grayscale, g_Constant.useGrayscale);
     

@@ -18,6 +18,14 @@ namespace {
         uint32_t z = static_cast<uint32_t>(std::clamp((in.z + 1.0f) * 0.5f, 0.0f, 1.0f) * 0x3FF) & 0x3FF;
         return x | y << 10 | z << 20;
     }
+
+    Vector3 GenerateTangent(const Vector3& normal) {
+        if (std::abs(Vector3::Dot(normal, Vector3::unitZ)) > 0.999f) {
+            return Vector3::Cross(normal, Vector3::unitX);
+        }
+        return Vector3::Cross(normal, Vector3::unitZ);
+    }
+
     // aiSceneからメッシュ配列を解析する
     std::vector<Model::Mesh> ParseMeshes(const aiScene* scene, const std::vector<PBRMaterial>& materials, std::vector<Model::Vertex>& vertices, std::vector<Model::Index>& indices, std::map<std::string, Model::JointWeightData>& skinClusterData) {
         std::vector<Model::Mesh> meshes(scene->mNumMeshes);
@@ -27,19 +35,27 @@ namespace {
 
         for (uint32_t meshIndex = 0; auto & destMesh : meshes) {
             const aiMesh* srcMesh = scene->mMeshes[meshIndex];
-            assert(srcMesh->HasNormals() && srcMesh->HasTangentsAndBitangents());
+            assert(srcMesh->HasNormals());
 
             destMesh.vertexOffset = (uint32_t)vertices.size();
             destMesh.vertexCount = (uint32_t)srcMesh->mNumVertices;
             for (uint32_t vertexIndex = 0; vertexIndex < srcMesh->mNumVertices; ++vertexIndex) {
                 aiVector3D& srcPosition = srcMesh->mVertices[vertexIndex];
                 aiVector3D& srcNormal = srcMesh->mNormals[vertexIndex];
-                aiVector3D& srcTangent = srcMesh->mTangents[vertexIndex];
                 // セット
                 Model::Vertex destVertex;
                 destVertex.position = { srcPosition.x, srcPosition.y, srcPosition.z };
                 Vector3 tmpNormal = { srcNormal.x, srcNormal.y, srcNormal.z };
-                Vector3 tmpTangent = { srcTangent.x, srcTangent.y, srcTangent.z };
+                Vector3 tmpTangent;
+                
+                if (srcMesh->HasTangentsAndBitangents()) {
+                    aiVector3D& srcTangent = srcMesh->mTangents[vertexIndex];
+                    tmpTangent = { srcTangent.x, srcTangent.y, srcTangent.z };
+                }
+                else {
+                    tmpTangent = GenerateTangent(tmpNormal);
+                }
+
                 if (srcMesh->HasTextureCoords(0)) {
                     aiVector3D& srcTexcoord = srcMesh->mTextureCoords[0][vertexIndex];
                     destVertex.texcood = { srcTexcoord.x, srcTexcoord.y };
@@ -171,7 +187,7 @@ namespace {
                     // 読み込む
                     // TextureLoader内で多重読み込み対応済み
                     std::string filename(metallicPath.C_Str());
-                    destMaterial.metallicRoughnessMap = TextureLoader::Load(directory / filename);
+                    destMaterial.metallicRoughnessMap = TextureLoader::Load(directory / filename, false);
                 }
             }
             // テクスチャが一つ以上ある
@@ -228,7 +244,7 @@ std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
     // 左手座標系に変換
     flags |= aiProcess_FlipUVs;
     // 接空間を計算
-    //flags |= aiProcess_GenNormals;
+    flags |= aiProcess_GenNormals;
     flags |= aiProcess_CalcTangentSpace;
     const aiScene* scene = importer.ReadFile(path.string(), flags);
     // 読み込めた

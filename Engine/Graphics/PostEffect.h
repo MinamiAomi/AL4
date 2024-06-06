@@ -16,7 +16,7 @@ public:
     struct Vignette {
         float intensity = 16.0f;
         float power = 0.8f;
-        bool isActive = true;
+        bool isActive = false;
     };
 
     void Initialize(const ColorBuffer& target);

@@ -6,7 +6,7 @@ namespace TextureLoader {
 
     std::map<std::filesystem::path, std::shared_ptr<TextureResource>> g_map;
 
-    std::shared_ptr<TextureResource> Load(const std::filesystem::path& path) {
+    std::shared_ptr<TextureResource> Load(const std::filesystem::path& path, bool useSRGB) {
 
         auto iter = g_map.find(path);
         if (iter != g_map.end()) {
@@ -14,7 +14,7 @@ namespace TextureLoader {
         }
 
         std::shared_ptr<TextureResource> texture = std::make_shared<TextureResource>();
-        texture->CreateFromWICFile(path.wstring());
+        texture->Create(path.wstring(), useSRGB);
 
         g_map.insert(std::make_pair(path, texture));
         return texture;

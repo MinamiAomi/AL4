@@ -3,8 +3,8 @@
 #include "Input/Input.h"
 #include "Graphics/RenderManager.h"
 #include "Framework/ResourceManager.h"
-
-Matrix4x4 mat;
+#include "Graphics/Core/TextureLoader.h"
+#include "LevelLoader.h"
 
 void TestScene::OnInitialize() {
 
@@ -20,10 +20,26 @@ void TestScene::OnInitialize() {
 
     //door_.Initialize();
 
-    testObject_.Initialize("pbr", {});
-    testObject_.transform.rotate = Quaternion::MakeForXAxis(-90.0f * Math::ToRadian);
-    testObject_.transform.translate = { 40.0f, 0.0f, 0.0f };
-    testObject_.Update();
+    auto& skybox = RenderManager::GetInstance()->GetSkybox();
+    skybox.SetTexture(TextureLoader::Load("Resources/skybox/skybox_8k.dds"));
+    auto& lightingRenderlingPass = RenderManager::GetInstance()->GetLightingRenderingPass();
+    lightingRenderlingPass.SetIrradianceTexture(TextureLoader::Load("Resources/skybox/skybox_8k_irradiance.dds"));
+    lightingRenderlingPass.SetRadianceTexture(TextureLoader::Load("Resources/skybox/skybox_8k_radiance.dds"));
+
+    Vector3 offset = { 40.0f, 0.0f, 0.0f };
+    auto sphereModel = ResourceManager::GetInstance()->FindModel("sphere");
+    for (uint32_t row = 0; row < kRowCount; ++row) {
+        for (uint32_t column = 0; column < kColumnCount; ++column) {
+            auto& sphere = spheres_[row][column];
+            sphere.material = std::make_shared<PBRMaterial>();
+            sphere.material->albedo = { 1.0f, 1.0f, 1.0f };
+            sphere.material->metallic = (float)row * 0.1f;
+            sphere.material->roughness = (float)column * 0.1f;
+            sphere.model.SetModel(sphereModel);
+            sphere.model.SetMaterial(sphere.material);
+            sphere.model.SetWorldMatrix(Matrix4x4::MakeTranslation(Vector3{ -15.0f + column * 3.0f, -15.0f + row * 3.0f, 0.0f } + offset));
+        }
+    }
 
     euler_.x = Math::ToRadian;
 
@@ -33,9 +49,15 @@ void TestScene::OnInitialize() {
     skeleton_->Create(model_.GetModel());
     model_.SetSkeleton(skeleton_);
     model_.SetWorldMatrix(Matrix4x4::MakeRotationY(Math::ToRadian * 180.0f));
+
+    //room_.SetModel(ResourceManager::GetInstance()->FindModel("room"));
+
+    LevelLoader::Load("Resources/scene.json", gameObjectManager_);
 }
 
 void TestScene::OnUpdate() {
+
+    gameObjectManager_.Update();
 
     //door_.Update();
 

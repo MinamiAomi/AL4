@@ -124,6 +124,14 @@ void GeometryRenderingPass::Render(CommandContext& commandContext, const Camera&
         materialData.normalMapIndex = defaultNormalTextureIndex;
         return materialData;
     };
+    auto SetMaterialData = [](MaterialData& dest, const PBRMaterial& src) {
+        dest.albedo = src.albedo;
+        dest.metallic = src.metallic;
+        dest.roughness = src.roughness;
+        if (src.albedoMap) { dest.albedoMapIndex = src.albedoMap->GetSRV().GetIndex(); }
+        if (src.metallicRoughnessMap) { dest.metallicRoughnessMapIndex = src.metallicRoughnessMap->GetSRV().GetIndex(); }
+        if (src.normalMap) { dest.normalMapIndex = src.normalMap->GetSRV().GetIndex(); }
+    };
 
     commandContext.TransitionResource(albedo_, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext.TransitionResource(metallicRoughness_, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -163,17 +171,18 @@ void GeometryRenderingPass::Render(CommandContext& commandContext, const Camera&
         instanceData.worldInverseTransposeMatrix = instanceData.worldMatrix.Inverse().Transpose();
         commandContext.SetDynamicConstantBufferView(RootIndex::Instance, sizeof(instanceData), &instanceData);
 
+        auto instanceMaterial = instance->GetMaterial();
+
         for (auto& mesh : model->GetMeshes()) {
             MaterialData materialData = ErrorMaterial();
-            if (mesh.material < model->GetMaterials().size()) {
-                auto& material = model->GetMaterials()[mesh.material];
-                materialData.albedo = material.albedo;
-                materialData.metallic = material.metallic;
-                materialData.roughness = material.roughness;
-                if (material.albedoMap) { materialData.albedoMapIndex = material.albedoMap->GetSRV().GetIndex(); }
-                if (material.metallicRoughnessMap) { materialData.metallicRoughnessMapIndex = material.metallicRoughnessMap->GetSRV().GetIndex(); }
-                if (material.normalMap) { materialData.normalMapIndex = material.normalMap->GetSRV().GetIndex(); }
+            // インスタンスのマテリアルを優先
+            if (instanceMaterial) {
+                SetMaterialData(materialData, *instanceMaterial);
             }
+            // メッシュのマテリアル
+            else if (mesh.material < model->GetMaterials().size()) {
+                SetMaterialData(materialData, model->GetMaterials()[mesh.material]);
+            }         
             commandContext.SetDynamicConstantBufferView(RootIndex::Material, sizeof(materialData), &materialData);
 
             auto skeleton = instance->GetSkeleton();

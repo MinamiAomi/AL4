@@ -12,7 +12,6 @@
 #include "Bloom.h"
 #include "FXAA.h"
 #include "Graysale.h"
-#include "ToonRenderer.h"
 #include "ParticleRenderer.h"
 #include "SpriteRenderer.h"
 #include "PostEffect.h"
@@ -24,6 +23,7 @@
 #include "SkinningManager.h"
 #include "GeometryRenderingPass.h"
 #include "LightingRenderingPass.h"
+#include "Skybox.h"
 #include "LineDrawer.h"
 
 #ifdef _DEBUG
@@ -48,6 +48,8 @@ public:
     Transition& GetTransition() { return transition_; }
     SkinningManager& GetSkinningManager() { return skinningManager_; }
     LineDrawer& GetLineDrawer() { return lineDrawer_; }
+    Skybox& GetSkybox() { return skybox_; }
+    LightingRenderingPass& GetLightingRenderingPass() { return lightingRenderingPass_; }
 
 private:
     RenderManager() = default;
@@ -69,6 +71,7 @@ private:
     SkinningManager skinningManager_;
     GeometryRenderingPass geometryRenderingPass_;
     LightingRenderingPass lightingRenderingPass_;
+    Skybox skybox_;
     LineDrawer lineDrawer_;
 
     RaytracingRenderer raytracingRenderer_;

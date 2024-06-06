@@ -7,11 +7,11 @@
 #include "CommandContext.h"
 #include "UploadBuffer.h"
 
-void TextureResource::CreateFromWICFile(const std::filesystem::path& path) {
+void TextureResource::Create(const std::filesystem::path& path, bool useSRGB) {
     // 中間リソースをコピーする
     CommandContext commandContext;
     commandContext.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
-    CreateFromWICFile(commandContext, path);
+    Create(commandContext, path, useSRGB);
     commandContext.Finish(true);
 }
 
@@ -24,15 +24,25 @@ void TextureResource::Create(size_t rowPitchBytes, size_t width, size_t height, 
 }
 
 
-void TextureResource::CreateFromWICFile(CommandContext& commandContext, const std::filesystem::path& path) {
+void TextureResource::Create(CommandContext& commandContext, const std::filesystem::path& path, bool useSRGB) {
     auto device = Graphics::GetInstance()->GetDevice();
 
     // ファイルを読み込む
     DirectX::ScratchImage image{};
-    ASSERT_IF_FAILED(DirectX::LoadFromWICFile(path.wstring().c_str(), DirectX::WIC_FLAGS_FORCE_SRGB, nullptr, image));
+    if (path.extension() == ".dds") {
+        ASSERT_IF_FAILED(DirectX::LoadFromDDSFile(path.wstring().c_str(), DirectX::DDS_FLAGS_NONE, nullptr, image));
+    }
+    else {
+        ASSERT_IF_FAILED(DirectX::LoadFromWICFile(path.wstring().c_str(), useSRGB ? DirectX::WIC_FLAGS_FORCE_SRGB : DirectX::WIC_FLAGS_FORCE_RGB, nullptr, image));
+    }
     // ミップマップを生成
     DirectX::ScratchImage mipImages{};
-    ASSERT_IF_FAILED(DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages));
+    if (DirectX::IsCompressed(image.GetMetadata().format)) {
+        mipImages = std::move(image);
+    }
+    else {
+        ASSERT_IF_FAILED(DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB , 0, mipImages));
+    }
 
     // リソースを生成
     auto& metadata = mipImages.GetMetadata();
@@ -47,22 +57,22 @@ void TextureResource::CreateFromWICFile(CommandContext& commandContext, const st
     // 中間リソースを読み込む
     std::vector<D3D12_SUBRESOURCE_DATA> subresources;
     DirectX::PrepareUpload(device, mipImages.GetImages(), mipImages.GetImageCount(), mipImages.GetMetadata(), subresources);
-    
+
     CD3DX12_HEAP_PROPERTIES heapProp(D3D12_HEAP_TYPE_DEFAULT);
     CreateResource(L"TextureResource", heapProp, desc_, D3D12_RESOURCE_STATE_COPY_DEST);
 
     UploadResource(commandContext, UINT(subresources.size()), subresources.data());
 
     // ビューを生成
-    CreateView();
+    CreateView(metadata.IsCubemap());
 }
 
-void TextureResource::Create(CommandContext& commandContext, size_t rowPitchBytes, size_t width, size_t height, DXGI_FORMAT format, void* dataBegin) {
+void TextureResource::Create(CommandContext& commandContext, size_t rowPitchBytes, size_t width, size_t height, DXGI_FORMAT format, void* dataBegin, bool isCubeMap) {
 
     CD3DX12_HEAP_PROPERTIES heapProp(D3D12_HEAP_TYPE_DEFAULT);
-    desc_ = CD3DX12_RESOURCE_DESC::Tex2D(format, width, UINT(height), 1, 1);
+    desc_ = CD3DX12_RESOURCE_DESC::Tex2D(format, width, UINT(height), isCubeMap ? 6 : 1, 1);
     CreateResource(L"TextureResource", heapProp, desc_, D3D12_RESOURCE_STATE_COPY_DEST);
-    
+
     D3D12_SUBRESOURCE_DATA subresourceData{};
     subresourceData.pData = dataBegin;
     subresourceData.RowPitch = rowPitchBytes;
@@ -70,10 +80,10 @@ void TextureResource::Create(CommandContext& commandContext, size_t rowPitchByte
 
     UploadResource(commandContext, 1, &subresourceData);
 
-    CreateView();
+    CreateView(isCubeMap);
 }
 
-void TextureResource::CreateView() {
+void TextureResource::CreateView(bool isCubeMap) {
     auto graphics = Graphics::GetInstance();
     auto device = graphics->GetDevice();
 
@@ -84,8 +94,16 @@ void TextureResource::CreateView() {
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
     srvDesc.Format = desc_.Format;
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
-    srvDesc.Texture2D.MipLevels = desc_.MipLevels;
+    if (isCubeMap) {
+        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURECUBE;
+        srvDesc.TextureCube.MostDetailedMip = 0;
+        srvDesc.TextureCube.MipLevels = UINT_MAX;
+        srvDesc.TextureCube.ResourceMinLODClamp = 0.0f;
+    }
+    else {
+        srvDesc.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+        srvDesc.Texture2D.MipLevels = desc_.MipLevels;
+    }
     device->CreateShaderResourceView(resource_.Get(), &srvDesc, srvHandle_);
 }
 
