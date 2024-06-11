@@ -98,8 +98,10 @@ void TestScene::OnUpdate() {
     camera_->SetRotate(Quaternion::MakeFromEulerAngle(euler_));
     camera_->UpdateMatrices();
 
-    sunLight_->DrawImGui("SunLight");
+    //sunLight_->DrawImGui("SunLight");
     //testObject_.DrawImGui("Sphere");
+
+    gameObjectManager_.ImGuiDraw();
 }
 
 void TestScene::OnFinalize() {

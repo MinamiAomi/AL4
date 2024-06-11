@@ -11,3 +11,7 @@ void MeshComponent::Initialize() {
     gameObject.transform.UpdateMatrix();
     model_.SetWorldMatrix(gameObject.transform.worldMatrix);
 }
+
+void MeshComponent::Update() {
+    model_.SetWorldMatrix(GetGameObject().transform.worldMatrix);
+}

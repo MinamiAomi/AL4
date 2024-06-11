@@ -19,7 +19,7 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Lamp.001"
+			"name":"Lamp"
 		}
 	],
 	"materials":[
@@ -41,7 +41,7 @@
 	],
 	"meshes":[
 		{
-			"name":"lamp_base_Boole2_antidamage_extr_Cap_22.001",
+			"name":"lamp_legup_mainswitch_Boole4_switch_mainspace",
 			"primitives":[
 				{
 					"attributes":{
@@ -59,67 +59,67 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":598937,
+			"count":20182,
 			"max":[
-				1.671407699584961,
-				7.360732555389404,
-				3.847874641418457
+				2.0876781940460205,
+				5.046920299530029,
+				3.490513801574707
 			],
 			"min":[
-				-4.362028121948242,
-				-4.512786865234375,
-				-1.461885929107666
+				-3.945981502532959,
+				-6.826601505279541,
+				-1.818591594696045
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":598937,
+			"count":20182,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":598937,
+			"count":20182,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
-			"componentType":5125,
-			"count":927312,
+			"componentType":5123,
+			"count":23163,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":7187244,
+			"byteLength":242184,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":7187244,
-			"byteOffset":7187244,
+			"byteLength":242184,
+			"byteOffset":242184,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4791496,
-			"byteOffset":14374488,
+			"byteLength":161456,
+			"byteOffset":484368,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3709248,
-			"byteOffset":19165984,
+			"byteLength":46326,
+			"byteOffset":645824,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":22875232,
+			"byteLength":692152,
 			"uri":"lamp.bin"
 		}
 	]

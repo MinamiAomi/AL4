@@ -22,9 +22,6 @@
     <ClCompile Include="TestScene.cpp">
       <Filter>Game\Scene</Filter>
     </ClCompile>
-    <ClCompile Include="SceneObject.cpp">
-      <Filter>Game\Object</Filter>
-    </ClCompile>
     <ClCompile Include="DebugCamera.cpp">
       <Filter>Game\Object</Filter>
     </ClCompile>
@@ -44,9 +41,6 @@
     </ClInclude>
     <ClInclude Include="TestScene.h">
       <Filter>Game\Scene</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneObject.h">
-      <Filter>Game\Object</Filter>
     </ClInclude>
     <ClInclude Include="DebugCamera.h">
       <Filter>Game\Object</Filter>

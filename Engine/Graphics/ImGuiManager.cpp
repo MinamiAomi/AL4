@@ -21,7 +21,10 @@ void ImGuiManager::Initialize(HWND hWnd, DXGI_FORMAT rtvFormat) {
     descriptor_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    auto& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
     ImGui::StyleColorsDark();
+    ImGui::StyleColorsClassic();
     ImGui_ImplWin32_Init(hWnd);
     ImGui_ImplDX12_Init(
         graphics->GetDevice(),

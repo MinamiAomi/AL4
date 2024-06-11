@@ -64,9 +64,9 @@ namespace {
                     destVertex.texcood = Vector2::zero;
                 }
                 // 左手座標系に変換
-                destVertex.position.x *= -1.0f;
-                tmpNormal.x *= -1.0f;
-                tmpTangent.x *= -1.0f;
+                destVertex.position.z *= -1.0f;
+                tmpNormal.z *= -1.0f;
+                tmpTangent.z *= -1.0f;
 
                 destVertex.normal = R32G32B32ToR10G10B10A2(tmpNormal);
                 destVertex.tangent = R32G32B32ToR10G10B10A2(tmpTangent);
@@ -92,7 +92,7 @@ namespace {
                 aiVector3D translate, scale;
                 aiQuaternion rotate;
                 bindPoseMatrixAssimp.Decompose(scale, rotate, translate);
-                Matrix4x4 bindPoseMatrix = Matrix4x4::MakeAffineTransform({ scale.x, scale.y, scale.z }, Quaternion{ rotate.x, -rotate.y, -rotate.z, rotate.w }, { -translate.x, translate.y, translate.z });
+                Matrix4x4 bindPoseMatrix = Matrix4x4::MakeAffineTransform({ scale.x, scale.y, scale.z }, Quaternion{ -rotate.x, -rotate.y, rotate.z, rotate.w }, { translate.x, translate.y, -translate.z });
                 jointWeightData.inverseBindPoseMatrix = bindPoseMatrix.Inverse();
 
                 for (uint32_t weightIndex = 0; weightIndex < bone->mNumWeights; ++weightIndex) {
@@ -209,8 +209,8 @@ namespace {
         aiVector3D translate, scale;
         aiQuaternion rotate;
         node->mTransformation.Decompose(scale, rotate, translate);
-        result.transform.translate = { -translate.x, translate.y, translate.z };
-        result.transform.rotate = Quaternion{ rotate.x, -rotate.y, -rotate.z, rotate.w };
+        result.transform.translate = { translate.x, translate.y, -translate.z };
+        result.transform.rotate = Quaternion{ -rotate.x, -rotate.y, rotate.z, rotate.w };
         result.transform.scale = { scale.x, scale.y, scale.z };
         result.localMatrix = Matrix4x4::MakeAffineTransform(result.transform.scale, result.transform.rotate, result.transform.translate);
         result.name = node->mName.C_Str();

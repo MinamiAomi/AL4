@@ -50,7 +50,6 @@ void from_json(const nlohmann::json& json, Transform& value) {
         json.at("rotate").get_to(euler);
         euler *= Math::ToRadian;
         // kokohidoi
-        euler.y += Math::Pi;
         value.rotate = Quaternion::MakeFromEulerAngle(euler);
     }
     else {

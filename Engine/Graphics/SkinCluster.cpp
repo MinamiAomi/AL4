@@ -59,8 +59,6 @@ void SkinCluster::Update(CommandContext& commandContext, const Skeleton& skeleto
         mappedPalette[jointIndex].skeletonSpaceMatrix = inverseBindPoseMatrices_[jointIndex] * skeleton.GetJoints()[jointIndex].skeletonSpaceMatrix;
         mappedPalette[jointIndex].skeletonSpaceInverseTransposeMatrix = mappedPalette[jointIndex].skeletonSpaceMatrix.Inverse().Transpose();
     }
-    Matrix4x4 mats = Matrix4x4::MakeAffineTransform(Vector3::one, Quaternion::MakeForXAxis(15 * Math::ToRadian), {0,0,2});
-    mats;
     commandContext.CopyBufferRegion(matrixPaletteBuffer_, 0, matrixPaletteBufferAllocation.resource, matrixPaletteBufferAllocation.offset, matrixPaletteBuffer_.GetBufferSize());
     commandContext.TransitionResource(matrixPaletteBuffer_, D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE);
     commandContext.FlushResourceBarriers();

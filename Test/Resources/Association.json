@@ -12,6 +12,8 @@
         "tv" : "room/tv.gltf",
         "videoPlayer" : "room/videoPlayer.gltf",
         "wall" : "room/wall.gltf",
+        "lamp" : "room/lamp.gltf",
+        "table" : "room/table.gltf",
         "human" : "suit/suit.gltf"
     },
     "Animation" : {

@@ -65,6 +65,12 @@ void GameWindow::Initialize(const wchar_t* title, uint32_t clientWidth, uint32_t
     clientHeight_ = clientHeight;
     aspectRaito_ = clientWidth_ / float(clientHeight_);
 
+    // サイズ変更不可
+    LONG style = GetWindowLong(hWnd_, GWL_STYLE);
+    style &= ~WS_THICKFRAME;
+    style |= WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
+    SetWindowLong(hWnd_, GWL_STYLE, style);
+
     SetWindowLongPtr(hWnd_, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
     ShowWindow(hWnd_, SW_SHOW);

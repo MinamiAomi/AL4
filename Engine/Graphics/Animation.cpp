@@ -26,7 +26,7 @@ namespace {
                 destKey.time = float(srcKey.mTime / animation->mDuration);
                 destKey.value = { srcKey.mValue.x, srcKey.mValue.y, srcKey.mValue.z };
                 // 右手→左手
-                destKey.value.x *= -1.0f;
+                destKey.value.z *= -1.0f;
             }
 
             destNodeAnimation.rotate.keyframes.resize(srcNodeAnimation->mNumRotationKeys);
@@ -36,7 +36,7 @@ namespace {
                 destKey.time = float(srcKey.mTime / animation->mDuration);
                 destKey.value = Quaternion{ srcKey.mValue.x, srcKey.mValue.y, srcKey.mValue.z, srcKey.mValue.w };
                 // 右手→左手
-                destKey.value.z *= -1.0f;
+                destKey.value.x *= -1.0f;
                 destKey.value.y *= -1.0f;
                 //destKey.value.z *= -1.0f;
             }

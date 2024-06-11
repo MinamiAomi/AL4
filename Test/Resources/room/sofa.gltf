@@ -19,7 +19,7 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Sofa.002"
+			"name":"Sofa"
 		}
 	],
 	"materials":[
@@ -33,7 +33,7 @@
 					"ior":1.4500000476837158
 				}
 			},
-			"name":"default.001",
+			"name":"default",
 			"pbrMetallicRoughness":{
 				"metallicFactor":0
 			}
@@ -41,7 +41,7 @@
 	],
 	"meshes":[
 		{
-			"name":"s.001",
+			"name":"Sofa",
 			"primitives":[
 				{
 					"attributes":{
@@ -58,14 +58,14 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":245840,
+			"count":47442,
 			"max":[
-				4.356914520263672,
-				2.609379291534424,
+				4.356694221496582,
+				2.609849452972412,
 				9.326826095581055
 			],
 			"min":[
-				-3.3031787872314453,
+				-3.3031792640686035,
 				-2.932986259460449,
 				-9.325687408447266
 			],
@@ -74,39 +74,39 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":245840,
+			"count":47442,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
-			"componentType":5125,
-			"count":900819,
+			"componentType":5123,
+			"count":56295,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":2950080,
+			"byteLength":569304,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2950080,
-			"byteOffset":2950080,
+			"byteLength":569304,
+			"byteOffset":569304,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3603276,
-			"byteOffset":5900160,
+			"byteLength":112590,
+			"byteOffset":1138608,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":9503436,
+			"byteLength":1251200,
 			"uri":"sofa.bin"
 		}
 	]

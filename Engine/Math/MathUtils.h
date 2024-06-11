@@ -588,7 +588,13 @@ public:
     inline Vector3 EulerAngle() const noexcept {
         Vector3 euler{};
         euler.x = std::atan2(2.0f * (w * x + y * z), 1.0f - 2.0f * (x * x + y * y));
-        euler.y = std::asin(2.0f * (w * y - z * x));
+        float s = 2.0f * (w * y - z * x);
+        if (std::abs(s) >= 1.0f) {
+            euler.y = std::copysign(Math::HalfPi, s);
+        }
+        else {
+            euler.y = std::asin(s);
+        }
         euler.z = std::atan2(2.0f * (w * z + x * y), 1.0f - 2.0f * (y * y + z * z));
         return euler;
     }

@@ -7,6 +7,28 @@
 
 static bool useGrayscale = false;
 
+namespace {
+#ifdef ENABLE_IMGUI
+    ImVec2 CalcAspectFitSize(const ImVec2& windowSize, const ImVec2& imageSize) {
+        float windowAspect = windowSize.x / windowSize.y;
+        float imageAspect = imageSize.x / imageSize.y;
+
+        ImVec2 newSize;
+        if (windowAspect > imageAspect) {
+            // ウィンドウがよりワイドの場合、高さに合わせて幅を計算
+            newSize.y = windowSize.y;
+            newSize.x = imageSize.x * (windowSize.y / imageSize.y);
+        }
+        else {
+            // ウィンドウがよりタイトの場合、幅に合わせて高さを計算
+            newSize.x = windowSize.x;
+            newSize.y = imageSize.y * (windowSize.x / imageSize.x);
+        }
+        return newSize;
+    }
+#endif // ENABLE_IMGUI
+}
+
 RenderManager* RenderManager::GetInstance() {
     static RenderManager instance;
     return &instance;
@@ -25,27 +47,21 @@ void RenderManager::Initialize() {
     DefaultTexture::Initialize();
 
     auto& swapChainBuffer = swapChain_.GetColorBuffer(0);
-    float clearColor[4] = { 0.1f, 0.4f, 0.6f, 0.0f };
-    mainColorBuffer_.SetClearColor(clearColor);
-    mainColorBuffer_.Create(L"MainColorBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R8G8B8A8_UNORM);
-    preSwapChainBuffer_.Create(L"PreSwapChainBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R8G8B8A8_UNORM);
-    mainDepthBuffer_.Create(L"MainDepthBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_D32_FLOAT);
+    finalImageBuffer_.Create(L"FinalImageBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), swapChainBuffer.GetFormat(), swapChainBuffer.IsSRGB());
 
-    particleRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
-    spriteRenderer_.Initialize(preSwapChainBuffer_);
     skinningManager_.Initialize();
     geometryRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
     lightingRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
     skybox_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat(), geometryRenderingPass_.GetDepth().GetFormat());
     lineDrawer_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat());
 
-    fxaa_.Initialize(&lightingRenderingPass_.GetResult());
-    postEffect_.Initialize(swapChainBuffer);
+    bloom_.Initialize(&lightingRenderingPass_.GetResult());
+    fxaa_.Initialize(&bloom_.GetResult());
+    postEffect_.Initialize(finalImageBuffer_);
 
-//    modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
+    //    modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
     transition_.Initialize();
-    raytracingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
-    particleRenderer_.Initialize(mainColorBuffer_, mainDepthBuffer_);
+    raytracingRenderer_.Create(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
     //raymarchingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
 
@@ -84,7 +100,7 @@ void RenderManager::Render() {
     if (camera && sunLight) {
         // 影、スペキュラ
         modelSorter_.Sort(*camera);;
-    //    raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
+        //    raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
         geometryRenderingPass_.Render(commandContext_, *camera, modelSorter_);
         lightingRenderingPass_.Render(commandContext_, geometryRenderingPass_, *camera, *sunLight);
 
@@ -100,55 +116,43 @@ void RenderManager::Render() {
         lineDrawer_.Render(commandContext_, *camera);
     }
 
+    bloom_.Render(commandContext_);
     fxaa_.Render(commandContext_);
-    
 
+    commandContext_.TransitionResource(finalImageBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    commandContext_.SetRenderTarget(finalImageBuffer_.GetRTV());
+    commandContext_.SetViewportAndScissorRect(0, 0, finalImageBuffer_.GetWidth(), finalImageBuffer_.GetHeight());
+
+    postEffect_.Render(commandContext_, fxaa_.GetResult());
+
+    // スワップチェーンに描画
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
     commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext_.SetRenderTarget(swapChainBuffer.GetRTV());
     commandContext_.ClearColor(swapChainBuffer);
     commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
-    postEffect_.Render(commandContext_, fxaa_.GetResult());
-    //spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, float(preSwapChainBuffer_.GetWidth()), float(preSwapChainBuffer_.GetHeight()));
-    //transition_.Dispatch(commandContext_, preSwapChainBuffer_);  
-    //commandContext_.CopyBuffer(swapChainBuffer, fxaa_.GetResult());
-
-
 #ifdef ENABLE_IMGUI
+
+    commandContext_.TransitionResource(finalImageBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    commandContext_.FlushResourceBarriers();
+    ImGui::Begin("Game", 0, ImGuiWindowFlags_NoScrollbar);
+    ImVec2 windowSize = ImGui::GetWindowSize();
+    ImTextureID image = reinterpret_cast<ImTextureID>(finalImageBuffer_.GetSRV().GetGPU().ptr);
+    ImVec2 imageSize = CalcAspectFitSize(windowSize, { (float)finalImageBuffer_.GetWidth(), (float)finalImageBuffer_.GetHeight() });
+    ImVec2 imageOffset = { (windowSize.x - imageSize.x) * 0.5f, (windowSize.y - imageSize.y) * 0.5f};
+    ImGui::SetCursorPos(imageOffset);
+    ImGui::Image(image, imageSize);
+    ImGui::End();
+
     ImGui::Begin("Profile");
     auto io = ImGui::GetIO();
     ImGui::Text("Framerate : %f", io.Framerate);
     ImGui::Text("FrameCount : %d", frameCount_);
-
-    //transition_.SetTime(t);
-    auto ImagePreview = [](const char* name, const DescriptorHandle& srv, const ImVec2& size) {
-        if (ImGui::TreeNode(name)) {
-            ImTextureID image = reinterpret_cast<ImTextureID>(srv.GetGPU().ptr);
-            ImGui::Image(image, size);
-            ImGui::TreePop();
-        }
-        };
-    commandContext_.TransitionResource(geometryRenderingPass_.GetAlbedo(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandContext_.TransitionResource(geometryRenderingPass_.GetMetallicRoughness(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandContext_.TransitionResource(geometryRenderingPass_.GetNormal(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandContext_.TransitionResource(geometryRenderingPass_.GetDepth(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandContext_.FlushResourceBarriers();
-    ImagePreview("Albedo", geometryRenderingPass_.GetAlbedo().GetSRV(), {360.0f, 180.0f});
-    ImagePreview("MetallicRoughness", geometryRenderingPass_.GetMetallicRoughness().GetSRV(), { 360.0f, 180.0f });
-    ImagePreview("Normal", geometryRenderingPass_.GetNormal().GetSRV(), { 360.0f, 180.0f });
-    ImagePreview("Depth", geometryRenderingPass_.GetDepth().GetSRV(), { 360.0f, 180.0f });
     postEffect_.DrawImGui("PostEffect");
 
-    //ImagePreview("MainColorBuffer", mainColorBuffer_.GetSRV(), { 320.0f, 180.0f });
-    //ImagePreview("MainDepthBuffer", mainDepthBuffer_.GetSRV(), { 320.0f, 180.0f });
-    //ImagePreview("SpecularBuffer", raytracingRenderer_.GetSpecular().GetSRV(), { 320.0f, 180.0f });
-    //ImagePreview("ShadowBuffer", raytracingRenderer_.GetShadow().GetSRV(), { 320.0f, 180.0f });
-    //ImagePreview("Raymatching", raymarchingRenderer_.GetResult().GetSRV(), { 320.0f, 180.0f });
-    //ImagePreview("Noise", computeShaderTester_.GetTexture().GetSRV(), { 320.0f, 320.0f });
-
-    //ImGui::Checkbox("Raymarching", &raymarching_);
     ImGui::End();
+
 #endif // ENABLE_IMGUI
 
     // ImGuiを描画
@@ -156,9 +160,8 @@ void RenderManager::Render() {
     imguiManager->Render(commandContext_);
 
     commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_PRESENT);
-    // commandContext_.TransitionResource(mainDepthBuffer_, D3D12_RESOURCE_STATE_DEPTH_WRITE);
 
-     // コマンドリスト完成(クローズ)
+    // コマンドリスト完成(クローズ)
     commandContext_.Close();
 
     // バックバッファをフリップ
@@ -175,4 +178,60 @@ void RenderManager::Render() {
     timer_.KeepFrameRate(60);
 
     imguiManager->NewFrame();
+    ShowDockingSpace();
+}
+
+void RenderManager::ShowDockingSpace() {
+#ifdef ENABLE_IMGUI
+    static bool opt_fullscreen = true;
+    static bool opt_padding = false;
+    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
+
+    // ウィンドウフラグの設定
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+    if (opt_fullscreen)
+    {
+        ImGuiViewport* viewport = ImGui::GetMainViewport();
+        ImGui::SetNextWindowPos(viewport->Pos);
+        ImGui::SetNextWindowSize(viewport->Size);
+        ImGui::SetNextWindowViewport(viewport->ID);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+    }
+
+    if (!opt_padding)
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
+    // メインドッキングスペースの開始
+    ImGui::Begin("DockSpace", nullptr, window_flags);
+
+    if (!opt_padding)
+        ImGui::PopStyleVar();
+
+    if (opt_fullscreen)
+        ImGui::PopStyleVar(2);
+
+    // ドッキングスペースの設定
+    ImGuiIO& io = ImGui::GetIO();
+    if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
+    {
+        ImGuiID dockspace_id = ImGui::GetID("MyDockspace");
+        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
+    }
+
+    // メニューバーの例
+    //if (ImGui::BeginMenuBar())
+    //{
+    //    if (ImGui::BeginMenu("File"))
+    //    {
+    //        ImGui::MenuItem("Exit", NULL, false, false); // 無効なメニューアイテム
+    //        ImGui::EndMenu();
+    //    }
+    //    ImGui::EndMenuBar();
+    //}
+
+    ImGui::End();
+#endif // ENABLE_IMGUI
 }

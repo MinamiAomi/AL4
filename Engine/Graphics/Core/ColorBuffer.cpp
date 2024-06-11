@@ -15,6 +15,7 @@ void ColorBuffer::CreateFromSwapChain(const std::wstring& name, ID3D12Resource* 
     rtvDesc.Format = srgb ? Helper::GetSRGBFormat(format_) : format_;
     graphics->GetDevice()->CreateRenderTargetView(resource_.Get(), &rtvDesc, rtvHandle_);
     rtvFormat_ = rtvDesc.Format;
+    isSRGB_ = srgb;
 }
 
 void ColorBuffer::Create(const std::wstring& name, uint32_t width, uint32_t height, DXGI_FORMAT format, bool srgb) {
@@ -27,6 +28,7 @@ void ColorBuffer::Create(const std::wstring& name, uint32_t width, uint32_t heig
 
     CreateTextureResource(name, desc, clearValue);
     CreateViews(srgb);
+    isSRGB_ = srgb;
 }
 
 void ColorBuffer::CreateArray(const std::wstring& name, uint32_t width, uint32_t height, uint32_t arraySize, DXGI_FORMAT format, bool srgb) {
@@ -39,6 +41,7 @@ void ColorBuffer::CreateArray(const std::wstring& name, uint32_t width, uint32_t
 
     CreateTextureResource(name, desc, clearValue);
     CreateViews(srgb);
+    isSRGB_ = srgb;
 }
 
 void ColorBuffer::SetClearColor(const float* clearColor) {

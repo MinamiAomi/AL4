@@ -11,10 +11,13 @@
 #include "Math/Transform.h"
 
 class GameObject {
+    friend class GameObjectManager;
 public:
     virtual ~GameObject() {}
 
+    void InitializeUninitializedComponents();
     void Update();
+    void ImguiDraw();
 
     // コンポーネントを追加
     template<class T>
@@ -52,10 +55,14 @@ public:
     void SetName(const std::string& name) { name_ = name; }
     const std::string& GetName() const { return name_; }
 
+    void SetIsActive(bool isActive) { isActive_ = isActive; }
+    bool IsActive() const { return isActive_; }
+
     Transform transform;
 
 private:
     std::vector<Component*> uninitializedComponents_;
     std::map<std::type_index, std::shared_ptr<Component>> componentList_;
     std::string name_;
+    bool isActive_;
 };

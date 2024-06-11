@@ -19,7 +19,7 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"Blind.003"
+			"name":"Blind.001"
 		}
 	],
 	"materials":[
@@ -33,7 +33,7 @@
 					"ior":1.4500000476837158
 				}
 			},
-			"name":"default.001",
+			"name":"default",
 			"pbrMetallicRoughness":{
 				"metallicFactor":0
 			}
@@ -41,7 +41,7 @@
 	],
 	"meshes":[
 		{
-			"name":"W\u00fcrfel.5_13.002",
+			"name":"W\u00fcrfel.5_13.001",
 			"primitives":[
 				{
 					"attributes":{
@@ -59,7 +59,7 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":28878,
+			"count":9216,
 			"max":[
 				0.4033699035644531,
 				7.274689674377441,
@@ -75,51 +75,51 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":28878,
+			"count":9216,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":28878,
+			"count":9216,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":43596,
+			"count":10896,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":346536,
+			"byteLength":110592,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":346536,
-			"byteOffset":346536,
+			"byteLength":110592,
+			"byteOffset":110592,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":231024,
-			"byteOffset":693072,
+			"byteLength":73728,
+			"byteOffset":221184,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":87192,
-			"byteOffset":924096,
+			"byteLength":21792,
+			"byteOffset":294912,
 			"target":34963
 		}
 	],
 	"buffers":[
 		{
-			"byteLength":1011288,
+			"byteLength":316704,
 			"uri":"blind.bin"
 		}
 	]

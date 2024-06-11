@@ -70,6 +70,9 @@
     <Filter Include="GameObject">
       <UniqueIdentifier>{b8b88e30-91f6-4857-b7e8-74d3d5a56868}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Graphics\Shader\PostEffect">
+      <UniqueIdentifier>{63e39e26-1af7-48dd-8ebd-a1bc73338a5a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene\SceneManager.cpp">
@@ -649,34 +652,16 @@
     <None Include="Graphics\Shader\Lighting.hlsli">
       <Filter>Graphics\Shader</Filter>
     </None>
-    <None Include="Graphics\Shader\BloomPS.hlsl">
-      <Filter>Graphics\Shader</Filter>
-    </None>
-    <None Include="Graphics\Shader\HorizontalGaussianBlurVS.hlsl">
-      <Filter>Graphics\Shader</Filter>
-    </None>
-    <None Include="Graphics\Shader\LuminanceExtractionrPS.hlsl">
-      <Filter>Graphics\Shader</Filter>
-    </None>
     <None Include="Graphics\Shader\OutlinePS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Graphics\Shader\OutlineVS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
-    <None Include="Graphics\Shader\PostEffectPS.hlsl">
-      <Filter>Graphics\Shader</Filter>
-    </None>
-    <None Include="Graphics\Shader\ScreenQuadVS.hlsl">
-      <Filter>Graphics\Shader</Filter>
-    </None>
     <None Include="Graphics\Shader\ToonPS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Graphics\Shader\ToonVS.hlsl">
-      <Filter>Graphics\Shader</Filter>
-    </None>
-    <None Include="Graphics\Shader\VerticalGaussianBlurVS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Externals\DirectXTex\Include\DirectXTex.inl">
@@ -695,9 +680,6 @@
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Graphics\Shader\ParticlePS.hlsl">
-      <Filter>Graphics\Shader</Filter>
-    </None>
-    <None Include="Graphics\Shader\GaussianBlurPS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Graphics\Shader\Standard\GeometryPass.hlsli">
@@ -727,25 +709,13 @@
     <None Include="Graphics\Shader\Raymarching.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
-    <None Include="Graphics\Shader\PostEffectOtherPS.hlsl">
-      <Filter>Graphics\Shader</Filter>
-    </None>
-    <None Include="Graphics\Shader\PostEffectAddPS.hlsl">
-      <Filter>Graphics\Shader</Filter>
-    </None>
     <None Include="Graphics\Shader\TestCS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Graphics\Shader\Standard\LightingPass.hlsli">
       <Filter>Graphics\Shader\Standard</Filter>
     </None>
-    <None Include="Graphics\Shader\FXAAPS.hlsl">
-      <Filter>Graphics\Shader</Filter>
-    </None>
     <None Include="Graphics\Shader\TransitionCS.hlsl">
-      <Filter>Graphics\Shader</Filter>
-    </None>
-    <None Include="Graphics\Shader\GrayscaleCS.hlsl">
       <Filter>Graphics\Shader</Filter>
     </None>
     <None Include="Graphics\Shader\Standard\SkinningCS.hlsl">
@@ -762,6 +732,39 @@
     </None>
     <None Include="Graphics\Shader\SkyboxPS.hlsl">
       <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\BloomPS.hlsl">
+      <Filter>Graphics\Shader\PostEffect</Filter>
+    </None>
+    <None Include="Graphics\Shader\FXAAPS.hlsl">
+      <Filter>Graphics\Shader\PostEffect</Filter>
+    </None>
+    <None Include="Graphics\Shader\GaussianBlurPS.hlsl">
+      <Filter>Graphics\Shader\PostEffect</Filter>
+    </None>
+    <None Include="Graphics\Shader\GrayscaleCS.hlsl">
+      <Filter>Graphics\Shader\PostEffect</Filter>
+    </None>
+    <None Include="Graphics\Shader\HorizontalGaussianBlurVS.hlsl">
+      <Filter>Graphics\Shader\PostEffect</Filter>
+    </None>
+    <None Include="Graphics\Shader\LuminanceExtractionrPS.hlsl">
+      <Filter>Graphics\Shader\PostEffect</Filter>
+    </None>
+    <None Include="Graphics\Shader\PostEffectAddPS.hlsl">
+      <Filter>Graphics\Shader\PostEffect</Filter>
+    </None>
+    <None Include="Graphics\Shader\PostEffectOtherPS.hlsl">
+      <Filter>Graphics\Shader\PostEffect</Filter>
+    </None>
+    <None Include="Graphics\Shader\PostEffectPS.hlsl">
+      <Filter>Graphics\Shader\PostEffect</Filter>
+    </None>
+    <None Include="Graphics\Shader\VerticalGaussianBlurVS.hlsl">
+      <Filter>Graphics\Shader\PostEffect</Filter>
+    </None>
+    <None Include="Graphics\Shader\ScreenQuadVS.hlsl">
+      <Filter>Graphics\Shader\PostEffect</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

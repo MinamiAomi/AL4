@@ -21,7 +21,6 @@
     <ClCompile Include="MeshComponent.cpp" />
     <ClCompile Include="Test.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="SceneObject.cpp" />
     <ClCompile Include="TestScene.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -30,7 +29,6 @@
     <ClInclude Include="DebugCamera.h" />
     <ClInclude Include="Door.h" />
     <ClInclude Include="Test.h" />
-    <ClInclude Include="SceneObject.h" />
     <ClInclude Include="TestScene.h" />
   </ItemGroup>
   <ItemGroup>

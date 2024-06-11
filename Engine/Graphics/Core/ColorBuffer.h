@@ -17,6 +17,7 @@ public:
     const DescriptorHandle& GetRTV() const { return rtvHandle_; }
     const DescriptorHandle& GetSRV() const { return srvHandle_; }
     const DescriptorHandle& GetUAV() const { return uavHandle_; }
+    bool IsSRGB() const { return isSRGB_; }
 
 private:
     void CreateViews(bool srgb);
@@ -26,4 +27,5 @@ private:
     DescriptorHandle uavHandle_;
     DescriptorHandle rtvHandle_;
     DXGI_FORMAT rtvFormat_;
+    bool isSRGB_;
 };

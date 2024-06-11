@@ -8,6 +8,7 @@ class MeshComponent :
     public Component {
 public:
     void Initialize() override;
+    void Update() override;
 
     void SetModelName(const std::string& name) { modelName_ = name; }
 
