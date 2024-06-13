@@ -695,6 +695,9 @@
     <ClInclude Include="Editer\ProjectView.h">
       <Filter>Editer</Filter>
     </ClInclude>
+    <ClInclude Include="Framework\Resource.h">
+      <Filter>Framework</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\Lighting.hlsli">

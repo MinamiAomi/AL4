@@ -15,8 +15,6 @@ namespace Editer {
         gameObjectManager;
 #ifdef ENABLE_IMGUI
         ImGui::Begin("Hierarchy");
-        ImGui::InputText("##", &searchString_);
-
         const auto& gameObjects = gameObjectManager.GetGameObjects();
         for (auto& gameObject : gameObjects) {
             // 親がいないオブジェクトから再帰的に

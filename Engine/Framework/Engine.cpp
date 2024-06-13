@@ -74,6 +74,7 @@ void Engine::Run(Game* game) {
 
 #ifdef ENABLE_IMGUI
     g_editerManager->Finalize();
+    g_editerManager.reset();
 #endif // ENABLE_IMGUI
     g_sceneManager->Finalize();
     g_gameObjectManager.reset();

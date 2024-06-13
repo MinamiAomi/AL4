@@ -261,8 +261,8 @@ std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
     CommandContext commandContext;
     commandContext.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
     // 中間リソースをコピーする
-    model->vertexBuffer_.Create(L"Model VertexBuffer", model->vertices_.size(), sizeof(model->vertices_[0]));
-    model->indexBuffer_.Create(L"Model IndexBuffer", model->indices_.size(), sizeof(model->indices_[0]));
+    model->vertexBuffer_.Create(path.wstring() + L"VB", model->vertices_.size(), sizeof(model->vertices_[0]));
+    model->indexBuffer_.Create(path.wstring() + L"IB", model->indices_.size(), sizeof(model->indices_[0]));
 
     commandContext.CopyBuffer(model->vertexBuffer_, model->vertexBuffer_.GetBufferSize(), model->vertices_.data());
     commandContext.CopyBuffer(model->indexBuffer_, model->indexBuffer_.GetBufferSize(), model->indices_.data());

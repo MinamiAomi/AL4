@@ -206,6 +206,7 @@
     <ClInclude Include="Editer\EditerInterface.h" />
     <ClInclude Include="Externals\ImGui\imgui_stdlib.h" />
     <ClInclude Include="File\JsonConverter.h" />
+    <ClInclude Include="Framework\Resource.h" />
     <ClInclude Include="Framework\ResourceManager.h" />
     <ClInclude Include="GameObject\Component.h" />
     <ClInclude Include="GameObject\GameObject.h" />

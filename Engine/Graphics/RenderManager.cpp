@@ -98,33 +98,36 @@ void RenderManager::Render() {
 
     postEffect_.Render(commandContext_, fxaa_.GetResult());
 
-    // スワップチェーンに描画
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
-    commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    commandContext_.SetRenderTarget(swapChainBuffer.GetRTV());
-    commandContext_.ClearColor(swapChainBuffer);
-    commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
+    commandContext_.CopyBuffer(swapChainBuffer, finalImageBuffer_);
+
 
 #ifdef ENABLE_IMGUI
+    // スワップチェーンに描画
+    commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    commandContext_.FlushResourceBarriers();
+    commandContext_.SetRenderTarget(swapChainBuffer.GetRTV());
+    //commandContext_.ClearColor(swapChainBuffer);
+    commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
-    //commandContext_.TransitionResource(finalImageBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    //commandContext_.FlushResourceBarriers();
-    //ImGui::Begin("Game", 0, ImGuiWindowFlags_NoScrollbar);
-    //ImVec2 windowSize = ImGui::GetWindowSize();
-    //ImTextureID image = reinterpret_cast<ImTextureID>(finalImageBuffer_.GetSRV().GetGPU().ptr);
-    //ImVec2 imageSize = CalcAspectFitSize(windowSize, { (float)finalImageBuffer_.GetWidth(), (float)finalImageBuffer_.GetHeight() });
-    //ImVec2 imageOffset = { (windowSize.x - imageSize.x) * 0.5f, (windowSize.y - imageSize.y) * 0.5f};
-    //ImGui::SetCursorPos(imageOffset);
-    //ImGui::Image(image, imageSize);
-    //ImGui::End();
-    //
-    //ImGui::Begin("Profile");
-    //auto io = ImGui::GetIO();
-    //ImGui::Text("Framerate : %f", io.Framerate);
-    //ImGui::Text("FrameCount : %d", frameCount_);
-    //postEffect_.DrawImGui("PostEffect");
-    //
-    //ImGui::End();
+   /* commandContext_.TransitionResource(finalImageBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    commandContext_.FlushResourceBarriers();
+    ImGui::Begin("Game", 0, ImGuiWindowFlags_NoScrollbar);
+    ImVec2 windowSize = ImGui::GetWindowSize();
+    ImTextureID image = reinterpret_cast<ImTextureID>(finalImageBuffer_.GetSRV().GetGPU().ptr);
+    ImVec2 imageSize = CalcAspectFitSize(windowSize, { (float)finalImageBuffer_.GetWidth(), (float)finalImageBuffer_.GetHeight() });
+    ImVec2 imageOffset = { (windowSize.x - imageSize.x) * 0.5f, (windowSize.y - imageSize.y) * 0.5f};
+    ImGui::SetCursorPos(imageOffset);
+    ImGui::Image(image, imageSize);
+    ImGui::End();
+    
+    ImGui::Begin("Profile");
+    auto io = ImGui::GetIO();
+    ImGui::Text("Framerate : %f", io.Framerate);
+    ImGui::Text("FrameCount : %d", frameCount_);
+    postEffect_.DrawImGui("PostEffect");
+    
+    ImGui::End();*/
 
     Engine::GetEditerManager()->RenderToColorBuffer(commandContext_);
 #endif // ENABLE_IMGUI
