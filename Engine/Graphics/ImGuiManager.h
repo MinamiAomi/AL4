@@ -2,6 +2,7 @@
 
 #ifdef ENABLE_IMGUI
 #include "Externals/ImGui/imgui.h"
+#include "Externals/ImGui/imgui_stdlib.h"
 #endif // ENABLE_IMGUI
 
 

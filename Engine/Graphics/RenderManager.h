@@ -45,6 +45,7 @@ public:
     void SetSunLight(const std::shared_ptr<DirectionalLight>& light) { sunLight_ = light; }
 
     //LightManager& GetLightManager() { return lightManager_; }
+    SwapChain& GetSwapChain() { return swapChain_; }
     Transition& GetTransition() { return transition_; }
     SkinningManager& GetSkinningManager() { return skinningManager_; }
     LineDrawer& GetLineDrawer() { return lineDrawer_; }

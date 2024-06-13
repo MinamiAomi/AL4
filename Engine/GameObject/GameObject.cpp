@@ -2,27 +2,12 @@
 
 #include "Graphics/ImGuiManager.h"
 
-void GameObject::InitializeUninitializedComponents() {
-    // 未初期化のコンポーネントを初期化
-    for (auto component : uninitializedComponents_) {
-        component->Initialize();
-    }
-    uninitializedComponents_.clear();
-}
-
-void GameObject::Update() {
-    // すべてのコンポーネントを更新
-    for (auto& component : componentList_) {
-        component.second->Update();
-    }
-    transform.UpdateMatrix();
-}
-
-void GameObject::ImguiDraw() {
-    
+void GameObject::RenderInInspectorView() {
     ImGui::PushID(this);
-    ImGui::Text(name_.c_str());
-    if (ImGui::TreeNode("Transform")) {
+    ImGui::Checkbox("##IsActive", &isActive_);
+    ImGui::SameLine();
+    ImGui::InputText("##Name", &name_);
+    if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::Separator();
         ImGui::DragFloat3("Translate", &transform.translate.x, 0.1f);
         Vector3 rotate = transform.rotate.EulerAngle() * Math::ToDegree;
@@ -33,4 +18,57 @@ void GameObject::ImguiDraw() {
         ImGui::TreePop();
     }
     ImGui::PopID();
+}
+
+void GameObject::InitializeUninitializedComponents() {
+    // 未初期化のコンポーネントを初期化
+    for (auto& component : uninitializedComponents_) {
+        component->Initialize();
+    }
+    uninitializedComponents_.clear();
+
+    for (const auto& child : children_) {
+        if (auto sp = child.lock()) {
+            sp->InitializeUninitializedComponents();
+        }
+    }
+}
+
+void GameObject::Update() {
+    // すべてのコンポーネントを更新
+    for (auto& component : componentList_) {
+        component.second->Update();
+    }
+    transform.UpdateMatrix();
+
+    for (const auto& child : children_) {
+        if (auto sp = child.lock()) {
+            sp->Update();
+        }
+    }
+}
+
+void GameObject::SetParent(const std::shared_ptr<GameObject>& gameObject) {
+    // 親がもともといる場合
+    if (auto currentParent = parent_.lock()) {
+        // 子供を削除
+        currentParent->RemoveChild(shared_from_this());
+    }
+    // 新しい親がいる場合
+    parent_ = gameObject;
+    if (gameObject) {
+        gameObject->AddChild(shared_from_this());
+
+    }
+}
+
+void GameObject::AddChild(const std::shared_ptr<GameObject>& gameObject) {
+    children_.push_back(gameObject);
+}
+
+void GameObject::RemoveChild(const std::shared_ptr<GameObject>& gameObject) {
+    children_.erase(std::remove_if(children_.begin(), children_.end(), [&](const std::weak_ptr<GameObject>& child) {
+        return child.lock() == gameObject;
+        }),
+        children_.end());
 }

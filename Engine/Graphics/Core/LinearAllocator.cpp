@@ -216,6 +216,7 @@ void LinearAllocator::Create(LinearAllocatorType type) {
 }
 
 LinearAllocator::Allocation LinearAllocator::Allocate(size_t size, size_t alignment) {
+    std::lock_guard<std::mutex> lock(mutex_);
     assert(size <= type_.GetSize());
 
     if (!HasSpace(size, alignment)) {
@@ -240,6 +241,7 @@ LinearAllocator::Allocation LinearAllocator::Allocate(size_t size, size_t alignm
 }
 
 void LinearAllocator::Reset(D3D12_COMMAND_LIST_TYPE commandType, UINT64 fenceValue) {
+    std::lock_guard<std::mutex> lock(mutex_);
     currentPage_ = nullptr;
     currentOffset_ = 0;
     if (!usedPages_.empty()) {

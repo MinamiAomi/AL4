@@ -73,6 +73,9 @@
     <Filter Include="Graphics\Shader\PostEffect">
       <UniqueIdentifier>{63e39e26-1af7-48dd-8ebd-a1bc73338a5a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Editer">
+      <UniqueIdentifier>{ef36ddaa-c373-4dc6-910e-5c2ec9584396}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene\SceneManager.cpp">
@@ -329,6 +332,21 @@
     </ClCompile>
     <ClCompile Include="GameObject\GameObject.cpp">
       <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Externals\ImGui\imgui_stdlib.cpp">
+      <Filter>Externals\ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="Editer\HierarchyView.cpp">
+      <Filter>Editer</Filter>
+    </ClCompile>
+    <ClCompile Include="Editer\InspectorView.cpp">
+      <Filter>Editer</Filter>
+    </ClCompile>
+    <ClCompile Include="Editer\EditerManager.cpp">
+      <Filter>Editer</Filter>
+    </ClCompile>
+    <ClCompile Include="Editer\SceneView.cpp">
+      <Filter>Editer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -646,6 +664,36 @@
     </ClInclude>
     <ClInclude Include="GameObject\GameObjectManager.h">
       <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject\GameObjectFactory.h">
+      <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Editer\EditerManager.h">
+      <Filter>Editer</Filter>
+    </ClInclude>
+    <ClInclude Include="Editer\HierarchyView.h">
+      <Filter>Editer</Filter>
+    </ClInclude>
+    <ClInclude Include="Editer\EditerView.h">
+      <Filter>Editer</Filter>
+    </ClInclude>
+    <ClInclude Include="Editer\InspectorView.h">
+      <Filter>Editer</Filter>
+    </ClInclude>
+    <ClInclude Include="Editer\SceneView.h">
+      <Filter>Editer</Filter>
+    </ClInclude>
+    <ClInclude Include="Editer\DebugView.h">
+      <Filter>Editer</Filter>
+    </ClInclude>
+    <ClInclude Include="Editer\EditerInterface.h">
+      <Filter>Editer</Filter>
+    </ClInclude>
+    <ClInclude Include="Externals\ImGui\imgui_stdlib.h">
+      <Filter>Externals\ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="Editer\ProjectView.h">
+      <Filter>Editer</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

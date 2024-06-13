@@ -1,5 +1,6 @@
 #include "TestScene.h"
 
+#include "Framework/Engine.h"
 #include "Input/Input.h"
 #include "Graphics/RenderManager.h"
 #include "Framework/ResourceManager.h"
@@ -52,12 +53,12 @@ void TestScene::OnInitialize() {
 
     //room_.SetModel(ResourceManager::GetInstance()->FindModel("room"));
 
-    LevelLoader::Load("Resources/scene.json", gameObjectManager_);
+    LevelLoader::Load("Resources/scene.json", *Engine::GetGameObjectManager());
 }
 
 void TestScene::OnUpdate() {
 
-    gameObjectManager_.Update();
+    Engine::GetGameObjectManager()->Update();
 
     //door_.Update();
 
@@ -100,9 +101,8 @@ void TestScene::OnUpdate() {
 
     //sunLight_->DrawImGui("SunLight");
     //testObject_.DrawImGui("Sphere");
-
-    gameObjectManager_.ImGuiDraw();
 }
 
 void TestScene::OnFinalize() {
+
 }

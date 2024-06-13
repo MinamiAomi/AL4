@@ -46,6 +46,7 @@ void DescriptorHeap::Create(D3D12_DESCRIPTOR_HEAP_TYPE type, uint32_t numDescrip
 }
 
 DescriptorHandle DescriptorHeap::Allocate() {
+    std::lock_guard<std::mutex> lock(mutex_);
     // もう空きがないので拡張しましょう
     assert(freeList_.FreeCount() != 0);
     // フリーリスト
@@ -66,6 +67,7 @@ DescriptorHandle DescriptorHeap::Allocate() {
 }
 
 void DescriptorHeap::Free(DescriptorHandle* descriptorHandle) {
+    std::lock_guard<std::mutex> lock(mutex_);
     assert(descriptorHandle != nullptr);
     assert(!descriptorHandle->IsNull());
     assert(descriptorHandle->heap_.lock() == shared_from_this());

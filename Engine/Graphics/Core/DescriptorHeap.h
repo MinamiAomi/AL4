@@ -5,6 +5,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <mutex>
 
 #include "FreeList.h"
 #include "DescriptorHandle.h"
@@ -30,4 +31,5 @@ private:
     uint32_t numDescriptors_;
     uint32_t descriptorSize_;
     FreeList freeList_;
+    std::mutex mutex_;
 };

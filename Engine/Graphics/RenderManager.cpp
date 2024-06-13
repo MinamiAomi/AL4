@@ -3,31 +3,11 @@
 #include "Core/ShaderManager.h"
 #include "DefaultTextures.h"
 #include "GameWindow.h"
-#include "ImGuiManager.h"
+
+#include "Framework/Engine.h"
+#include "Editer/EditerManager.h"
 
 static bool useGrayscale = false;
-
-namespace {
-#ifdef ENABLE_IMGUI
-    ImVec2 CalcAspectFitSize(const ImVec2& windowSize, const ImVec2& imageSize) {
-        float windowAspect = windowSize.x / windowSize.y;
-        float imageAspect = imageSize.x / imageSize.y;
-
-        ImVec2 newSize;
-        if (windowAspect > imageAspect) {
-            // ウィンドウがよりワイドの場合、高さに合わせて幅を計算
-            newSize.y = windowSize.y;
-            newSize.x = imageSize.x * (windowSize.y / imageSize.y);
-        }
-        else {
-            // ウィンドウがよりタイトの場合、幅に合わせて高さを計算
-            newSize.x = windowSize.x;
-            newSize.y = imageSize.y * (windowSize.x / imageSize.x);
-        }
-        return newSize;
-    }
-#endif // ENABLE_IMGUI
-}
 
 RenderManager* RenderManager::GetInstance() {
     static RenderManager instance;
@@ -55,8 +35,8 @@ void RenderManager::Initialize() {
     skybox_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat(), geometryRenderingPass_.GetDepth().GetFormat());
     lineDrawer_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat());
 
-    bloom_.Initialize(&lightingRenderingPass_.GetResult());
-    fxaa_.Initialize(&bloom_.GetResult());
+    //bloom_.Initialize(&lightingRenderingPass_.GetResult());
+    fxaa_.Initialize(&lightingRenderingPass_.GetResult());
     postEffect_.Initialize(finalImageBuffer_);
 
     //    modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
@@ -72,17 +52,10 @@ void RenderManager::Initialize() {
 
     timer_.Initialize();
 
-    auto imguiManager = ImGuiManager::GetInstance();
-    imguiManager->Initialize(window->GetHWND(), swapChainBuffer.GetRTVFormat());
-    imguiManager->NewFrame();
-
     frameCount_ = 0;
 }
 
 void RenderManager::Finalize() {
-    auto imguiManager = ImGuiManager::GetInstance();
-    imguiManager->Shutdown();
-
     DefaultTexture::Finalize();
 }
 
@@ -116,7 +89,7 @@ void RenderManager::Render() {
         lineDrawer_.Render(commandContext_, *camera);
     }
 
-    bloom_.Render(commandContext_);
+    //bloom_.Render(commandContext_);
     fxaa_.Render(commandContext_);
 
     commandContext_.TransitionResource(finalImageBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
@@ -134,30 +107,27 @@ void RenderManager::Render() {
 
 #ifdef ENABLE_IMGUI
 
-    commandContext_.TransitionResource(finalImageBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandContext_.FlushResourceBarriers();
-    ImGui::Begin("Game", 0, ImGuiWindowFlags_NoScrollbar);
-    ImVec2 windowSize = ImGui::GetWindowSize();
-    ImTextureID image = reinterpret_cast<ImTextureID>(finalImageBuffer_.GetSRV().GetGPU().ptr);
-    ImVec2 imageSize = CalcAspectFitSize(windowSize, { (float)finalImageBuffer_.GetWidth(), (float)finalImageBuffer_.GetHeight() });
-    ImVec2 imageOffset = { (windowSize.x - imageSize.x) * 0.5f, (windowSize.y - imageSize.y) * 0.5f};
-    ImGui::SetCursorPos(imageOffset);
-    ImGui::Image(image, imageSize);
-    ImGui::End();
+    //commandContext_.TransitionResource(finalImageBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    //commandContext_.FlushResourceBarriers();
+    //ImGui::Begin("Game", 0, ImGuiWindowFlags_NoScrollbar);
+    //ImVec2 windowSize = ImGui::GetWindowSize();
+    //ImTextureID image = reinterpret_cast<ImTextureID>(finalImageBuffer_.GetSRV().GetGPU().ptr);
+    //ImVec2 imageSize = CalcAspectFitSize(windowSize, { (float)finalImageBuffer_.GetWidth(), (float)finalImageBuffer_.GetHeight() });
+    //ImVec2 imageOffset = { (windowSize.x - imageSize.x) * 0.5f, (windowSize.y - imageSize.y) * 0.5f};
+    //ImGui::SetCursorPos(imageOffset);
+    //ImGui::Image(image, imageSize);
+    //ImGui::End();
+    //
+    //ImGui::Begin("Profile");
+    //auto io = ImGui::GetIO();
+    //ImGui::Text("Framerate : %f", io.Framerate);
+    //ImGui::Text("FrameCount : %d", frameCount_);
+    //postEffect_.DrawImGui("PostEffect");
+    //
+    //ImGui::End();
 
-    ImGui::Begin("Profile");
-    auto io = ImGui::GetIO();
-    ImGui::Text("Framerate : %f", io.Framerate);
-    ImGui::Text("FrameCount : %d", frameCount_);
-    postEffect_.DrawImGui("PostEffect");
-
-    ImGui::End();
-
+    Engine::GetEditerManager()->RenderToColorBuffer(commandContext_);
 #endif // ENABLE_IMGUI
-
-    // ImGuiを描画
-    auto imguiManager = ImGuiManager::GetInstance();
-    imguiManager->Render(commandContext_);
 
     commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_PRESENT);
 
@@ -177,61 +147,4 @@ void RenderManager::Render() {
 
     timer_.KeepFrameRate(60);
 
-    imguiManager->NewFrame();
-    ShowDockingSpace();
-}
-
-void RenderManager::ShowDockingSpace() {
-#ifdef ENABLE_IMGUI
-    static bool opt_fullscreen = true;
-    static bool opt_padding = false;
-    static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-
-    // ウィンドウフラグの設定
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-    if (opt_fullscreen)
-    {
-        ImGuiViewport* viewport = ImGui::GetMainViewport();
-        ImGui::SetNextWindowPos(viewport->Pos);
-        ImGui::SetNextWindowSize(viewport->Size);
-        ImGui::SetNextWindowViewport(viewport->ID);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
-        window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
-        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
-    }
-
-    if (!opt_padding)
-        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-
-    // メインドッキングスペースの開始
-    ImGui::Begin("DockSpace", nullptr, window_flags);
-
-    if (!opt_padding)
-        ImGui::PopStyleVar();
-
-    if (opt_fullscreen)
-        ImGui::PopStyleVar(2);
-
-    // ドッキングスペースの設定
-    ImGuiIO& io = ImGui::GetIO();
-    if (io.ConfigFlags & ImGuiConfigFlags_DockingEnable)
-    {
-        ImGuiID dockspace_id = ImGui::GetID("MyDockspace");
-        ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
-    }
-
-    // メニューバーの例
-    //if (ImGui::BeginMenuBar())
-    //{
-    //    if (ImGui::BeginMenu("File"))
-    //    {
-    //        ImGui::MenuItem("Exit", NULL, false, false); // 無効なメニューアイテム
-    //        ImGui::EndMenu();
-    //    }
-    //    ImGui::EndMenuBar();
-    //}
-
-    ImGui::End();
-#endif // ENABLE_IMGUI
 }

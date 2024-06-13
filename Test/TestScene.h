@@ -41,5 +41,4 @@ private:
     std::shared_ptr<Animation> walk_;
     float time_;
 
-    GameObjectManager gameObjectManager_;
 };

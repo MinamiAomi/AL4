@@ -101,4 +101,5 @@ private:
     std::vector<LinearAllocatorPage*> usedPages_;
     LinearAllocatorPage* currentPage_ = nullptr;
     size_t currentOffset_ = 0;
+    std::mutex mutex_;
 };
