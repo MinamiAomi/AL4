@@ -13,6 +13,8 @@
 #include "Graphics/Skeleton.h"
 #include "GameObject/GameObjectManager.h"
 
+#include "Player.h"
+
 class TestScene :
     public BaseScene {
 public:
@@ -33,12 +35,12 @@ private:
         std::shared_ptr<PBRMaterial> material;
     };
     PBRSphere spheres_[kRowCount][kColumnCount];
-
+    Player player_;
     Door door_;
     ModelInstance model_;
     ModelInstance room_;
     std::shared_ptr<Skeleton> skeleton_;
-    std::shared_ptr<Animation> walk_;
+    std::shared_ptr<Animation> abs_;
     float time_;
 
 };

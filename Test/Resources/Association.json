@@ -5,7 +5,7 @@
         "light" : "room/light.gltf",
         "light_1" : "room/light_1.gltf",
         "light_2" : "room/light_2.gltf",
-        "room" : "room/room.gltf",
+        "room" : "room/room_no_ceiling.gltf",
         "shelf" : "room/shelf.gltf",
         "sofa" : "room/sofa.gltf",
         "speaker" : "room/speaker.gltf",
@@ -14,10 +14,13 @@
         "wall" : "room/wall.gltf",
         "lamp" : "room/lamp.gltf",
         "table" : "room/table.gltf",
-        "human" : "suit/suit.gltf"
+        "human" : "suit/suit.gltf",
+        "hammer" : "hammer/hammer.gltf",
+        "suit_walk" : "SuitWalk/SuitWalk.gltf"
     },
     "Animation" : {
-        "human_walk" : "suit/suit.gltf"
+        "human_abs" : "suit/suit.gltf",
+        "human_walk" : "SuitWalk/SuitWalk.gltf"
     }
     
 }

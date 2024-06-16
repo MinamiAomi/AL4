@@ -1,6 +1,8 @@
 #pragma once
 #include "EditerView.h"
 
+class CommandContext;
+
 namespace Editer {
 
     class SceneView :
@@ -8,7 +10,7 @@ namespace Editer {
     public:
         using View::View;
 
-        void Render();
+        void Render(CommandContext& commandContext);
 
     };
 

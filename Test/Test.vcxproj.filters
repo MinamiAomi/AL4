@@ -34,6 +34,7 @@
     <ClCompile Include="LevelLoader.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="Player.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Test.h">
@@ -53,6 +54,9 @@
     </ClInclude>
     <ClInclude Include="LevelLoader.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Game\Object</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

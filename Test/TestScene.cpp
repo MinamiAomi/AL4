@@ -45,14 +45,14 @@ void TestScene::OnInitialize() {
     euler_.x = Math::ToRadian;
 
     model_.SetModel(ResourceManager::GetInstance()->FindModel("human"));
-    walk_ = ResourceManager::GetInstance()->FindAnimation("human_walk");
+    abs_ = ResourceManager::GetInstance()->FindAnimation("human_abs");
     skeleton_ = std::make_shared<Skeleton>();
     skeleton_->Create(model_.GetModel());
     model_.SetSkeleton(skeleton_);
     model_.SetWorldMatrix(Matrix4x4::MakeRotationY(Math::ToRadian * 180.0f));
 
     //room_.SetModel(ResourceManager::GetInstance()->FindModel("room"));
-
+    player_.Initialize();
     LevelLoader::Load("Resources/scene.json", *Engine::GetGameObjectManager());
 }
 
@@ -64,9 +64,11 @@ void TestScene::OnUpdate() {
 
     time_ += 1.0f / 60.0f;
     time_ = std::fmod(time_, 1.0f);
-    skeleton_->ApplyAnimation(walk_->GetAnimation("situp"), time_);
+    skeleton_->ApplyAnimation(abs_->GetAnimation("situp"), time_);
     skeleton_->Update();
     skeleton_->DebugDraw(model_.GetWorldMatrix());
+
+    player_.Update();
 
     Input* input = Input::GetInstance();
 

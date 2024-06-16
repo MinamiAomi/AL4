@@ -46,6 +46,7 @@ public:
 
     //LightManager& GetLightManager() { return lightManager_; }
     SwapChain& GetSwapChain() { return swapChain_; }
+    ColorBuffer& GetFinalImageBuffer() { return finalImageBuffer_; }
     Transition& GetTransition() { return transition_; }
     SkinningManager& GetSkinningManager() { return skinningManager_; }
     LineDrawer& GetLineDrawer() { return lineDrawer_; }

@@ -72,8 +72,10 @@ void RenderManager::Render() {
 
     if (camera && sunLight) {
         // 影、スペキュラ
-        modelSorter_.Sort(*camera);;
-        //    raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
+        modelSorter_.Sort(*camera);
+
+        //raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
+
         geometryRenderingPass_.Render(commandContext_, *camera, modelSorter_);
         lightingRenderingPass_.Render(commandContext_, geometryRenderingPass_, *camera, *sunLight);
 
@@ -99,35 +101,16 @@ void RenderManager::Render() {
     postEffect_.Render(commandContext_, fxaa_.GetResult());
 
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
+
+#ifndef ENABLE_IMGUI
     commandContext_.CopyBuffer(swapChainBuffer, finalImageBuffer_);
-
-
-#ifdef ENABLE_IMGUI
+#else 
     // スワップチェーンに描画
     commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext_.FlushResourceBarriers();
     commandContext_.SetRenderTarget(swapChainBuffer.GetRTV());
     //commandContext_.ClearColor(swapChainBuffer);
     commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
-
-   /* commandContext_.TransitionResource(finalImageBuffer_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandContext_.FlushResourceBarriers();
-    ImGui::Begin("Game", 0, ImGuiWindowFlags_NoScrollbar);
-    ImVec2 windowSize = ImGui::GetWindowSize();
-    ImTextureID image = reinterpret_cast<ImTextureID>(finalImageBuffer_.GetSRV().GetGPU().ptr);
-    ImVec2 imageSize = CalcAspectFitSize(windowSize, { (float)finalImageBuffer_.GetWidth(), (float)finalImageBuffer_.GetHeight() });
-    ImVec2 imageOffset = { (windowSize.x - imageSize.x) * 0.5f, (windowSize.y - imageSize.y) * 0.5f};
-    ImGui::SetCursorPos(imageOffset);
-    ImGui::Image(image, imageSize);
-    ImGui::End();
-    
-    ImGui::Begin("Profile");
-    auto io = ImGui::GetIO();
-    ImGui::Text("Framerate : %f", io.Framerate);
-    ImGui::Text("FrameCount : %d", frameCount_);
-    postEffect_.DrawImGui("PostEffect");
-    
-    ImGui::End();*/
 
     Engine::GetEditerManager()->RenderToColorBuffer(commandContext_);
 #endif // ENABLE_IMGUI

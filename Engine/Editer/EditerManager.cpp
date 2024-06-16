@@ -60,6 +60,7 @@ namespace Editer {
     }
 
     void EditerManager::RenderToColorBuffer(CommandContext& commandContext) {
+        sceneView_->Render(commandContext);
         ImGui::Render();
         ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandContext);
     }

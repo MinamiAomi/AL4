@@ -19,6 +19,7 @@
     <ClCompile Include="Door.cpp" />
     <ClCompile Include="LevelLoader.cpp" />
     <ClCompile Include="MeshComponent.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="Test.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="TestScene.cpp" />
@@ -28,6 +29,7 @@
     <ClInclude Include="MeshComponent.h" />
     <ClInclude Include="DebugCamera.h" />
     <ClInclude Include="Door.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="Test.h" />
     <ClInclude Include="TestScene.h" />
   </ItemGroup>
