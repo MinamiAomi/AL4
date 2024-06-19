@@ -8,6 +8,8 @@ namespace Editer {
     public:
         using View::View;
 
+        void Render();
+
     };
 
 }

@@ -3,7 +3,7 @@
 
 namespace Editer {
 
-    class DebugView :
+    class ConsoleView :
         public View {
     public:
         using View::View;

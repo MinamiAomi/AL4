@@ -10,7 +10,8 @@ namespace Editer {
     void InspectorView::Render(const std::shared_ptr<SelectableInEditer>& selectableInEditer) {
         selectableInEditer;
 #ifdef ENABLE_IMGUI
-        ImGui::Begin("Inspector");
+        if (!isDisplayed) { return; }
+        ImGui::Begin("Inspector", &isDisplayed);
         if (selectableInEditer) {
             selectableInEditer->RenderInInspectorView();
         }

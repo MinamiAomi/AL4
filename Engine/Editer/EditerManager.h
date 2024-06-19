@@ -11,7 +11,8 @@
 #include "HierarchyView.h"
 #include "InspectorView.h"
 #include "SceneView.h"
-#include "DebugView.h"
+#include "ProjectView.h"
+#include "ConsoleView.h"
 
 namespace Editer {
 
@@ -33,7 +34,8 @@ namespace Editer {
         std::unique_ptr<HierarchyView> hierarchyView_;
         std::unique_ptr<InspectorView> inspectorView_;
         std::unique_ptr<SceneView> sceneView_;
-        std::unique_ptr<DebugView> debugView_;
+        std::unique_ptr<ProjectView> projectView_;
+        std::unique_ptr<ConsoleView> consoleView_;
         // 選択されたオブジェクト
         std::shared_ptr<SelectableInEditer> selectedObject_ = nullptr;
         DescriptorHandle descriptor_;

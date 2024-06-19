@@ -5,6 +5,7 @@
 
 #ifdef ENABLE_IMGUI
 #include "Externals/ImGui/imgui.h"
+#include "Externals/ImGui/imgui_stdlib.h"
 #include "Externals/ImGui/imgui_impl_dx12.h"
 #include "Externals/ImGui/imgui_impl_win32.h"
 #endif // ENABLE_IMGUI
@@ -21,7 +22,8 @@ namespace Editer {
         hierarchyView_(std::make_unique<HierarchyView>(*this)),
         inspectorView_(std::make_unique<InspectorView>(*this)),
         sceneView_(std::make_unique<SceneView>(*this)),
-        debugView_(std::make_unique<DebugView>(*this)) {
+        projectView_(std::make_unique<ProjectView>(*this)),
+        consoleView_(std::make_unique<ConsoleView>(*this)) {
     }
 
     void EditerManager::Initialize() {
@@ -56,10 +58,11 @@ namespace Editer {
         auto gameObjectManager = Engine::GetGameObjectManager();
         hierarchyView_->Render(*gameObjectManager);
         inspectorView_->Render(selectedObject_);
-
+        consoleView_->Render();
     }
 
     void EditerManager::RenderToColorBuffer(CommandContext& commandContext) {
+        projectView_->Render();
         sceneView_->Render(commandContext);
         ImGui::Render();
         ImGui_ImplDX12_RenderDrawData(ImGui::GetDrawData(), commandContext);
@@ -93,7 +96,7 @@ namespace Editer {
             ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 
         // メインドッキングスペースの開始
-        ImGui::Begin("DockSpace Demo", nullptr, window_flags);
+        ImGui::Begin("DockSpace", nullptr, window_flags);
 
         if (!opt_padding)
             ImGui::PopStyleVar();
@@ -110,8 +113,27 @@ namespace Editer {
 
         // メニューバーの例
         if (ImGui::BeginMenuBar()) {
-            if (ImGui::BeginMenu("File")) {
-                ImGui::MenuItem("Exit", NULL, false, false); // 無効なメニューアイテム
+            if (ImGui::BeginMenu("Test")) {
+                ImGui::MenuItem("Test", NULL, false, false); // 無効なメニューアイテム
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("Window")) {
+                if (ImGui::MenuItem("Hierarchy", NULL, hierarchyView_->isDisplayed)) {
+                    hierarchyView_->isDisplayed = true;
+                }
+                if (ImGui::MenuItem("Inspector", NULL, inspectorView_->isDisplayed)) {
+                    inspectorView_->isDisplayed = true;
+                }
+                if (ImGui::MenuItem("Scene", NULL, sceneView_->isDisplayed)) {
+                    sceneView_->isDisplayed = true;
+                }
+                if (ImGui::MenuItem("Project", NULL, projectView_->isDisplayed)) {
+                    projectView_->isDisplayed = true;
+                }
+                if (ImGui::MenuItem("Console", NULL, consoleView_->isDisplayed)) {
+                    consoleView_->isDisplayed = true;
+                }
+
                 ImGui::EndMenu();
             }
             ImGui::EndMenuBar();

@@ -348,6 +348,15 @@
     <ClCompile Include="Editer\SceneView.cpp">
       <Filter>Editer</Filter>
     </ClCompile>
+    <ClCompile Include="GameObject\GameObjectFactory.cpp">
+      <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Editer\ConsoleView.cpp">
+      <Filter>Editer</Filter>
+    </ClCompile>
+    <ClCompile Include="Editer\ProjectView.cpp">
+      <Filter>Editer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -683,7 +692,7 @@
     <ClInclude Include="Editer\SceneView.h">
       <Filter>Editer</Filter>
     </ClInclude>
-    <ClInclude Include="Editer\DebugView.h">
+    <ClInclude Include="Editer\ConsoleView.h">
       <Filter>Editer</Filter>
     </ClInclude>
     <ClInclude Include="Editer\EditerInterface.h">

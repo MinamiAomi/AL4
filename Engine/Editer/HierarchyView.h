@@ -14,10 +14,11 @@ namespace Editer {
     public:
         using View::View;
 
-        void Render(const GameObjectManager& gameObjectManager);
+        void Render(GameObjectManager& gameObjectManager);
 
     private:
-        void RenderGameObject(const std::shared_ptr<GameObject>& gameObject, int32_t depth);
+        void RenderGameObject(const std::shared_ptr<GameObject>& gameObject);
+        void RenderSearchGameObject(const std::shared_ptr<GameObject>& gameObject);
 
         std::string searchString_;
     };

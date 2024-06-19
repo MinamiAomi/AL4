@@ -154,9 +154,11 @@
     <ClCompile Include="Collision\Collider.cpp" />
     <ClCompile Include="Collision\CollisionManager.cpp" />
     <ClCompile Include="Debug\Debug.cpp" />
+    <ClCompile Include="Editer\ConsoleView.cpp" />
     <ClCompile Include="Editer\EditerManager.cpp" />
     <ClCompile Include="Editer\HierarchyView.cpp" />
     <ClCompile Include="Editer\InspectorView.cpp" />
+    <ClCompile Include="Editer\ProjectView.cpp" />
     <ClCompile Include="Editer\SceneView.cpp" />
     <ClCompile Include="Externals\ImGui\imgui.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -191,12 +193,13 @@
     <ClCompile Include="Framework\Engine.cpp" />
     <ClCompile Include="Framework\ResourceManager.cpp" />
     <ClCompile Include="GameObject\GameObject.cpp" />
+    <ClCompile Include="GameObject\GameObjectFactory.cpp" />
     <ClCompile Include="GameObject\GameObjectManager.cpp" />
     <ClCompile Include="Graphics\Animation.cpp" />
     <ClInclude Include="Audio\AudioDevice.h" />
     <ClInclude Include="Audio\AudioSource.h" />
     <ClInclude Include="Audio\Sound.h" />
-    <ClInclude Include="Editer\DebugView.h" />
+    <ClInclude Include="Editer\ConsoleView.h" />
     <ClInclude Include="Editer\EditerManager.h" />
     <ClInclude Include="Editer\EditerView.h" />
     <ClInclude Include="Editer\HierarchyView.h" />

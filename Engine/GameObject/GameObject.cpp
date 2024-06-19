@@ -6,7 +6,7 @@ void GameObject::RenderInInspectorView() {
     ImGui::PushID(this);
     ImGui::Checkbox("##IsActive", &isActive_);
     ImGui::SameLine();
-    ImGui::InputText("##Name", &name_);
+    ImGui::InputText("##Name", &name_, ImGuiInputTextFlags_EnterReturnsTrue);
     if (ImGui::TreeNodeEx("Transform", ImGuiTreeNodeFlags_DefaultOpen)) {
         ImGui::Separator();
         ImGui::DragFloat3("Translate", &transform.translate.x, 0.1f);

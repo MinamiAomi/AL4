@@ -53,6 +53,7 @@ void Engine::Run(Game* game) {
     g_sceneManager = SceneManager::GetInstance();
     g_resourceManager = ResourceManager::GetInstance();
     g_gameObjectManager = std::make_unique<GameObjectManager>();
+    g_gameObjectManager->SetFactory<DefaultGameObjectFactory>();
     
 #ifdef ENABLE_IMGUI
     g_editerManager = std::make_unique<Editer::EditerManager>();

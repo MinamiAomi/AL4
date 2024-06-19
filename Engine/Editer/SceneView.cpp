@@ -32,10 +32,11 @@ namespace Editer {
     void SceneView::Render(CommandContext& commandContext) {
         commandContext;
 #ifdef ENABLE_IMGUI
+        if (!isDisplayed) { return; }
+        ImGui::Begin("Scene", &isDisplayed, ImGuiWindowFlags_NoScrollbar);
         auto& image = RenderManager::GetInstance()->GetFinalImageBuffer();
         commandContext.TransitionResource(image, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
         commandContext.FlushResourceBarriers();
-        ImGui::Begin("Scene", 0, ImGuiWindowFlags_NoScrollbar);
         ImVec2 windowSize = ImGui::GetWindowSize();
         ImTextureID imageID = reinterpret_cast<ImTextureID>(image.GetSRV().GetGPU().ptr);
         ImVec2 imageSize = CalcAspectFitSize(windowSize, { (float)image.GetWidth(), (float)image.GetHeight() });
