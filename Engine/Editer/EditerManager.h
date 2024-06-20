@@ -30,6 +30,11 @@ namespace Editer {
 
     private:
         void RenderDockingSpace();
+        void FileMenu();
+        void SettingMenu();
+        void WindowMenu();
+        void LoadStyle();
+        void SaveStyle();
         
         std::unique_ptr<HierarchyView> hierarchyView_;
         std::unique_ptr<InspectorView> inspectorView_;

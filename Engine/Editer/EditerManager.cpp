@@ -2,6 +2,8 @@
 
 #include <Windows.h>
 #include <d3d12.h>
+#include <fstream>
+#include <filesystem>
 
 #ifdef ENABLE_IMGUI
 #include "Externals/ImGui/imgui.h"
@@ -9,7 +11,7 @@
 #include "Externals/ImGui/imgui_impl_dx12.h"
 #include "Externals/ImGui/imgui_impl_win32.h"
 #endif // ENABLE_IMGUI
-
+#include "Externals/nlohmann/json.hpp"
 
 #include "Framework/Engine.h"
 #include "Graphics/Core/Graphics.h"
@@ -17,6 +19,68 @@
 #include "Graphics/RenderManager.h"
 
 namespace Editer {
+
+    static const char kStyleFile[] = "imgui_style.json";
+
+    nlohmann::json SerializeStyle(const ImGuiStyle& style) {
+        nlohmann::json j;
+        j["Alpha"] = style.Alpha;
+        j["WindowPadding"] = { style.WindowPadding.x, style.WindowPadding.y };
+        j["WindowRounding"] = style.WindowRounding;
+        j["WindowBorderSize"] = style.WindowBorderSize;
+        j["WindowMinSize"] = { style.WindowMinSize.x, style.WindowMinSize.y };
+        j["WindowTitleAlign"] = { style.WindowTitleAlign.x, style.WindowTitleAlign.y };
+        j["ChildRounding"] = style.ChildRounding;
+        j["ChildBorderSize"] = style.ChildBorderSize;
+        j["PopupRounding"] = style.PopupRounding;
+        j["PopupBorderSize"] = style.PopupBorderSize;
+        j["FramePadding"] = { style.FramePadding.x, style.FramePadding.y };
+        j["FrameRounding"] = style.FrameRounding;
+        j["FrameBorderSize"] = style.FrameBorderSize;
+        j["ItemSpacing"] = { style.ItemSpacing.x, style.ItemSpacing.y };
+        j["ItemInnerSpacing"] = { style.ItemInnerSpacing.x, style.ItemInnerSpacing.y };
+        j["IndentSpacing"] = style.IndentSpacing;
+        j["ScrollbarSize"] = style.ScrollbarSize;
+        j["ScrollbarRounding"] = style.ScrollbarRounding;
+        j["GrabMinSize"] = style.GrabMinSize;
+        j["GrabRounding"] = style.GrabRounding;
+        j["TabRounding"] = style.TabRounding;
+        j["ButtonTextAlign"] = { style.ButtonTextAlign.x, style.ButtonTextAlign.y };
+        j["SelectableTextAlign"] = { style.SelectableTextAlign.x, style.SelectableTextAlign.y };
+        for (int i = 0; i < ImGuiCol_COUNT; ++i) {
+            j["Colors"][i] = { style.Colors[i].x, style.Colors[i].y, style.Colors[i].z, style.Colors[i].w };
+        }
+        return j;
+    }
+
+    void DeserializeStyle(const nlohmann::json& j, ImGuiStyle& style) {
+        style.Alpha = j["Alpha"];
+        style.WindowPadding = ImVec2(j["WindowPadding"][0], j["WindowPadding"][1]);
+        style.WindowRounding = j["WindowRounding"];
+        style.WindowBorderSize = j["WindowBorderSize"];
+        style.WindowMinSize = ImVec2(j["WindowMinSize"][0], j["WindowMinSize"][1]);
+        style.WindowTitleAlign = ImVec2(j["WindowTitleAlign"][0], j["WindowTitleAlign"][1]);
+        style.ChildRounding = j["ChildRounding"];
+        style.ChildBorderSize = j["ChildBorderSize"];
+        style.PopupRounding = j["PopupRounding"];
+        style.PopupBorderSize = j["PopupBorderSize"];
+        style.FramePadding = ImVec2(j["FramePadding"][0], j["FramePadding"][1]);
+        style.FrameRounding = j["FrameRounding"];
+        style.FrameBorderSize = j["FrameBorderSize"];
+        style.ItemSpacing = ImVec2(j["ItemSpacing"][0], j["ItemSpacing"][1]);
+        style.ItemInnerSpacing = ImVec2(j["ItemInnerSpacing"][0], j["ItemInnerSpacing"][1]);
+        style.IndentSpacing = j["IndentSpacing"];
+        style.ScrollbarSize = j["ScrollbarSize"];
+        style.ScrollbarRounding = j["ScrollbarRounding"];
+        style.GrabMinSize = j["GrabMinSize"];
+        style.GrabRounding = j["GrabRounding"];
+        style.TabRounding = j["TabRounding"];
+        style.ButtonTextAlign = ImVec2(j["ButtonTextAlign"][0], j["ButtonTextAlign"][1]);
+        style.SelectableTextAlign = ImVec2(j["SelectableTextAlign"][0], j["SelectableTextAlign"][1]);
+        for (int i = 0; i < ImGuiCol_COUNT; ++i) {
+            style.Colors[i] = ImVec4(j["Colors"][i][0], j["Colors"][i][1], j["Colors"][i][2], j["Colors"][i][3]);
+        }
+    }
 
     EditerManager::EditerManager() :
         hierarchyView_(std::make_unique<HierarchyView>(*this)),
@@ -36,8 +100,11 @@ namespace Editer {
         ImGui::CreateContext();
         auto& io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        ImGui::StyleColorsDark();
-        ImGui::StyleColorsClassic();
+        //ImGui::StyleColorsDark();
+        //ImGui::StyleColorsClassic();
+        // スタイルを読む
+        LoadStyle();
+
         ImGui_ImplWin32_Init(window->GetHWND());
         ImGui_ImplDX12_Init(
             graphics->GetDevice(),
@@ -113,33 +180,81 @@ namespace Editer {
 
         // メニューバーの例
         if (ImGui::BeginMenuBar()) {
-            if (ImGui::BeginMenu("Test")) {
-                ImGui::MenuItem("Test", NULL, false, false); // 無効なメニューアイテム
-                ImGui::EndMenu();
-            }
-            if (ImGui::BeginMenu("Window")) {
-                if (ImGui::MenuItem("Hierarchy", NULL, hierarchyView_->isDisplayed)) {
-                    hierarchyView_->isDisplayed = true;
-                }
-                if (ImGui::MenuItem("Inspector", NULL, inspectorView_->isDisplayed)) {
-                    inspectorView_->isDisplayed = true;
-                }
-                if (ImGui::MenuItem("Scene", NULL, sceneView_->isDisplayed)) {
-                    sceneView_->isDisplayed = true;
-                }
-                if (ImGui::MenuItem("Project", NULL, projectView_->isDisplayed)) {
-                    projectView_->isDisplayed = true;
-                }
-                if (ImGui::MenuItem("Console", NULL, consoleView_->isDisplayed)) {
-                    consoleView_->isDisplayed = true;
-                }
-
-                ImGui::EndMenu();
-            }
+            FileMenu();
+            SettingMenu();
+            WindowMenu();
             ImGui::EndMenuBar();
         }
 
         ImGui::End();
+    }
+
+    void EditerManager::FileMenu() {
+        if (ImGui::BeginMenu("File")) {
+            ImGui::EndMenu();
+        }
+    }
+
+    void EditerManager::SettingMenu() {
+        if (ImGui::BeginMenu("Setting")) {
+            if (ImGui::BeginMenu("Style")) {
+                if (ImGui::Button("Save All")) {
+                    SaveStyle();
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Load All")) {
+                    LoadStyle();
+                }
+                ImGui::ShowStyleEditor();
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenu();
+        }
+    }
+
+    void EditerManager::WindowMenu() {
+        if (ImGui::BeginMenu("Window")) {
+            if (ImGui::MenuItem("Hierarchy", NULL, hierarchyView_->isDisplayed)) {
+                hierarchyView_->isDisplayed = true;
+            }
+            if (ImGui::MenuItem("Inspector", NULL, inspectorView_->isDisplayed)) {
+                inspectorView_->isDisplayed = true;
+            }
+            if (ImGui::MenuItem("Scene", NULL, sceneView_->isDisplayed)) {
+                sceneView_->isDisplayed = true;
+            }
+            if (ImGui::MenuItem("Project", NULL, projectView_->isDisplayed)) {
+                projectView_->isDisplayed = true;
+            }
+            if (ImGui::MenuItem("Console", NULL, consoleView_->isDisplayed)) {
+                consoleView_->isDisplayed = true;
+            }
+
+            ImGui::EndMenu();
+        }
+    }
+
+    void EditerManager::LoadStyle() {
+        std::ifstream file(kStyleFile);
+        //　スタイルファイルがない場合クラシックにする
+        if (!file.is_open()) {
+            ImGui::StyleColorsClassic();
+            return;
+        }
+
+        nlohmann::json j;
+        file >> j;
+        DeserializeStyle(j, ImGui::GetStyle());
+        file.close();
+    }
+
+    void EditerManager::SaveStyle() {
+        std::ofstream file(kStyleFile);
+        if (file.is_open()) {
+            auto j = SerializeStyle(ImGui::GetStyle());
+            file << j.dump(4);
+            file.close();
+        }
     }
 
 }

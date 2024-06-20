@@ -14,7 +14,7 @@ namespace Editer {
         if (!isDisplayed) { return; }
 
         ImGui::Begin("Console", &isDisplayed);
-
+        
 
         ImGui::End();
 #endif // ENABLE_IMGUI
