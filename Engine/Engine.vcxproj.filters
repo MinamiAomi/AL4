@@ -76,6 +76,9 @@
     <Filter Include="Editer">
       <UniqueIdentifier>{ef36ddaa-c373-4dc6-910e-5c2ec9584396}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Utility">
+      <UniqueIdentifier>{0059160c-501a-4a56-b462-c53484c369cb}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene\SceneManager.cpp">
@@ -356,6 +359,9 @@
     </ClCompile>
     <ClCompile Include="Editer\ProjectView.cpp">
       <Filter>Editer</Filter>
+    </ClCompile>
+    <ClCompile Include="Utility\Utility.cpp">
+      <Filter>Utility</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -707,6 +713,9 @@
     <ClInclude Include="Framework\Resource.h">
       <Filter>Framework</Filter>
     </ClInclude>
+    <ClInclude Include="Utility\Utility.h">
+      <Filter>Utility</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\Lighting.hlsli">
@@ -825,6 +834,9 @@
     </None>
     <None Include="Graphics\Shader\ScreenQuadVS.hlsl">
       <Filter>Graphics\Shader\PostEffect</Filter>
+    </None>
+    <None Include="Graphics\Shader\Raytracing\GI.hlsl">
+      <Filter>Graphics\Shader\Raytracing</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

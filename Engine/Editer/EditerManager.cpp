@@ -113,6 +113,14 @@ namespace Editer {
             graphics->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV),
             descriptor_,
             descriptor_);
+
+        int a = 10;
+        int b = 20;
+        int c = 30;
+        consoleView_->AddLog(LogType::Normal, "Normal");
+        consoleView_->AddLog(LogType::Warning, "Warning %d", a);
+        consoleView_->AddLog(LogType::Error, "Error %d", b);
+        consoleView_->AddLog(LogType::Information, "Normal %d", c);
     }
 
     void EditerManager::Render() {
@@ -215,19 +223,19 @@ namespace Editer {
     void EditerManager::WindowMenu() {
         if (ImGui::BeginMenu("Window")) {
             if (ImGui::MenuItem("Hierarchy", NULL, hierarchyView_->isDisplayed)) {
-                hierarchyView_->isDisplayed = true;
+                hierarchyView_->isDisplayed ^= true;
             }
             if (ImGui::MenuItem("Inspector", NULL, inspectorView_->isDisplayed)) {
-                inspectorView_->isDisplayed = true;
+                inspectorView_->isDisplayed ^= true;
             }
             if (ImGui::MenuItem("Scene", NULL, sceneView_->isDisplayed)) {
-                sceneView_->isDisplayed = true;
+                sceneView_->isDisplayed ^= true;
             }
             if (ImGui::MenuItem("Project", NULL, projectView_->isDisplayed)) {
-                projectView_->isDisplayed = true;
+                projectView_->isDisplayed ^= true;
             }
             if (ImGui::MenuItem("Console", NULL, consoleView_->isDisplayed)) {
-                consoleView_->isDisplayed = true;
+                consoleView_->isDisplayed ^= true;
             }
 
             ImGui::EndMenu();

@@ -12,6 +12,7 @@ namespace Debug {
         return std::chrono::duration_cast<duration>(std::chrono::steady_clock::now() - start);
     }
 
+    void Log(const char* fmt, ...);
     void Log(const std::string& str);
     void Log(const std::wstring& str);
     void MsgBox(const std::string& text, const std::string& caption = "Debug");

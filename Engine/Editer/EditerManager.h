@@ -25,6 +25,8 @@ namespace Editer {
         void RenderToColorBuffer(CommandContext& commandContext);
         void Finalize();
 
+        ConsoleView& GetConsoleView() { return *consoleView_; }
+
         void SetSelectedObject(const std::shared_ptr<SelectableInEditer>& selectedObject) { selectedObject_ = selectedObject; }
         const std::shared_ptr<SelectableInEditer>& GetSelectedObject() const { return selectedObject_; }
 
