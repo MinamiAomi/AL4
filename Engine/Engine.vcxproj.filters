@@ -835,8 +835,11 @@
     <None Include="Graphics\Shader\ScreenQuadVS.hlsl">
       <Filter>Graphics\Shader\PostEffect</Filter>
     </None>
-    <None Include="Graphics\Shader\Raytracing\GI.hlsl">
+    <None Include="Graphics\Shader\Raytracing\Specular.hlsl">
       <Filter>Graphics\Shader\Raytracing</Filter>
+    </None>
+    <None Include="Graphics\Shader\Standard\PBR.hlsli">
+      <Filter>Graphics\Shader\Standard</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -3,6 +3,7 @@
 
 #define INVALID_COLOR float32_t3(-1.0f, -1.0f, -1.0f)
 
+#define USE_NORMAL_MAPS
 
 //////////////////////////////////////////////////
 // R + M * G + I HitGroupShaderRecordIndex      | R = RayContributionToHitGroupIndex
@@ -35,7 +36,7 @@
 #define PRIMARY_RAY_ATTRIBUTE (1 << 0)
 #define SHADOW_RAY_ATTRIBUTE  (1 << 1)
 
-const uint32_t kMaxRecursiveCount = 1;
+const uint32_t MAX_RECURSIVE_COUNT = 1;
 
 // シーン
 struct Scene {
@@ -57,7 +58,7 @@ ConstantBuffer<Scene> g_Scene : register(b0);
 
 RaytracingAccelerationStructure g_TLAS : register(t0);
 TextureCube<float32_t4> g_Skybox : register(t1);
-RWTexture2D<float32_t4> g_Texture : register(u0);
+RWTexture2D<float32_t4> g_Color : register(u0);
 SamplerState g_PointSampler : register(s0);
 SamplerState g_LinearSampler : register(s1);
 
@@ -97,18 +98,25 @@ void RayGeneration() {
     // レイを飛ばす
     Payload payload;
     payload.color = float32_t3(0.0f, 0.0f, 0.0f);
+    payload.recursiveCount = 0; // 再帰回数 0
     TraceRay(
         g_TLAS, // RaytracingAccelerationStructure
+        // 背面カリング
         RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // RayFlags
+        // レイのマスク
         PRIMARY_RAY_ATTRIBUTE, // InstanceInclusionMask
+        // シェーダーテーブルのオフセット
         PRIMARY_RAY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // RayContributionToHitGroupIndex
+        // シェーダーテーブルの係数
         PRIMARY_MULTIPLIER_FOR_GEOMETRY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // MultiplierForGeometryContributionToHitGroupIndex
+        // ミスシェーダーのシェーダーテーブル
         PRIMARY_MISS_SHADER_INDEX, // MissShaderIndex
         ray, // Ray
-        payload); // Payload
+        payload // Payload
+    );
 
-    g_Texture[dispatchRaysIndex].rgb = payload.color;
-    g_Texture[dispatchRaysIndex].a = 1.0f;
+    g_Color[dispatchRaysIndex].rgb = payload.color;
+    g_Color[dispatchRaysIndex].a = 1.0f;
 }
 
 
@@ -178,24 +186,35 @@ Vertex GetVertex(Attributes attributes) {
         uint32_t index = l_IndexBuffer[primitiveID + i];
         vertex.position += l_VertexBuffer[index].position * barycentrics[i];
         normal += R10G10B10A2Tofloat32_t4(l_VertexBuffer[index].normal).xyz * barycentrics[i];
+#ifdef USE_NORMAL_MAPS
         tanget += R10G10B10A2Tofloat32_t4(l_VertexBuffer[index].tangent).xyz * barycentrics[i];
+#endif
         vertex.texcoord += l_VertexBuffer[index].texcoord * barycentrics[i];
     }
+    
+    // ワールド座標系に変換
+    vertex.position = mul(float32_t4(vertex.position, 1.0f), ObjectToWorld4x3());
     // 正規化
-    normal = normalize(vertex.normal);
-    tangent = normalize(vertex.tangent);
+    normal = mul(normalize(vertex.normal), (float32_t3x3) ObjectToWorld4x3());
+#ifdef USE_NORMAL_MAPS
+    tangent = mul(normalize(vertex.tangent), (float32_t3x3) ObjectToWorld4x3());
     // 法線マップから引っ張ってくる
     vertex.normal = GetNormal(normal, tangent, vertex.texcoord);
-    // ワールド座標に変換
-    vertex.position = mul(float32_t4(vertex.position, 1.0f), ObjectToWorld4x3());
-    vertex.normal = mul(vertex.normal, (float32_t3x3) ObjectToWorld4x3());
-    vertex.tangent = mul(vertex.tangent, (float32_t3x3) ObjectToWorld4x3());
+#else
+    vertex.normal = normal;
+#endif
 
     return vertex;
 }
 
 [shader("closesthit")]
-void PrimaryClosestHit(inout PrimaryPayload payload, in Attributes attributes) {
+void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
+
+    // 再帰回数が最大で光源に当たらなかった
+    if (payload.recursiveCount > MAX_RECURSIVE_COUNT) {
+        payload.color = float32_t3(0.0f, 0.0f, 0.0f);
+        return;
+    }
 
     // レイの情報    
     float32_t hitT = RayTCurrent();
@@ -203,6 +222,37 @@ void PrimaryClosestHit(inout PrimaryPayload payload, in Attributes attributes) {
     float32_t3 rayDirection = WorldRayDirection();
     // 頂点を取得
     Vertex vertex = GetVertex(attributes);
+
+    // 入射光
+    RayDesc incidentRay;
+    incidentRay.Origin = vertex.position;
+    incidentRay.Direction = normalize(reflect(rayDirection, vertex.normal));
+    incidentRay.TMin = 0.001f;
+    incidentRay.TMax = 100000.0f;
+
+    // 再帰回数を増やす
+    ++payload.recursiveCount;    
+
+    TraceRay(
+        g_TLAS, // RaytracingAccelerationStructure
+        // 背面カリング
+        RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // RayFlags
+        // レイのマスク
+        PRIMARY_RAY_ATTRIBUTE, // InstanceInclusionMask
+        // シェーダーテーブルのオフセット
+        PRIMARY_RAY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // RayContributionToHitGroupIndex
+        // シェーダーテーブルの係数
+        PRIMARY_MULTIPLIER_FOR_GEOMETRY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // MultiplierForGeometryContributionToHitGroupIndex
+        // ミスシェーダーのシェーダーテーブル
+        PRIMARY_MISS_SHADER_INDEX, // MissShaderIndex
+        incidentRay, // Ray
+        payload // Payload
+    );
+
+// TODO:ここから下
+
+
+
 
     // 影
     bool reciveShadow = (InstanceID() == 1);
