@@ -38,5 +38,6 @@ private:
     StructuredBuffer matrixPaletteBuffer_;
     StructuredBuffer skinnedVertexBuffer_;
     BLAS skinnedBLAS_;
+    std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> blasDescs_;
     uint32_t numVertices_;
 };

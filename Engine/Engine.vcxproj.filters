@@ -363,6 +363,7 @@
     <ClCompile Include="Utility\Utility.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Raytracing\TestRTRenderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -716,6 +717,9 @@
     <ClInclude Include="Utility\Utility.h">
       <Filter>Utility</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Raytracing\TestRTRenderer.h">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\Lighting.hlsli">
@@ -838,8 +842,8 @@
     <None Include="Graphics\Shader\Raytracing\Specular.hlsl">
       <Filter>Graphics\Shader\Raytracing</Filter>
     </None>
-    <None Include="Graphics\Shader\Standard\PBR.hlsli">
-      <Filter>Graphics\Shader\Standard</Filter>
+    <None Include="Graphics\Shader\PBR.hlsli">
+      <Filter>Graphics\Shader</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

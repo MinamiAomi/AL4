@@ -4,12 +4,11 @@ static const float32_t EPSILON = 0.00001f;
 
 namespace PBR {
 
-    // 入射光
     struct IncidentLight {
         float32_t3 direction;
         float32_t3 color;
     };
-    // 反射光
+
     struct ReflectedLight {
         float32_t3 directDiffuse;
         float32_t3 directSpecular;
@@ -21,12 +20,27 @@ namespace PBR {
         float32_t3 viewDirection;
     };
 
+    Geometry CreateGeometry(in float32_t3 position, in float32_t3 normal, in float32_t3 cameraPosition) {
+        Geometry geometry;
+        geometry.position = position;
+        geometry.normal = normal;
+        geometry.viewDirection = normalize(cameraPosition - position);
+        return geometry;
+    }
+
     struct Material {
         float32_t3 diffuseReflectance;
         float32_t3 specularReflectance;
-        float32_t3 specularRoughness;
+        float32_t specularRoughness;
     };
 
+    Material CreateMaterial(in float32_t3 albedo, in float32_t metallic, in float32_t roughness) {
+        Material material;
+        material.diffuseReflectance = lerp(albedo, 0.0f, metallic);
+        material.specularReflectance = lerp(0.04f, albedo, metallic);
+        material.specularRoughness = roughness;
+        return material;
+    }
 
     float32_t Pow5(in float32_t n) {
         float32_t n2 = n * n;
@@ -37,14 +51,14 @@ namespace PBR {
         return lerp(f0, f90, Pow5(1.0f - cosine));
     }
 
-    // GGX法線分布関数
+    // GGX Normal Distributional Function
     float32_t D_GGX(in float32_t NdotH, in float32_t alpha) {
         float32_t a2 = alpha * alpha;
         float32_t t = (NdotH * NdotH * (a2 - 1.0f)) + 1.0f;
         return a2 / (t * t * PI);
     }
 
-    // GGXシャドウマスキング関数
+    // GGX Shadow Masking Function
     float32_t G_Smith_Schlick_GGX(in float32_t NdotV, in float32_t NdotL, in float32_t alpha) {
         float32_t k = alpha * 0.5f + EPSILON;
         float32_t GV = NdotV / (NdotV * (1.0f - k) + k);
@@ -61,13 +75,13 @@ namespace PBR {
     }
 
     float32_t3 SpecularBRDF(in float32_t3 incidentDirection, in float32_t3 normal, in float32_t3 viewDirection, in float32_t3 specularReflectance, in float32_t specularRoughness) {
-        float32_t3 N = geometry.normal;
-        float32_t3 V = geometry.viewDirection;
+        float32_t3 N = normal;
+        float32_t3 V = viewDirection;
         float32_t3 L = incidentDirection;
         float32_t3 H = normalize(L + V);
         
 
-        float32_t NdotL = saturate(dot(N, V));
+        float32_t NdotV = saturate(dot(N, V));
         float32_t NdotL = saturate(dot(N, L));
         float32_t LdotH = saturate(dot(L, H));
         float32_t NdotH = saturate(dot(N, H));
@@ -85,7 +99,7 @@ namespace PBR {
         irradiance *= PI;
         
         reflectedLight.directDiffuse += irradiance * DiffuseBRDF(material.diffuseReflectance);
-        reflectedLight.directDiffuse += irradiance * SpecularBRDF(directLight.direction, geometry.nromal, gometry.viewDirection, material.specularReflectance, material.specularRoughness);
+        reflectedLight.directDiffuse += irradiance * SpecularBRDF(directLight.direction, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
     }
 
 }

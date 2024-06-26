@@ -70,6 +70,11 @@ void SkinningManager::Update(CommandContext& commandContext) {
         commandContext.SetComputeConstants(kSkinningInformation, numVertices);
         commandContext.Dispatch((UINT)((numVertices + 1023) / 1024));
         commandContext.UAVBarrier(skinCluster->skinnedVertexBuffer_);
+
+
+        commandContext.TransitionResource(skinCluster->skinnedVertexBuffer_, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
+        commandContext.FlushResourceBarriers();
+        skinCluster->skinnedBLAS_.Update(commandContext, skinCluster->blasDescs_);
         commandContext.TransitionResource(skinCluster->skinnedVertexBuffer_, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
         commandContext.FlushResourceBarriers();
         skeleton->updated_ = false;

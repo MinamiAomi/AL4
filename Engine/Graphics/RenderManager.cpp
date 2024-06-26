@@ -21,6 +21,8 @@ void RenderManager::Initialize() {
     shaderManager->Initialize();
     shaderManager->SetDirectory(std::filesystem::current_path() / SHADER_DIRECTORY);
 
+    shaderManager->Compile(L"Raytracing/Specular.hlsl", ShaderType::Library, 6, 6);
+
     auto window = GameWindow::GetInstance();
     swapChain_.Create(window->GetHWND());
 

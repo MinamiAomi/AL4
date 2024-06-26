@@ -196,6 +196,7 @@
     <ClCompile Include="GameObject\GameObjectFactory.cpp" />
     <ClCompile Include="GameObject\GameObjectManager.cpp" />
     <ClCompile Include="Graphics\Animation.cpp" />
+    <ClCompile Include="Graphics\Raytracing\TestRTRenderer.cpp" />
     <ClCompile Include="Utility\Utility.cpp" />
     <ClInclude Include="Audio\AudioDevice.h" />
     <ClInclude Include="Audio\AudioSource.h" />
@@ -283,6 +284,7 @@
     <ClCompile Include="Math\MathUtils.cpp" />
     <ClCompile Include="Scene\SceneManager.cpp" />
     <ClCompile Include="Scene\SceneTransition.cpp" />
+    <ClInclude Include="Graphics\Raytracing\TestRTRenderer.h" />
     <ClInclude Include="Utility\Utility.h" />
   </ItemGroup>
   <ItemGroup>
@@ -450,6 +452,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">true</ExcludedFromBuild>
     </None>
+    <None Include="Graphics\Shader\PBR.hlsli">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
     <None Include="Graphics\Shader\PostEffectPS.hlsl">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
@@ -472,7 +479,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
-    <None Include="Graphics\Shader\Standard\PBR.hlsli" />
     <None Include="Graphics\Shader\Standard\StandardModel.hlsli">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">true</ExcludedFromBuild>

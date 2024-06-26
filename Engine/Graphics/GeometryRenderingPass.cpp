@@ -28,28 +28,14 @@ void GeometryRenderingPass::Initialize(uint32_t width, uint32_t height) {
     normal_.Create(L"GeometryRenderingPass Normal", width, height, DXGI_FORMAT_R10G10B10A2_UNORM);
     depth_.Create(L"GeometryRenderingPass Depth", width, height, DXGI_FORMAT_D32_FLOAT);
 
-    // ルートシグネチャ
-    {
-        CD3DX12_DESCRIPTOR_RANGE srvRange{};
-        srvRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, BINDLESS_RESOURCE_MAX, 0, 1);
-
-        CD3DX12_ROOT_PARAMETER rootParameters[RootIndex::NumRootParameters]{};
-        rootParameters[RootIndex::Scene].InitAsConstantBufferView(0);
-        rootParameters[RootIndex::Instance].InitAsConstantBufferView(1);
-        rootParameters[RootIndex::Material].InitAsConstantBufferView(2);
-        rootParameters[RootIndex::BindlessTexture].InitAsDescriptorTable(1, &srvRange);
-
-        CD3DX12_STATIC_SAMPLER_DESC staticSamplerDesc[1]{};
-        staticSamplerDesc[0].Init(0, D3D12_FILTER_MIN_MAG_MIP_POINT);
-
-        D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc{};
-        rootSignatureDesc.NumParameters = _countof(rootParameters);
-        rootSignatureDesc.pParameters = rootParameters;
-        rootSignatureDesc.NumStaticSamplers = _countof(staticSamplerDesc);
-        rootSignatureDesc.pStaticSamplers = staticSamplerDesc;
-        rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-        rootSignature_.Create(L"GeometryRenderingPass RootSignature", rootSignatureDesc);
-    }
+    RootSignatureDescHelper rootSignatureDesc;
+    rootSignatureDesc.AddConstantBufferView(0);
+    rootSignatureDesc.AddConstantBufferView(1);
+    rootSignatureDesc.AddConstantBufferView(2);
+    rootSignatureDesc.AddShaderTable().AddSRVDescriptors(BINDLESS_RESOURCE_MAX, 0, 1);
+    rootSignatureDesc.AddStaticSampler(0, D3D12_FILTER_MIN_MAG_MIP_POINT);
+    rootSignatureDesc.AddFlag(D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT);
+    rootSignature_.Create(L"GeometryRenderingPass RootSignature", rootSignatureDesc);
 
     {
         D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc{};
@@ -182,7 +168,7 @@ void GeometryRenderingPass::Render(CommandContext& commandContext, const Camera&
             // メッシュのマテリアル
             else if (mesh.material < model->GetMaterials().size()) {
                 SetMaterialData(materialData, model->GetMaterials()[mesh.material]);
-            }         
+            }
             commandContext.SetDynamicConstantBufferView(RootIndex::Material, sizeof(materialData), &materialData);
 
             auto skeleton = instance->GetSkeleton();
