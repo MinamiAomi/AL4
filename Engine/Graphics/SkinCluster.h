@@ -29,6 +29,7 @@ public:
 
     uint32_t GetNumVertices() const { return numVertices_; }
     const StructuredBuffer& GetSkinnedVertexBuffer() const { return skinnedVertexBuffer_; }
+    const BLAS& GetSkinnedBLAS() const { return skinnedBLAS_; }
 
 
 private:

@@ -25,6 +25,7 @@
 #include "LightingRenderingPass.h"
 #include "Skybox.h"
 #include "LineDrawer.h"
+#include "Raytracing/TestRTRenderer.h"
 
 #ifdef _DEBUG
 #define SHADER_DIRECTORY "../Engine/Graphics/Shader"
@@ -75,7 +76,9 @@ private:
     Skybox skybox_;
     LineDrawer lineDrawer_;
 
-    RaytracingRenderer raytracingRenderer_;
+    
+    TestRTRenderer testRTRenderer_;
+    //RaytracingRenderer raytracingRenderer_;
     //RaymarchingRenderer raymarchingRenderer_;
     //ModelRenderer modelRenderer;
     Transition transition_;

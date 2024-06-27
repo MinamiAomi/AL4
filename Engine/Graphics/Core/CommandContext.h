@@ -133,7 +133,11 @@ private:
 inline void CommandContext::TransitionResource(GPUResource& resource, D3D12_RESOURCE_STATES newState) {
     auto oldState = resource.state_;
 
-    if (newState != oldState) {
+    if (oldState == D3D12_RESOURCE_STATE_GENERIC_READ && (newState & oldState) == newState) {
+        return;
+    }
+
+    if (newState != oldState) {        
         assert(numResourceBarriers_ < kMaxNumResourceBarriers);
         auto& barrier = resourceBarriers_[numResourceBarriers_++];
         barrier = D3D12_RESOURCE_BARRIER{};

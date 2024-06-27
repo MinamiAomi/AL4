@@ -204,6 +204,7 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
         return;
     }
 
+
     // レイの情報    
     float32_t hitT = RayTCurrent();
     float32_t3 rayOrigin = WorldRayOrigin();

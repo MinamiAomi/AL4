@@ -6,6 +6,7 @@
 #include "../Core/ColorBuffer.h"
 #include "../Core/RootSignature.h"
 #include "../../Math/Camera.h"
+#include "../Core/TextureResource.h"
 
 #include "StateObject.h"
 #include "TLAS.h"
@@ -20,6 +21,7 @@ public:
 
     void Render(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter);
 
+    void SetSkybox(const std::shared_ptr<TextureResource>& texture) { skyboxTexture_ = texture; }
     ColorBuffer& GetResult() { return colorBuffer_; }
 
 private:
@@ -39,6 +41,6 @@ private:
     ShaderTable missShaderTable_;
 
     std::map<std::wstring, void*> identifierMap_;
-
+    std::shared_ptr<TextureResource> skyboxTexture_;
     ColorBuffer colorBuffer_;
 };

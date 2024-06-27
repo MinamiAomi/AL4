@@ -43,7 +43,9 @@ void RenderManager::Initialize() {
 
     //    modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
     transition_.Initialize();
-    raytracingRenderer_.Create(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
+    
+    testRTRenderer_.Create(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
+    //raytracingRenderer_.Create(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
     //raymarchingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
 
@@ -77,6 +79,7 @@ void RenderManager::Render() {
         modelSorter_.Sort(*camera);
 
         //raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
+        testRTRenderer_.Render(commandContext_, *camera, modelSorter_);
 
         geometryRenderingPass_.Render(commandContext_, *camera, modelSorter_);
         lightingRenderingPass_.Render(commandContext_, geometryRenderingPass_, *camera, *sunLight);

@@ -8,6 +8,7 @@
 #include "../DefaultTextures.h"
 #include "../Core/SamplerManager.h"
 #include "../ModelSorter.h"
+#include "../RenderManager.h"
 
 namespace {
     static const wchar_t kRaytracingShader[] = L"Raytracing/Specular.hlsl";
@@ -25,9 +26,56 @@ void TestRTRenderer::Create(uint32_t width, uint32_t height) {
 }
 
 void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter) {
-    modelSorter;
-    commandContext;
-    camera;
+
+    struct SceneData {
+        Matrix4x4 viewProjectionInverseMatrix;
+        Vector3 cameraPosition;
+    };
+
+    auto commandList = commandContext.GetDXRCommandList();
+    commandList;
+
+    SceneData scene;
+    scene.viewProjectionInverseMatrix = camera.GetViewProjectionMatrix().Inverse();
+    scene.cameraPosition = camera.GetPosition();
+    auto sceneCB = commandContext.TransfarUploadBuffer(sizeof(scene), &scene);
+    sceneCB;
+
+    BuildScene(commandContext, modelSorter);
+
+    commandContext.TransitionResource(colorBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    commandContext.FlushResourceBarriers();
+
+    commandList->SetComputeRootSignature(globalRootSignature_);
+    commandList->SetPipelineState1(stateObject_);
+
+    commandList->SetComputeRootConstantBufferView(0, sceneCB);
+    commandList->SetComputeRootDescriptorTable(1, tlas_.GetSRV());
+    // skybox1
+    D3D12_GPU_DESCRIPTOR_HANDLE skyboxSRV = DefaultTexture::BlackCubeMap.GetSRV();
+    if (skyboxTexture_) {
+        skyboxSRV = skyboxTexture_->GetSRV();
+    }
+    commandList->SetComputeRootDescriptorTable(2, skyboxSRV);
+    commandContext.SetComputeBindlessResource(3);
+    commandList->SetComputeRootDescriptorTable(4, colorBuffer_.GetUAV());
+
+    D3D12_DISPATCH_RAYS_DESC rayDesc{};
+    rayDesc.RayGenerationShaderRecord.StartAddress = rayGenerationShaderTable_.GetGPUVirtualAddress();
+    rayDesc.RayGenerationShaderRecord.SizeInBytes = rayGenerationShaderTable_.GetBufferSize();
+    rayDesc.MissShaderTable.StartAddress = missShaderTable_.GetGPUVirtualAddress();
+    rayDesc.MissShaderTable.SizeInBytes = missShaderTable_.GetBufferSize();
+    rayDesc.MissShaderTable.StrideInBytes = missShaderTable_.GetShaderRecordSize();
+    rayDesc.HitGroupTable.StartAddress = hitGroupShaderTable_.GetGPUVirtualAddress();
+    rayDesc.HitGroupTable.SizeInBytes = hitGroupShaderTable_.GetBufferSize();
+    rayDesc.HitGroupTable.StrideInBytes = hitGroupShaderTable_.GetShaderRecordSize();
+    rayDesc.Width = colorBuffer_.GetWidth();
+    rayDesc.Height = colorBuffer_.GetHeight();
+    rayDesc.Depth = 1;
+    commandList->DispatchRays(&rayDesc);
+
+    commandContext.UAVBarrier(colorBuffer_);
+    commandContext.FlushResourceBarriers();
 }
 
 void TestRTRenderer::CreateRootSignature() {
@@ -194,19 +242,36 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
         desc.InstanceMask = 0xFF;
         desc.InstanceContributionToHitGroupIndex = (UINT)shaderRecords.size();
         desc.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
-        desc.AccelerationStructure = model->GetBLAS().GetGPUVirtualAddress();
+
+        const SkinCluster* skinningData = nullptr;
+        if (auto skeleton = instance->GetSkeleton()) {
+            auto skinCluster = RenderManager::GetInstance()->GetSkinningManager().GetSkinCluster(skeleton.get());
+            if (skinCluster) {
+                skinningData = skinCluster;
+            }
+        }
+        desc.AccelerationStructure = skinningData == nullptr ? model->GetBLAS().GetGPUVirtualAddress() : skinningData->GetSkinnedBLAS().GetGPUVirtualAddress();
+
 
         auto instanceMaterial = instance->GetMaterial();
 
         for (auto& mesh : model->GetMeshes()) {
             auto& shaderRecord = shaderRecords.emplace_back(hitGroupIdentifier);
 
-            D3D12_GPU_VIRTUAL_ADDRESS vb = model->GetVertexBuffer().GetGPUVirtualAddress();
-            D3D12_GPU_VIRTUAL_ADDRESS ib = model->GetIndexBuffer().GetGPUVirtualAddress();
-            vb += model->GetVertexBuffer().GetElementSize() * mesh.vertexOffset;
-            ib += model->GetIndexBuffer().GetElementSize() * mesh.indexOffset;
 
+
+            D3D12_GPU_VIRTUAL_ADDRESS vb = model->GetVertexBuffer().GetGPUVirtualAddress();
+            vb += (D3D12_GPU_VIRTUAL_ADDRESS)model->GetVertexBuffer().GetElementSize() * mesh.vertexOffset;
+
+            if (skinningData) {
+                vb = skinningData->GetSkinnedVertexBuffer().GetGPUVirtualAddress();
+                vb += (D3D12_GPU_VIRTUAL_ADDRESS)skinningData->GetSkinnedVertexBuffer().GetElementSize() * mesh.vertexOffset;
+
+            }
             shaderRecord.Add(vb);
+
+            D3D12_GPU_VIRTUAL_ADDRESS ib = model->GetIndexBuffer().GetGPUVirtualAddress();
+            ib += model->GetIndexBuffer().GetElementSize() * mesh.indexOffset;
             shaderRecord.Add(ib);
 
             MaterialData materialData = ErrorMaterial();
