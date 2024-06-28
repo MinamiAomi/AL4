@@ -53,6 +53,7 @@ public:
     LineDrawer& GetLineDrawer() { return lineDrawer_; }
     Skybox& GetSkybox() { return skybox_; }
     LightingRenderingPass& GetLightingRenderingPass() { return lightingRenderingPass_; }
+    TestRTRenderer& GetTestRTRenderer() { return testRTRenderer_; }
 
 private:
     RenderManager() = default;

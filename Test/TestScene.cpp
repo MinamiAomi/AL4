@@ -21,13 +21,16 @@ void TestScene::OnInitialize() {
 
     //door_.Initialize();
 
+    auto texture = TextureLoader::Load("Resources/skybox/skybox_8k.dds");
     auto& skybox = RenderManager::GetInstance()->GetSkybox();
-    skybox.SetTexture(TextureLoader::Load("Resources/skybox/skybox_8k.dds"));
+    skybox.SetTexture(texture);
+    RenderManager::GetInstance()->GetTestRTRenderer().SetSkybox(texture);
     auto& lightingRenderlingPass = RenderManager::GetInstance()->GetLightingRenderingPass();
     lightingRenderlingPass.SetIrradianceTexture(TextureLoader::Load("Resources/skybox/skybox_8k_irradiance.dds"));
     lightingRenderlingPass.SetRadianceTexture(TextureLoader::Load("Resources/skybox/skybox_8k_radiance.dds"));
 
-    Vector3 offset = { 40.0f, 0.0f, 0.0f };
+
+    Vector3 offset = { 50.0f, 10.0f, 0.0f };
     auto sphereModel = ResourceManager::GetInstance()->FindModel("sphere");
     for (uint32_t row = 0; row < kRowCount; ++row) {
         for (uint32_t column = 0; column < kColumnCount; ++column) {

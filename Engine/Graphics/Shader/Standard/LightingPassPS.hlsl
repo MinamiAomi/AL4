@@ -198,7 +198,7 @@ PSOutput main(PSInput input) {
     
     float32_t3 color = 0.0f;
     //color += ShadeDirectionalLight(g_Scene.directionalLight);
-    color += DiffuseIBL();
+    //color += DiffuseIBL();
     color += SpecularIBL();
 
     output.color.rgb = color;

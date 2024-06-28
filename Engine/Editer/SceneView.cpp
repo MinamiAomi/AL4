@@ -34,12 +34,26 @@ namespace Editer {
 #ifdef ENABLE_IMGUI
         if (!isDisplayed) { return; }
         ImGui::Begin("Scene", &isDisplayed, ImGuiWindowFlags_NoScrollbar);
-        auto& image = RenderManager::GetInstance()->GetFinalImageBuffer();
-        commandContext.TransitionResource(image, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-        commandContext.FlushResourceBarriers();
+        ImGui::Checkbox("MainImage", &useMainImage_);
+        ImTextureID imageID;
+        ImVec2 size;
+        if (useMainImage_) {
+            auto& image = RenderManager::GetInstance()->GetFinalImageBuffer();
+            commandContext.TransitionResource(image, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            commandContext.FlushResourceBarriers();
+            imageID = reinterpret_cast<ImTextureID>(image.GetSRV().GetGPU().ptr);
+            size = { (float)image.GetWidth(), (float)image.GetHeight() };
+        }
+        else {
+
+            auto& image = RenderManager::GetInstance()->GetTestRTRenderer().GetResult();
+            commandContext.TransitionResource(image, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+            commandContext.FlushResourceBarriers();
+            imageID = reinterpret_cast<ImTextureID>(image.GetSRV().GetGPU().ptr);
+            size = { (float)image.GetWidth(), (float)image.GetHeight() };
+        }
         ImVec2 windowSize = ImGui::GetWindowSize();
-        ImTextureID imageID = reinterpret_cast<ImTextureID>(image.GetSRV().GetGPU().ptr);
-        ImVec2 imageSize = CalcAspectFitSize(windowSize, { (float)image.GetWidth(), (float)image.GetHeight() });
+        ImVec2 imageSize = CalcAspectFitSize(windowSize, size);
         ImVec2 imageOffset = { (windowSize.x - imageSize.x) * 0.5f, (windowSize.y - imageSize.y) * 0.5f };
         ImGui::SetCursorPos(imageOffset);
         ImGui::Image(imageID, imageSize);

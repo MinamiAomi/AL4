@@ -363,7 +363,9 @@
     <ClCompile Include="Utility\Utility.cpp">
       <Filter>Utility</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Raytracing\TestRTRenderer.cpp" />
+    <ClCompile Include="Graphics\Raytracing\TestRTRenderer.cpp">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">

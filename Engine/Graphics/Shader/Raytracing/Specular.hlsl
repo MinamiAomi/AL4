@@ -5,7 +5,7 @@
 
 #define INVALID_COLOR float32_t3(-1.0f, -1.0f, -1.0f)
 
-#define USE_NORMAL_MAPS
+//#define USE_NORMAL_MAPS
 
 //////////////////////////////////////////////////
 // R + M * G + I HitGroupShaderRecordIndex      
@@ -25,7 +25,7 @@
 
 #define RAY_ATTRIBUTE (1 << 0)
 
-static const uint32_t MAX_RECURSIVE_COUNT = 1;
+static const uint32_t MAX_RECURSIVE_COUNT = 3;
 
 // シーン
 struct Scene {
@@ -55,6 +55,13 @@ Texture2D<float32_t4> g_BindlessTextures[] : register(t0, space2);
 
 //////////////////////////////////////////////////
 
+float3 LinearToSRGB(float3 color) {
+    float3 sqrt1 = sqrt(color);
+    float3 sqrt2 = sqrt(sqrt1);
+    float3 sqrt3 = sqrt(sqrt2);
+    float3 srgb = 0.662002687 * sqrt1 + 0.684122060 * sqrt2 - 0.323583601 * sqrt3 - 0.0225411470 * color;
+    return srgb;
+}
 
 // texcoodとdepthからワールド座標を計算
 float32_t3 GetWorldPosition(in float32_t2 texcoord, in float32_t depth, in float32_t4x4 viewProjectionInverseMatrix) {
@@ -104,6 +111,7 @@ void RayGeneration() {
     );
 
     g_Color[dispatchRaysIndex].rgb = payload.color;
+    //g_Color[dispatchRaysIndex].rgb = float32_t3(1.0f, 1.0f, 1.0f);
     g_Color[dispatchRaysIndex].a = 1.0f;
 }
 
@@ -149,7 +157,7 @@ float32_t4 R10G10B10A2Tofloat32_t4(uint32_t value) {
     float32_t y = (float32_t)((value >> 10) & 0x3FF) / 1023.0f;
     float32_t z = (float32_t)((value >> 20) & 0x3FF) / 1023.0f;
     float32_t w = (float32_t)((value >> 30) & 0x3) / 1023.0f;
-    return float32_t4(x, y, z, w);
+    return float32_t4(x, y, z, w) * 2.0f - 1.0f;
 }
 // 法線を計算
 float32_t3 GetNormal(in float32_t3 normal, in float32_t3 tangent, in float32_t2 texcoord) {
@@ -169,7 +177,7 @@ Vertex GetVertex(Attributes attributes) {
     float32_t3 barycentrics = CalcBarycentrics(attributes.barycentrics);
     uint32_t primitiveID = PrimitiveIndex() * 3;
 
-    float32_t3 normal = (float32_t3)0, tangent = (float32_t3)0;
+    float32_t3 normal = float32_t3(0.0f, 0.0f, 0.0f), tangent = float32_t3(0.0f, 0.0f, 0.0f);
     for (uint32_t i = 0; i < 3; ++i) {
         uint32_t index = l_IndexBuffer[primitiveID + i];
         vertex.position += l_VertexBuffer[index].position * barycentrics[i];
@@ -183,9 +191,9 @@ Vertex GetVertex(Attributes attributes) {
     // ワールド座標系に変換
     vertex.position = mul(float32_t4(vertex.position, 1.0f), ObjectToWorld4x3());
     // 正規化
-    normal = mul(normalize(normal), (float32_t3x3) ObjectToWorld4x3());
+    normal = normalize(mul(normalize(normal), (float32_t3x3) ObjectToWorld4x3()));
 #ifdef USE_NORMAL_MAPS
-    tangent = mul(normalize(tangent), (float32_t3x3) ObjectToWorld4x3());
+    tangent = normalize(mul(normalize(tangent), (float32_t3x3) ObjectToWorld4x3()));
     // 法線マップから引っ張ってくる
     vertex.normal = GetNormal(normal, tangent, vertex.texcoord);
 #else
@@ -199,7 +207,7 @@ Vertex GetVertex(Attributes attributes) {
 void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
 
     // 再帰回数が最大で光源に当たらなかった
-    if (payload.recursiveCount > MAX_RECURSIVE_COUNT) {
+    if (payload.recursiveCount >= MAX_RECURSIVE_COUNT) {
         payload.color = float32_t3(0.0f, 0.0f, 0.0f);
         return;
     }
@@ -241,9 +249,10 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
 
     float32_t3 albedo = l_Material.albedo * g_BindlessTextures[l_Material.albedoMapIndex].SampleLevel(g_LinearSampler, vertex.texcoord, 0).rgb;
     float32_t2 metallicRoughness = float32_t2(l_Material.metallic, l_Material.roughness) * g_BindlessTextures[l_Material.metallicRoughnessMapIndex].SampleLevel(g_LinearSampler, vertex.texcoord, 0).zy;
-
+    // 0が扱えないため
+    metallicRoughness.y = clamp(metallicRoughness.y, 0.03f, 1.0f);
     PBR::Material material = PBR::CreateMaterial(albedo, metallicRoughness.x, metallicRoughness.y);
-    PBR::Geometry geometry = PBR::CreateGeometry(vertex.position, vertex.normal, rayDirection);
+    PBR::Geometry geometry = PBR::CreateGeometry(vertex.position, vertex.normal, rayOrigin);
     PBR::IncidentLight incidentLight;
     incidentLight.direction = incidentDirection;
     incidentLight.color = payload.color;

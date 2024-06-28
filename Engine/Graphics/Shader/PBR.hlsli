@@ -55,19 +55,19 @@ namespace PBR {
     float32_t D_GGX(in float32_t NdotH, in float32_t alpha) {
         float32_t a2 = alpha * alpha;
         float32_t t = (NdotH * NdotH * (a2 - 1.0f)) + 1.0f;
-        return a2 / (t * t * PI);
+        return a2 / (t * t * PI + EPSILON);
     }
 
     // GGX Shadow Masking Function
     float32_t G_Smith_Schlick_GGX(in float32_t NdotV, in float32_t NdotL, in float32_t alpha) {
-        float32_t k = alpha * 0.5f + EPSILON;
+        float32_t k = alpha * alpha * 0.5f + EPSILON;
         float32_t GV = NdotV / (NdotV * (1.0f - k) + k);
         float32_t GL = NdotL / (NdotL * (1.0f - k) + k);
         return GV * GL;
     }
 
-    float32_t3 F_Schlick(in float32_t3 specularReflectance, in float32_t LdotH) {
-        return (specularReflectance + (1.0f - specularReflectance) * Pow5(1.0f - LdotH));
+    float32_t3 F_Schlick(in float32_t3 specularReflectance, in float32_t VdotH) {
+        return (specularReflectance + (1.0f - specularReflectance) * Pow5(1.0f - VdotH));
     }
 
     float32_t3 DiffuseBRDF(in float32_t3 diffuseReflectance) {
@@ -83,11 +83,11 @@ namespace PBR {
 
         float32_t NdotV = saturate(dot(N, V));
         float32_t NdotL = saturate(dot(N, L));
-        float32_t LdotH = saturate(dot(L, H));
         float32_t NdotH = saturate(dot(N, H));
+        float32_t VdotH = saturate(dot(V, H));
 
-        float32_t alpha = specularRoughness * specularRoughness;
-        float32_t3 F = F_Schlick(specularReflectance, LdotH);
+        float32_t alpha = specularRoughness;
+        float32_t3 F = F_Schlick(specularReflectance, VdotH);
         float32_t D = D_GGX(NdotH, alpha);
         float32_t G = G_Smith_Schlick_GGX(NdotV, NdotL, alpha);
         return (F * (D * G)) / (4.0f * NdotV * NdotL + EPSILON);
