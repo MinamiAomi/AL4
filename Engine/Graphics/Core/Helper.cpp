@@ -330,8 +330,6 @@ namespace Helper {
             return DXGI_FORMAT_B8G8R8X8_UNORM_SRGB;
 
         default:
-            // Not SRGB supported;
-            assert(false);
             break;
         }
         return format;

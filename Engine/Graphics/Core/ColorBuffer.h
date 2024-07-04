@@ -5,27 +5,35 @@
 
 class ColorBuffer : public PixelBuffer {
 public:
-    void CreateFromSwapChain(const std::wstring& name, ID3D12Resource* resource, bool srgb = false);
-    void Create(const std::wstring& name, uint32_t width, uint32_t height, DXGI_FORMAT format, bool srgb = false);
-    void CreateArray(const std::wstring& name, uint32_t width, uint32_t height, uint32_t arraySize, DXGI_FORMAT format, bool srgb = false);
+    struct RTV {
+        enum Enum {
+            Linear,
+            SRGB,
+
+            NumRTVs
+        };
+    };
+
+    void CreateFromSwapChain(const std::wstring& name, ID3D12Resource* resource);
+    void Create(const std::wstring& name, uint32_t width, uint32_t height, DXGI_FORMAT format);
+    void CreateArray(const std::wstring& name, uint32_t width, uint32_t height, uint32_t arraySize, DXGI_FORMAT format);
 
     void SetClearColor(const float* clearColor);
     const float* GetClearColor() const { return clearColor_; }
     
-    DXGI_FORMAT GetRTVFormat() const { return rtvFormat_; }
+    DXGI_FORMAT GetRTVFormat(RTV::Enum rtv = RTV::Linear) const { return rtvFormats_[rtv]; }
 
-    const DescriptorHandle& GetRTV() const { return rtvHandle_; }
+    const DescriptorHandle& GetRTV(RTV::Enum rtv = RTV::Linear) const { return rtvHandles_[rtv]; }
     const DescriptorHandle& GetSRV() const { return srvHandle_; }
     const DescriptorHandle& GetUAV() const { return uavHandle_; }
-    bool IsSRGB() const { return isSRGB_; }
+    bool IsSRGB() const { return rtvFormats_[RTV::Linear] != rtvFormats_[RTV::SRGB]; }
 
 private:
-    void CreateViews(bool srgb);
+    void CreateViews();
 
     float clearColor_[4]{ 0.0f,0.0f,0.0f,0.0f };
     DescriptorHandle srvHandle_;
     DescriptorHandle uavHandle_;
-    DescriptorHandle rtvHandle_;
-    DXGI_FORMAT rtvFormat_;
-    bool isSRGB_;
+    DescriptorHandle rtvHandles_[RTV::NumRTVs];
+    DXGI_FORMAT rtvFormats_[RTV::NumRTVs];
 };

@@ -21,15 +21,13 @@ void RenderManager::Initialize() {
     shaderManager->Initialize();
     shaderManager->SetDirectory(std::filesystem::current_path() / SHADER_DIRECTORY);
 
-    shaderManager->Compile(L"Raytracing/Specular.hlsl", ShaderType::Library, 6, 6);
-
     auto window = GameWindow::GetInstance();
     swapChain_.Create(window->GetHWND());
 
     DefaultTexture::Initialize();
 
     auto& swapChainBuffer = swapChain_.GetColorBuffer(0);
-    finalImageBuffer_.Create(L"FinalImageBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), swapChainBuffer.GetFormat(), swapChainBuffer.IsSRGB());
+    finalImageBuffer_.Create(L"FinalImageBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), swapChainBuffer.GetFormat());
 
     skinningManager_.Initialize();
     geometryRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
@@ -113,7 +111,7 @@ void RenderManager::Render() {
     // スワップチェーンに描画
     commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext_.FlushResourceBarriers();
-    commandContext_.SetRenderTarget(swapChainBuffer.GetRTV());
+    commandContext_.SetRenderTarget(swapChainBuffer.GetRTV(ColorBuffer::RTV::SRGB));
     //commandContext_.ClearColor(swapChainBuffer);
     commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 

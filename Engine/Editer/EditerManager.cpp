@@ -109,7 +109,7 @@ namespace Editer {
         ImGui_ImplDX12_Init(
             graphics->GetDevice(),
             SwapChain::kNumBuffers,
-            renderManager->GetSwapChain().GetColorBuffer(0).GetRTVFormat(),
+            renderManager->GetSwapChain().GetColorBuffer(0).GetRTVFormat(ColorBuffer::RTV::SRGB),
             graphics->GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV),
             descriptor_,
             descriptor_);

@@ -99,7 +99,7 @@ namespace PBR {
         irradiance *= PI;
         
         reflectedLight.directDiffuse += irradiance * DiffuseBRDF(material.diffuseReflectance);
-        reflectedLight.directDiffuse += irradiance * SpecularBRDF(directLight.direction, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
+        reflectedLight.directSpecular += irradiance * SpecularBRDF(directLight.direction, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
     }
 
 }

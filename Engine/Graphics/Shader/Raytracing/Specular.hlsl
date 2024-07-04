@@ -255,10 +255,16 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     PBR::Geometry geometry = PBR::CreateGeometry(vertex.position, vertex.normal, rayOrigin);
     PBR::IncidentLight incidentLight;
     incidentLight.direction = incidentDirection;
-    incidentLight.color = payload.color;
+    incidentLight.color = payload.color * 3.14159265359f;
 
     float32_t3 irradiance = incidentLight.color * saturate(dot(geometry.normal, incidentLight.direction));
-    payload.color = irradiance * PBR::SpecularBRDF(incidentLight.direction, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
+    float32_t3 brdf = PBR::SpecularBRDF(incidentLight.direction, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
+    if (brdf.r >= 1.0f) {
+        payload.color = float32_t3(1.0f, 0.0f, 0.0f);
+        return;
+    }
+    payload.color = PBR::SpecularBRDF(incidentLight.direction, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
+
 }
 
 

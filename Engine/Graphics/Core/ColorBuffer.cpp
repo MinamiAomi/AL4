@@ -3,22 +3,27 @@
 #include "Graphics.h"
 #include "Helper.h"
 
-void ColorBuffer::CreateFromSwapChain(const std::wstring& name, ID3D12Resource* resource, bool srgb) {
+void ColorBuffer::CreateFromSwapChain(const std::wstring& name, ID3D12Resource* resource) {
     AssociateWithResource(name, resource, D3D12_RESOURCE_STATE_PRESENT);
 
     auto graphics = Graphics::GetInstance();
-    if (rtvHandle_.IsNull()) {
-        rtvHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+
+    rtvFormats_[RTV::Linear] = format_;
+    rtvFormats_[RTV::SRGB] = Helper::GetSRGBFormat(format_);
+
+    for (uint32_t i = 0; i < RTV::NumRTVs; ++i) {
+        if (rtvHandles_[i].IsNull()) {
+            rtvHandles_[i] = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+        }
+
+        D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
+        rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
+        rtvDesc.Format = rtvFormats_[i];
+        graphics->GetDevice()->CreateRenderTargetView(resource_.Get(), &rtvDesc, rtvHandles_[i]);
     }
-    D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
-    rtvDesc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
-    rtvDesc.Format = srgb ? Helper::GetSRGBFormat(format_) : format_;
-    graphics->GetDevice()->CreateRenderTargetView(resource_.Get(), &rtvDesc, rtvHandle_);
-    rtvFormat_ = rtvDesc.Format;
-    isSRGB_ = srgb;
 }
 
-void ColorBuffer::Create(const std::wstring& name, uint32_t width, uint32_t height, DXGI_FORMAT format, bool srgb) {
+void ColorBuffer::Create(const std::wstring& name, uint32_t width, uint32_t height, DXGI_FORMAT format) {
     auto flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
     auto desc = DescribeTex2D(width, height, 1, format, flags);
 
@@ -27,11 +32,10 @@ void ColorBuffer::Create(const std::wstring& name, uint32_t width, uint32_t heig
     memcpy(clearValue.Color, clearColor_, sizeof(clearValue.Color));
 
     CreateTextureResource(name, desc, clearValue);
-    CreateViews(srgb);
-    isSRGB_ = srgb;
+    CreateViews();
 }
 
-void ColorBuffer::CreateArray(const std::wstring& name, uint32_t width, uint32_t height, uint32_t arraySize, DXGI_FORMAT format, bool srgb) {
+void ColorBuffer::CreateArray(const std::wstring& name, uint32_t width, uint32_t height, uint32_t arraySize, DXGI_FORMAT format) {
     auto flags = D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET | D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS;
     auto desc = DescribeTex2D(width, height, arraySize, format, flags);
 
@@ -40,19 +44,21 @@ void ColorBuffer::CreateArray(const std::wstring& name, uint32_t width, uint32_t
     memcpy(clearValue.Color, clearColor_, sizeof(clearValue.Color));
 
     CreateTextureResource(name, desc, clearValue);
-    CreateViews(srgb);
-    isSRGB_ = srgb;
+    CreateViews();
 }
 
 void ColorBuffer::SetClearColor(const float* clearColor) {
     memcpy(clearColor_, clearColor, sizeof(clearColor_));
 }
 
-void ColorBuffer::CreateViews(bool srgb) {
+void ColorBuffer::CreateViews() {
+    rtvFormats_[RTV::Linear] = format_;
+    rtvFormats_[RTV::SRGB] = Helper::GetSRGBFormat(format_);
+
     D3D12_RENDER_TARGET_VIEW_DESC rtvDesc{};
     D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc{};
     D3D12_UNORDERED_ACCESS_VIEW_DESC uavDesc{};
-    rtvDesc.Format = srgb ? Helper::GetSRGBFormat(format_) : format_;
+    rtvDesc.Format = format_;
     srvDesc.Format = format_;
     srvDesc.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
     uavDesc.Format = Helper::GetUAVFormat(format_);
@@ -87,9 +93,6 @@ void ColorBuffer::CreateViews(bool srgb) {
     }
 
     auto graphics = Graphics::GetInstance();
-    if (rtvHandle_.IsNull()) {
-        rtvHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-    }
     if (srvHandle_.IsNull()) {
         srvHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
@@ -98,8 +101,14 @@ void ColorBuffer::CreateViews(bool srgb) {
     }
 
     auto device = graphics->GetDevice();
-    device->CreateRenderTargetView(resource_.Get(), &rtvDesc, rtvHandle_);
+    for (uint32_t i = 0; i < RTV::NumRTVs; ++i) {
+        rtvDesc.Format = rtvFormats_[i];
+        if (rtvHandles_[i].IsNull()) {
+            rtvHandles_[i] = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+        }
+
+        device->CreateRenderTargetView(resource_.Get(), &rtvDesc, rtvHandles_[i]);
+    }
     device->CreateShaderResourceView(resource_.Get(), &srvDesc, srvHandle_);
     device->CreateUnorderedAccessView(resource_.Get(), nullptr, &uavDesc, uavHandle_);
-    rtvFormat_ = rtvDesc.Format;
 }
