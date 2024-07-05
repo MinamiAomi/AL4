@@ -5,6 +5,7 @@
 
 #include <cassert>
 #include <vector>
+#include <string>
 
 #include "GPUResource.h"
 #include "PipelineState.h"
@@ -105,6 +106,8 @@ public:
 
     DXR_GRAPHICS_COMMAND_LIST* GetDXRCommandList() const { return dxrCommandList_.Get(); }
 
+    void SetMarker(UINT metadata, const std::wstring& label);
+
 private:
     static const uint32_t kMaxNumResourceBarriers = 16;
 
@@ -137,7 +140,7 @@ inline void CommandContext::TransitionResource(GPUResource& resource, D3D12_RESO
         return;
     }
 
-    if (newState != oldState) {        
+    if (newState != oldState) {
         assert(numResourceBarriers_ < kMaxNumResourceBarriers);
         auto& barrier = resourceBarriers_[numResourceBarriers_++];
         barrier = D3D12_RESOURCE_BARRIER{};
@@ -513,5 +516,9 @@ inline D3D12_GPU_VIRTUAL_ADDRESS CommandContext::TransfarUploadBuffer(size_t buf
 
 inline LinearAllocator::Allocation CommandContext::AllocateDynamicBuffer(LinearAllocatorType type, size_t bufferSize, size_t alignment) {
     return dynamicBuffers_[type].Allocate(bufferSize, alignment);
+}
+
+inline void CommandContext::SetMarker(UINT metadata, const std::wstring& label) {
+    commandList_->SetMarker(metadata, label.data(), UINT(label.size() * sizeof(label[0])));
 }
 

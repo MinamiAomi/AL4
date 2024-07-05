@@ -212,13 +212,13 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
         return;
     }
 
-
     // レイの情報    
     float32_t hitT = RayTCurrent();
     float32_t3 rayOrigin = WorldRayOrigin();
     float32_t3 rayDirection = WorldRayDirection();
     // 頂点を取得
     Vertex vertex = GetVertex(attributes);
+    payload.color = vertex.normal;
 
     float32_t3 incidentDirection = normalize(reflect(rayDirection, vertex.normal));
     // 入射方向のレイ

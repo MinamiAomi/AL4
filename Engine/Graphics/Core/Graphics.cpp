@@ -19,7 +19,7 @@ using namespace Microsoft::WRL;
 #define DEBUG_DIRECTX
 #define ENABLED_DEBUG_LAYER 1
 #define ENABLED_GPU_BASED_DEBUGGER 0
-#define ENABLED_DEBUG_DRED 0
+#define ENABLED_DEBUG_DRED 1
 
 #ifdef DEBUG_DIRECTX
 
@@ -204,139 +204,144 @@ DescriptorHandle Graphics::AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type) {
     return descriptorHeaps_[type]->Allocate();
 }
 
-//void Graphics::CheckDRED(HRESULT presentReturnValue) {
-//    static  const char* AutoBreadcrumbsOp[] = {
-//                "SETMARKER",
-//                "BEGINEVENT",
-//                "ENDEVENT ",
-//                "DRAWINSTANCED",
-//                "DRAWINDEXEDINSTANCED",
-//                "EXECUTEINDIRECT",
-//                "DISPATCH",
-//                "COPYBUFFERREGION",
-//                "COPYTEXTUREREGION",
-//                "COPYRESOURCE",
-//                "COPYTILES",
-//                "RESOLVESUBRESOURCE",
-//                "CLEARRENDERTARGETVIEW",
-//                "CLEARUNORDEREDACCESSVIEW",
-//                "CLEARDEPTHSTENCILVIEW",
-//                "RESOURCEBARRIER",
-//                "EXECUTEBUNDLE",
-//                "PRESENT",
-//                "RESOLVEQUERYDATA",
-//                "BEGINSUBMISSION",
-//                "ENDSUBMISSION",
-//                "DECODEFRAME",
-//                "PROCESSFRAMES",
-//                "ATOMICCOPYBUFFERUINT",
-//                "ATOMICCOPYBUFFERUINT64",
-//                "RESOLVESUBRESOURCEREGION",
-//                "WRITEBUFFERIMMEDIATE",
-//                "DECODEFRAME1",
-//                "SETPROTECTEDRESOURCESESSION",
-//                "DECODEFRAME2",
-//                "PROCESSFRAMES1",
-//                "BUILDRAYTRACINGACCELERATIONSTRUCTURE",
-//                "EMITRAYTRACINGACCELERATIONSTRUCTUREPOSTBUILDINFO",
-//                "COPYRAYTRACINGACCELERATIONSTRUCTURE",
-//                "DISPATCHRAYS",
-//                "INITIALIZEMETACOMMAND",
-//                "EXECUTEMETACOMMAND",
-//                "ESTIMATEMOTION",
-//                "RESOLVEMOTIONVECTORHEAP",
-//                "SETPIPELINESTATE1",
-//                "INITIALIZEEXTENSIONCOMMAND",
-//                "EXECUTEEXTENSIONCOMMAND",
-//                "DISPATCHMESH",
-//                "ENCODEFRAME",
-//                "RESOLVEENCODEROUTPUTMETADATA"
-//    };
-//
-//    static const char* DredAllocationType[] = {
-//        "COMMAND_QUEUE",
-//        "COMMAND_ALLOCATOR",
-//        "PIPELINE_STATE",
-//        "COMMAND_LIST",
-//        "FENCE",
-//        "DESCRIPTOR_HEAP",
-//        "HEAP",
-//        "QUERY_HEAP",
-//        "COMMAND_SIGNATURE",
-//        "PIPELINE_LIBRARY",
-//        "VIDEO_DECODER",
-//        "VIDEO_PROCESSOR",
-//        "RESOURCE",
-//        "PASS",
-//        "CRYPTOSESSION",
-//        "CRYPTOSESSIONPOLICY",
-//        "PROTECTEDRESOURCESESSION",
-//        "VIDEO_DECODER_HEAP",
-//        "COMMAND_POOL",
-//        "COMMAND_RECORDER",
-//        "STATE_OBJECT",
-//        "METACOMMAND",
-//        "SCHEDULINGGROUP",
-//        "VIDEO_MOTION_ESTIMATOR",
-//        "VIDEO_MOTION_VECTOR_HEAP",
-//        "VIDEO_EXTENSION_COMMAND",
-//        "VIDEO_ENCODER",
-//        "VIDEO_ENCODER_HEAP",
-//        "INVALID"
-//    };
-//
-//
-//    if (presentReturnValue == DXGI_ERROR_DEVICE_REMOVED) {
-//        ComPtr<ID3D12DeviceRemovedExtendedData> dred;
-//        ASSERT_IF_FAILED(device_.As(&dred));
-//
-//        D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT autoBreadcrumbsOutput = {};
-//        ASSERT_IF_FAILED(dred->GetAutoBreadcrumbsOutput(&autoBreadcrumbsOutput));
-//
-//        auto node = autoBreadcrumbsOutput.pHeadAutoBreadcrumbNode;
-//        while (node != nullptr) {
-//            auto error = std::format(
-//                "Node :\n"
-//                "CommandList  Name = {}, Address = {}\n"
-//                "CommandQueue Name = {}, Address = {}\n"
-//                "Command Count = {}\n"
-//                "Completed Commands = {}\n",
-//                node->pCommandListDebugNameA,
-//                node->pCommandList,
-//                node->pCommandQueueDebugNameA,
-//                node->pCommandQueue,
-//                node->BreadcrumbCount,
-//                *(node->pLastBreadcrumbValue));
-//            OutputDebugStringA(error.c_str());
-//
-//            for (uint32_t i = 0; i < node->BreadcrumbCount; ++i) {
-//                auto cmd = node->pCommandHistory[i];
-//                error = std::format("Command[{}] : {}\n", i, AutoBreadcrumbsOp[cmd]);
-//                OutputDebugStringA(error.c_str());
-//            }
-//            node = node->pNext;
-//        }
-//
-//        D3D12_DRED_PAGE_FAULT_OUTPUT pageFaultOutput{};
-//        ASSERT_IF_FAILED(dred->GetPageFaultAllocationOutput(&pageFaultOutput));
-//
-//        OutputDebugStringA(std::format("Page Fault Virtual Adress = {}\n", pageFaultOutput.PageFaultVA).c_str());
-//
-//        auto allocationNode = pageFaultOutput.pHeadExistingAllocationNode;
-//        while (allocationNode != nullptr) {
-//            auto error = std::format("Existing Allocation Node Name = {}, Type = {}\n", allocationNode->ObjectNameA, DredAllocationType[allocationNode->AllocationType]);
-//            OutputDebugStringA(error.c_str());
-//            allocationNode = allocationNode->pNext;
-//        }
-//
-//        allocationNode = pageFaultOutput.pHeadRecentFreedAllocationNode;
-//        while (allocationNode != nullptr) {
-//            auto error = std::format("Existing Allocation Node Name = {}, Type = {}\n", allocationNode->ObjectNameA, DredAllocationType[allocationNode->AllocationType]);
-//            OutputDebugStringA(error.c_str());
-//            allocationNode = allocationNode->pNext;
-//        }
-//    }
-//}
+void Graphics::CheckDRED(HRESULT presentReturnValue) {
+    presentReturnValue;
+#if ENABLED_DEBUG_DRED
+    static  const wchar_t* AutoBreadcrumbsOp[] = {
+                L"SETMARKER",
+                L"BEGINEVENT",
+                L"ENDEVENT ",
+                L"DRAWINSTANCED",
+                L"DRAWINDEXEDINSTANCED",
+                L"EXECUTEINDIRECT",
+                L"DISPATCH",
+                L"COPYBUFFERREGION",
+                L"COPYTEXTUREREGION",
+                L"COPYRESOURCE",
+                L"COPYTILES",
+                L"RESOLVESUBRESOURCE",
+                L"CLEARRENDERTARGETVIEW",
+                L"CLEARUNORDEREDACCESSVIEW",
+                L"CLEARDEPTHSTENCILVIEW",
+                L"RESOURCEBARRIER",
+                L"EXECUTEBUNDLE",
+                L"PRESENT",
+                L"RESOLVEQUERYDATA",
+                L"BEGINSUBMISSION",
+                L"ENDSUBMISSION",
+                L"DECODEFRAME",
+                L"PROCESSFRAMES",
+                L"ATOMICCOPYBUFFERUINT",
+                L"ATOMICCOPYBUFFERUINT64",
+                L"RESOLVESUBRESOURCEREGION",
+                L"WRITEBUFFERIMMEDIATE",
+                L"DECODEFRAME1",
+                L"SETPROTECTEDRESOURCESESSION",
+                L"DECODEFRAME2",
+                L"PROCESSFRAMES1",
+                L"BUILDRAYTRACINGACCELERATIONSTRUCTURE",
+                L"EMITRAYTRACINGACCELERATIONSTRUCTUREPOSTBUILDINFO",
+                L"COPYRAYTRACINGACCELERATIONSTRUCTURE",
+                L"DISPATCHRAYS",
+                L"INITIALIZEMETACOMMAND",
+                L"EXECUTEMETACOMMAND",
+                L"ESTIMATEMOTION",
+                L"RESOLVEMOTIONVECTORHEAP",
+                L"SETPIPELINESTATE1",
+                L"INITIALIZEEXTENSIONCOMMAND",
+                L"EXECUTEEXTENSIONCOMMAND",
+                L"DISPATCHMESH",
+                L"ENCODEFRAME",
+                L"RESOLVEENCODEROUTPUTMETADATA"
+    };
+
+    static const wchar_t* DredAllocationType[] = {
+        L"COMMAND_QUEUE",
+        L"COMMAND_ALLOCATOR",
+        L"PIPELINE_STATE",
+        L"COMMAND_LIST",
+        L"FENCE",
+        L"DESCRIPTOR_HEAP",
+        L"HEAP",
+        L"QUERY_HEAP",
+        L"COMMAND_SIGNATURE",
+        L"PIPELINE_LIBRARY",
+        L"VIDEO_DECODER",
+        L"VIDEO_PROCESSOR",
+        L"RESOURCE",
+        L"PASS",
+        L"CRYPTOSESSION",
+        L"CRYPTOSESSIONPOLICY",
+        L"PROTECTEDRESOURCESESSION",
+        L"VIDEO_DECODER_HEAP",
+        L"COMMAND_POOL",
+        L"COMMAND_RECORDER",
+        L"STATE_OBJECT",
+        L"METACOMMAND",
+        L"SCHEDULINGGROUP",
+        L"VIDEO_MOTION_ESTIMATOR",
+        L"VIDEO_MOTION_VECTOR_HEAP",
+        L"VIDEO_EXTENSION_COMMAND",
+        L"VIDEO_ENCODER",
+        L"VIDEO_ENCODER_HEAP",
+        L"INVALID"
+    };
+
+
+    if (presentReturnValue == DXGI_ERROR_DEVICE_REMOVED) {
+        ComPtr<ID3D12DeviceRemovedExtendedData> dred;
+        ASSERT_IF_FAILED(device_.As(&dred));
+
+        D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT autoBreadcrumbsOutput = {};
+        ASSERT_IF_FAILED(dred->GetAutoBreadcrumbsOutput(&autoBreadcrumbsOutput));
+        auto node = autoBreadcrumbsOutput.pHeadAutoBreadcrumbNode;
+
+        while (node != nullptr) {
+            auto error = std::format(
+                L"Node :\n"
+                L"CommandList  Name = {}, Address = {}\n"
+                L"CommandQueue Name = {}, Address = {}\n"
+                L"Command Count = {}\n"
+                L"Completed Commands = {}\n",
+                node->pCommandListDebugNameW,
+                reinterpret_cast<UINT64>(node->pCommandList),
+                node->pCommandQueueDebugNameW,
+                reinterpret_cast<UINT64>(node->pCommandQueue),
+                node->BreadcrumbCount,
+                *(node->pLastBreadcrumbValue));
+            OutputDebugStringW(error.c_str());
+
+            for (uint32_t i = 0; i < node->BreadcrumbCount; ++i) {
+                auto cmd = node->pCommandHistory[i];
+                error = std::format(L"Command[{}] : {}\n", i, AutoBreadcrumbsOp[cmd]);
+                OutputDebugStringW(error.c_str());
+            }
+            node = node->pNext;
+        }
+
+        D3D12_DRED_PAGE_FAULT_OUTPUT pageFaultOutput{};
+        ASSERT_IF_FAILED(dred->GetPageFaultAllocationOutput(&pageFaultOutput));
+
+        OutputDebugStringW(std::format(L"Page Fault Virtual Adress = {}\n", pageFaultOutput.PageFaultVA).c_str());
+
+        auto allocationNode = pageFaultOutput.pHeadExistingAllocationNode;
+        while (allocationNode != nullptr) {
+            auto error = std::format(L"Existing Allocation Node Name = {}, Type = {}\n", allocationNode->ObjectNameW, DredAllocationType[allocationNode->AllocationType]);
+            OutputDebugStringW(error.c_str());
+            allocationNode = allocationNode->pNext;
+        }
+
+        allocationNode = pageFaultOutput.pHeadRecentFreedAllocationNode;
+        while (allocationNode != nullptr) {
+            auto error = std::format(L"Existing Allocation Node Name = {}, Type = {}\n", allocationNode->ObjectNameW, DredAllocationType[allocationNode->AllocationType]);
+            OutputDebugStringW(error.c_str());
+            allocationNode = allocationNode->pNext;
+        }
+    }
+
+#endif // ENABLED_DEBUG_DRED
+    ASSERT_IF_FAILED(presentReturnValue);
+}
 
 Graphics::Graphics() :
     directCommandSet_(D3D12_COMMAND_LIST_TYPE_DIRECT),
@@ -360,7 +365,7 @@ void Graphics::CreateDevice() {
     }
 #endif
 #if ENABLED_DEBUG_DRED
-    ComPtr<ID3D12DeviceRemovedExtendedDataSettings> dredSettings;
+    ComPtr<ID3D12DeviceRemovedExtendedDataSettings1> dredSettings;
     if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(dredSettings.GetAddressOf())))) {
         dredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
         dredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);

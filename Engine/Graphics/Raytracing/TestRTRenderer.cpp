@@ -179,6 +179,8 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
 
     commandContext.UAVBarrier(colorBuffer_);
     commandContext.FlushResourceBarriers();
+
+    commandContext.SetMarker(0, L"DispatchRays");
 }
 
 void TestRTRenderer::CreateRootSignature() {
@@ -341,7 +343,7 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
                 desc.Transform[y][x] = instance->GetWorldMatrix().m[x][y];
             }
         }
-        desc.InstanceID = 0;
+        desc.InstanceID = (UINT)(instanceDescs.size() - 1);
         desc.InstanceMask = 0xFF;
         desc.InstanceContributionToHitGroupIndex = (UINT)shaderRecords.size();
         desc.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;

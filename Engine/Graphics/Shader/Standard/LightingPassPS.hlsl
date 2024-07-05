@@ -180,14 +180,14 @@ float32_t3 GetWorldPosition(in float32_t2 texcoord) {
 //    return BRDF * NdotL * light.color * attenuation * INV_PI;
 //}
 
-//float32_t3 DiffuseIBL() {
-//    return DiffuseReflectance * g_Irradiance.Sample(g_CubeMapSampler, Normal);
+//float32_t3 DiffuseIBL(float32_t3 normal, float32_t3 diffuseReflectance) {
+//    return diffuseReflectance * g_Irradiance.Sample(g_CubeMapSampler, normal);
 //}
 //
-//float32_t3 SpecularIBL() {
-//    float32_t lod = Roughness * (g_Scene.radianceMipCount);
-//    float32_t3 specular = SchlickFresnel(SpecularReflectance, 1.0f, NdotV);
-//    return specular * g_Radiance.SampleLevel(g_CubeMapSampler, reflect(-ViewDirection, Normal), lod);
+//float32_t3 SpecularIBL(float32_t3 normal, float32_t3 specularReflectance, float32_t specularRoughness) {
+//    float32_t lod = specularRoughness * (g_Scene.radianceMipCount);
+//    float32_t3 specular = SchlickFresnel(specularReflectance, 1.0f, NdotV);
+//    return specular * g_Radiance.SampleLevel(g_CubeMapSampler, reflect(-ViewDirection, normal), lod);
 //}
 
 PSOutput main(PSInput input) {
@@ -212,7 +212,7 @@ PSOutput main(PSInput input) {
     PBR::Geometry geometry = PBR::CreateGeometry(position, normal, g_Scene.cameraPosition);
     PBR::Material material = PBR::CreateMaterial(albedo, metallic, roughness);
     PBR::IncidentLight incidentLight;
-    incidentLight.direction = normalize(reflect(-geometry.viewDirection, normal));
+    incidentLight.direction = float32_t3(0.0f, 1.0f, 0.0f);
     incidentLight.color = float32_t3(1.0f, 1.0f, 1.0f);
     PBR::ReflectedLight reflectedLight;
     reflectedLight.directDiffuse = float32_t3(0.0f, 0.0f, 0.0f);
@@ -222,13 +222,9 @@ PSOutput main(PSInput input) {
     
     float32_t3 color = 0.0f;
     //color += ShadeDirectionalLight(g_Scene.directionalLight);
-    //color += DiffuseIBL();
-    //color += SpecularIBL();
-    color += reflectedLight.directSpecular;
-
-    if (color.r >= 1.0f) {
-        color = float32_t3(1.0f, 0.0f, 0.0f);
-    }
+    //color += DiffuseIBL(geometry.normal, material.diffuseReflectance);
+    //color += SpecularIBL(geometry.normal, material.specularReflectance, material.specularRoughness);
+    color += reflectedLight.directDiffuse + reflectedLight.directSpecular;
 
     output.color.rgb = color;
     output.color.a = 1.0f;
