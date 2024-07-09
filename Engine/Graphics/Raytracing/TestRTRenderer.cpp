@@ -9,9 +9,12 @@
 #include "../Core/SamplerManager.h"
 #include "../ModelSorter.h"
 #include "../RenderManager.h"
+#include "../Shader/Raytracing/Pathtracing/Pathtracing.h"
 
 namespace {
-    static const wchar_t kRaytracingShader[] = L"Raytracing/Specular.hlsl";
+    static const wchar_t kRayGenerationShader[] = L"Raytracing/Pathtracing/RayGeneration.hlsl";
+    static const wchar_t kClosestHitShader[] = L"Raytracing/Pathtracing/ClosestHit.hlsl";
+    static const wchar_t kMissShader[] = L"Raytracing/Pathtracing/Miss.hlsl";
     static const wchar_t kRayGenerationName[] = L"RayGeneration";
     static const wchar_t kRecursiveMissName[] = L"RecursiveMiss";
     static const wchar_t kRecursiveClosestHitName[] = L"RecursiveClosestHit";
@@ -153,14 +156,8 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
 
     commandList->SetComputeRootConstantBufferView(0, sceneCB);
     commandList->SetComputeRootShaderResourceView(1, tlas_.GetGPUVirtualAddress());
-    // skybox1
-    D3D12_GPU_DESCRIPTOR_HANDLE skyboxSRV = DefaultTexture::BlackCubeMap.GetSRV();
-    if (skyboxTexture_) {
-        skyboxSRV = skyboxTexture_->GetSRV();
-    }
-    commandList->SetComputeRootDescriptorTable(2, skyboxSRV);
-    commandContext.SetComputeBindlessResource(3);
-    commandList->SetComputeRootDescriptorTable(4, colorBuffer_.GetUAV());
+    commandContext.SetComputeBindlessResource(2);
+    commandList->SetComputeRootDescriptorTable(3, colorBuffer_.GetUAV());
 
     D3D12_DISPATCH_RAYS_DESC rayDesc{};
     rayDesc.RayGenerationShaderRecord.StartAddress = rayGenerationShaderTable_.GetGPUVirtualAddress();
@@ -190,10 +187,8 @@ void TestRTRenderer::CreateRootSignature() {
     globalRootSignatureDesc.AddConstantBufferView(0);
     // TLAS
     globalRootSignatureDesc.AddShaderResourceView(0);
-    // Skybox
-    globalRootSignatureDesc.AddShaderTable().AddSRVDescriptors(1, 1);
     // BindlessTexture
-    globalRootSignatureDesc.AddShaderTable().AddSRVDescriptors(BINDLESS_RESOURCE_MAX, 0, 2);
+    globalRootSignatureDesc.AddShaderTable().AddSRVDescriptors(BINDLESS_RESOURCE_MAX, 0, 1);
     // Color
     globalRootSignatureDesc.AddShaderTable().AddUAVDescriptors(1, 0);
     globalRootSignatureDesc.AddStaticSampler(0, D3D12_FILTER_MIN_MAG_MIP_POINT);
@@ -201,56 +196,79 @@ void TestRTRenderer::CreateRootSignature() {
     globalRootSignature_.Create(L"GlobalRootSignature", globalRootSignatureDesc);
 
 
-    RootSignatureDescHelper localRootSignatureDesc;
-    localRootSignatureDesc.SetFlag(D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE);
+    RootSignatureDescHelper hitGroupLRSDesc;
+    hitGroupLRSDesc.SetFlag(D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE);
     // VertexBuffere
-    localRootSignatureDesc.AddShaderResourceView(0, 1);
+    hitGroupLRSDesc.AddShaderResourceView(0, 2);
     // IndexBuffer
-    localRootSignatureDesc.AddShaderResourceView(1, 1);
+    hitGroupLRSDesc.AddShaderResourceView(1, 2);
     // Material
-    localRootSignatureDesc.AddConstantBufferView(0, 1);
-    hitGroupLocalRootSignature_.Create(L"HitGroupLocalRootSignature", localRootSignatureDesc);
+    hitGroupLRSDesc.AddConstantBufferView(0, 2);
+    hitGroupLocalRootSignature_.Create(L"HitGroupLocalRootSignature", hitGroupLRSDesc);
+
+    RootSignatureDescHelper missLRSDesc;
+    missLRSDesc.SetFlag(D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE);
+    missLRSDesc.AddShaderTable().AddSRVDescriptors(1, 0, 3);
+    missLocalRootSignature_.Create(L"MissLocalRootSignature", missLRSDesc);
 }
 
 void TestRTRenderer::CreateStateObject() {
     CD3DX12_STATE_OBJECT_DESC stateObjectDesc{ D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE };
 
-    // 1.DXILLib
-    auto shader = ShaderManager::GetInstance()->Compile(kRaytracingShader, ShaderType::Library, 6, 6);
-    CD3DX12_SHADER_BYTECODE shaderByteCode(shader->GetBufferPointer(), shader->GetBufferSize());
-    auto dxilLibSubobject = stateObjectDesc.CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
-    dxilLibSubobject->SetDXILLibrary(&shaderByteCode);
-    dxilLibSubobject->DefineExport(kRayGenerationName);
-    dxilLibSubobject->DefineExport(kRecursiveClosestHitName);
-    dxilLibSubobject->DefineExport(kRecursiveMissName);
+    auto shaderManager = ShaderManager::GetInstance();
 
-    // 2.ヒットグループ
+    std::vector<Microsoft::WRL::ComPtr<IDxcBlob>> shaderCashe;
+
+    auto CreateShaderSubobject = [&](const wchar_t* shaderPath, const wchar_t* exportName) {
+        auto shader = shaderManager->Compile(shaderPath, ShaderType::Library, 6, 6);
+        shaderCashe.emplace_back(shader);
+        CD3DX12_SHADER_BYTECODE shaderByteCode(shader->GetBufferPointer(), shader->GetBufferSize());
+        auto dxilLibSubobject = stateObjectDesc.CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
+        dxilLibSubobject->SetDXILLibrary(&shaderByteCode);
+        dxilLibSubobject->DefineExport(exportName);
+    };
+
+    // 1 ~ 3.DXILLib
+    CreateShaderSubobject(kRayGenerationShader, kRayGenerationName);
+    CreateShaderSubobject(kClosestHitShader, kRecursiveClosestHitName);
+    CreateShaderSubobject(kMissShader, kRecursiveMissName);
+
+    // 4.ヒットグループ
     auto hitGroup = stateObjectDesc.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
     hitGroup->SetClosestHitShaderImport(kRecursiveClosestHitName);
     hitGroup->SetHitGroupExport(kRecursiveHitGroupName);
     hitGroup->SetHitGroupType(D3D12_HIT_GROUP_TYPE_TRIANGLES);
 
-    // 3.ヒットグループのローカルルートシグネチャ
+    // 5.ヒットグループのローカルルートシグネチャ
     auto hitGroupRootSignature = stateObjectDesc.CreateSubobject<CD3DX12_LOCAL_ROOT_SIGNATURE_SUBOBJECT>();
     hitGroupRootSignature->SetRootSignature(hitGroupLocalRootSignature_);
 
-    // 4.ヒットグループアソシエーション
+    // 6.ヒットグループアソシエーション
     auto hitGroupRootSignatureAssociation = stateObjectDesc.CreateSubobject<CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT>();
     hitGroupRootSignatureAssociation->SetSubobjectToAssociate(*hitGroupRootSignature);
     hitGroupRootSignatureAssociation->AddExport(kRecursiveHitGroupName);
 
-    // 5.シェーダーコンフィグ
+    // 7.ミスのローカルルートシグネチャ
+    auto missRootSignature = stateObjectDesc.CreateSubobject<CD3DX12_LOCAL_ROOT_SIGNATURE_SUBOBJECT>();
+    missRootSignature->SetRootSignature(missLocalRootSignature_);
+
+    // 8.ミスアソシエーション
+    auto missRootSignatureAssociation = stateObjectDesc.CreateSubobject<CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT>();
+    missRootSignatureAssociation->SetSubobjectToAssociate(*missRootSignature);
+    missRootSignatureAssociation->AddExport(kRecursiveMissName);
+
+    // 9.シェーダーコンフィグ
     auto shaderConfig = stateObjectDesc.CreateSubobject<CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
     size_t maxPayloadSize = 3 * sizeof(float) + 1 * sizeof(uint32_t);      // 最大ペイロードサイズ
     size_t maxAttributeSize = 2 * sizeof(float);   // 最大アトリビュートサイズ
     shaderConfig->Config((UINT)maxPayloadSize, (UINT)maxAttributeSize);
 
-    // 6.パイプラインコンフィグ
+    // 10.パイプラインコンフィグ
     auto pipelineConfig = stateObjectDesc.CreateSubobject<CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT>();
-    uint32_t maxTraceRecursionDepth = 4; // 1 + 再帰回数
+    uint32_t maxTraceRecursionDepth = 1 + MAX_RECURSIVE_COUNT; // 1 + 再帰回数
     pipelineConfig->Config(maxTraceRecursionDepth);
 
-    // 7.グローバルルートシグネチャ
+    // 11.グローバルルートシグネチャ
     auto globalRootSignature = stateObjectDesc.CreateSubobject<CD3DX12_GLOBAL_ROOT_SIGNATURE_SUBOBJECT>();
     globalRootSignature->SetRootSignature(globalRootSignature_);
 
@@ -273,11 +291,6 @@ void TestRTRenderer::CreateShaderTables() {
     {
         ShaderRecord rayGenerationShaderRecord(identifierMap_[kRayGenerationName]);
         rayGenerationShaderTable_.Create(L"RayGenerationShaderTable", &rayGenerationShaderRecord, 1);
-    }
-    // ヒットグループは毎フレーム更新
-    {
-        ShaderRecord missShaderRecord(identifierMap_[kRecursiveMissName]);
-        missShaderTable_.Create(L"MissShaderTable", &missShaderRecord, 1);
     }
 }
 
@@ -344,7 +357,10 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
             }
         }
         desc.InstanceID = (UINT)(instanceDescs.size() - 1);
-        desc.InstanceMask = 0xFF;
+        desc.InstanceMask = VISIBILITY_MASK;
+        if (instance->BeReflected()) {
+            desc.InstanceMask |= RECURSIVE_MASK;
+        }
         desc.InstanceContributionToHitGroupIndex = (UINT)shaderRecords.size();
         desc.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
 
@@ -397,4 +413,16 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
 
     hitGroupShaderTable_.Create(L"RaytracingRenderer HitGroupShaderTable", shaderRecords.data(), (UINT)shaderRecords.size());
     tlas_.Create(L"RaytracingRenderer TLAS", commandContext, instanceDescs.data(), instanceDescs.size());
+
+    // skyboxが変更された可能性あり
+    {
+        ShaderRecord missShaderRecord(identifierMap_[kRecursiveMissName]);
+        // skybox1
+        D3D12_GPU_DESCRIPTOR_HANDLE skyboxSRV = DefaultTexture::BlackCubeMap.GetSRV();
+        if (skyboxTexture_) {
+            skyboxSRV = skyboxTexture_->GetSRV();
+        }
+        missShaderRecord.Add(skyboxSRV);
+        missShaderTable_.Create(L"MissShaderTable", &missShaderRecord, 1);
+    }
 }

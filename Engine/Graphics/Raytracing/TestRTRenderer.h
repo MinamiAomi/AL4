@@ -33,6 +33,7 @@ private:
     StateObject stateObject_;
     RootSignature globalRootSignature_;
     RootSignature hitGroupLocalRootSignature_;
+    RootSignature missLocalRootSignature_;
 
     TLAS tlas_;
 

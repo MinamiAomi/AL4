@@ -42,6 +42,7 @@ void TestScene::OnInitialize() {
             sphere.model.SetModel(sphereModel);
             sphere.model.SetMaterial(sphere.material);
             sphere.model.SetWorldMatrix(Matrix4x4::MakeTranslation(Vector3{ -15.0f + column * 3.0f, -15.0f + row * 3.0f, 0.0f } + offset));
+            sphere.model.SetBeReflected(false);
         }
     }
 

@@ -82,6 +82,7 @@ void ShaderTable::Create(const std::wstring& name, const ShaderRecord* pShaderRe
     shaderRecordSize_ = Helper::AlignUp(maxShaderRecordSize, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
     numShaderRecords_ = numShaderRecords;
     UINT bufferSize = shaderRecordSize_ * numShaderRecords_;
+    // 前回よりバッファサイズが増えた
     if (bufferSize > bufferSize_) {
         bufferSize_ = bufferSize;
         auto heapProps = CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD);

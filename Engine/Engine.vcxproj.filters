@@ -79,6 +79,9 @@
     <Filter Include="Utility">
       <UniqueIdentifier>{0059160c-501a-4a56-b462-c53484c369cb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Graphics\Shader\Raytracing\Pathtracing">
+      <UniqueIdentifier>{0cc2088d-d9d9-40d8-b386-a42386f55973}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene\SceneManager.cpp">
@@ -722,6 +725,9 @@
     <ClInclude Include="Graphics\Raytracing\TestRTRenderer.h">
       <Filter>Graphics\Raytracing</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Shader\Raytracing\Pathtracing\Pathtracing.h">
+      <Filter>Graphics\Shader\Raytracing\Pathtracing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\Lighting.hlsli">
@@ -845,6 +851,21 @@
       <Filter>Graphics\Shader\Raytracing</Filter>
     </None>
     <None Include="Graphics\Shader\PBR.hlsli">
+      <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="Graphics\Shader\Raytracing\Pathtracing\Pathtracing.hlsli">
+      <Filter>Graphics\Shader\Raytracing\Pathtracing</Filter>
+    </None>
+    <None Include="Graphics\Shader\Raytracing\Pathtracing\RayGeneration.hlsl">
+      <Filter>Graphics\Shader\Raytracing\Pathtracing</Filter>
+    </None>
+    <None Include="Graphics\Shader\Raytracing\Pathtracing\ClosestHit.hlsl">
+      <Filter>Graphics\Shader\Raytracing\Pathtracing</Filter>
+    </None>
+    <None Include="Graphics\Shader\Raytracing\Pathtracing\Miss.hlsl">
+      <Filter>Graphics\Shader\Raytracing\Pathtracing</Filter>
+    </None>
+    <None Include="Graphics\Shader\Random.hlsli">
       <Filter>Graphics\Shader</Filter>
     </None>
   </ItemGroup>
