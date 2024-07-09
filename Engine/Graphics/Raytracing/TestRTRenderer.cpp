@@ -136,7 +136,9 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
     struct SceneData {
         Matrix4x4 viewProjectionInverseMatrix;
         Vector3 cameraPosition;
+        float time;
     };
+
 
     auto commandList = commandContext.GetDXRCommandList();
     commandList;
@@ -144,6 +146,7 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
     SceneData scene;
     scene.viewProjectionInverseMatrix = camera.GetViewProjectionMatrix().Inverse();
     scene.cameraPosition = camera.GetPosition();
+    scene.time = (time_ += 1.0f / 60.0f);
     auto sceneCB = commandContext.TransfarUploadBuffer(sizeof(scene), &scene);
     sceneCB;
 
@@ -265,7 +268,8 @@ void TestRTRenderer::CreateStateObject() {
 
     // 10.パイプラインコンフィグ
     auto pipelineConfig = stateObjectDesc.CreateSubobject<CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT>();
-    uint32_t maxTraceRecursionDepth = 1 + MAX_RECURSIVE_COUNT; // 1 + 再帰回数
+    uint32_t maxTraceRecursionDepth = 1 + PATH_SAMPLE_COUNT * MAX_RECURSIVE_COUNT; // 1 + 再帰回数
+    //assert(maxTraceRecursionDepth <= 8);
     pipelineConfig->Config(maxTraceRecursionDepth);
 
     // 11.グローバルルートシグネチャ

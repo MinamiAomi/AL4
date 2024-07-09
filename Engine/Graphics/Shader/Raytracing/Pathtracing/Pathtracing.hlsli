@@ -28,6 +28,7 @@
 struct Scene {
     float32_t4x4 viewProjectionInverseMatrix;
     float32_t3 cameraPosition;
+    float32_t time;
 };
 
 struct Payload {

@@ -13,7 +13,7 @@ namespace Editer {
         void Render(CommandContext& commandContext);
 
     private:
-        bool useMainImage_;
+        bool useMainImage_ = false;
 
     };
 

@@ -47,6 +47,7 @@ void RayGeneration() {
         payload // Payload
     );
 
+    float32_t3 color = g_Color[dispatchRaysIndex].rgb;
     g_Color[dispatchRaysIndex].rgb = payload.color;
     g_Color[dispatchRaysIndex].a = 1.0f;
 }

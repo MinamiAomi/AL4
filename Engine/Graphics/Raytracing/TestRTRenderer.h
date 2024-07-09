@@ -44,4 +44,5 @@ private:
     std::map<std::wstring, void*> identifierMap_;
     std::shared_ptr<TextureResource> skyboxTexture_;
     ColorBuffer colorBuffer_;
+    float time_;
 };

@@ -1,5 +1,6 @@
 #include "Pathtracing.hlsli"
 #include "../../PBR.hlsli"
+#include "../../Random.hlsli"
 
 // パックされた頂点
 // NormalとTangentがR10G10B10A2
@@ -94,56 +95,67 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     }
 
     // レイの情報    
-    float32_t hitT = RayTCurrent();
     float32_t3 rayOrigin = WorldRayOrigin();
     float32_t3 rayDirection = WorldRayDirection();
+
     // 頂点を取得
     Vertex vertex = GetVertex(attributes);
-    payload.color = vertex.normal;
 
-    float32_t3 incidentDirection = normalize(reflect(rayDirection, vertex.normal));
-    // 入射方向のレイ
-    RayDesc incidentRay;
-    incidentRay.Origin = vertex.position;
-    incidentRay.Direction = incidentDirection;
-    incidentRay.TMin = 0.001f;
-    incidentRay.TMax = 100000.0f;
-
-    // 再帰回数を増やす
-    ++payload.recursiveCount;
-
-    TraceRay(
-        g_TLAS, // RaytracingAccelerationStructure
-        // 背面カリング
-        RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // RayFlags
-        // レイのマスク
-        RECURSIVE_MASK, // InstanceInclusionMask
-        // シェーダーテーブルのオフセット
-        RAY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // RayContributionToHitGroupIndex
-        // シェーダーテーブルの係数
-        MULTIPLIER_FOR_GEOMETRY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // MultiplierForGeometryContributionToHitGroupIndex
-        // ミスシェーダーのシェーダーテーブル
-        MISS_SHADER_INDEX, // MissShaderIndex
-        incidentRay, // Ray
-        payload // Payload
-    );
-
+    // マテリアルを取得
     float32_t3 albedo = l_Material.albedo * g_BindlessTextures[l_Material.albedoMapIndex].SampleLevel(g_LinearSampler, vertex.texcoord, 0).rgb;
     float32_t2 metallicRoughness = float32_t2(l_Material.metallic, l_Material.roughness) * g_BindlessTextures[l_Material.metallicRoughnessMapIndex].SampleLevel(g_LinearSampler, vertex.texcoord, 0).zy;
     // 0が扱えないため
     metallicRoughness.y = clamp(metallicRoughness.y, 0.03f, 1.0f);
     PBR::Material material = PBR::CreateMaterial(albedo, metallicRoughness.x, metallicRoughness.y);
     PBR::Geometry geometry = PBR::CreateGeometry(vertex.position, vertex.normal, rayOrigin);
-    PBR::IncidentLight incidentLight;
-    incidentLight.direction = incidentDirection;
-    incidentLight.color = payload.color * 3.14159265359f;
+    
 
-    float32_t3 irradiance = incidentLight.color * saturate(dot(geometry.normal, incidentLight.direction));
-    float32_t3 brdf = PBR::SpecularBRDF(incidentLight.direction, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
-    /*if (brdf.r >= 1.0f) {
-        payload.color = float32_t3(1.0f, 0.0f, 0.0f);
-        return;
-    }*/
-    payload.color = irradiance * brdf;
+    // 乱数生成器
+    RandomGenerator randomGenerator;
+    randomGenerator.seed = (DispatchRaysIndex() + g_Scene.time + payload.recursiveCount) * g_Scene.time;
 
+    [unroll]
+    for(uint32_t i = 0; i < PATH_SAMPLE_COUNT; ++i) {
+        // 入射方向
+        //float32_t3 incidentDirection = normalize(reflect(rayDirection, vertex.normal));
+        // ランダムな半球状のベクトル
+        float32_t3 incidentDirection = RandomUnitVectorHemisphere(vertex.normal, randomGenerator);
+
+        float32_t3 brdf = 
+            PBR::DiffuseBRDF(material.diffuseReflectance) +
+            PBR::SpecularBRDF(incidentDirection, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
+
+        // 入射方向のレイ
+        RayDesc incidentRay;
+        incidentRay.Origin = vertex.position + vertex.normal * 0.0001f;
+        incidentRay.Direction = incidentDirection;
+        incidentRay.TMin = 0.001f;
+        incidentRay.TMax = 100000.0f;
+        
+        Payload newPayload;
+        newPayload.color = float32_t3(0.0f, 0.0f, 0.0f);
+        newPayload.recursiveCount =  payload.recursiveCount + 1;
+
+        TraceRay(
+            g_TLAS, // RaytracingAccelerationStructure
+            // 背面カリング
+            RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // RayFlags
+            // レイのマスク
+            RECURSIVE_MASK, // InstanceInclusionMask
+            // シェーダーテーブルのオフセット
+            RAY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // RayContributionToHitGroupIndex
+            // シェーダーテーブルの係数
+            MULTIPLIER_FOR_GEOMETRY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // MultiplierForGeometryContributionToHitGroupIndex
+            // ミスシェーダーのシェーダーテーブル
+            MISS_SHADER_INDEX, // MissShaderIndex
+            incidentRay, // Ray
+            newPayload // Payload
+        );
+
+        const float32_t pdf = 1.0f / (2.0f * PI);
+        payload.color += newPayload.color * brdf * saturate(dot(incidentDirection, vertex.normal)) / pdf;
+        
+    }
+
+    payload.color /= PATH_SAMPLE_COUNT;
 }
