@@ -128,7 +128,7 @@ void TestRTRenderer::Create(uint32_t width, uint32_t height) {
     CreateRootSignature();
     CreateStateObject();
     CreateShaderTables();
-    colorBuffer_.Create(L"TestRTRenderer", width, height, DXGI_FORMAT_R8G8B8A8_UNORM);
+    colorBuffer_.Create(L"TestRTRenderer", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
 }
 
 void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter) {

@@ -19,7 +19,6 @@ float32_t2 Random3dTo2d(float32_t3 value) {
     );
 }
 
-
 float32_t2 Random2dTo2d(float32_t2 value) {
     return float32_t2(
         Random2dTo1d(value, float32_t2(12.989f, 78.233f)),
