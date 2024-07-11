@@ -1,6 +1,7 @@
 #include "DescriptorHandle.h"
 
 #include "DescriptorHeap.h"
+#include "Graphics.h"
 
 DescriptorHandle::DescriptorHandle() :
     cpu_(D3D12_CPU_DESCRIPTOR_HANDLE_NULL),
@@ -37,12 +38,13 @@ DescriptorHandle& DescriptorHandle::operator=(DescriptorHandle&& move) {
 
 DescriptorHandle::~DescriptorHandle() {
     Free();
+
 }
 
 void DescriptorHandle::Free() {
     auto ptr = heap_.lock();
     if (ptr) {
-        ptr->Free(this);
+        Graphics::GetInstance()->GetReleasedObjectTracker().AddDescriptor(index_, ptr);
     }
     heap_.reset();
 }

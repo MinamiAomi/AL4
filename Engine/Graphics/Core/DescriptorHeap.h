@@ -19,7 +19,7 @@ public:
     // Reset関数で解放できる
     // 任意に解放はできない
     DescriptorHandle Allocate();
-    void Free(DescriptorHandle* descriptorHandle);
+    void Free(uint32_t index);
 
     operator ID3D12DescriptorHeap* () const { return descriptorHeap_.Get(); }
 

@@ -32,13 +32,15 @@ namespace PBR {
         float32_t3 diffuseReflectance;
         float32_t3 specularReflectance;
         float32_t specularRoughness;
+        float32_t3 emissive;
     };
 
-    Material CreateMaterial(in float32_t3 albedo, in float32_t metallic, in float32_t roughness) {
+    Material CreateMaterial(in float32_t3 albedo, in float32_t metallic, in float32_t roughness, in float32_t3 emissive) {
         Material material;
         material.diffuseReflectance = lerp(albedo, 0.0f, metallic);
         material.specularReflectance = lerp(0.04f, albedo, metallic);
         material.specularRoughness = roughness;
+        material.emissive = emissive;
         return material;
     }
 

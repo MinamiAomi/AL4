@@ -66,14 +66,7 @@ DescriptorHandle DescriptorHeap::Allocate() {
     return allocationHandle;
 }
 
-void DescriptorHeap::Free(DescriptorHandle* descriptorHandle) {
+void DescriptorHeap::Free(uint32_t index) {
     std::lock_guard<std::mutex> lock(mutex_);
-    assert(descriptorHandle != nullptr);
-    assert(!descriptorHandle->IsNull());
-    assert(descriptorHandle->heap_.lock() == shared_from_this());
-    freeList_.Free(descriptorHandle->index_);
-    descriptorHandle->cpu_ = D3D12_CPU_DESCRIPTOR_HANDLE_NULL;
-    descriptorHandle->gpu_ = D3D12_GPU_DESCRIPTOR_HANDLE_NULL;
-    descriptorHandle->index_ = 0;
-    descriptorHandle->heap_.reset();
+    freeList_.Free(index);
 }

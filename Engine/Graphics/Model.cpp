@@ -165,6 +165,10 @@ namespace {
             if (srcMaterial->Get(AI_MATKEY_ROUGHNESS_FACTOR, roughness) == aiReturn_SUCCESS) {
                 destMaterial.roughness = roughness;
             }
+            aiColor3D emissive{};
+            if (srcMaterial->Get(AI_MATKEY_COLOR_EMISSIVE, emissive) == aiReturn_SUCCESS) {
+                destMaterial.emissive = { emissive.r, emissive.g, emissive.b };
+            }
 
             // テクスチャが一つ以上ある
             if (srcMaterial->GetTextureCount(aiTextureType_BASE_COLOR) > 0) {

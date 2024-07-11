@@ -148,23 +148,7 @@ Graphics* Graphics::GetInstance() {
 
 void Graphics::Initialize() {
     CreateDevice();
-
-    D3D12_FEATURE_DATA_SHADER_MODEL featureShaderModel{};
-    if (SUCCEEDED(device_->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &featureShaderModel, sizeof(featureShaderModel)))) {
-        if (featureShaderModel.HighestShaderModel < D3D_SHADER_MODEL_6_6) {
-            // HLSL 6.6に対応してない
-            assert(false);
-        }
-
-    }
-
-    D3D12_FEATURE_DATA_D3D12_OPTIONS5 options5{};
-    if (SUCCEEDED(device_->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &options5, sizeof(options5)))) {
-        if (options5.RaytracingTier != D3D12_RAYTRACING_TIER_NOT_SUPPORTED) {
-            ASSERT_IF_FAILED(device_.As(&dxrDevice_));
-            OutputDebugStringA("DXR supported!!\n");
-        }
-    }
+    CheckFeatureSupport();
 
     directCommandSet_.queue.Create();
     computeCommandSet_.queue.Create();
@@ -413,6 +397,9 @@ void Graphics::CreateDevice() {
     }
     assert(device_);
 
+    // dxr用device
+    ASSERT_IF_FAILED(device_.As(&dxrDevice_));
+
 #ifdef DEBUG_DIRECTX
     // デバッグ時のみ
     ComPtr<ID3D12InfoQueue> infoQueue;
@@ -438,6 +425,36 @@ void Graphics::CreateDevice() {
         infoQueue->PushStorageFilter(&filter);
     }
 #endif // DEBUG_DIRECTX
+}
+
+void Graphics::CheckFeatureSupport() {
+    D3D12_FEATURE_DATA_D3D12_OPTIONS options{};
+    if (SUCCEEDED(device_->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS, &options, sizeof(options)))) {
+        if (options.ResourceBindingTier < D3D12_RESOURCE_BINDING_TIER_3) {
+            // HLSL 6.6に対応してない
+            MessageBoxA(nullptr, "Resource Binding Tier 3 Not supported!!", "DirectX12 Feature support", S_OK);
+            assert(false);
+        }
+    }
+
+    D3D12_FEATURE_DATA_SHADER_MODEL featureShaderModel{};
+    if (SUCCEEDED(device_->CheckFeatureSupport(D3D12_FEATURE_SHADER_MODEL, &featureShaderModel, sizeof(featureShaderModel)))) {
+        if (featureShaderModel.HighestShaderModel < D3D_SHADER_MODEL_6_6) {
+            // HLSL 6.6に対応してない
+            MessageBoxA(nullptr, "HLSL 6.6 Not supported!!", "DirectX12 Feature support", S_OK);
+            assert(false);
+        }
+    }
+
+    D3D12_FEATURE_DATA_D3D12_OPTIONS5 options5{};
+    if (SUCCEEDED(device_->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &options5, sizeof(options5)))) {
+        if (options5.RaytracingTier == D3D12_RAYTRACING_TIER_NOT_SUPPORTED) {
+            // DXRが対応していない
+            MessageBoxA(nullptr, "DXR Not supported!!", "DirectX12 Feature support", S_OK);
+            assert(false);
+        }
+        OutputDebugStringA(std::format("DXR supported!! Tier {}\n", (int)options5.RaytracingTier).c_str());
+    }
 }
 
 void Graphics::CreateDynamicResourcesRootSignature() {

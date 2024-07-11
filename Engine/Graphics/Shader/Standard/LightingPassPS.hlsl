@@ -208,9 +208,10 @@ PSOutput main(PSInput input) {
     float32_t roughness = g_MetallicRoughness.SampleLevel(g_DefaultSampler, input.texcoord, 0).y;
     // 0はダメ
     roughness = clamp(roughness, 0.03f, 1.0f);
+    float32_t3 emissive = float32_t3(0.0f, 0.0f, 0.0f);
 
     PBR::Geometry geometry = PBR::CreateGeometry(position, normal, g_Scene.cameraPosition);
-    PBR::Material material = PBR::CreateMaterial(albedo, metallic, roughness);
+    PBR::Material material = PBR::CreateMaterial(albedo, metallic, roughness, emissive);
     PBR::IncidentLight incidentLight;
     incidentLight.direction = float32_t3(0.0f, 1.0f, 0.0f);
     incidentLight.color = float32_t3(1.0f, 1.0f, 1.0f);

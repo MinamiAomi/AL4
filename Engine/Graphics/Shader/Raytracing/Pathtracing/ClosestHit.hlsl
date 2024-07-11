@@ -20,21 +20,25 @@ struct Vertex {
 struct Material {
     float32_t3 albedo;
     float32_t metallic;
+    float32_t3 emissive;
     float32_t roughness;
     uint32_t albedoMapIndex;
     uint32_t metallicRoughnessMapIndex;
     uint32_t normalMapIndex;
 };
 
+//StructuredBuffer<PackedVertex> l_
+//StructuredBuffer<Material>
+
 StructuredBuffer<PackedVertex> l_VertexBuffer : register(t0, space2);
 StructuredBuffer<uint32_t> l_IndexBuffer : register(t1, space2);
 ConstantBuffer<Material> l_Material : register(b0, space2);
 
-float32_t3 CalcBarycentrics(float32_t2 barycentrics) {
+float32_t3 CalcBarycentrics(in float32_t2 barycentrics) {
     return float32_t3(1.0f - barycentrics.x - barycentrics.y, barycentrics.x, barycentrics.y);
 }
 
-float32_t4 R10G10B10A2Tofloat32_t4(uint32_t value) {
+float32_t4 R10G10B10A2Tofloat32_t4(in uint32_t value) {
     float32_t x = (float32_t)((value >> 0) & 0x3FF) / 1023.0f;
     float32_t y = (float32_t)((value >> 10) & 0x3FF) / 1023.0f;
     float32_t z = (float32_t)((value >> 20) & 0x3FF) / 1023.0f;
@@ -54,7 +58,7 @@ float32_t3 GetNormal(in float32_t3 normal, in float32_t3 tangent, in float32_t2 
     return newNormal;
 }
 // ワールド座標の頂点を計算
-Vertex GetVertex(Attributes attributes) {
+Vertex GetVertex(in Attributes attributes) {
     Vertex vertex = (Vertex)0;
     float32_t3 barycentrics = CalcBarycentrics(attributes.barycentrics);
     uint32_t primitiveID = PrimitiveIndex() * 3;
@@ -85,6 +89,36 @@ Vertex GetVertex(Attributes attributes) {
     return vertex;
 }
 
+float32_t3 GetIncidentColor(in float32_t3 incidentDirection, in float32_t3 position, in uint32_t recursiveCount) {
+    // 入射方向のレイ
+    RayDesc incidentRay;
+    incidentRay.Origin = position;
+    incidentRay.Direction = incidentDirection;
+    incidentRay.TMin = 0.001f;
+    incidentRay.TMax = 100000.0f;
+
+    Payload newPayload;
+    newPayload.color = float32_t3(0.0f, 0.0f, 0.0f);
+    newPayload.recursiveCount = recursiveCount + 1;
+
+    TraceRay(
+        g_TLAS, // RaytracingAccelerationStructure
+        // 背面カリング
+        RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // RayFlags
+        // レイのマスク
+        RECURSIVE_MASK, // InstanceInclusionMask
+        // シェーダーテーブルのオフセット
+        RAY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // RayContributionToHitGroupIndex
+        // シェーダーテーブルの係数
+        MULTIPLIER_FOR_GEOMETRY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // MultiplierForGeometryContributionToHitGroupIndex
+        // ミスシェーダーのシェーダーテーブル
+        MISS_SHADER_INDEX, // MissShaderIndex
+        incidentRay, // Ray
+        newPayload // Payload
+    );
+    return newPayload.color;
+}
+
 [shader("closesthit")]
 void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
 
@@ -106,7 +140,7 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     float32_t2 metallicRoughness = float32_t2(l_Material.metallic, l_Material.roughness) * g_BindlessTextures[l_Material.metallicRoughnessMapIndex].SampleLevel(g_LinearSampler, vertex.texcoord, 0).zy;
     // 0が扱えないため
     metallicRoughness.y = clamp(metallicRoughness.y, 0.03f, 1.0f);
-    PBR::Material material = PBR::CreateMaterial(albedo, metallicRoughness.x, metallicRoughness.y);
+    PBR::Material material = PBR::CreateMaterial(albedo, metallicRoughness.x, metallicRoughness.y, l_Material.emissive);
     PBR::Geometry geometry = PBR::CreateGeometry(vertex.position, vertex.normal, rayOrigin);
     
 
@@ -124,36 +158,13 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
         float32_t3 brdf = 
             PBR::DiffuseBRDF(material.diffuseReflectance) +
             PBR::SpecularBRDF(incidentDirection, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
-
-        // 入射方向のレイ
-        RayDesc incidentRay;
-        incidentRay.Origin = vertex.position + vertex.normal * 0.0001f;
-        incidentRay.Direction = incidentDirection;
-        incidentRay.TMin = 0.001f;
-        incidentRay.TMax = 100000.0f;
-        
-        Payload newPayload;
-        newPayload.color = float32_t3(0.0f, 0.0f, 0.0f);
-        newPayload.recursiveCount =  payload.recursiveCount + 1;
-
-        TraceRay(
-            g_TLAS, // RaytracingAccelerationStructure
-            // 背面カリング
-            RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // RayFlags
-            // レイのマスク
-            RECURSIVE_MASK, // InstanceInclusionMask
-            // シェーダーテーブルのオフセット
-            RAY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // RayContributionToHitGroupIndex
-            // シェーダーテーブルの係数
-            MULTIPLIER_FOR_GEOMETRY_CONTRIBUTION_TO_HIT_GROUP_INDEX, // MultiplierForGeometryContributionToHitGroupIndex
-            // ミスシェーダーのシェーダーテーブル
-            MISS_SHADER_INDEX, // MissShaderIndex
-            incidentRay, // Ray
-            newPayload // Payload
-        );
-
+        // 入射光
+        float32_t3 incidentColor = GetIncidentColor(incidentDirection, vertex.position + vertex.normal * 0.001f, payload.recursiveCount);
+        // 確率密度関数
         const float32_t pdf = 1.0f / (2.0f * PI);
-        payload.color += newPayload.color * brdf * saturate(dot(incidentDirection, vertex.normal)) / pdf;
+        // コサイン項
+        float32_t cosine = saturate(dot(incidentDirection, vertex.normal));
+        payload.color += material.emissive + incidentColor * brdf * cosine / pdf;
         
     }
 

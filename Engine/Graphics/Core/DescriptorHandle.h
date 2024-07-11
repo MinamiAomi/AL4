@@ -29,7 +29,7 @@ public:
     bool IsNull() const { return cpu_.ptr == 0; }
     uint32_t GetIndex() const { return index_; }
 
-private:
+protected:
     void Free();
 
     D3D12_CPU_DESCRIPTOR_HANDLE cpu_;

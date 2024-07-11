@@ -303,6 +303,7 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
     struct MaterialData {
         Vector3 albedo;
         float metallic;
+        Vector3 emissive;
         float roughness;
         uint32_t albedoMapIndex;
         uint32_t metallicRoughnessMapIndex;
@@ -316,6 +317,7 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
         MaterialData materialData;
         materialData.albedo = { 0.988f, 0.059f, 0.753f };
         materialData.metallic = 0.0f;
+        materialData.emissive = { 0.0f, 0.0f, 0.0f };
         materialData.roughness = 0.0f;
         materialData.albedoMapIndex = defaultWhiteTextureIndex;
         materialData.metallicRoughnessMapIndex = defaultWhiteTextureIndex;
@@ -326,6 +328,7 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
     auto SetMaterialData = [](MaterialData& dest, const PBRMaterial& src) {
         dest.albedo = src.albedo;
         dest.metallic = src.metallic;
+        dest.emissive = src.emissive;
         dest.roughness = src.roughness;
         if (src.albedoMap) { dest.albedoMapIndex = src.albedoMap->GetSRV().GetIndex(); }
         if (src.metallicRoughnessMap) { dest.metallicRoughnessMapIndex = src.metallicRoughnessMap->GetSRV().GetIndex(); }

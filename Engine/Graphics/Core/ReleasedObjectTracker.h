@@ -8,11 +8,15 @@
 #include <vector>
 #include <string>
 
+#include "DescriptorHandle.h"
+#include "DescriptorHeap.h"
+
 class ReleasedObjectTracker {
 public:
     static const UINT kAliveFrameCount = 3;
 
     void AddObject(Microsoft::WRL::ComPtr<ID3D12Object> releasedObject);
+    void AddDescriptor(uint32_t index, const std::shared_ptr<DescriptorHeap>& heap);
     void FrameIncrementForRelease();
     void AllRelease();
 
@@ -24,8 +28,16 @@ private:
 #endif // _DEBUG
     };
 
+    struct ReleasedDescriptor {
+        uint32_t index;
+        std::weak_ptr<DescriptorHeap> heap;
+        ~ReleasedDescriptor();
+    };
+
     using TrackingObjectList = std::vector<ReleasedObject>;
+    using TrackingDescriptorList = std::vector<ReleasedDescriptor>;
     
     std::array<TrackingObjectList, kAliveFrameCount> trackingObjectLists_;
+    std::array<TrackingDescriptorList, kAliveFrameCount> trackingDescriptorLists_;
     std::mutex mutex_;
 };

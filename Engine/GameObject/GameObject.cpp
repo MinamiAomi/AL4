@@ -17,6 +17,14 @@ void GameObject::RenderInInspectorView() {
         transform.UpdateMatrix();
         ImGui::TreePop();
     }
+    for (auto& component : componentList_) {
+        ImGui::Separator();
+        if (ImGui::TreeNodeEx(component.second->GetComponentName().c_str(), ImGuiTreeNodeFlags_DefaultOpen)) {
+            ImGui::Separator();
+            component.second->Edit();
+            ImGui::TreePop();
+        }
+    }
     ImGui::PopID();
 }
 
