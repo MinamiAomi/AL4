@@ -18,7 +18,7 @@
 //////////////////////////////////////////////////
 // 0 + 1 * G + I PrimaryHitGroup
 #define RAY_CONTRIBUTION_TO_HIT_GROUP_INDEX 0
-#define MULTIPLIER_FOR_GEOMETRY_CONTRIBUTION_TO_HIT_GROUP_INDEX 1
+#define MULTIPLIER_FOR_GEOMETRY_CONTRIBUTION_TO_HIT_GROUP_INDEX 0
 #define MISS_SHADER_INDEX 0
 //////////////////////////////////////////////////
 

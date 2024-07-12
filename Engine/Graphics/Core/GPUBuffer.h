@@ -48,16 +48,10 @@ class StructuredBuffer :
     public GPUBuffer {
 public:
     virtual void Destroy() override {
-        counterBuffer_.Destroy();
         GPUBuffer::Destroy();
     }
     
     virtual void CreateViews() override;
-
-    ByteAddressBuffer& GetCounterBuffer() { return counterBuffer_; }
-
-protected:
-    ByteAddressBuffer counterBuffer_;
 };
 
 

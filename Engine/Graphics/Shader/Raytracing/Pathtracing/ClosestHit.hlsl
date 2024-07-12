@@ -25,14 +25,40 @@ struct Material {
     uint32_t albedoMapIndex;
     uint32_t metallicRoughnessMapIndex;
     uint32_t normalMapIndex;
+    uint32_t pad; // 念のためパディング
 };
 
-//StructuredBuffer<PackedVertex> l_
-//StructuredBuffer<Material>
+struct MeshProperty {
+    Material material;
+    uint32_t vertexBufferIndex;
+    uint32_t indexBufferIndex;
+    uint32_t2 pad;
+};
 
-StructuredBuffer<PackedVertex> l_VertexBuffer : register(t0, space2);
-StructuredBuffer<uint32_t> l_IndexBuffer : register(t1, space2);
-ConstantBuffer<Material> l_Material : register(b0, space2);
+StructuredBuffer<MeshProperty> l_MeshProperties : register(t0, space2);
+
+
+static StructuredBuffer<PackedVertex> s_VertexBuffer;
+static StructuredBuffer<uint32_t> s_IndexBuffer;
+static Material s_Material;
+static Texture2D<float32_t3> s_AlbedoMap;
+static Texture2D<float32_t3> s_MetallicRoughnessMap;
+static Texture2D<float32_t3> s_NormalMap;
+
+//StructuredBuffer<PackedVertex> l_VertexBuffer : register(t0, space2);
+//StructuredBuffer<uint32_t> l_IndexBuffer : register(t1, space2);
+//ConstantBuffer<Material> l_Material : register(b0, space2);
+
+void InitializeMeshProperty(uint32_t meshPropertyIndex) {
+    MeshProperty meshProperty = l_MeshProperties[meshPropertyIndex];
+
+    s_VertexBuffer = ResourceDescriptorHeap[meshProperty.vertexBufferIndex];
+    s_IndexBuffer = ResourceDescriptorHeap[meshProperty.indexBufferIndex];
+    s_Material = meshProperty.material;
+    s_AlbedoMap = ResourceDescriptorHeap[s_Material.albedoMapIndex];
+    s_MetallicRoughnessMap = ResourceDescriptorHeap[s_Material.metallicRoughnessMapIndex];
+    s_NormalMap = ResourceDescriptorHeap[s_Material.normalMapIndex];
+}
 
 float32_t3 CalcBarycentrics(in float32_t2 barycentrics) {
     return float32_t3(1.0f - barycentrics.x - barycentrics.y, barycentrics.x, barycentrics.y);
@@ -48,7 +74,7 @@ float32_t4 R10G10B10A2Tofloat32_t4(in uint32_t value) {
 // 法線を計算
 float32_t3 GetNormal(in float32_t3 normal, in float32_t3 tangent, in float32_t2 texcoord) {
     // 法線マップからサンプリング
-    float32_t3 normalMap = g_BindlessTextures[l_Material.normalMapIndex].SampleLevel(g_PointSampler, texcoord, 0).xyz;
+    float32_t3 normalMap = s_NormalMap.SampleLevel(g_PointSampler, texcoord, 0).xyz;
     // UNORMからSNORMに変換
     normalMap = normalMap * 2.0f - 1.0f;
     // NormalとTangentに垂直なベクトル
@@ -65,13 +91,13 @@ Vertex GetVertex(in Attributes attributes) {
 
     float32_t3 normal = float32_t3(0.0f, 0.0f, 0.0f), tangent = float32_t3(0.0f, 0.0f, 0.0f);
     for (uint32_t i = 0; i < 3; ++i) {
-        uint32_t index = l_IndexBuffer[primitiveID + i];
-        vertex.position += l_VertexBuffer[index].position * barycentrics[i];
-        normal += R10G10B10A2Tofloat32_t4(l_VertexBuffer[index].normal).xyz * barycentrics[i];
+        uint32_t index = s_IndexBuffer[primitiveID + i];
+        vertex.position += s_VertexBuffer[index].position * barycentrics[i];
+        normal += R10G10B10A2Tofloat32_t4(s_VertexBuffer[index].normal).xyz * barycentrics[i];
 #ifdef USE_NORMAL_MAPS
-        tangent += R10G10B10A2Tofloat32_t4(l_VertexBuffer[index].tangent).xyz * barycentrics[i];
+        tangent += R10G10B10A2Tofloat32_t4(s_VertexBuffer[index].tangent).xyz * barycentrics[i];
 #endif
-        vertex.texcoord += l_VertexBuffer[index].texcoord * barycentrics[i];
+        vertex.texcoord += s_VertexBuffer[index].texcoord * barycentrics[i];
     }
 
     // ワールド座標系に変換
@@ -128,6 +154,9 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
         return;
     }
 
+    uint32_t meshPropertyIndex = InstanceID()/* + GeometryIndex()*/;;
+    InitializeMeshProperty(meshPropertyIndex);
+
     // レイの情報    
     float32_t3 rayOrigin = WorldRayOrigin();
     float32_t3 rayDirection = WorldRayDirection();
@@ -136,17 +165,17 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     Vertex vertex = GetVertex(attributes);
 
     // マテリアルを取得
-    float32_t3 albedo = l_Material.albedo * g_BindlessTextures[l_Material.albedoMapIndex].SampleLevel(g_LinearSampler, vertex.texcoord, 0).rgb;
-    float32_t2 metallicRoughness = float32_t2(l_Material.metallic, l_Material.roughness) * g_BindlessTextures[l_Material.metallicRoughnessMapIndex].SampleLevel(g_LinearSampler, vertex.texcoord, 0).zy;
+    float32_t3 albedo = s_Material.albedo * s_AlbedoMap.SampleLevel(g_LinearSampler, vertex.texcoord, 0).rgb;
+    float32_t2 metallicRoughness = float32_t2(s_Material.metallic, s_Material.roughness) * s_MetallicRoughnessMap.SampleLevel(g_LinearSampler, vertex.texcoord, 0).zy;
     // 0が扱えないため
     metallicRoughness.y = clamp(metallicRoughness.y, 0.03f, 1.0f);
-    PBR::Material material = PBR::CreateMaterial(albedo, metallicRoughness.x, metallicRoughness.y, l_Material.emissive);
+    PBR::Material material = PBR::CreateMaterial(albedo, metallicRoughness.x, metallicRoughness.y, s_Material.emissive);
     PBR::Geometry geometry = PBR::CreateGeometry(vertex.position, vertex.normal, rayOrigin);
     
 
     // 乱数生成器
     RandomGenerator randomGenerator;
-    randomGenerator.seed = (DispatchRaysIndex() + g_Scene.time + payload.recursiveCount) * g_Scene.time;
+    randomGenerator.seed = (DispatchRaysIndex() + meshPropertyIndex + g_Scene.time + payload.recursiveCount) * g_Scene.time;
 
     [unroll]
     for(uint32_t i = 0; i < PATH_SAMPLE_COUNT; ++i) {
@@ -169,4 +198,5 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     }
 
     payload.color /= PATH_SAMPLE_COUNT;
+    payload.color = vertex.normal;
 }

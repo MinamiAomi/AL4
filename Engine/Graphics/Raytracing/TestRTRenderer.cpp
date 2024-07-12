@@ -1,5 +1,7 @@
 #include "TestRTRenderer.h"
 
+#include <span>
+
 #include "../Core/Graphics.h"
 #include "../Core/Helper.h"
 #include "../Core/ShaderManager.h"
@@ -196,17 +198,14 @@ void TestRTRenderer::CreateRootSignature() {
     globalRootSignatureDesc.AddShaderTable().AddUAVDescriptors(1, 0);
     globalRootSignatureDesc.AddStaticSampler(0, D3D12_FILTER_MIN_MAG_MIP_POINT);
     globalRootSignatureDesc.AddStaticSampler(1, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
+    globalRootSignatureDesc.SetFlag(D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED);
     globalRootSignature_.Create(L"GlobalRootSignature", globalRootSignatureDesc);
 
 
     RootSignatureDescHelper hitGroupLRSDesc;
     hitGroupLRSDesc.SetFlag(D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE);
-    // VertexBuffere
+    // MeshProperties
     hitGroupLRSDesc.AddShaderResourceView(0, 2);
-    // IndexBuffer
-    hitGroupLRSDesc.AddShaderResourceView(1, 2);
-    // Material
-    hitGroupLRSDesc.AddConstantBufferView(0, 2);
     hitGroupLocalRootSignature_.Create(L"HitGroupLocalRootSignature", hitGroupLRSDesc);
 
     RootSignatureDescHelper missLRSDesc;
@@ -308,10 +307,19 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
         uint32_t albedoMapIndex;
         uint32_t metallicRoughnessMapIndex;
         uint32_t normalMapIndex;
+        uint32_t pad;
+    };
+
+    struct MeshProperty {
+        MaterialData material;
+        uint32_t vertexBufferIndex;
+        uint32_t indexBufferIndex;
+        uint32_t pad[2];
     };
 
     uint32_t defaultWhiteTextureIndex = DefaultTexture::White.GetSRV().GetIndex();
     uint32_t defaultNormalTextureIndex = DefaultTexture::Normal.GetSRV().GetIndex();
+
 
     auto ErrorMaterial = [defaultWhiteTextureIndex, defaultNormalTextureIndex]() {
         MaterialData materialData;
@@ -341,16 +349,17 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
     std::vector<D3D12_RAYTRACING_INSTANCE_DESC> instanceDescs;
     instanceDescs.reserve(drawModels.size());
 
-    size_t numShaderRecords = 0;
+    size_t numMeshes = 0;
     for (auto& instance : drawModels) {
-        numShaderRecords += instance->GetModel()->GetMeshes().size();
+        numMeshes += instance->GetModel()->GetMeshes().size();
     }
 
-    std::vector<ShaderRecord> shaderRecords;
-    shaderRecords.reserve(numShaderRecords);
+    size_t bufferSize = numMeshes * sizeof(MeshProperty);
 
-    auto hitGroupIdentifier = identifierMap_[kRecursiveHitGroupName];
+    auto intermediateBuffer = commandContext.AllocateDynamicBuffer(LinearAllocatorType::Upload, bufferSize);
+    std::span<MeshProperty> cpuBuffer = { reinterpret_cast<MeshProperty*>(intermediateBuffer.cpu), numMeshes };
 
+    uint32_t copyLocation = 0;
     // レイトレで使用するオブジェクトをインスタンスデスクに登録
     for (auto& instance : drawModels) {
 
@@ -363,12 +372,12 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
                 desc.Transform[y][x] = instance->GetWorldMatrix().m[x][y];
             }
         }
-        desc.InstanceID = (UINT)(instanceDescs.size() - 1);
+        desc.InstanceID = copyLocation;
         desc.InstanceMask = VISIBILITY_MASK;
         if (instance->BeReflected()) {
             desc.InstanceMask |= RECURSIVE_MASK;
         }
-        desc.InstanceContributionToHitGroupIndex = (UINT)shaderRecords.size();
+        desc.InstanceContributionToHitGroupIndex = 0;
         desc.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
 
         const SkinCluster* skinningData = nullptr;
@@ -380,29 +389,19 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
         }
         desc.AccelerationStructure = skinningData == nullptr ? model->GetBLAS().GetGPUVirtualAddress() : skinningData->GetSkinnedBLAS().GetGPUVirtualAddress();
 
-
         auto instanceMaterial = instance->GetMaterial();
 
         for (auto& mesh : model->GetMeshes()) {
-            auto& shaderRecord = shaderRecords.emplace_back(hitGroupIdentifier);
+            auto& dest = cpuBuffer[copyLocation++];
 
-
-
-            D3D12_GPU_VIRTUAL_ADDRESS vb = model->GetVertexBuffer().GetGPUVirtualAddress();
-            vb += (D3D12_GPU_VIRTUAL_ADDRESS)model->GetVertexBuffer().GetElementSize() * mesh.vertexOffset;
-
+            dest.vertexBufferIndex = model->GetVertexBuffer().GetSRV().GetIndex();
             if (skinningData) {
-                vb = skinningData->GetSkinnedVertexBuffer().GetGPUVirtualAddress();
-                vb += (D3D12_GPU_VIRTUAL_ADDRESS)skinningData->GetSkinnedVertexBuffer().GetElementSize() * mesh.vertexOffset;
-
+                dest.indexBufferIndex = skinningData->GetSkinnedVertexBuffer().GetSRV().GetIndex();
             }
-            shaderRecord.Add(vb);
+            dest.indexBufferIndex = model->GetIndexBuffer().GetSRV().GetIndex();
 
-            D3D12_GPU_VIRTUAL_ADDRESS ib = model->GetIndexBuffer().GetGPUVirtualAddress();
-            ib += model->GetIndexBuffer().GetElementSize() * mesh.indexOffset;
-            shaderRecord.Add(ib);
-
-            MaterialData materialData = ErrorMaterial();
+            MaterialData& materialData = dest.material;
+            materialData = ErrorMaterial();
             // インスタンスのマテリアルを優先
             if (instanceMaterial) {
                 SetMaterialData(materialData, *instanceMaterial);
@@ -411,15 +410,18 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
             else if (mesh.material < model->GetMaterials().size()) {
                 SetMaterialData(materialData, model->GetMaterials()[mesh.material]);
             }
-
-            D3D12_GPU_VIRTUAL_ADDRESS materialCB = commandContext.TransfarUploadBuffer(sizeof(materialData), &materialData);
-            shaderRecord.Add(materialCB);
         }
     }
 
-
-    hitGroupShaderTable_.Create(L"RaytracingRenderer HitGroupShaderTable", shaderRecords.data(), (UINT)shaderRecords.size());
+    auto meshPropertiesBuffer = commandContext.AllocateDynamicBuffer(LinearAllocatorType::Default, bufferSize);
+    commandContext.CopyBufferRegion(meshPropertiesBuffer.resource, meshPropertiesBuffer.offset, intermediateBuffer.resource, intermediateBuffer.offset, bufferSize);
     tlas_.Create(L"RaytracingRenderer TLAS", commandContext, instanceDescs.data(), instanceDescs.size());
+
+    {
+        ShaderRecord shaderRecord(identifierMap_[kRecursiveHitGroupName]);
+        shaderRecord.Add(meshPropertiesBuffer.gpu);
+        hitGroupShaderTable_.Create(L"RaytracingRenderer HitGroupShaderTable", &shaderRecord, 1);
+    }
 
     // skyboxが変更された可能性あり
     {

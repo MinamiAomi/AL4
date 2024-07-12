@@ -73,9 +73,7 @@ void StructuredBuffer::CreateViews() {
         uavHandle_ = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
     }
 
-    counterBuffer_.Create(L"StructuredBuffer CounterBuffer", 1, 4);
-
     auto device = graphics->GetDevice();
     device->CreateShaderResourceView(resource_.Get(), &srvDesc, srvHandle_);
-    device->CreateUnorderedAccessView(resource_.Get(), counterBuffer_, &uavDesc, uavHandle_);
+    device->CreateUnorderedAccessView(resource_.Get(), nullptr, &uavDesc, uavHandle_);
 }
