@@ -154,7 +154,7 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
         return;
     }
 
-    uint32_t meshPropertyIndex = InstanceID()/* + GeometryIndex()*/;;
+    uint32_t meshPropertyIndex = InstanceID() + GeometryIndex();;
     InitializeMeshProperty(meshPropertyIndex);
 
     // レイの情報    
