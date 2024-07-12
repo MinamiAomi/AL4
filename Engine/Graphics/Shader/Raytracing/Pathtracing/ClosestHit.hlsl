@@ -31,15 +31,18 @@ struct Material {
 struct MeshProperty {
     Material material;
     uint32_t vertexBufferIndex;
+    uint32_t vertexOffset;
     uint32_t indexBufferIndex;
-    uint32_t2 pad;
+    uint32_t indexOffset;
 };
 
 StructuredBuffer<MeshProperty> l_MeshProperties : register(t0, space2);
 
 
 static StructuredBuffer<PackedVertex> s_VertexBuffer;
+static uint32_t s_VertexOffset;
 static StructuredBuffer<uint32_t> s_IndexBuffer;
+static uint32_t s_IndexOffset;
 static Material s_Material;
 static Texture2D<float32_t3> s_AlbedoMap;
 static Texture2D<float32_t3> s_MetallicRoughnessMap;
@@ -53,7 +56,9 @@ void InitializeMeshProperty(uint32_t meshPropertyIndex) {
     MeshProperty meshProperty = l_MeshProperties[meshPropertyIndex];
 
     s_VertexBuffer = ResourceDescriptorHeap[meshProperty.vertexBufferIndex];
+    s_VertexOffset = meshProperty.vertexOffset;
     s_IndexBuffer = ResourceDescriptorHeap[meshProperty.indexBufferIndex];
+    s_IndexOffset = meshProperty.indexOffset;
     s_Material = meshProperty.material;
     s_AlbedoMap = ResourceDescriptorHeap[s_Material.albedoMapIndex];
     s_MetallicRoughnessMap = ResourceDescriptorHeap[s_Material.metallicRoughnessMapIndex];
@@ -87,11 +92,11 @@ float32_t3 GetNormal(in float32_t3 normal, in float32_t3 tangent, in float32_t2 
 Vertex GetVertex(in Attributes attributes) {
     Vertex vertex = (Vertex)0;
     float32_t3 barycentrics = CalcBarycentrics(attributes.barycentrics);
-    uint32_t primitiveID = PrimitiveIndex() * 3;
+    uint32_t primitiveID = PrimitiveIndex() * 3 + s_IndexOffset;
 
     float32_t3 normal = float32_t3(0.0f, 0.0f, 0.0f), tangent = float32_t3(0.0f, 0.0f, 0.0f);
     for (uint32_t i = 0; i < 3; ++i) {
-        uint32_t index = s_IndexBuffer[primitiveID + i];
+        uint32_t index = s_IndexBuffer[primitiveID + i] + s_VertexOffset;
         vertex.position += s_VertexBuffer[index].position * barycentrics[i];
         normal += R10G10B10A2Tofloat32_t4(s_VertexBuffer[index].normal).xyz * barycentrics[i];
 #ifdef USE_NORMAL_MAPS
@@ -198,5 +203,4 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     }
 
     payload.color /= PATH_SAMPLE_COUNT;
-    payload.color = vertex.normal;
 }

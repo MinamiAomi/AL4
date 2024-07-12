@@ -313,8 +313,9 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
     struct MeshProperty {
         MaterialData material;
         uint32_t vertexBufferIndex;
+        uint32_t vertexOffset;
         uint32_t indexBufferIndex;
-        uint32_t pad[2];
+        uint32_t indexOffset;
     };
 
     uint32_t defaultWhiteTextureIndex = DefaultTexture::White.GetSRV().GetIndex();
@@ -395,10 +396,12 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
             auto& dest = cpuBuffer[copyLocation++];
 
             dest.vertexBufferIndex = model->GetVertexBuffer().GetSRV().GetIndex();
+            dest.vertexOffset = mesh.vertexOffset;
             if (skinningData) {
-                dest.indexBufferIndex = skinningData->GetSkinnedVertexBuffer().GetSRV().GetIndex();
+                dest.vertexBufferIndex = skinningData->GetSkinnedVertexBuffer().GetSRV().GetIndex();
             }
             dest.indexBufferIndex = model->GetIndexBuffer().GetSRV().GetIndex();
+            dest.indexOffset = mesh.indexOffset;
 
             MaterialData& materialData = dest.material;
             materialData = ErrorMaterial();
