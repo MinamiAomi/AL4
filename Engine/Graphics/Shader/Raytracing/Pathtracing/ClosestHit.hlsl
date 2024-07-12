@@ -198,5 +198,4 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
         
     }
 
-    payload.color /= PATH_SAMPLE_COUNT;
 }

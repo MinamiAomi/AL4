@@ -12,9 +12,9 @@ void MeshComponent::Initialize() {
     customMaterial_ = std::make_shared<PBRMaterial>(model_.GetModel()->GetMaterials()[0]);
     model_.SetMaterial(customMaterial_);
 
-    auto& gameObject = GetGameObject();
-    gameObject.transform.UpdateMatrix();
-    model_.SetWorldMatrix(gameObject.transform.worldMatrix);
+    auto gameObject = GetGameObject();
+    gameObject->transform.UpdateMatrix();
+    model_.SetWorldMatrix(gameObject->transform.worldMatrix);
 
 }
 

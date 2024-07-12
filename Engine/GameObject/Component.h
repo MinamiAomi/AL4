@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 
 #ifndef STRINGIFY
@@ -28,13 +29,13 @@ public:
     virtual void Update() {}
     virtual void Edit() {}
 
-    GameObject& GetGameObject() { return *gameObject_; }
-    const GameObject& GetGameObject() const { return *gameObject_; }
+    std::shared_ptr<GameObject> GetGameObject() { return gameObject_.lock(); }
+    std::shared_ptr<GameObject> GetGameObject() const { return gameObject_.lock(); }
 
     bool IsActive() const { return isActive_; }
     void SetIsActive(bool isActive) { isActive_ = isActive; }
 
 private:
-    GameObject* gameObject_ = nullptr;
+    std::weak_ptr<GameObject> gameObject_;
     bool isActive_ = true;
 };

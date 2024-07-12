@@ -1,6 +1,8 @@
 #pragma once
+#include "GameObject/Component.h"
 
 #include <functional>
+#include <memory>
 #include <string>
 
 #include "Math/MathUtils.h"
@@ -12,18 +14,21 @@ class SphereCollider;
 class BoxCollider;
 
 struct CollisionInfo {
-    Collider* collider;
+    std::shared_ptr<GameObject> gameObject;
     Vector3 normal;
     float depth;
 };
 
 struct RayCastInfo {
-    Collider* collider;
+    std::shared_ptr<GameObject> gameObject;
     float nearest;
 };
 
-class Collider {
+class Collider :
+    public Component {
     friend class CollisionManager;
+    
+    COMPONENT_IMPL(Collider);
 public:
     using Callback = std::function<void(const CollisionInfo&)>;
 
@@ -35,15 +40,9 @@ public:
     virtual bool IsCollision(BoxCollider* collider, CollisionInfo& collisionInfo) = 0;
     virtual bool RayCast(const Vector3& origin, const Vector3& diff, uint32_t mask, RayCastInfo& nearest) = 0;
 
-    void SetGameObject(GameObject* gameObject) { gameObject_ = gameObject; }
     void SetCallback(Callback callback) { callback_ = callback; }
     void SetCollisionAttribute(uint32_t attribute) { collisionAttribute_ = attribute; }
     void SetCollisionMask(uint32_t mask) { collisionMask_ = mask; }
-    void SetIsActive(bool isActive) { isActive_ = isActive; }
-    void SetName(const std::string& name) { name_ = name; }
-
-    GameObject* GetGameObject() const { return gameObject_; }
-    const std::string& GetName() const { return name_; }
 
     void OnCollision(const CollisionInfo& collisionInfo);
 
@@ -51,12 +50,9 @@ protected:
     bool CanCollision(Collider* other) const;
     bool CanCollision(uint32_t mask) const;
 
-    std::string name_;
-    GameObject* gameObject_;
     Callback callback_;
     uint32_t collisionAttribute_ = 0xFFFFFFFF;
     uint32_t collisionMask_ = 0xFFFFFFFF;
-    bool isActive_ = true;
 };
 
 class SphereCollider :

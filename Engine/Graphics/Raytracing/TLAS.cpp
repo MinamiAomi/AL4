@@ -54,6 +54,7 @@ void TLAS::Create(const std::wstring& name, CommandContext& commandContext, cons
 
     // 生成完了までUAVバリアを張る
     commandContext.UAVBarrier(*this);
+    commandContext.UAVBarrier(scratchResource_);
     commandContext.FlushResourceBarriers();
     // スクラッチリソースが解放されないようにする
 
