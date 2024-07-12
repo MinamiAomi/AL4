@@ -19,7 +19,7 @@ void MeshComponent::Initialize() {
 }
 
 void MeshComponent::Update() {
-    model_.SetWorldMatrix(GetGameObject().transform.worldMatrix);
+    model_.SetWorldMatrix(GetGameObject()->transform.worldMatrix);
 }
 
 void MeshComponent::Edit() {

@@ -22,20 +22,20 @@ void CollisionManager::CheckCollision() {
     for (; iter1 != colliders_.end(); ++iter1) {
         Collider* collider1 = *iter1;
         // アクティブじゃなければ通さない
-        if (!collider1->isActive_) { continue; }
+        if (!collider1->IsActive()) { continue; }
 
         auto iter2 = iter1;
         ++iter2;
         for (; iter2 != colliders_.end(); ++iter2) {
             Collider* collider2 = *iter2;
             // アクティブじゃなければ通さない
-            if (!collider2->isActive_) { continue; }
+            if (!collider2->IsActive()) { continue; }
 
             CollisionInfo collisionInfo1;      
             if (collider1->IsCollision(collider2, collisionInfo1)) {
                 // 衝突情報を反転
                 CollisionInfo collisionInfo2 = collisionInfo1;
-                collisionInfo2.collider = collider1;
+                collisionInfo2.gameObject = collider1->GetGameObject();
                 collisionInfo2.normal = -collisionInfo1.normal;
                 // Stayを呼び出す
                 collider1->OnCollision(collisionInfo1);

@@ -5,6 +5,8 @@
 #include "File/JsonConverter.h"
 #include "Externals/nlohmann/json.hpp"
 #include "MeshComponent.h"
+#include "Collision/Collider.h"
+#include "Collision/CollisionManager.h"
 
 namespace LevelLoader {
 
@@ -33,6 +35,17 @@ namespace LevelLoader {
             if (object.contains("model_name")) {
                 auto component = gameObject->AddComponent<MeshComponent>();
                 component->SetModelName(object.at("model_name"));
+            }
+            if(object.contains("collider")) {
+                auto collider = object.at("collider");
+                if (collider.at("type") == "BOX") {
+                    auto component = gameObject->AddComponent<BoxCollider>();
+                    Vector3 center, size;
+                    collider.at("center").get_to(center);
+                    collider.at("size").get_to(size);
+                    component->SetCenter(center);
+                    component->SetSize(size);
+                }
             }
             gameObjectManager.AddGameObject(gameObject);
         }

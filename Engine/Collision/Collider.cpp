@@ -88,7 +88,7 @@ bool SphereCollider::IsCollision(SphereCollider* other, CollisionInfo& collision
 
     // 衝突情報を格納していく
     float length = diff.Length();
-    collisionInfo.collider = this;
+    collisionInfo.gameObject = this->GetGameObject();
     if (length != 0.0f) {
         collisionInfo.normal = diff / length;
     }
@@ -120,7 +120,7 @@ bool SphereCollider::IsCollision(BoxCollider* other, CollisionInfo& collisionInf
 
     // 衝突情報を格納していく
     float length = diff.Length();
-    collisionInfo.collider = this;
+    collisionInfo.gameObject = this->GetGameObject();
     if (length != 0.0f) {
         collisionInfo.normal = (diff / length) * obbRotateMatrix;
     }
@@ -174,7 +174,7 @@ bool BoxCollider::IsCollision(SphereCollider* other, CollisionInfo& collisionInf
 
     // 衝突情報を格納していく
     float length = diff.Length();
-    collisionInfo.collider = this;
+    collisionInfo.gameObject = this->GetGameObject();
     if (length != 0.0f) {
         collisionInfo.normal = (diff / length) * obbRotateMatrix;
     }
@@ -241,7 +241,7 @@ bool BoxCollider::IsCollision(BoxCollider* other, CollisionInfo& collisionInfo) 
     }
 
     // 衝突情報を格納していく
-    collisionInfo.collider = this;
+    collisionInfo.gameObject = this->GetGameObject();
     collisionInfo.normal = minOverlapAxis.Normalized();
     if (Dot(other->obb_.center - this->obb_.center, collisionInfo.normal) < 0.0f) {
         collisionInfo.normal *= -1;

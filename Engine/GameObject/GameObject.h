@@ -36,7 +36,7 @@ public:
             return std::static_pointer_cast<T>(iter->second);
         }
         std::shared_ptr<T> component = std::make_shared<T>();
-        component->gameObject_ = this;
+        component->gameObject_ = shared_from_this();
         uninitializedComponents_.emplace_back(component);
         componentList_.emplace(typeid(T), component);
         return component;

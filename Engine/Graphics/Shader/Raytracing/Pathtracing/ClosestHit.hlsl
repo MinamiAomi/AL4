@@ -197,5 +197,5 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
         payload.color += material.emissive + incidentColor * brdf * cosine / pdf;
         
     }
-
+    payload.color /= PATH_SAMPLE_COUNT;
 }

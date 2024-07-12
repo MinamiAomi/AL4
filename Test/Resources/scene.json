@@ -21,7 +21,20 @@
                     1.0
                 ]
             },
-            "model_name": "sofa"
+            "model_name": "sofa",
+            "collider": {
+                "type": "BOX",
+                "center":[
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "size":[
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
         },
         {
             "type": "MESH",
