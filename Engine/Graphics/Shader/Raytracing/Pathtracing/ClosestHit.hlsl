@@ -48,10 +48,6 @@ static Texture2D<float32_t3> s_AlbedoMap;
 static Texture2D<float32_t3> s_MetallicRoughnessMap;
 static Texture2D<float32_t3> s_NormalMap;
 
-//StructuredBuffer<PackedVertex> l_VertexBuffer : register(t0, space2);
-//StructuredBuffer<uint32_t> l_IndexBuffer : register(t1, space2);
-//ConstantBuffer<Material> l_Material : register(b0, space2);
-
 void InitializeMeshProperty(uint32_t meshPropertyIndex) {
     MeshProperty meshProperty = l_MeshProperties[meshPropertyIndex];
 
@@ -155,7 +151,7 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
 
     // 再帰回数が最大で光源に当たらなかった
     if (payload.recursiveCount >= MAX_RECURSIVE_COUNT) {
-        payload.color = float32_t3(0.0f, 0.0f, 0.0f);
+        payload.color = s_Material.emissive;
         return;
     }
 
