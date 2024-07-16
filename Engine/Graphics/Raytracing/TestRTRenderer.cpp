@@ -13,6 +13,9 @@
 #include "../RenderManager.h"
 #include "../Shader/Raytracing/Pathtracing/Pathtracing.h"
 
+#include "Framework/Engine.h"
+#include "Input/Input.h"
+
 namespace {
     static const wchar_t kRayGenerationShader[] = L"Raytracing/Pathtracing/RayGeneration.hlsl";
     static const wchar_t kClosestHitShader[] = L"Raytracing/Pathtracing/ClosestHit.hlsl";
@@ -130,7 +133,10 @@ void TestRTRenderer::Create(uint32_t width, uint32_t height) {
     CreateRootSignature();
     CreateStateObject();
     CreateShaderTables();
+    float c[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    colorBuffer_.SetClearColor(c);
     colorBuffer_.Create(L"TestRTRenderer", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
+    sampleCount_ = 1;
 }
 
 void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter) {
@@ -139,20 +145,29 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
         Matrix4x4 viewProjectionInverseMatrix;
         Vector3 cameraPosition;
         float time;
+        uint32_t sampleCount;
     };
 
 
     auto commandList = commandContext.GetDXRCommandList();
     commandList;
 
+    if (Engine::GetInput()->IsKeyPressed(DIK_SPACE)) {
+        commandContext.TransitionResource(colorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        commandContext.ClearColor(colorBuffer_);
+        sampleCount_ = 1;
+    }
+
     SceneData scene;
     scene.viewProjectionInverseMatrix = camera.GetViewProjectionMatrix().Inverse();
     scene.cameraPosition = camera.GetPosition();
-    scene.time = (time_ += 1.0f / 60.0f);
+    scene.time = time_ = std::fmodf((time_ += 1.0f / 60.0f), 10000.0f);
+    scene.sampleCount = sampleCount_++;
     auto sceneCB = commandContext.TransfarUploadBuffer(sizeof(scene), &scene);
     sceneCB;
 
     BuildScene(commandContext, modelSorter);
+
 
     commandContext.TransitionResource(colorBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     commandContext.FlushResourceBarriers();

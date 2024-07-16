@@ -73,15 +73,13 @@ class RandomGenerator {
 
 float32_t3 RandomUnitVectorHemisphere(float32_t3 n, RandomGenerator randomGenerator) {
     float32_t z = randomGenerator.Generate1d() * 2.0f - 1.0f;
-    float32_t t = randomGenerator.Generate1d() * 2.0f * 3.1415926535f;
+    float32_t t = randomGenerator.Generate1d() * 2.0f * 3.14159265359f;
     float32_t r = sqrt(1.0f - z * z);
 
     float32_t x = r * cos(t);
     float32_t y = r * sin(t);
 
     float32_t3 v = float32_t3(x, y, z);
-    if(dot(v, n) < 0.0f) {
-        v = -v;
-    }
+    if (dot(v, n) < 0.0f) { v = -v; }
     return v;
 }

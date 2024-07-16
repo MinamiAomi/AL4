@@ -369,6 +369,7 @@
     <ClCompile Include="Graphics\Raytracing\TestRTRenderer.cpp">
       <Filter>Graphics\Raytracing</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Raytracing\Denoiser.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -728,6 +729,9 @@
     <ClInclude Include="Graphics\Shader\Raytracing\Pathtracing\Pathtracing.h">
       <Filter>Graphics\Shader\Raytracing\Pathtracing</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Raytracing\Denoiser.h">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\Lighting.hlsli">
@@ -873,5 +877,10 @@
     <Text Include="Externals\ImGui\LICENSE.txt">
       <Filter>Externals\ImGui</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Graphics\Shader\Raytracing\DenoiserCS.hlsl">
+      <Filter>Graphics\Shader\Raytracing</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

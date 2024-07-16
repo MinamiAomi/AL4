@@ -176,14 +176,16 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
 
     // 乱数生成器
     RandomGenerator randomGenerator;
-    randomGenerator.seed = (DispatchRaysIndex() + meshPropertyIndex + g_Scene.time + payload.recursiveCount) * g_Scene.time;
+    randomGenerator.seed = float32_t3(DispatchRaysIndex() + meshPropertyIndex + g_Scene.time + payload.recursiveCount) * g_Scene.time;
 
     [unroll]
     for(uint32_t i = 0; i < PATH_SAMPLE_COUNT; ++i) {
         // 入射方向
         //float32_t3 incidentDirection = normalize(reflect(rayDirection, vertex.normal));
         // ランダムな半球状のベクトル
+
         float32_t3 incidentDirection = RandomUnitVectorHemisphere(vertex.normal, randomGenerator);
+
 
         float32_t3 brdf = 
             PBR::DiffuseBRDF(material.diffuseReflectance) +
@@ -194,8 +196,10 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
         const float32_t pdf = 1.0f / (2.0f * PI);
         // コサイン項
         float32_t cosine = saturate(dot(incidentDirection, vertex.normal));
-        payload.color += material.emissive + incidentColor * brdf * cosine / pdf;
+        payload.color += brdf * cosine / pdf;
         
     }
-    payload.color /= PATH_SAMPLE_COUNT;
+
+    //payload.color = saturate(payload.color);
+    payload.color += material.emissive * 10.0f;
 }

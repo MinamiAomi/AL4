@@ -45,4 +45,5 @@ private:
     std::shared_ptr<TextureResource> skyboxTexture_;
     ColorBuffer colorBuffer_;
     float time_;
+    uint32_t sampleCount_;
 };

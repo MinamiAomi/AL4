@@ -196,6 +196,7 @@
     <ClCompile Include="GameObject\GameObjectFactory.cpp" />
     <ClCompile Include="GameObject\GameObjectManager.cpp" />
     <ClCompile Include="Graphics\Animation.cpp" />
+    <ClCompile Include="Graphics\Raytracing\Denoiser.cpp" />
     <ClCompile Include="Graphics\Raytracing\TestRTRenderer.cpp" />
     <ClCompile Include="Utility\Utility.cpp" />
     <ClInclude Include="Audio\AudioDevice.h" />
@@ -284,6 +285,7 @@
     <ClCompile Include="Math\MathUtils.cpp" />
     <ClCompile Include="Scene\SceneManager.cpp" />
     <ClCompile Include="Scene\SceneTransition.cpp" />
+    <ClInclude Include="Graphics\Raytracing\Denoiser.h" />
     <ClInclude Include="Graphics\Raytracing\TestRTRenderer.h" />
     <ClInclude Include="Graphics\Shader\Raytracing\Pathtracing\Pathtracing.h" />
     <ClInclude Include="Utility\Utility.h" />
@@ -794,6 +796,16 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="Graphics\Shader\Raytracing\DenoiserCS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4.0</ShaderModel>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">Compute</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">4.0</ShaderModel>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

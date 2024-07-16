@@ -7,6 +7,21 @@
 #include "Editer/EditerManager.h"
 #endif // ENABLE_IMGUI
 
+namespace {
+    std::string ConvertString(const std::wstring& str) {
+        if (str.empty()) {
+            return std::string();
+        }
+        int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, str.data(), static_cast<int>(str.size()), NULL, 0, NULL, NULL);
+        if (sizeNeeded == 0) {
+            return std::string();
+        }
+        std::string result(sizeNeeded, 0);
+        WideCharToMultiByte(CP_UTF8, 0, str.data(), static_cast<int>(str.size()), result.data(), sizeNeeded, NULL, NULL);
+        return result;
+    }
+}
+
 
 namespace Debug {
     void Log(const char* fmt, ...) {
@@ -27,6 +42,9 @@ namespace Debug {
     }
     void Log(const std::wstring& str) {
         OutputDebugStringW(str.c_str());
+#ifdef ENABLE_IMGUI
+        Engine::GetEditerManager()->GetConsoleView().AddLog(Editer::LogType::Normal, ConvertString(str));
+#endif // ENABLE_IMGUI
     }
     void MsgBox(const std::string& text, const std::string& caption) {
         MessageBoxA(nullptr, text.c_str(), caption.c_str(), S_OK);
