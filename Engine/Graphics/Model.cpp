@@ -169,6 +169,10 @@ namespace {
             if (srcMaterial->Get(AI_MATKEY_COLOR_EMISSIVE, emissive) == aiReturn_SUCCESS) {
                 destMaterial.emissive = { emissive.r, emissive.g, emissive.b };
             }
+            float emissiveIntensity{};
+            if (srcMaterial->Get(AI_MATKEY_EMISSIVE_INTENSITY, emissiveIntensity) == aiReturn_SUCCESS) {
+                destMaterial.emissiveIntensity = emissiveIntensity;
+            }
 
             // テクスチャが一つ以上ある
             if (srcMaterial->GetTextureCount(aiTextureType_BASE_COLOR) > 0) {

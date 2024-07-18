@@ -134,9 +134,13 @@ void TestRTRenderer::Create(uint32_t width, uint32_t height) {
     CreateStateObject();
     CreateShaderTables();
     float c[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    colorBuffer_.SetClearColor(c);
-    colorBuffer_.Create(L"TestRTRenderer", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
+    intermadiateBuffer_.SetClearColor(c);
+    intermadiateBuffer_.Create(L"TestRTRenderer IntermadiateBuffer", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
+    accumulationBuffer_.SetClearColor(c);
+    accumulationBuffer_.Create(L"TestRTRenderer AccumulationBuffer", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
+    denoisedBuffer_.Create(L"TestRTRenderer DenoisedBuffer", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
     sampleCount_ = 1;
+    denoiser_.Initialize();
 }
 
 void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter) {
@@ -153,8 +157,8 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
     commandList;
 
     if (Engine::GetInput()->IsKeyPressed(DIK_SPACE)) {
-        commandContext.TransitionResource(colorBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
-        commandContext.ClearColor(colorBuffer_);
+        commandContext.TransitionResource(accumulationBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        commandContext.ClearColor(accumulationBuffer_);
         sampleCount_ = 1;
     }
 
@@ -162,14 +166,13 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
     scene.viewProjectionInverseMatrix = camera.GetViewProjectionMatrix().Inverse();
     scene.cameraPosition = camera.GetPosition();
     scene.time = time_ = std::fmodf((time_ += 1.0f / 60.0f), 10000.0f);
-    scene.sampleCount = sampleCount_++;
     auto sceneCB = commandContext.TransfarUploadBuffer(sizeof(scene), &scene);
     sceneCB;
 
     BuildScene(commandContext, modelSorter);
 
 
-    commandContext.TransitionResource(colorBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    commandContext.TransitionResource(intermadiateBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     commandContext.FlushResourceBarriers();
 
     commandContext.SetComputeRootSignature(globalRootSignature_);
@@ -177,7 +180,7 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
     commandList->SetComputeRootConstantBufferView(0, sceneCB);
     commandList->SetComputeRootShaderResourceView(1, tlas_.GetGPUVirtualAddress());
     commandContext.SetComputeBindlessResource(2);
-    commandList->SetComputeRootDescriptorTable(3, colorBuffer_.GetUAV());
+    commandList->SetComputeRootDescriptorTable(3, intermadiateBuffer_.GetUAV());
 
     D3D12_DISPATCH_RAYS_DESC rayDesc{};
     rayDesc.RayGenerationShaderRecord.StartAddress = rayGenerationShaderTable_.GetGPUVirtualAddress();
@@ -188,14 +191,16 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
     rayDesc.HitGroupTable.StartAddress = hitGroupShaderTable_.GetGPUVirtualAddress();
     rayDesc.HitGroupTable.SizeInBytes = hitGroupShaderTable_.GetBufferSize();
     rayDesc.HitGroupTable.StrideInBytes = hitGroupShaderTable_.GetShaderRecordSize();
-    rayDesc.Width = colorBuffer_.GetWidth();
-    rayDesc.Height = colorBuffer_.GetHeight();
+    rayDesc.Width = intermadiateBuffer_.GetWidth();
+    rayDesc.Height = intermadiateBuffer_.GetHeight();
     rayDesc.Depth = 1;
     commandList->SetPipelineState1(stateObject_);
     commandList->DispatchRays(&rayDesc);
 
-    commandContext.UAVBarrier(colorBuffer_);
+    commandContext.UAVBarrier(intermadiateBuffer_);
     commandContext.FlushResourceBarriers();
+
+    denoiser_.Render(commandContext, intermadiateBuffer_, accumulationBuffer_, denoisedBuffer_, sampleCount_++);
 
     commandContext.SetMarker(0, L"DispatchRays");
 }
@@ -208,9 +213,9 @@ void TestRTRenderer::CreateRootSignature() {
     // TLAS
     globalRootSignatureDesc.AddShaderResourceView(0);
     // BindlessTexture
-    globalRootSignatureDesc.AddShaderTable().AddSRVDescriptors(BINDLESS_RESOURCE_MAX, 0, 1);
+    globalRootSignatureDesc.AddDescriptorTable().AddSRVDescriptors(BINDLESS_RESOURCE_MAX, 0, 1);
     // Color
-    globalRootSignatureDesc.AddShaderTable().AddUAVDescriptors(1, 0);
+    globalRootSignatureDesc.AddDescriptorTable().AddUAVDescriptors(1, 0);
     globalRootSignatureDesc.AddStaticSampler(0, D3D12_FILTER_MIN_MAG_MIP_POINT);
     globalRootSignatureDesc.AddStaticSampler(1, D3D12_FILTER_MIN_MAG_MIP_LINEAR);
     globalRootSignatureDesc.SetFlag(D3D12_ROOT_SIGNATURE_FLAG_CBV_SRV_UAV_HEAP_DIRECTLY_INDEXED);
@@ -225,7 +230,7 @@ void TestRTRenderer::CreateRootSignature() {
 
     RootSignatureDescHelper missLRSDesc;
     missLRSDesc.SetFlag(D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE);
-    missLRSDesc.AddShaderTable().AddSRVDescriptors(1, 0, 3);
+    missLRSDesc.AddDescriptorTable().AddSRVDescriptors(1, 0, 3);
     missLocalRootSignature_.Create(L"MissLocalRootSignature", missLRSDesc);
 }
 
@@ -352,7 +357,7 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
     auto SetMaterialData = [](MaterialData& dest, const PBRMaterial& src) {
         dest.albedo = src.albedo;
         dest.metallic = src.metallic;
-        dest.emissive = src.emissive;
+        dest.emissive = src.emissive * src.emissiveIntensity;
         dest.roughness = src.roughness;
         if (src.albedoMap) { dest.albedoMapIndex = src.albedoMap->GetSRV().GetIndex(); }
         if (src.metallicRoughnessMap) { dest.metallicRoughnessMapIndex = src.metallicRoughnessMap->GetSRV().GetIndex(); }

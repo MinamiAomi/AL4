@@ -47,10 +47,6 @@ void RayGeneration() {
         payload // Payload
     );
 
-    float32_t3 accumulationColor = g_Color[dispatchRaysIndex].rgb * (g_Scene.sampleCount - 1);
-    accumulationColor += payload.color;
-
-    
-    g_Color[dispatchRaysIndex].rgb = accumulationColor / g_Scene.sampleCount;
+    g_Color[dispatchRaysIndex].rgb = payload.color;
     g_Color[dispatchRaysIndex].a = 1.0f;
 }

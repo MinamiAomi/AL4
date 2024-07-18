@@ -45,7 +45,7 @@ void RootSignatureDescHelper::AddConstants(UINT num32BitValues, UINT shaderRegis
     CD3DX12_ROOT_PARAMETER::InitAsConstants(rootParameters.emplace_back(), num32BitValues, shaderRegister, registerSpace, visibility);
 }
 
-RootSignatureDescHelper::DescriptorTableHelper& RootSignatureDescHelper::AddShaderTable(D3D12_SHADER_VISIBILITY visibility) {
+RootSignatureDescHelper::DescriptorTableHelper& RootSignatureDescHelper::AddDescriptorTable(D3D12_SHADER_VISIBILITY visibility) {
     auto& rootParameter = rootParameters.emplace_back();
     rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
     rootParameter.ShaderVisibility = visibility;

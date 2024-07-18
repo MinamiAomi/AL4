@@ -25,7 +25,7 @@ struct Material {
     uint32_t albedoMapIndex;
     uint32_t metallicRoughnessMapIndex;
     uint32_t normalMapIndex;
-    uint32_t pad; // 念のためパディング
+    uint32_t pad;
 };
 
 struct MeshProperty {
@@ -196,10 +196,9 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
         const float32_t pdf = 1.0f / (2.0f * PI);
         // コサイン項
         float32_t cosine = saturate(dot(incidentDirection, vertex.normal));
-        payload.color += brdf * cosine / pdf;
+        payload.color += incidentColor * brdf * cosine / pdf;
         
     }
 
-    //payload.color = saturate(payload.color);
-    payload.color += material.emissive * 10.0f;
+    payload.color += material.emissive;
 }

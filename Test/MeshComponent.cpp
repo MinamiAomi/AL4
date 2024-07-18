@@ -27,4 +27,5 @@ void MeshComponent::Edit() {
     ImGui::SliderFloat("Metallic", &customMaterial_->metallic, 0.0f, 1.0f);
     ImGui::SliderFloat("Roughness", &customMaterial_->roughness, 0.0f, 1.0f);
     ImGui::ColorEdit3("Emissive", &customMaterial_->emissive.x);
+    ImGui::DragFloat("EmissiveIntensity", &customMaterial_->emissiveIntensity, 0.1f);
 }
