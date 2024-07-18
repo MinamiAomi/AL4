@@ -138,7 +138,7 @@ void TestRTRenderer::Create(uint32_t width, uint32_t height) {
     intermadiateBuffer_.Create(L"TestRTRenderer IntermadiateBuffer", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
     accumulationBuffer_.SetClearColor(c);
     accumulationBuffer_.Create(L"TestRTRenderer AccumulationBuffer", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
-    denoisedBuffer_.Create(L"TestRTRenderer DenoisedBuffer", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
+    denoisedBuffer_.Create(L"TestRTRenderer DenoisedBuffer", width, height, DXGI_FORMAT_R11G11B10_FLOAT);
     sampleCount_ = 1;
     denoiser_.Initialize();
 }
@@ -149,7 +149,6 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
         Matrix4x4 viewProjectionInverseMatrix;
         Vector3 cameraPosition;
         float time;
-        uint32_t sampleCount;
     };
 
 
@@ -287,8 +286,7 @@ void TestRTRenderer::CreateStateObject() {
 
     // 10.パイプラインコンフィグ
     auto pipelineConfig = stateObjectDesc.CreateSubobject<CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT>();
-    uint32_t maxTraceRecursionDepth = 1 + PATH_SAMPLE_COUNT * MAX_RECURSIVE_COUNT; // 1 + 再帰回数
-    //assert(maxTraceRecursionDepth <= 8);
+    uint32_t maxTraceRecursionDepth = 8; // 1 + 再帰回数
     pipelineConfig->Config(maxTraceRecursionDepth);
 
     // 11.グローバルルートシグネチャ

@@ -11,12 +11,12 @@ class PostEffect {
 public:
     struct Grayscale {
         Vector3 color = Vector3::one;
-        bool isActive = true;
+        bool isActive = false;
     };
     struct Vignette {
         float intensity = 16.0f;
         float power = 0.8f;
-        bool isActive = true;
+        bool isActive = false;
     };
 
     void Initialize(const ColorBuffer& target);

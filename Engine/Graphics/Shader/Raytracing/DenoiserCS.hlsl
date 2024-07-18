@@ -10,6 +10,7 @@ RWTexture2D<float32_t4> g_DenoisedBuffer : register(u1);
 
 struct Common {
     uint32_t sampleCount;
+    uint32_t s;
 };
 ConstantBuffer<Common> g_Common : register(b0);
 
@@ -21,6 +22,35 @@ static const float32_t kKernelFactors[3][3] = {
 // 共有メモリ
 // 3x3フィルタのため左右上下1マス多め
 groupshared float32_t3 sharedMemory[NUM_THREADS + 2][NUM_THREADS + 2];
+
+float32_t3 GtTonemap(float32_t3 color) {
+    float32_t k = 1.0f;
+    float32_t P = k;
+    float32_t a = 1.0f;
+    float32_t m = 0.22f;
+    float32_t l = 0.4f;
+    float32_t c = 1.33f;
+    float32_t b = 0.0f;
+
+    float32_t3 x = color;
+    float32_t l0 = ((P - m) * l) / a;
+    float32_t L0 = m - (m / a);
+    float32_t L1 = m + ((1.0f - m) / a);
+
+    float32_t S0 = m + l0;
+    float32_t S1 = m + a * l0;
+    float32_t C2 = (a * P) / (P - S1);
+    float32_t CP = -C2 / P;
+
+    float32_t3 w0 = 1.0f - smoothstep(0.0f, m, x);
+    float32_t3 w2 = step(m + l0, x);
+    float32_t3 w1 = 1.0f - w0 - w2;
+
+    float32_t3 T = m * pow(x / m, c) + b;
+    float32_t3 S = P - (P - S1) * exp(CP * (x - S0));
+    float32_t3 L = m + a * (x - m);
+    return T * w0 + L * w1 + S * w2;
+}
 
 [numthreads(NUM_THREADS, NUM_THREADS, 1)]
 void main(uint32_t3 DTid : SV_DispatchThreadID, uint32_t3 GTid : SV_GroupThreadID) {
@@ -37,8 +67,8 @@ void main(uint32_t3 DTid : SV_DispatchThreadID, uint32_t3 GTid : SV_GroupThreadI
 
     const int32_t2 offset[4] = {
         int32_t2(-1, 1),
-        int32_t2( 1, 1),
-        int32_t2( 1,-1),
+        int32_t2(1, 1),
+        int32_t2(1,-1),
         int32_t2(-1,-1),
     };
 
@@ -62,20 +92,9 @@ void main(uint32_t3 DTid : SV_DispatchThreadID, uint32_t3 GTid : SV_GroupThreadI
         }
     }
 
-    float32_t3 accumulationColor = g_AccumulationBuffer[targetPixel].rgb * (g_Common.sampleCount - 1);
-    accumulationColor += totalColor;
+    float32_t3 accumulationColor = g_AccumulationBuffer[targetPixel].rgb += totalColor;
     accumulationColor /= g_Common.sampleCount;
 
-    g_AccumulationBuffer[targetPixel].rgb = accumulationColor;
-    g_AccumulationBuffer[targetPixel].a = 1.0f;
-
-
-    float32_t3 b = accumulationColor /*/ (1.0f + accumulationColor)*/;
-   /* 
-    if (b.r > 1.0f || b.g > 1.0f || b.b > 1.0f) {
-        b = float32_t3(1.0f, 0.0f, 0.0f);
-    }*/
-
-    g_DenoisedBuffer[targetPixel].rgb = b;
+    g_DenoisedBuffer[targetPixel].rgb = GtTonemap(accumulationColor);
     g_DenoisedBuffer[targetPixel].a = 1.0f;
 }

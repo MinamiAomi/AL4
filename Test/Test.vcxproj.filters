@@ -25,16 +25,15 @@
     <ClCompile Include="DebugCamera.cpp">
       <Filter>Game\Object</Filter>
     </ClCompile>
-    <ClCompile Include="Door.cpp">
-      <Filter>Game\Object</Filter>
-    </ClCompile>
     <ClCompile Include="MeshComponent.cpp">
       <Filter>Game\Component</Filter>
     </ClCompile>
     <ClCompile Include="LevelLoader.cpp">
       <Filter>Game</Filter>
     </ClCompile>
-    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Player.cpp">
+      <Filter>Game\Object</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Test.h">
@@ -44,9 +43,6 @@
       <Filter>Game\Scene</Filter>
     </ClInclude>
     <ClInclude Include="DebugCamera.h">
-      <Filter>Game\Object</Filter>
-    </ClInclude>
-    <ClInclude Include="Door.h">
       <Filter>Game\Object</Filter>
     </ClInclude>
     <ClInclude Include="MeshComponent.h">

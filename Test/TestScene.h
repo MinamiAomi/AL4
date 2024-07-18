@@ -9,7 +9,6 @@
 #include "Graphics/Model.h"
 #include "Graphics/LightManager.h"
 #include "Audio/AudioSource.h"
-#include "Door.h"
 #include "Graphics/Skeleton.h"
 #include "GameObject/GameObjectManager.h"
 
@@ -35,12 +34,6 @@ private:
         std::shared_ptr<PBRMaterial> material;
     };
     PBRSphere spheres_[kRowCount][kColumnCount];
-    Player player_;
-    Door door_;
-    ModelInstance model_;
     ModelInstance room_;
-    std::shared_ptr<Skeleton> skeleton_;
-    std::shared_ptr<Animation> abs_;
-    float time_;
 
 };

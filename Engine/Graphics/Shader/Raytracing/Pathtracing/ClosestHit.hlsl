@@ -172,33 +172,28 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     metallicRoughness.y = clamp(metallicRoughness.y, 0.03f, 1.0f);
     PBR::Material material = PBR::CreateMaterial(albedo, metallicRoughness.x, metallicRoughness.y, s_Material.emissive);
     PBR::Geometry geometry = PBR::CreateGeometry(vertex.position, vertex.normal, rayOrigin);
-    
+
 
     // 乱数生成器
     RandomGenerator randomGenerator;
     randomGenerator.seed = float32_t3(DispatchRaysIndex() + meshPropertyIndex + g_Scene.time + payload.recursiveCount) * g_Scene.time;
 
-    [unroll]
-    for(uint32_t i = 0; i < PATH_SAMPLE_COUNT; ++i) {
-        // 入射方向
-        //float32_t3 incidentDirection = normalize(reflect(rayDirection, vertex.normal));
-        // ランダムな半球状のベクトル
+    // 入射方向
+    //float32_t3 incidentDirection = normalize(reflect(rayDirection, vertex.normal));
+    // ランダムな半球状のベクトル
+    float32_t3 incidentDirection = RandomUnitVectorHemisphere(vertex.normal, randomGenerator);
+    //float32_t3 incidentDirection = float32_t3(0.0f, 1.0f, 0.0f);
 
-        float32_t3 incidentDirection = RandomUnitVectorHemisphere(vertex.normal, randomGenerator);
-
-
-        float32_t3 brdf = 
-            PBR::DiffuseBRDF(material.diffuseReflectance) +
-            PBR::SpecularBRDF(incidentDirection, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
-        // 入射光
-        float32_t3 incidentColor = GetIncidentColor(incidentDirection, vertex.position + vertex.normal * 0.001f, payload.recursiveCount);
-        // 確率密度関数
-        const float32_t pdf = 1.0f / (2.0f * PI);
-        // コサイン項
-        float32_t cosine = saturate(dot(incidentDirection, vertex.normal));
-        payload.color += incidentColor * brdf * cosine / pdf;
-        
-    }
+    float32_t3 brdf =
+        PBR::DiffuseBRDF(material.diffuseReflectance) +
+        PBR::SpecularBRDF(incidentDirection, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
+    // 入射光
+    float32_t3 incidentColor = GetIncidentColor(incidentDirection, vertex.position + vertex.normal * 0.001f, payload.recursiveCount);
+    // 確率密度関数
+    const float32_t pdf = 1.0f / (2.0f * PI);
+    // コサイン項
+    float32_t cosine = saturate(dot(incidentDirection, vertex.normal));
+    payload.color += incidentColor * brdf * cosine / pdf;
 
     payload.color += material.emissive;
 }

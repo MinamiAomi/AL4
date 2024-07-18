@@ -15,5 +15,4 @@ public:
 private:
     RootSignature rootSignature_;
     PipelineState pipelineState_;
-
 };

@@ -35,7 +35,7 @@ void RenderManager::Initialize() {
     skybox_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat(), geometryRenderingPass_.GetDepth().GetFormat());
     lineDrawer_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat());
 
-    bloom_.Initialize(&lightingRenderingPass_.GetResult());
+    //bloom_.Initialize(&lightingRenderingPass_.GetResult());
     fxaa_.Initialize(&lightingRenderingPass_.GetResult());
     postEffect_.Initialize(finalImageBuffer_);
 
@@ -94,7 +94,7 @@ void RenderManager::Render() {
         lineDrawer_.Render(commandContext_, *camera);
     }
 
-    bloom_.Render(commandContext_);
+    //bloom_.Render(commandContext_);
     fxaa_.Render(commandContext_);
 
     commandContext_.TransitionResource(finalImageBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);

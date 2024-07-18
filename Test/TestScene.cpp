@@ -19,7 +19,6 @@ void TestScene::OnInitialize() {
     sunLight_->direction = Vector3(1.0f, -1.0f, 1.0f).Normalized();
     RenderManager::GetInstance()->SetSunLight(sunLight_);
 
-    //door_.Initialize();
 
     auto texture = TextureLoader::Load("Resources/skybox/skybox_8k.dds");
     auto& skybox = RenderManager::GetInstance()->GetSkybox();
@@ -46,33 +45,13 @@ void TestScene::OnInitialize() {
         }
     }
 
-    euler_.x = Math::ToRadian;
-
-    model_.SetModel(ResourceManager::GetInstance()->FindModel("human"));
-    abs_ = ResourceManager::GetInstance()->FindAnimation("human_abs");
-    skeleton_ = std::make_shared<Skeleton>();
-    skeleton_->Create(model_.GetModel());
-    model_.SetSkeleton(skeleton_);
-    model_.SetWorldMatrix(Matrix4x4::MakeRotationY(Math::ToRadian * 180.0f));
-
-    //room_.SetModel(ResourceManager::GetInstance()->FindModel("room"));
-    player_.Initialize();
+    //player_.Initialize();
     LevelLoader::Load("Resources/scene.json", *Engine::GetGameObjectManager());
 }
 
 void TestScene::OnUpdate() {
 
     Engine::GetGameObjectManager()->Update();
-
-    //door_.Update();
-
-    time_ += 1.0f / 60.0f;
-    time_ = std::fmod(time_, 1.0f);
-    skeleton_->ApplyAnimation(abs_->GetAnimation("situp"), time_);
-    skeleton_->Update();
-    skeleton_->DebugDraw(model_.GetWorldMatrix());
-
-    player_.Update();
 
     Input* input = Input::GetInstance();
 

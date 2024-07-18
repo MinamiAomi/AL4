@@ -4,6 +4,7 @@
 #include "../Core/Helper.h"
 #include "../Core/CommandContext.h"
 #include "../Core/ColorBuffer.h"
+#include "Input/Input.h"
 
 void Denoiser::Initialize() {
     RootSignatureDescHelper rsDesc;

@@ -5,7 +5,7 @@
         "light" : "room/light.gltf",
         "light_1" : "room/light_1.gltf",
         "light_2" : "room/light_2.gltf",
-        "room" : "room/room_no_ceiling.gltf",
+        "room" : "room/room.gltf",
         "shelf" : "room/shelf.gltf",
         "sofa" : "room/sofa.gltf",
         "speaker" : "room/speaker.gltf",
