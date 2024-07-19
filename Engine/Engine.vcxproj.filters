@@ -877,6 +877,9 @@
     <None Include="Graphics\Shader\Raytracing\DenoiserCS.hlsl">
       <Filter>Graphics\Shader\Raytracing</Filter>
     </None>
+    <None Include="Graphics\Shader\AtmosphericScattering.hlsli">
+      <Filter>Graphics\Shader</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\ImGui\LICENSE.txt">

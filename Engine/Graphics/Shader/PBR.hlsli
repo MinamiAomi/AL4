@@ -57,7 +57,7 @@ namespace PBR {
     float32_t D_GGX(in float32_t NdotH, in float32_t alpha) {
         float32_t a2 = alpha * alpha;
         float32_t t = (NdotH * NdotH * (a2 - 1.0f)) + 1.0f;
-        return a2 / (t * t * PI + EPSILON);
+        return a2 / (t * t * PI);
     }
 
     // GGX Shadow Masking Function
@@ -77,9 +77,9 @@ namespace PBR {
     }
 
     float32_t3 SpecularBRDF(in float32_t3 incidentDirection, in float32_t3 normal, in float32_t3 viewDirection, in float32_t3 specularReflectance, in float32_t specularRoughness) {
-        float32_t3 N = normal;
-        float32_t3 V = viewDirection;
-        float32_t3 L = incidentDirection;
+        float32_t3 N = normalize(normal);
+        float32_t3 V = normalize(viewDirection);
+        float32_t3 L = normalize(incidentDirection);
         float32_t3 H = normalize(L + V);
         
 
@@ -92,7 +92,7 @@ namespace PBR {
         float32_t3 F = F_Schlick(specularReflectance, VdotH);
         float32_t D = D_GGX(NdotH, alpha);
         float32_t G = G_Smith_Schlick_GGX(NdotV, NdotL, alpha);
-        return (F * (D * G)) / (4.0f * NdotV * NdotL + EPSILON);
+        return (F * D * G) / (4.0f * NdotV * NdotL);
     }
 
     void DirectRenderingEquations(in IncidentLight directLight, in Geometry geometry, in Material material, inout ReflectedLight reflectedLight) {

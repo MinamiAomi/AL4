@@ -178,10 +178,10 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     RandomGenerator randomGenerator;
     randomGenerator.seed = float32_t3(DispatchRaysIndex() + meshPropertyIndex + g_Scene.time + payload.recursiveCount) * g_Scene.time;
 
-    // 入射方向
-    //float32_t3 incidentDirection = normalize(reflect(rayDirection, vertex.normal));
+    // 完全鏡面方向
+    float32_t3 incidentDirection = normalize(reflect(rayDirection, vertex.normal));
     // ランダムな半球状のベクトル
-    float32_t3 incidentDirection = RandomUnitVectorHemisphere(vertex.normal, randomGenerator);
+    //float32_t3 incidentDirection = RandomUnitVectorHemisphere(vertex.normal, randomGenerator);
     //float32_t3 incidentDirection = float32_t3(0.0f, 1.0f, 0.0f);
 
     float32_t3 brdf =
@@ -194,6 +194,19 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     // コサイン項
     float32_t cosine = saturate(dot(incidentDirection, vertex.normal));
     payload.color += incidentColor * brdf * cosine / pdf;
+    //payload.color = brdf;
+    
+    //payload.color = incidentColor * (PBR::SchlickFresnel(material.specularReflectance, 1.0f, cosine) + brdf);
+   
+    // 平行光源
+    //PBR::IncidentLight light;
+    //light.direction = float32_t3(0.0f, 1.0f, 0.0f);
+    //light.color = float32_t3(1.0f, 1.0f, 1.0f);
+    //PBR::ReflectedLight reflectedLight;
+    //reflectedLight.directDiffuse = float32_t3(0.0f, 0.0f, 0.0f);
+    //reflectedLight.directSpecular = float32_t3(0.0f, 0.0f, 0.0f);
+    //PBR::DirectRenderingEquations(light, geometry, material, reflectedLight);
+    //payload.color = reflectedLight.directSpecular;
 
-    payload.color += material.emissive;
+     payload.color += material.emissive;
 }
