@@ -24,6 +24,7 @@ void TestScene::OnInitialize() {
     auto& skybox = RenderManager::GetInstance()->GetSkybox();
     skybox.SetTexture(texture);
     RenderManager::GetInstance()->GetTestRTRenderer().SetSkybox(texture);
+    RenderManager::GetInstance()->GetTestRTRenderer().SetSkyboxRadiance(TextureLoader::Load("Resources/skybox/skybox_8k_radiance.dds"));
     auto& lightingRenderlingPass = RenderManager::GetInstance()->GetLightingRenderingPass();
     lightingRenderlingPass.SetIrradianceTexture(TextureLoader::Load("Resources/skybox/skybox_8k_irradiance.dds"));
     lightingRenderlingPass.SetRadianceTexture(TextureLoader::Load("Resources/skybox/skybox_8k_radiance.dds"));

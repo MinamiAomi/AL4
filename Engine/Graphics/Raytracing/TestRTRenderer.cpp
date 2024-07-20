@@ -149,6 +149,7 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
         Matrix4x4 viewProjectionInverseMatrix;
         Vector3 cameraPosition;
         float time;
+        uint32_t skyboxLod;
     };
 
 
@@ -165,6 +166,7 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
     scene.viewProjectionInverseMatrix = camera.GetViewProjectionMatrix().Inverse();
     scene.cameraPosition = camera.GetPosition();
     scene.time = time_ = std::fmodf((time_ += 1.0f / 60.0f), 10000.0f);
+    scene.skyboxLod = (uint32_t)skyboxTexture_->GetDesc().MipLevels - 2;
     auto sceneCB = commandContext.TransfarUploadBuffer(sizeof(scene), &scene);
     sceneCB;
 
@@ -230,6 +232,7 @@ void TestRTRenderer::CreateRootSignature() {
     RootSignatureDescHelper missLRSDesc;
     missLRSDesc.SetFlag(D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE);
     missLRSDesc.AddDescriptorTable().AddSRVDescriptors(1, 0, 3);
+    missLRSDesc.AddDescriptorTable().AddSRVDescriptors(1, 1, 3);
     missLocalRootSignature_.Create(L"MissLocalRootSignature", missLRSDesc);
 }
 
@@ -280,7 +283,7 @@ void TestRTRenderer::CreateStateObject() {
 
     // 9.シェーダーコンフィグ
     auto shaderConfig = stateObjectDesc.CreateSubobject<CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
-    size_t maxPayloadSize = 3 * sizeof(float) + 1 * sizeof(uint32_t);      // 最大ペイロードサイズ
+    size_t maxPayloadSize = 3 * sizeof(float) + 3 * sizeof(uint32_t);      // 最大ペイロードサイズ
     size_t maxAttributeSize = 2 * sizeof(float);   // 最大アトリビュートサイズ
     shaderConfig->Config((UINT)maxPayloadSize, (UINT)maxAttributeSize);
 
@@ -451,6 +454,12 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
         D3D12_GPU_DESCRIPTOR_HANDLE skyboxSRV = DefaultTexture::BlackCubeMap.GetSRV();
         if (skyboxTexture_) {
             skyboxSRV = skyboxTexture_->GetSRV();
+        }
+        missShaderRecord.Add(skyboxSRV);
+        // skybox1
+        skyboxSRV = DefaultTexture::BlackCubeMap.GetSRV();
+        if (skyboxRadianceTexture_) {
+            skyboxSRV = skyboxRadianceTexture_->GetSRV();
         }
         missShaderRecord.Add(skyboxSRV);
         missShaderTable_.Create(L"MissShaderTable", &missShaderRecord, 1);

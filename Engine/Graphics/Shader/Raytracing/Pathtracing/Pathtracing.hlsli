@@ -29,11 +29,14 @@ struct Scene {
     float32_t4x4 viewProjectionInverseMatrix;
     float32_t3 cameraPosition;
     float32_t time;
+    uint32_t skyboxMipCount;
 };
 
 struct Payload {
     float32_t3 color;
     uint32_t recursiveCount;
+    uint32_t skyboxLod;
+    uint32_t reflected;
 };
 
 struct Attributes {

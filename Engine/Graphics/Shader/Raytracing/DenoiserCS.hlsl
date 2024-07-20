@@ -95,6 +95,10 @@ void main(uint32_t3 DTid : SV_DispatchThreadID, uint32_t3 GTid : SV_GroupThreadI
     float32_t3 accumulationColor = g_AccumulationBuffer[targetPixel].rgb += totalColor;
     accumulationColor /= g_Common.sampleCount;
 
+   //if(isnan(accumulationColor.r)) {
+   //    accumulationColor = float32_t3(1.0f, 0.0f, 0.0f);
+   //}
+
     g_DenoisedBuffer[targetPixel].rgb = GtTonemap(accumulationColor);
     g_DenoisedBuffer[targetPixel].a = 1.0f;
 }

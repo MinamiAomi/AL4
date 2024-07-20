@@ -116,7 +116,7 @@ Vertex GetVertex(in Attributes attributes) {
     return vertex;
 }
 
-float32_t3 GetIncidentColor(in float32_t3 incidentDirection, in float32_t3 position, in uint32_t recursiveCount) {
+float32_t3 GetIncidentColor(in float32_t3 incidentDirection, in float32_t3 position, in uint32_t recursiveCount, uint32_t skyboxLod) {
     // 入射方向のレイ
     RayDesc incidentRay;
     incidentRay.Origin = position;
@@ -127,6 +127,8 @@ float32_t3 GetIncidentColor(in float32_t3 incidentDirection, in float32_t3 posit
     Payload newPayload;
     newPayload.color = float32_t3(0.0f, 0.0f, 0.0f);
     newPayload.recursiveCount = recursiveCount + 1;
+    newPayload.skyboxLod = skyboxLod;
+    newPayload.reflected = 1;
 
     TraceRay(
         g_TLAS, // RaytracingAccelerationStructure
@@ -173,6 +175,10 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     PBR::Material material = PBR::CreateMaterial(albedo, metallicRoughness.x, metallicRoughness.y, s_Material.emissive);
     PBR::Geometry geometry = PBR::CreateGeometry(vertex.position, vertex.normal, rayOrigin);
 
+    uint32_t skyboxLod = payload.skyboxLod;
+        skyboxLod = g_Scene.skyboxMipCount * (material.specularRoughness * material.specularRoughness);
+    
+
 
     // 乱数生成器
     RandomGenerator randomGenerator;
@@ -184,17 +190,17 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     //float32_t3 incidentDirection = RandomUnitVectorHemisphere(vertex.normal, randomGenerator);
     //float32_t3 incidentDirection = float32_t3(0.0f, 1.0f, 0.0f);
 
+    float32_t pdf = 0.0f;
     float32_t3 brdf =
         PBR::DiffuseBRDF(material.diffuseReflectance) +
-        PBR::SpecularBRDF(incidentDirection, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
+        PBR::SpecularBRDF(incidentDirection, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness, pdf);
     // 入射光
-    float32_t3 incidentColor = GetIncidentColor(incidentDirection, vertex.position + vertex.normal * 0.001f, payload.recursiveCount);
+    float32_t3 incidentColor = GetIncidentColor(incidentDirection, vertex.position + vertex.normal * 0.001f, payload.recursiveCount, skyboxLod);
     // 確率密度関数
-    const float32_t pdf = 1.0f / (2.0f * PI);
+    //const float32_t pdf = 1.0f / (2.0f * PI);
     // コサイン項
     float32_t cosine = saturate(dot(incidentDirection, vertex.normal));
-    payload.color += incidentColor * brdf * cosine / pdf;
-    //payload.color = brdf;
+    payload.color += incidentColor * brdf * cosine / (pdf + EPSILON);
     
     //payload.color = incidentColor * (PBR::SchlickFresnel(material.specularReflectance, 1.0f, cosine) + brdf);
    
@@ -209,4 +215,6 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     //payload.color = reflectedLight.directSpecular;
 
      payload.color += material.emissive;
+
+  
 }

@@ -76,7 +76,7 @@ namespace PBR {
         return diffuseReflectance * INV_PI;
     }
 
-    float32_t3 SpecularBRDF(in float32_t3 incidentDirection, in float32_t3 normal, in float32_t3 viewDirection, in float32_t3 specularReflectance, in float32_t specularRoughness) {
+    float32_t3 SpecularBRDF(in float32_t3 incidentDirection, in float32_t3 normal, in float32_t3 viewDirection, in float32_t3 specularReflectance, in float32_t specularRoughness, inout float32_t pdf) {
         float32_t3 N = normalize(normal);
         float32_t3 V = normalize(viewDirection);
         float32_t3 L = normalize(incidentDirection);
@@ -92,16 +92,18 @@ namespace PBR {
         float32_t3 F = F_Schlick(specularReflectance, VdotH);
         float32_t D = D_GGX(NdotH, alpha);
         float32_t G = G_Smith_Schlick_GGX(NdotV, NdotL, alpha);
-        return (F * D * G) / (4.0f * NdotV * NdotL);
+
+        pdf = (D * NdotH) / (4.0f * VdotH);
+        return (F * D * G) / (4.0f * NdotV * NdotL + EPSILON);
     }
 
     void DirectRenderingEquations(in IncidentLight directLight, in Geometry geometry, in Material material, inout ReflectedLight reflectedLight) {
         float32_t NdotL = saturate(dot(geometry.normal, directLight.direction));
         float32_t3 irradiance = directLight.color * NdotL;
         irradiance *= PI;
-        
+        float32_t pdf = 0.0f;
         reflectedLight.directDiffuse += irradiance * DiffuseBRDF(material.diffuseReflectance);
-        reflectedLight.directSpecular += irradiance * SpecularBRDF(directLight.direction, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
+        reflectedLight.directSpecular += irradiance * SpecularBRDF(directLight.direction, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness, pdf);
     }
 
 }

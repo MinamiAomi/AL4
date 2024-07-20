@@ -23,6 +23,7 @@ public:
     void Render(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter);
 
     void SetSkybox(const std::shared_ptr<TextureResource>& texture) { skyboxTexture_ = texture; }
+    void SetSkyboxRadiance(const std::shared_ptr<TextureResource>& texture) { skyboxRadianceTexture_ = texture; }
     ColorBuffer& GetResult() { return denoisedBuffer_; }
 
 private:
@@ -44,6 +45,7 @@ private:
 
     std::map<std::wstring, void*> identifierMap_;
     std::shared_ptr<TextureResource> skyboxTexture_;
+    std::shared_ptr<TextureResource> skyboxRadianceTexture_;
     ColorBuffer intermadiateBuffer_;
     ColorBuffer accumulationBuffer_;
     ColorBuffer denoisedBuffer_;
