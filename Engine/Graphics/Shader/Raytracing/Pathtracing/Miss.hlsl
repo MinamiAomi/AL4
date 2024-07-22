@@ -13,5 +13,5 @@ void RecursiveMiss(inout Payload payload) {
     else {
         payload.color = clamp(l_Skybox.SampleLevel(g_LinearSampler, rayDirection, 0).rgb, 0.0f, 10.0f);
     }
-   //payload.color = AtmosphericScattering(WorldRayOrigin(), rayDirection);
+    //payload.color = AtmosphericScattering(WorldRayOrigin(), normalize(rayDirection));
 }

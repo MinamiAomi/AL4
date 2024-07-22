@@ -1,4 +1,4 @@
-static const float32_t PI = 3.14159265359f;
+static const float32_t M_PI = 3.14159265359f;
 static const float32_t Kr = 0.0025f;
 static const float32_t Km = 0.0010f;
 static const float32_t ESun = 1300.0f;
@@ -12,8 +12,8 @@ static const float32_t outerRadius2 = outerRadius * outerRadius;
 static const float32_t scale = 1.0f / (outerRadius - innerRadius);
 static const float32_t KrESun = Kr * ESun;
 static const float32_t KmESun = Km * ESun;
-static const float32_t Kr4PI = Kr * 4.0f * PI;
-static const float32_t Km4PI = Km * 4.0f * PI;
+static const float32_t Kr4PI = Kr * 4.0f * M_PI;
+static const float32_t Km4PI = Km * 4.0f * M_PI;
 static const float32_t scaleDepth = 0.25f;
 static const float32_t scaleOverScaleDepth = scale / scaleDepth;
 static const float32_t g = -0.999f;
@@ -47,7 +47,7 @@ float32_t3 AtmosphericScattering(float32_t3 rayPos, float32_t3 rayDir) {
     float32_t startAngle = dot(rayDir, rayPos) / height;
     float32_t startOffset = depth * IntegralApproximation(startAngle);
 
-    const int32_t numSamples = 2;
+    const int32_t numSamples = 5;
     float32_t sampleLength = far / (float32_t)numSamples;
     float32_t scaledLength = sampleLength * scale;
     float32_t3 sampleRay = rayDir * sampleLength;
@@ -56,12 +56,12 @@ float32_t3 AtmosphericScattering(float32_t3 rayPos, float32_t3 rayDir) {
     
     float32_t3 frontColor = float32_t3(0.0f, 0.0f, 0.0f);
     for (int32_t i = 0; i < numSamples; ++i) {
-         height = length(samplePoint);
+        height = length(samplePoint);
         depth = exp(scaleOverScaleDepth * (innerRadius - height));
         float32_t lightAngle = dot(lightPos, samplePoint) / height;
         float32_t cameraAngle = dot(rayDir, samplePoint) / height;
         float32_t scatter = (startOffset + depth * (IntegralApproximation(lightAngle) - IntegralApproximation(cameraAngle)));
-        float32_t3 attenuate = exp(scatter * (invWaveLength * Kr4PI + Km4PI));
+        float32_t3 attenuate = exp(-scatter * (invWaveLength * Kr4PI + Km4PI));
         frontColor += attenuate * (depth * scaledLength);
         samplePoint += sampleRay;
     }
@@ -78,5 +78,5 @@ float32_t3 AtmosphericScattering(float32_t3 rayPos, float32_t3 rayDir) {
 
     float32_t3 rayColor = primaryColor * rayPhase;
     float32_t3 mieColor = secondaryColor * miePhase;
-    return invWaveLength;
+    return saturate(1.0f - exp(-exposure * (rayColor + mieColor)));
 }
