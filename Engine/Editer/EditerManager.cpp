@@ -216,6 +216,32 @@ namespace Editer {
                 ImGui::ShowStyleEditor();
                 ImGui::EndMenu();
             }
+            if (ImGui::BeginMenu("PostEffect")) {
+                auto& postEffect = RenderManager::GetInstance()->GetPostEffect();
+
+                if (ImGui::TreeNode("Grayscale")) {
+                    auto& grayscale = postEffect.GetGrayscale();
+                    ImGui::Checkbox("IsActive", &grayscale.isActive);
+                    ImGui::ColorEdit3("Color", &grayscale.color.x);
+                    ImGui::TreePop();
+                }
+                if (ImGui::TreeNode("Vignette")) {
+                    auto& vignette = postEffect.GetVignette();
+                    ImGui::Checkbox("IsActive", &vignette.isActive);
+                    ImGui::DragFloat("Intensity", &vignette.intensity, 0.001f);
+                    ImGui::DragFloat("Power", &vignette.power, 0.001f);
+                    ImGui::TreePop();
+                }
+
+                if (ImGui::TreeNode("HSVFilter")) {
+                    auto& hsvFilter = postEffect.GetHSVFilter();
+                    ImGui::DragFloat3("Bias", &hsvFilter.bias.x, 0.001f);
+                    ImGui::DragFloat3("Factor", &hsvFilter.factor.x, 0.001f);
+                    ImGui::TreePop();
+                }
+
+                ImGui::EndMenu();
+            }
             ImGui::EndMenu();
         }
     }

@@ -171,13 +171,13 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     float32_t3 albedo = s_Material.albedo * s_AlbedoMap.SampleLevel(g_LinearSampler, vertex.texcoord, 0).rgb;
     float32_t2 metallicRoughness = float32_t2(s_Material.metallic, s_Material.roughness) * s_MetallicRoughnessMap.SampleLevel(g_LinearSampler, vertex.texcoord, 0).zy;
     // 0が扱えないため
-    metallicRoughness.y = clamp(metallicRoughness.y, 0.03f, 1.0f);
     PBR::Material material = PBR::CreateMaterial(albedo, metallicRoughness.x, metallicRoughness.y, s_Material.emissive);
     PBR::Geometry geometry = PBR::CreateGeometry(vertex.position, vertex.normal, rayOrigin);
 
     uint32_t skyboxLod = payload.skyboxLod;
-        skyboxLod = g_Scene.skyboxMipCount * (material.specularRoughness * material.specularRoughness);
+    skyboxLod = g_Scene.skyboxMipCount * material.specularRoughness;
     
+    material.specularRoughness = clamp(material.specularRoughness, 0.03f, 1.0f);
 
 
     // 乱数生成器
@@ -192,7 +192,7 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
 
     float32_t pdf = 0.0f;
     float32_t3 brdf =
-        PBR::DiffuseBRDF(material.diffuseReflectance) +
+        /*PBR::DiffuseBRDF(material.diffuseReflectance) +*/
         PBR::SpecularBRDF(incidentDirection, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness, pdf);
     // 入射光
     float32_t3 incidentColor = GetIncidentColor(incidentDirection, vertex.position + vertex.normal * 0.001f, payload.recursiveCount, skyboxLod);
@@ -201,8 +201,6 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     // コサイン項
     float32_t cosine = saturate(dot(incidentDirection, vertex.normal));
     payload.color += incidentColor * brdf * cosine / (pdf + EPSILON);
-    
-    //payload.color = incidentColor * (PBR::SchlickFresnel(material.specularReflectance, 1.0f, cosine) + brdf);
    
     // 平行光源
     //PBR::IncidentLight light;

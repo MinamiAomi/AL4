@@ -59,6 +59,10 @@ void PostEffect::Render(CommandContext& commandContext, ColorBuffer& texture) {
         float vignetteIntensity;
         float vignettePower;
         uint32_t useVignette;
+        uint32_t pad1;
+        Vector3 hsvBias;
+        uint32_t pad2;
+        Vector3 hsvFactor;
     };
 
     Constant constant;
@@ -67,6 +71,8 @@ void PostEffect::Render(CommandContext& commandContext, ColorBuffer& texture) {
     constant.vignetteIntensity = vignette_.intensity;
     constant.vignettePower = vignette_.power;
     constant.useVignette = vignette_.isActive ? 1 : 0;
+    constant.hsvBias = hsvFilter_.bias;
+    constant.hsvFactor = hsvFilter_.factor;
 
     commandContext.TransitionResource(texture, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandContext.SetRootSignature(rootSignature_);

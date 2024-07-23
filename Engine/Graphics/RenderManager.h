@@ -54,6 +54,7 @@ public:
     Skybox& GetSkybox() { return skybox_; }
     LightingRenderingPass& GetLightingRenderingPass() { return lightingRenderingPass_; }
     TestRTRenderer& GetTestRTRenderer() { return testRTRenderer_; }
+    PostEffect& GetPostEffect() { return postEffect_; }
 
 private:
     RenderManager() = default;
