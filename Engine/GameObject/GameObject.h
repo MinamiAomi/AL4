@@ -12,7 +12,7 @@
 #include "Math/Transform.h"
 
 class GameObject :
-    public std::enable_shared_from_this<GameObject>, public SelectableInEditer {
+    public std::enable_shared_from_this<GameObject>, public Editer::SelectableInEditer {
     friend class GameObjectManager;
 public:
     virtual ~GameObject() {}

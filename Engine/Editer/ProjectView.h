@@ -10,6 +10,8 @@ namespace Editer {
 
         void Render();
 
+    private:
+        float leftWindowSize_ = 100.0f;
     };
 
 }

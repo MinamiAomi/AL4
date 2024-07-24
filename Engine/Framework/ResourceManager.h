@@ -2,7 +2,10 @@
 
 #include <map>
 #include <memory>
+#include <mutex>
 #include <string>
+
+#include "Resource.h"
 
 class Model;
 class Texture;
