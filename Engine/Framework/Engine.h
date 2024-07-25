@@ -13,7 +13,7 @@ class AudioDevice;
 class RenderManager;
 class SceneManager;
 class GameObjectManager;
-class ResourceManager;
+class AssetManager;
 
 #ifdef ENABLE_IMGUI
 namespace Editer {
@@ -33,7 +33,7 @@ public:
     static AudioDevice* GetAudioDevice();
     static RenderManager* GetRenderManager();
     static SceneManager* GetSceneManager();
-    static ResourceManager* GetResourceManager();
+    static AssetManager* GetResourceManager();
     static GameObjectManager* GetGameObjectManager();
     static Editer::EditerManager* GetEditerManager();
 };

@@ -5,7 +5,7 @@
 
 #include "Externals/nlohmann/json.hpp"
 #include "Scene/SceneManager.h"
-#include "Framework/ResourceManager.h"
+#include "Framework/AssetManager.h"
 #include "Graphics/Model.h"
 #include "Audio/Sound.h"
 #include "Graphics/Animation.h"
@@ -39,12 +39,12 @@ void Test::LoadResource() {
     file.close();
 
 
-    ResourceManager* resourceManager = ResourceManager::GetInstance();
+    AssetManager* assetManager = AssetManager::GetInstance();
     for (auto& texture : json["Texture"].items()) {
 #ifdef _DEBUG
         auto duration = Debug::ElapsedTime([&]() {
 #endif
-            resourceManager->AddTexture(texture.key(), Texture::Load("Resources/" + texture.value().get<std::string>()));
+            assetManager->AddTexture(texture.key(), Texture::Load("Resources/" + texture.value().get<std::string>()));
 #ifdef _DEBUG
             });
         std::stringstream str;
@@ -56,7 +56,7 @@ void Test::LoadResource() {
 #ifdef _DEBUG
         auto duration = Debug::ElapsedTime([&]() {
 #endif
-            resourceManager->AddModel(model.key(), Model::Load("Resources/" + model.value().get<std::string>()));
+            assetManager->AddModel(model.key(), Model::Load("Resources/" + model.value().get<std::string>()));
 #ifdef _DEBUG
             });
         std::stringstream str;
@@ -70,7 +70,7 @@ void Test::LoadResource() {
 #ifdef _DEBUG
         auto duration = Debug::ElapsedTime([&]() {
 #endif
-            resourceManager->AddSound(sound.key(), Sound::Load("Resources/" + sound.value().get<std::string>()));
+            assetManager->AddSound(sound.key(), Sound::Load("Resources/" + sound.value().get<std::string>()));
 #ifdef _DEBUG
             });
         std::stringstream str;
@@ -82,7 +82,7 @@ void Test::LoadResource() {
 #ifdef _DEBUG
         auto duration = Debug::ElapsedTime([&]() {
 #endif
-            resourceManager->AddAnimation(animation.key(), Animation::Load("Resources/" + animation.value().get<std::string>()));
+            assetManager->AddAnimation(animation.key(), Animation::Load("Resources/" + animation.value().get<std::string>()));
 #ifdef _DEBUG
             });
         std::stringstream str;

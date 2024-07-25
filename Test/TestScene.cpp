@@ -3,7 +3,7 @@
 #include "Framework/Engine.h"
 #include "Input/Input.h"
 #include "Graphics/RenderManager.h"
-#include "Framework/ResourceManager.h"
+#include "Framework/AssetManager.h"
 #include "Graphics/Core/TextureLoader.h"
 #include "LevelLoader.h"
 
@@ -31,7 +31,7 @@ void TestScene::OnInitialize() {
 
 
     Vector3 offset = { 50.0f, 10.0f, 0.0f };
-    auto sphereModel = ResourceManager::GetInstance()->FindModel("sphere");
+    auto sphereModel = AssetManager::GetInstance()->FindModel("sphere");
     for (uint32_t row = 0; row < kRowCount; ++row) {
         for (uint32_t column = 0; column < kColumnCount; ++column) {
             auto& sphere = spheres_[row][column];

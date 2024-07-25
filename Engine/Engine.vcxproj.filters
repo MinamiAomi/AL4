@@ -294,7 +294,7 @@
     <ClCompile Include="Audio\AudioSource.cpp">
       <Filter>Audio</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\ResourceManager.cpp">
+    <ClCompile Include="Framework\AssetManager.cpp">
       <Filter>Framework</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\FXAA.cpp">
@@ -371,6 +371,9 @@
     </ClCompile>
     <ClCompile Include="Graphics\Raytracing\Denoiser.cpp">
       <Filter>Graphics\Raytracing</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Asset.cpp">
+      <Filter>Framework</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -641,7 +644,7 @@
     <ClInclude Include="Audio\AudioDevice.h">
       <Filter>Audio</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\ResourceManager.h">
+    <ClInclude Include="Framework\AssetManager.h">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\FXAA.h">
@@ -719,7 +722,7 @@
     <ClInclude Include="Editer\ProjectView.h">
       <Filter>Editer</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Resource.h">
+    <ClInclude Include="Framework\Asset.h">
       <Filter>Framework</Filter>
     </ClInclude>
     <ClInclude Include="Utility\Utility.h">

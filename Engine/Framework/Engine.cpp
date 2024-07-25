@@ -8,7 +8,7 @@
 #include "Input/Input.h"
 #include "Audio/AudioDevice.h"
 #include "Scene/SceneManager.h"
-#include "ResourceManager.h"
+#include "AssetManager.h"
 #include "GameObject/GameObjectManager.h"
 #ifdef ENABLE_IMGUI
 #include "Editer/EditerManager.h"
@@ -22,7 +22,7 @@ namespace {
     AudioDevice* g_audioDevice = nullptr;
     RenderManager* g_renderManager = nullptr;
     SceneManager* g_sceneManager = nullptr;
-    ResourceManager* g_resourceManager = nullptr;
+    AssetManager* g_assetManager = nullptr;
     std::unique_ptr<GameObjectManager> g_gameObjectManager = nullptr;
 #ifdef ENABLE_IMGUI
     std::unique_ptr<Editer::EditerManager> g_editerManager = nullptr;
@@ -51,7 +51,7 @@ void Engine::Run(Game* game) {
     g_renderManager->Initialize();
 
     g_sceneManager = SceneManager::GetInstance();
-    g_resourceManager = ResourceManager::GetInstance();
+    g_assetManager = AssetManager::GetInstance();
     g_gameObjectManager = std::make_unique<GameObjectManager>();
     g_gameObjectManager->SetFactory<DefaultGameObjectFactory>();
     
@@ -115,8 +115,8 @@ SceneManager* Engine::GetSceneManager() {
     return g_sceneManager;
 }
 
-ResourceManager* Engine::GetResourceManager() {
-    return g_resourceManager;;
+AssetManager* Engine::GetResourceManager() {
+    return g_assetManager;;
 }
 
 GameObjectManager* Engine::GetGameObjectManager() {

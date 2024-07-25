@@ -2,12 +2,12 @@
 
 #include "GameObject/GameObject.h"
 
-#include "Framework/ResourceManager.h"
+#include "Framework/AssetManager.h"
 #include "Graphics/ImGuiManager.h"
 
 void MeshComponent::Initialize() {
-    auto resourceManager = ResourceManager::GetInstance();
-    model_.SetModel(resourceManager->FindModel(modelName_));
+    auto assetManager = AssetManager::GetInstance();
+    model_.SetModel(assetManager->FindModel(modelName_));
     
     customMaterial_ = std::make_shared<PBRMaterial>(model_.GetModel()->GetMaterials()[0]);
     model_.SetMaterial(customMaterial_);

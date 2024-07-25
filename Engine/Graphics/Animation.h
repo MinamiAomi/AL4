@@ -7,7 +7,6 @@
 #include <string>
 #include <optional>
 
-#include "Framework/Resource.h"
 #include "Math/MathUtils.h"
 #include "Math/Transform.h"
 #include "Node.h"
