@@ -102,8 +102,8 @@ void SpriteRenderer::Render(CommandContext& commandContext, float left, float to
             float reciWidth = 1.0f;
             float reciHeight = 1.0f;
             if (instance->texture_) {
-                reciWidth = 1.0f / instance->texture_->GetWidth();
-                reciHeight = 1.0f / instance->texture_->GetHeight();
+                reciWidth = 1.0f / (float)instance->texture_->GetWidth();
+                reciHeight = 1.0f / (float)instance->texture_->GetHeight();
             }
 
             float uvLeft = instance->texcoordBase_.x * reciWidth;
@@ -135,7 +135,7 @@ void SpriteRenderer::Render(CommandContext& commandContext, float left, float to
 
             commandContext.SetDynamicVertexBuffer(0, 6, sizeof(vertices[0]), vertices);
             if (instance->texture_) {
-                commandContext.SetDescriptorTable(SpriteRootIndex::Texture, instance->texture_->GetTexture());
+                commandContext.SetDescriptorTable(SpriteRootIndex::Texture, instance->texture_->GetResource()->GetSRV());
                 commandContext.SetDescriptorTable(SpriteRootIndex::Sampler, instance->texture_->GetSampler());
             }
             else {

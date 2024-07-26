@@ -4,37 +4,9 @@
 #include <list>
 #include <vector>
 
-#include "Core/TextureResource.h"
+#include "Texture.h"
 
 #include "Math/MathUtils.h"
-
-class Texture {
-public:
-    enum class Interpolation : uint8_t {
-        Linear,
-        Point,
-    };
-
-    enum class Extension : uint8_t {
-        Wrap,
-        Clamp
-    };
-
-    static std::shared_ptr<Texture> Load(const std::filesystem::path& path);
-
-    float GetWidth() const { return float(resource_->GetDesc().Width); }
-    float GetHeight() const { return float(resource_->GetDesc().Height); }
-    const DescriptorHandle& GetSampler() const;
-    const DescriptorHandle& GetTexture() const { return resource_->GetSRV(); }
-
-    void SetInterpolation(Interpolation interpolation) { interpolation_ = interpolation; }
-    void SetExtension(Extension extension) { extension_ = extension; }
-
-private:
-    std::shared_ptr<TextureResource> resource_;
-    Interpolation interpolation_ = Interpolation::Linear;
-    Extension extension_ = Extension::Wrap;
-};
 
 class Sprite {
     friend class SpriteRenderer;

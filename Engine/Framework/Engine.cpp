@@ -10,12 +10,14 @@
 #include "Scene/SceneManager.h"
 #include "AssetManager.h"
 #include "GameObject/GameObjectManager.h"
+#include "ThreadPool.h"
 #ifdef ENABLE_IMGUI
 #include "Editer/EditerManager.h"
 #endif // ENABLE_IMGUI
 
 namespace {
     Game* g_game = nullptr;
+    std::unique_ptr<ThreadPool> g_threadPool = nullptr;
     GameWindow* g_gameWindow = nullptr;
     Graphics* g_graphics = nullptr;
     Input* g_input = nullptr;
@@ -34,6 +36,8 @@ void Engine::Run(Game* game) {
 
 
     g_game = game;
+
+    g_threadPool = std::make_unique<ThreadPool>();
 
     g_gameWindow = GameWindow::GetInstance();
     g_gameWindow->Initialize(L"AL4", 1280, 720);
@@ -54,6 +58,7 @@ void Engine::Run(Game* game) {
     g_assetManager = AssetManager::GetInstance();
     g_gameObjectManager = std::make_unique<GameObjectManager>();
     g_gameObjectManager->SetFactory<DefaultGameObjectFactory>();
+
     
 #ifdef ENABLE_IMGUI
     g_editerManager = std::make_unique<Editer::EditerManager>();
@@ -85,6 +90,7 @@ void Engine::Run(Game* game) {
     g_renderManager->Finalize();
     g_graphics->Finalize();
     g_gameWindow->Shutdown();
+    g_threadPool.reset();
 }
 
 Game* Engine::GetGame() {

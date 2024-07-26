@@ -49,7 +49,7 @@ public:
     const StructuredBuffer& GetIndexBuffer() const { return indexBuffer_; }
     const std::vector<Vertex>& GetVertices() const { return vertices_; }
     const std::vector<Index>& GetIndices() const { return indices_; }
-    const std::vector<PBRMaterial>& GetMaterials() const { return materials_; }
+    const std::vector<Material>& GetMaterials() const { return materials_; }
     const std::map<std::string, JointWeightData> GetSkinClusterData() const { return skinClusterData_; }
     const Node& GetRootNode() const { return rootNode_; }
     size_t GetNumVertices() const { return vertices_.size(); }
@@ -62,7 +62,7 @@ private:
     std::vector<Mesh> meshes_;
     std::vector<Vertex> vertices_;
     std::vector<Index> indices_;
-    std::vector<PBRMaterial> materials_;
+    std::vector<Material> materials_;
     std::map<std::string, JointWeightData> skinClusterData_;
     
     StructuredBuffer vertexBuffer_;
@@ -81,7 +81,7 @@ public:
 
     void SetModel(const std::shared_ptr<Model>& model) { model_ = model; }
     void SetSkeleton(const std::shared_ptr<Skeleton> skeleton) { skeleton_ = skeleton; }
-    void SetMaterial(const std::shared_ptr<PBRMaterial> material) { material_ = material; }
+    void SetMaterial(const std::shared_ptr<Material> material) { material_ = material; }
     void SetWorldMatrix(const Matrix4x4& worldMatrix) { worldMatrix_ = worldMatrix; }
     void SetColor(const Vector3& color) { color_ = color; }
     void SetAlpha(float alpha) { alpha_ = alpha; }
@@ -94,7 +94,7 @@ public:
 
     const std::shared_ptr<Model>& GetModel() const { return model_; }
     const std::shared_ptr<Skeleton>& GetSkeleton() const { return skeleton_; }
-    const std::shared_ptr<PBRMaterial>& GetMaterial() const { return material_; }
+    const std::shared_ptr<Material>& GetMaterial() const { return material_; }
     const Matrix4x4& GetWorldMatrix() const { return worldMatrix_; }
     const Vector3& GetColor() const { return color_; }
     float GetAlpha() const { return alpha_; }
@@ -110,7 +110,7 @@ private:
 
     std::shared_ptr<Model> model_;
     std::shared_ptr<Skeleton> skeleton_;
-    std::shared_ptr<PBRMaterial> material_;
+    std::shared_ptr<Material> material_;
     Matrix4x4 worldMatrix_;
     Vector3 color_ = Vector3::one;
     float alpha_ = 1.0f;

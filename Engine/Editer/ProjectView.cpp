@@ -14,7 +14,14 @@
 
 namespace {
 
-    std::wstring OpenFileDialog(const std::wstring& title) {
+    enum class Filter {
+        Texture,
+        Model,
+        Animation,
+        Sound
+    };
+
+    std::wstring OpenFileDialog(const std::wstring& title, Filter filter) {
         OPENFILENAME ofn{};
         wchar_t szFile[256]{};
 
@@ -24,7 +31,21 @@ namespace {
         ofn.lpstrFile = szFile;
         ofn.lpstrFile[0] = L'\0';
         ofn.nMaxFile = sizeof(szFile);
-        ofn.lpstrFilter = L"All\0*.*\0Texture\0*.PNG;*.JPG;*.DDS;*.HDR;\0Model\0*.OBJ;*.GLTF";
+        switch (filter)
+        {
+        case Filter::Texture:
+            ofn.lpstrFilter = L"Texture\0*.PNG;*.JPG;*.DDS;*.HDR";
+            break;
+        case Filter::Model:
+            ofn.lpstrFilter = L"Model\0*.OBJ;*.GLTF";
+            break;
+        case Filter::Animation:
+            ofn.lpstrFilter = L"Animation\0*.GLTF";
+            break;
+        case Filter::Sound:
+            ofn.lpstrFilter = L"Sound\0*.MP3;*.WAV";
+            break;
+        }
         ofn.nFilterIndex = 1;
         ofn.lpstrFileTitle = NULL;
         ofn.nMaxFileTitle = 0;
@@ -38,6 +59,27 @@ namespace {
         return std::wstring();
     }
 
+    std::string TruncateText(const std::string& text, float maxWidth) {
+        ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
+        if (textSize.x <= maxWidth) {
+            return text;
+        }
+
+        std::string truncatedText = text;
+        while (truncatedText.size() > 0 && ImGui::CalcTextSize((truncatedText + "...").c_str()).x > maxWidth) {
+            truncatedText.pop_back();
+        }
+
+        return truncatedText + "...";
+    }
+
+    ImVec2 CalcFitSize(const ImVec2& target, const ImVec2& size) {
+        float aspect = size.x / size.y;
+        if (aspect > 1.0f) {
+            return { target.x, target.y * (1.0f / aspect) };
+        }
+        return { target.x * aspect, target.y };
+    }
 
 }
 
@@ -57,9 +99,24 @@ namespace Editer {
             }
 
             if (ImGui::BeginMenuBar()) {
-                if (ImGui::MenuItem("Import")) {
-                    auto path = OpenFileDialog(L"Import");
-                    Debug::Log(std::format(L"{} : {} open\n", path, path.size()));
+                if (ImGui::BeginMenu("Import")) {
+                    if (ImGui::MenuItem("Texture")) {
+                        auto path = OpenFileDialog(L"Texture import", Filter::Texture);
+                        path;
+                    }
+                    if (ImGui::MenuItem("Model")) {
+                        auto path = OpenFileDialog(L"Model import", Filter::Model);
+                        path;
+                    }
+                    if (ImGui::MenuItem("Animation")) {
+                        auto path = OpenFileDialog(L"Animation import", Filter::Animation);
+                        path;
+                    }
+                    if (ImGui::MenuItem("Sound")) {
+                        auto path = OpenFileDialog(L"Sound import", Filter::Sound);
+                        path;
+                    }
+                    ImGui::EndMenu();
                 }
                 ImGui::EndMenuBar();
             }
@@ -110,7 +167,7 @@ namespace Editer {
     }
 
     void ProjectView::RenderLeftWindow() {
-        
+
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
         if (ImGui::TreeNodeEx("Assets", flags)) {
@@ -136,12 +193,39 @@ namespace Editer {
 
             ImGui::TreePop();
         }
-      
+
 
 
     }
 
+
+
     void ProjectView::RenderRightWindow() {
+
+        ImVec2 windowSize = ImGui::GetWindowSize();
+
+        const int32_t numItems = 10;  // 表示するアイテムの数
+        const float itemSize = 64.0f;  // テクスチャのサイズ
+//        const float itemSpacing = 20.0f;  // アイテム間のスペース
+
+        for (int32_t i = 0; i < numItems; ++i) {
+
+            ImGui::BeginGroup();
+            //ImGui::Button(std::format("##{}", i).c_str(), CalcFitSize({ itemSize, itemSize }, {16.0f * i, 64.0f}));
+            ImGui::Button(std::format("##{}", i).c_str(), {64.0f, 64.0f});
+            // テキストの描画
+            std::string text = "Item " + std::to_string(i);
+            text = TruncateText(text, itemSize);
+            ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
+            float textOffsetX = (itemSize - textSize.x) / 2.0f;  // 中央揃えのためのオフセット計算
+            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + textOffsetX);
+            if(i == 0) 
+                ImGui::SetCursorPosY( itemSize + ImGui::GetStyle().ItemSpacing.y * 2.0f);
+            ImGui::Text("%s", text.c_str());
+            ImGui::EndGroup();
+
+            ImGui::SameLine();
+        }
     }
 
 }

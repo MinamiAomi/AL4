@@ -1,5 +1,6 @@
 #pragma once
 
+#include <memory>
 #include <string>
 #include <filesystem>
 
@@ -51,11 +52,13 @@ class Texture;
 class Model;
 class Material;
 class Animation;
-class Model;
+class Sound;
 
 class TextureAsset :
     public Asset {
 public:
+    void RenderInInspectorView() override {}
+
     std::shared_ptr<Texture> Get() const { return core_; }
 
 private:
@@ -67,6 +70,8 @@ private:
 class ModelAsset :
     public Asset {
 public:
+    void RenderInInspectorView() override {}
+
     std::shared_ptr<Model> Get() const { return core_; }
 
 private:
@@ -78,6 +83,8 @@ private:
 class MaterialAsset :
     public Asset {
 public:
+    void RenderInInspectorView() override {}
+
     std::shared_ptr<Material> Get() const { return core_; }
 
 private:
@@ -89,6 +96,8 @@ private:
 class AnimationAsset :
     public Asset {
 public:
+    void RenderInInspectorView() override {}
+
     std::shared_ptr<Animation> Get() const { return core_; }
 
 private:
@@ -100,6 +109,8 @@ private:
 class SoundAsset :
     public Asset {
 public:
+    void RenderInInspectorView() override {}
+
     std::shared_ptr<Sound> Get() const { return core_; }
 
 private:

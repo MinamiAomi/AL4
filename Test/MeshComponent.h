@@ -16,6 +16,6 @@ public:
 
 private:
     ModelInstance model_;
-    std::shared_ptr<PBRMaterial> customMaterial_;
+    std::shared_ptr<Material> customMaterial_;
     std::string modelName_;
 };

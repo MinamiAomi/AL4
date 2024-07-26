@@ -9,7 +9,7 @@ void MeshComponent::Initialize() {
     auto assetManager = AssetManager::GetInstance();
     model_.SetModel(assetManager->FindModel(modelName_));
     
-    customMaterial_ = std::make_shared<PBRMaterial>(model_.GetModel()->GetMaterials()[0]);
+    customMaterial_ = std::make_shared<Material>(model_.GetModel()->GetMaterials()[0]);
     model_.SetMaterial(customMaterial_);
 
     auto gameObject = GetGameObject();

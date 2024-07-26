@@ -158,6 +158,7 @@ void LinearAllocatorPagePool::Discard(D3D12_COMMAND_LIST_TYPE commandType, UINT6
 }
 
 void LinearAllocatorPagePool::Clear() {
+    std::lock_guard lock(mutex_);
     pagePool_.clear();
     ReadyPageQueue().swap(directReadyPageQueue_);
     ReadyPageQueue().swap(computeReadyPageQueue_);

@@ -31,7 +31,7 @@ private:
     static const uint32_t kColumnCount = 11;
     struct PBRSphere {
         ModelInstance model;
-        std::shared_ptr<PBRMaterial> material;
+        std::shared_ptr<Material> material;
     };
     PBRSphere spheres_[kRowCount][kColumnCount];
     ModelInstance room_;

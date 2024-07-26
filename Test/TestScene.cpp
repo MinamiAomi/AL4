@@ -35,7 +35,7 @@ void TestScene::OnInitialize() {
     for (uint32_t row = 0; row < kRowCount; ++row) {
         for (uint32_t column = 0; column < kColumnCount; ++column) {
             auto& sphere = spheres_[row][column];
-            sphere.material = std::make_shared<PBRMaterial>();
+            sphere.material = std::make_shared<Material>();
             sphere.material->albedo = { 1.0f, 1.0f, 1.0f };
             sphere.material->metallic = (float)row * 0.1f;
             sphere.material->roughness = (float)column * 0.1f;

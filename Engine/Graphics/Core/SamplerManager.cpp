@@ -8,10 +8,12 @@ namespace SamplerManager {
     DescriptorHandle LinearWrap;
     DescriptorHandle LinearClamp;
     DescriptorHandle LinearBorder;
+    DescriptorHandle LinearMirror;
 
     DescriptorHandle PointWrap;
     DescriptorHandle PointClamp;
     DescriptorHandle PointBorder;
+    DescriptorHandle PointMirror;
 
     void Initialize() {
 
@@ -52,6 +54,12 @@ namespace SamplerManager {
         LinearBorder = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
         device->CreateSampler(&desc, LinearBorder);
 
+        desc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+        desc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+        desc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+        LinearMirror = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+        device->CreateSampler(&desc, LinearMirror);
+
         desc.Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
         desc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
         desc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
@@ -73,6 +81,12 @@ namespace SamplerManager {
 
         PointBorder = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
         device->CreateSampler(&desc, PointBorder);
+    
+        desc.AddressU = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+        desc.AddressV = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+        desc.AddressW = D3D12_TEXTURE_ADDRESS_MODE_MIRROR;
+        PointMirror = graphics->AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER);
+        device->CreateSampler(&desc, PointMirror);
     }
 
 }

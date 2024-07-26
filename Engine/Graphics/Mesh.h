@@ -37,7 +37,7 @@ struct Mesh {
     std::vector<Vertex> vertices;
     std::vector<Index> indices;
     std::map<std::string, JointWeightData> skinClusterData;
-    std::shared_ptr<PBRMaterial> material;
+    std::shared_ptr<Material> material;
 
 
     void CreateBuffers(CommandContext& commandContext);

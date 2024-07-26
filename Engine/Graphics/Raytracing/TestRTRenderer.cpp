@@ -355,7 +355,7 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
         return materialData;
     };
 
-    auto SetMaterialData = [](MaterialData& dest, const PBRMaterial& src) {
+    auto SetMaterialData = [](MaterialData& dest, const Material& src) {
         dest.albedo = src.albedo;
         dest.metallic = src.metallic;
         dest.emissive = src.emissive * src.emissiveIntensity;

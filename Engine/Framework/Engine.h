@@ -14,6 +14,7 @@ class RenderManager;
 class SceneManager;
 class GameObjectManager;
 class AssetManager;
+class ThreadPool;
 
 #ifdef ENABLE_IMGUI
 namespace Editer {
@@ -35,5 +36,8 @@ public:
     static SceneManager* GetSceneManager();
     static AssetManager* GetResourceManager();
     static GameObjectManager* GetGameObjectManager();
+    static ThreadPool* GetThreadPool();
+#ifdef ENABLE_IMGUI
     static Editer::EditerManager* GetEditerManager();
+#endif ENABLE_IMGUI
 };

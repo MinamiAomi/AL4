@@ -10,6 +10,7 @@
 #include "Audio/Sound.h"
 #include "Graphics/Animation.h"
 #include "Graphics/Sprite.h"
+#include "Graphics/Core/TextureLoader.h"
 #include "Debug/Debug.h"
 
 #include "TestScene.h"
@@ -44,7 +45,7 @@ void Test::LoadResource() {
 #ifdef _DEBUG
         auto duration = Debug::ElapsedTime([&]() {
 #endif
-            assetManager->AddTexture(texture.key(), Texture::Load("Resources/" + texture.value().get<std::string>()));
+            assetManager->AddTexture(texture.key(), TextureLoader::Load("Resources/" + texture.value().get<std::string>()));
 #ifdef _DEBUG
             });
         std::stringstream str;

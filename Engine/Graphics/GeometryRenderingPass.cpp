@@ -110,7 +110,7 @@ void GeometryRenderingPass::Render(CommandContext& commandContext, const Camera&
         materialData.normalMapIndex = defaultNormalTextureIndex;
         return materialData;
     };
-    auto SetMaterialData = [](MaterialData& dest, const PBRMaterial& src) {
+    auto SetMaterialData = [](MaterialData& dest, const Material& src) {
         dest.albedo = src.albedo;
         dest.metallic = src.metallic;
         dest.roughness = src.roughness;

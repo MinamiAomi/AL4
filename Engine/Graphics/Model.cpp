@@ -27,7 +27,7 @@ namespace {
     }
 
     // aiSceneからメッシュ配列を解析する
-    std::vector<Model::Mesh> ParseMeshes(const aiScene* scene, const std::vector<PBRMaterial>& materials, std::vector<Model::Vertex>& vertices, std::vector<Model::Index>& indices, std::map<std::string, Model::JointWeightData>& skinClusterData) {
+    std::vector<Model::Mesh> ParseMeshes(const aiScene* scene, const std::vector<Material>& materials, std::vector<Model::Vertex>& vertices, std::vector<Model::Index>& indices, std::map<std::string, Model::JointWeightData>& skinClusterData) {
         std::vector<Model::Mesh> meshes(scene->mNumMeshes);
         
         vertices.clear();
@@ -109,46 +109,9 @@ namespace {
         return meshes;
         
     }
-    // aiSceneからマテリアル配列を解析する
+    // aiSceneからPBRマテリアル配列を解析する
     std::vector<Material> ParseMaterials(const aiScene* scene, const std::filesystem::path& directory) {
         std::vector<Material> materials(scene->mNumMaterials);
-
-        for (uint32_t materialIndex = 0; auto & destMaterial : materials) {
-            const aiMaterial* srcMaterial = scene->mMaterials[materialIndex];
-
-            aiColor3D diffuse{};
-            if (srcMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, diffuse) == aiReturn_SUCCESS) {
-                destMaterial.diffuse = { diffuse.r, diffuse.g, diffuse.b };
-            }
-            aiColor3D specular{};
-            if (srcMaterial->Get(AI_MATKEY_COLOR_SPECULAR, specular) == aiReturn_SUCCESS) {
-                destMaterial.specular = { specular.r, specular.g, specular.b };
-            }
-            aiColor3D ambient{};
-            if (srcMaterial->Get(AI_MATKEY_COLOR_AMBIENT, ambient) == aiReturn_SUCCESS) {
-                destMaterial.ambient = { ambient.r, ambient.g, ambient.b };
-            }
-            float shininess{};
-            if (srcMaterial->Get(AI_MATKEY_SHININESS, shininess) == aiReturn_SUCCESS) {
-                destMaterial.shininess = shininess;
-            }
-
-            // テクスチャが一つ以上ある
-            if (srcMaterial->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
-                aiString path;
-                srcMaterial->GetTexture(aiTextureType_DIFFUSE, 0, &path);
-                // 読み込む
-                // TextureLoader内で多重読み込み対応済み
-                std::string filename(path.C_Str());
-                destMaterial.diffuseMap = TextureLoader::Load(directory / filename);
-            }
-            ++materialIndex;
-        }
-        return materials;
-    }
-    // aiSceneからPBRマテリアル配列を解析する
-    std::vector<PBRMaterial> ParsePBRMaterials(const aiScene* scene, const std::filesystem::path& directory) {
-        std::vector<PBRMaterial> materials(scene->mNumMaterials);
 
         for (uint32_t materialIndex = 0; auto & destMaterial : materials) {
             const aiMaterial* srcMaterial = scene->mMaterials[materialIndex];
@@ -262,7 +225,7 @@ std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
     }
     assert(scene->HasMeshes());
 
-    model->materials_ = ParsePBRMaterials(scene, directory);
+    model->materials_ = ParseMaterials(scene, directory);
     model->meshes_ = ParseMeshes(scene, model->materials_, model->vertices_, model->indices_, model->skinClusterData_);
     model->rootNode_ = ParseNode(scene->mRootNode);
 
