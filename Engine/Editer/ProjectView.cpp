@@ -161,8 +161,6 @@ namespace Editer {
 
 
 
-
-
 #endif // ENABLE_IMGUI
     }
 
@@ -206,25 +204,52 @@ namespace Editer {
 
         const int32_t numItems = 10;  // 表示するアイテムの数
         const float itemSize = 64.0f;  // テクスチャのサイズ
-//        const float itemSpacing = 20.0f;  // アイテム間のスペース
+//      const float itemSpacing = 20.0f;  // アイテム間のスペース
+
+        // 一行に収まる数 
+        float itemSpace = windowSize.x - ImGui::GetStyle().WindowPadding.x * 2.0f;
+        // スクロールバーがある場合そのサイズも考慮
+        if (ImGui::GetScrollMaxY() > 0.0f) {
+            itemSpace -= ImGui::GetStyle().ScrollbarSize;
+        }
+        int32_t numItemsInLine = int32_t((itemSpace + ImGui::GetStyle().ItemSpacing.x) / (itemSize + ImGui::GetStyle().ItemSpacing.x));
+        numItemsInLine = std::max(numItemsInLine, 1);
 
         for (int32_t i = 0; i < numItems; ++i) {
 
             ImGui::BeginGroup();
-            //ImGui::Button(std::format("##{}", i).c_str(), CalcFitSize({ itemSize, itemSize }, {16.0f * i, 64.0f}));
-            ImGui::Button(std::format("##{}", i).c_str(), {64.0f, 64.0f});
+            
+            // イメージ描画
+            ImVec2 groupLocalCursourBase = ImGui::GetCursorPos();
+            ImVec2 imageSize = { 64.0f, 64.0f };
+            imageSize = CalcFitSize({ itemSize, itemSize }, imageSize);
+            // 画像が真ん中に来るよう合わせる
+            ImGui::SetCursorPos({ groupLocalCursourBase.x + (itemSize - imageSize.x) * 0.5f, groupLocalCursourBase.y + (itemSize - imageSize.y) * 0.5f });
+            ImGui::Button(std::format("##{}", i).c_str(), imageSize);
+            
             // テキストの描画
-            std::string text = "Item " + std::to_string(i);
+            std::string text = "Item" + std::to_string(i);
+            for (int j = 0; j < i; ++j) {
+                text += "aa";
+            }
             text = TruncateText(text, itemSize);
             ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
-            float textOffsetX = (itemSize - textSize.x) / 2.0f;  // 中央揃えのためのオフセット計算
-            ImGui::SetCursorPosX(ImGui::GetCursorPosX() + textOffsetX);
-            if(i == 0) 
-                ImGui::SetCursorPosY( itemSize + ImGui::GetStyle().ItemSpacing.y * 2.0f);
+            float textOffsetX = (itemSize - textSize.x) * 0.5f;  // 中央揃えのためのオフセット計算
+            groupLocalCursourBase = ImGui::GetCursorPos();
+            ImGui::SetCursorPos({ groupLocalCursourBase.x + textOffsetX, groupLocalCursourBase.y + (itemSize - imageSize.y) * 0.5f });
+            //ImGui::SetCursorPosX(ImGui::GetCursorPosX() + textOffsetX);
             ImGui::Text("%s", text.c_str());
+
             ImGui::EndGroup();
 
-            ImGui::SameLine();
+            // グループが選択された
+            if (ImGui::IsItemClicked()) {
+       
+            }
+
+            if (((i + 1) % numItemsInLine) != 0) {
+                ImGui::SameLine();
+            }
         }
     }
 
