@@ -15,6 +15,7 @@ namespace Editer {
         void RenderRightWindow();
 
         float leftWindowSize_ = 100.0f;
+        float itemScale_ = 1.0f;
     };
 
 }

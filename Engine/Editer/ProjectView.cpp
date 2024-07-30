@@ -118,6 +118,21 @@ namespace Editer {
                     }
                     ImGui::EndMenu();
                 }
+
+                float sliderWidth = 100.0f;
+                float sliderHeight = 10.0f;
+
+                ImGui::SetNextItemWidth(sliderWidth);
+                ImGui::SetCursorPosX(ImGui::GetWindowSize().x - ImGui::GetStyle().WindowPadding.x - sliderWidth);
+                ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (ImGui::GetFrameHeight() - sliderHeight) / 2.0f);
+                ImVec4 color = ImGui::GetStyle().Colors[ImGuiCol_Text];
+                color.w = 0.0f;
+                ImGui::PushStyleColor(ImGuiCol_Text, color);
+                ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(0, (sliderHeight - ImGui::GetFontSize()) / 2.0f));
+                ImGui::SliderFloat("##ItemScale", &itemScale_, 0.5f, 2.0f);
+                ImGui::PopStyleVar();
+                ImGui::PopStyleColor();
+
                 ImGui::EndMenuBar();
             }
 
@@ -200,11 +215,19 @@ namespace Editer {
 
     void ProjectView::RenderRightWindow() {
 
+        const auto& io = ImGui::GetIO();
+        if (ImGui::IsWindowHovered() && ImGui::IsKeyPressed(ImGuiKey_LeftCtrl)) {
+            if (io.MouseWheel != 0) {
+                itemScale_ += io.MouseWheel * 0.2f;
+                itemScale_ = std::clamp(itemScale_, 0.5f, 2.0f);
+            }
+        }
+
         ImVec2 windowSize = ImGui::GetWindowSize();
 
+        // 仮のパラメータ
         const int32_t numItems = 10;  // 表示するアイテムの数
-        const float itemSize = 64.0f;  // テクスチャのサイズ
-//      const float itemSpacing = 20.0f;  // アイテム間のスペース
+        const float itemSize = 64.0f * itemScale_;  // テクスチャのサイズ
 
         // 一行に収まる数 
         float itemSpace = windowSize.x - ImGui::GetStyle().WindowPadding.x * 2.0f;
