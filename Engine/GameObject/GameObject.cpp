@@ -3,6 +3,7 @@
 #include "Graphics/ImGuiManager.h"
 
 void GameObject::RenderInInspectorView() {
+#ifdef ENABLE_IMGUI
     ImGui::PushID(this);
     ImGui::Checkbox("##IsActive", &isActive_);
     ImGui::SameLine();
@@ -26,6 +27,7 @@ void GameObject::RenderInInspectorView() {
         }
     }
     ImGui::PopID();
+#endif // ENABLE_IMGUI
 }
 
 void GameObject::InitializeUninitializedComponents() {

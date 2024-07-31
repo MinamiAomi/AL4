@@ -152,7 +152,8 @@ copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dx
       <Command>copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxcompiler.dll" "$(TargetDir)dxcompiler.dll"
 copy "$(WindowsSdkDir)bin\$(TargetPlatformVersion)\x64\dxil.dll" "$(TargetDir)dxil.dll"
 robocopy "$(ProjectDir)Resources" "$(TargetDir)Resources" /mir
-robocopy "$(SolutionDir)Engine\Graphics\Shader" "$(TargetDir)Resources\Shader" /mir</Command>
+robocopy "$(SolutionDir)Engine\Graphics\Shader" "$(TargetDir)Resources\Shader" /mir
+robocopy "$(SolutionDir)Engine\Graphics\Shader" "$(ProjectDir)Resources\Shader" /mir</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">

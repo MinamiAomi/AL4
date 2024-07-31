@@ -27,8 +27,8 @@ private:
     Vector3 euler_;
     std::shared_ptr<DirectionalLight> sunLight_;
 
-    static const uint32_t kRowCount = 11;
-    static const uint32_t kColumnCount = 11;
+    static const uint32_t kRowCount = 2;
+    static const uint32_t kColumnCount = 5;
     struct PBRSphere {
         ModelInstance model;
         std::shared_ptr<Material> material;

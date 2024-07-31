@@ -105,7 +105,7 @@ void LightingRenderingPass::Render(CommandContext& commandContext, GeometryRende
     sceneData.viewProjectionInverseMatrix = camera.GetViewProjectionMatrix().Inverse();
     sceneData.cameraPosition = camera.GetPosition();
     auto& cubeMap = irradianceTexture->GetDesc();
-    sceneData.irradianceMipCount = cubeMap.MipLevels;
+    sceneData.irradianceMipCount = (uint32_t)(cubeMap.MipLevels - 2);
     sceneData.lightColor = light.color;
     sceneData.lightDirection = light.direction;
     commandContext.SetDynamicConstantBufferView(RootIndex::Scene, sizeof(sceneData), &sceneData);

@@ -60,6 +60,7 @@ namespace {
     }
 
     std::string TruncateText(const std::string& text, float maxWidth) {
+#ifdef ENABLE_IMGUI
         ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
         if (textSize.x <= maxWidth) {
             return text;
@@ -71,8 +72,12 @@ namespace {
         }
 
         return truncatedText + "...";
+#else
+        maxWidth;
+        return text; 
+#endif // ENABLE_IMGUI
     }
-
+#ifdef ENABLE_IMGUI
     ImVec2 CalcFitSize(const ImVec2& target, const ImVec2& size) {
         float aspect = size.x / size.y;
         if (aspect > 1.0f) {
@@ -80,6 +85,7 @@ namespace {
         }
         return { target.x * aspect, target.y };
     }
+#endif
 
 }
 
@@ -180,7 +186,7 @@ namespace Editer {
     }
 
     void ProjectView::RenderLeftWindow() {
-
+#ifdef ENABLE_IMGUI
         ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
         if (ImGui::TreeNodeEx("Assets", flags)) {
@@ -207,14 +213,14 @@ namespace Editer {
             ImGui::TreePop();
         }
 
-
+#endif ENABLE_IMGUI
 
     }
 
 
 
     void ProjectView::RenderRightWindow() {
-
+#ifdef ENABLE_IMGUI
         const auto& io = ImGui::GetIO();
         if (ImGui::IsWindowHovered() && ImGui::IsKeyPressed(ImGuiKey_LeftCtrl)) {
             if (io.MouseWheel != 0) {
@@ -251,10 +257,7 @@ namespace Editer {
             ImGui::Button(std::format("##{}", i).c_str(), imageSize);
             
             // テキストの描画
-            std::string text = "Item" + std::to_string(i);
-            for (int j = 0; j < i; ++j) {
-                text += "aa";
-            }
+            std::string text = "Asset" + std::to_string(i);
             text = TruncateText(text, itemSize);
             ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
             float textOffsetX = (itemSize - textSize.x) * 0.5f;  // 中央揃えのためのオフセット計算
@@ -274,6 +277,7 @@ namespace Editer {
                 ImGui::SameLine();
             }
         }
+#endif ENABLE_IMGUI
     }
 
 }

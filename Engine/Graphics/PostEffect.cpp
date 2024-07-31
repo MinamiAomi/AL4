@@ -84,6 +84,7 @@ void PostEffect::Render(CommandContext& commandContext, ColorBuffer& texture) {
 }
 
 void PostEffect::DrawImGui(const char* label) {
+    label;
 #ifdef ENABLE_IMGUI
     if (ImGui::TreeNode(label)) {
         ImGui::Checkbox("##GrayscaleCheck", &grayscale_.isActive);

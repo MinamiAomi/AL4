@@ -40,7 +40,7 @@ void Engine::Run(Game* game) {
     g_threadPool = std::make_unique<ThreadPool>();
 
     g_gameWindow = GameWindow::GetInstance();
-    g_gameWindow->Initialize(L"AL4", 1280, 720);
+    g_gameWindow->Initialize(L"LE3A_20_ミナミアオミ", 1280, 720);
 
     g_graphics = Graphics::GetInstance();
     g_graphics->Initialize();

@@ -102,6 +102,7 @@ namespace {
 
             // マテリアルが読み込まれてない
             assert(srcMesh->mMaterialIndex < materials.size());
+            materials;
             destMesh.material = (uint32_t)srcMesh->mMaterialIndex;
 
             ++meshIndex;        

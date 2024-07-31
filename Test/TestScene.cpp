@@ -37,8 +37,8 @@ void TestScene::OnInitialize() {
             auto& sphere = spheres_[row][column];
             sphere.material = std::make_shared<Material>();
             sphere.material->albedo = { 1.0f, 1.0f, 1.0f };
-            sphere.material->metallic = (float)row * 0.1f;
-            sphere.material->roughness = (float)column * 0.1f;
+            sphere.material->metallic = (float)row / (kRowCount - 1);
+            sphere.material->roughness = (float)column / (kColumnCount - 1);
             sphere.model.SetModel(sphereModel);
             sphere.model.SetMaterial(sphere.material);
             sphere.model.SetWorldMatrix(Matrix4x4::MakeTranslation(Vector3{ -15.0f + column * 3.0f, -15.0f + row * 3.0f, 0.0f } + offset));

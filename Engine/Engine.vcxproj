@@ -154,12 +154,24 @@
     <ClCompile Include="Collision\Collider.cpp" />
     <ClCompile Include="Collision\CollisionManager.cpp" />
     <ClCompile Include="Debug\Debug.cpp" />
-    <ClCompile Include="Editer\ConsoleView.cpp" />
-    <ClCompile Include="Editer\EditerManager.cpp" />
-    <ClCompile Include="Editer\HierarchyView.cpp" />
-    <ClCompile Include="Editer\InspectorView.cpp" />
-    <ClCompile Include="Editer\ProjectView.cpp" />
-    <ClCompile Include="Editer\SceneView.cpp" />
+    <ClCompile Include="Editer\ConsoleView.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Editer\EditerManager.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Editer\HierarchyView.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Editer\InspectorView.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Editer\ProjectView.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="Editer\SceneView.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="Externals\ImGui\imgui.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">false</ExcludedFromBuild>
@@ -205,14 +217,31 @@
     <ClInclude Include="Audio\AudioDevice.h" />
     <ClInclude Include="Audio\AudioSource.h" />
     <ClInclude Include="Audio\Sound.h" />
-    <ClInclude Include="Editer\ConsoleView.h" />
-    <ClInclude Include="Editer\EditerManager.h" />
-    <ClInclude Include="Editer\EditerView.h" />
-    <ClInclude Include="Editer\HierarchyView.h" />
-    <ClInclude Include="Editer\InspectorView.h" />
-    <ClInclude Include="Editer\ProjectView.h" />
-    <ClInclude Include="Editer\SceneView.h" />
-    <ClInclude Include="Editer\EditerInterface.h" />
+    <ClInclude Include="Editer\ConsoleView.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Editer\EditerManager.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Editer\EditerView.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Editer\HierarchyView.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Editer\InspectorView.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Editer\ProjectView.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Editer\SceneView.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="Editer\EditerInterface.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="Externals\ImGui\imgui_stdlib.h" />
     <ClInclude Include="File\JsonConverter.h" />
     <ClInclude Include="Framework\Asset.h" />

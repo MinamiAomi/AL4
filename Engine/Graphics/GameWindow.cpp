@@ -38,7 +38,7 @@ void GameWindow::Initialize(const wchar_t* title, uint32_t clientWidth, uint32_t
     // ウィンドウクラスを生成
     WNDCLASS wc{};
     wc.lpfnWndProc = WindowProc;	// ウィンドウプロシージャ
-    wc.lpszClassName = L"2006_BB";	// ウィンドウクラス名
+    wc.lpszClassName = L"LE3A_20_ミナミアオミ";	// ウィンドウクラス名
     wc.hInstance = GetModuleHandle(nullptr);	// インスタンスハンドル
     wc.hCursor = LoadCursor(nullptr, IDC_ARROW);	// カーソル
     RegisterClass(&wc);	// ウィンドウクラスを登録

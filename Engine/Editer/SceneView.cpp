@@ -52,9 +52,9 @@ namespace Editer {
             imageID = reinterpret_cast<ImTextureID>(image.GetSRV().GetGPU().ptr);
             size = { (float)image.GetWidth(), (float)image.GetHeight() };
         }
-        ImVec2 windowSize = ImGui::GetWindowSize();
+        ImVec2 windowSize = { ImGui::GetWindowWidth(), ImGui::GetWindowHeight() - ImGui::CalcTextSize("Scene").y - ImGui::GetStyle().FramePadding.y * 2.0f};
         ImVec2 imageSize = CalcAspectFitSize(windowSize, size);
-        ImVec2 imageOffset = { (windowSize.x - imageSize.x) * 0.5f, (windowSize.y - imageSize.y) * 0.5f };
+        ImVec2 imageOffset = { (windowSize.x - imageSize.x) * 0.5f,  ImGui::CalcTextSize("Scene").y + ImGui::GetStyle().FramePadding.y * 2.0f + (windowSize.y - imageSize.y) * 0.5f };
         ImGui::SetCursorPos(imageOffset);
         ImGui::Image(imageID, imageSize);
         ImGui::End();
