@@ -12,7 +12,6 @@
 #include "Bloom.h"
 #include "FXAA.h"
 #include "Graysale.h"
-#include "ParticleRenderer.h"
 #include "SpriteRenderer.h"
 #include "PostEffect.h"
 #include "Timer.h"
@@ -26,6 +25,7 @@
 #include "Skybox.h"
 #include "LineDrawer.h"
 #include "Raytracing/TestRTRenderer.h"
+#include "ParticleCore.h"
 
 #ifdef _DEBUG
 #define SHADER_DIRECTORY "../Engine/Graphics/Shader"
@@ -77,7 +77,7 @@ private:
     LightingRenderingPass lightingRenderingPass_;
     Skybox skybox_;
     LineDrawer lineDrawer_;
-
+    ParticleCore particleCore_;
     
     TestRTRenderer testRTRenderer_;
     //RaytracingRenderer raytracingRenderer_;

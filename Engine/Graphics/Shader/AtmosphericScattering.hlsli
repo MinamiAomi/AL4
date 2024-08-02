@@ -2,104 +2,81 @@
 static const float32_t M_PI = 3.14159265359f;
 static const float32_t M_4PI = 4.0f * M_PI;
 
-static const float32_t earthRadius = 6360.0f;
-static const float32_t atmosphereHeight = 60.0f;
-static const float32_t atmosphereRadius = earthRadius + atmosphereHeight;
-static const float32_t3 earthCenter = float32_t3(0.0f, 0.0f, 0.0f);
+static const float32_t Kr = 0.0025f;
+static const float32_t Km = 0.0010f;
+static const float32_t Exposure = 0.05f;
 
-static const float32_t distanceToSun = 1.496e8f;
-static const float32_t sunRadius = 2.0f * 109.0f * earthRadius;
-static const float32_t sunIntensity = 10.0f;
+static const float32_t ESun = 1300.0f;
+static const float32_t3 SunPosition = float32_t3(0.0f, 1.0f, 0.0f);
 
-static const float32_t3 betaRayleight = float32_t3(5.8e-4f, 1.35e-3f, 3.31e-3f);
-static const float32_t3 betaMie = float32_t3(4.0e-3f, 4.0e-3f, 4.0e-3f);
+static const float32_t3 InvWaveLength = 1.0f / pow(float32_t3(0.680f, 0.550f, 0.440f), 4.0f);
 
-static const float32_t3 M_4PIBetaRayleight = M_4PI * betaRayleight;
-static const float32_t3 M_4PIBetaMie = M_4PI * betaMie;
-static const float32_t heightScaleRayleight = 6.0f;
-static const float32_t heightScaleMie = 1.2f;
-static const float32_t g = -0.76f;
+static const float32_t EarthRadius = 6360.0f;
+static const float32_t AtmosphereHeight = 60.0f;
+static const float32_t AtmosphereRadius = EarthRadius + AtmosphereHeight;
 
-static const float32_t numDensitySamples = 8.0f;
-static const float32_t numViewSamples = 8.0f;
-static const int32_t intNumDensitySamples = int32_t(numDensitySamples);
-static const int32_t intNumViewSamples = int32_t(numViewSamples);
+static const float32_t Scale = 1.0f / AtmosphereHeight;
+static const float32_t KrESun = Kr * ESun;
+static const float32_t KmESun = Km * ESun;
+static const float32_t Kr4PI = Kr * 4.0f * M_PI;
+static const float32_t Km4PI = Km * 4.0f * M_PI;
 
-float32_t2 IntersectionSphere(float32_t3 rayOrigin, float32_t3 rayDirection, float32_t3 sphereCenter, float32_t sphereRadius) {
-    float32_t3 tmp = rayOrigin - sphereCenter;
-    float32_t b = dot(rayDirection, tmp);
-    float32_t c = dot(tmp, tmp) - sphereRadius * sphereRadius;
-    float32_t d = b * b - c;
+static const float32_t ScaleDepth = 0.25f;
+static const float32_t ScaleOverScaleDepth = Scale / ScaleDepth;
+static const float32_t G = -0.999f;
 
-    if (d < 0.0f) { return float32_t2(-M_MAX, -M_MAX); }
+float32_t3 IntersectionSphere(float32_t3 rayOrigin, float32_t3 rayDirection, float32_t sphereRadius) {
+    float32_t a = dot(rayDirection, rayDirection);
+    float32_t b = 2.0f * dot(rayOrigin, rayDirection);
+    float32_t c = dot(rayOrigin, rayOrigin) - sphereRadius * sphereRadius;
+    float32_t d = b * b - 4.0f * a * c;
 
-    float32_t dSq = sqrt(d);
-    return float32_t2(-b - dSq, -d + dSq);
+    if (d < 0.0001f) { return float32_t3(0.0f, 0.0f, 0.0f); }
+    return (rayOrigin + rayDirection * (0.5f * (-b + sqrt(d)) / a));
 }
 
-float32_t Phase(float32_t nu, float32_t g) {
-    return (3.0f * (1.0f - g * g) * (1.0f + nu * nu)) / (2.0f * (2.0f + g * g) * pow(1.0f + g * g - 2.0f * g * nu, 1.5f));
+float32_t IntegralApproximation(float32_t cosine) {
+    float32_t x = 1.0f - cosine;
+    return ScaleDepth * exp(-0.00287f + x * (0.459f + x * (3.83f + x * (-6.80f + x * 5.25f))));
 }
 
-float32_t2 DensityOverPath(float32_t3 p0, float32_t3 p1, float32_t2 prescaler) {
-    float32_t l = length(p1 - p0);
-    float32_t3 v = (p1 - p0) / l;
+float32_t3 AtmosphericScattering(float32_t3 rayOrigin, float32_t3 rayDirection) {
+    float32_t3 skyPosition = IntersectionSphere(rayOrigin, rayDirection, AtmosphereRadius);
+    float32_t skyDistance = length(skyPosition - rayOrigin);
 
-    l /= numDensitySamples;
+    float32_t height = length(rayOrigin) + 0.0001f;
+    float32_t depth = exp(ScaleOverScaleDepth * (EarthRadius - length(rayOrigin)));
+    float32_t angle = dot(rayOrigin, rayOrigin) / height;
+    float32_t offset = depth * IntegralApproximation(angle);
 
-    float32_t2 density = float32_t2(0.0f, 0.0f);
-    float32_t t = 0.0f;
-    for (int32_t i = 0; i < intNumDensitySamples; ++i) {
-        float32_t3 sp = p0 + v * (t + 0.5f * l);
-        float32_t2 h = length(sp) - earthRadius;
-        density += exp(-h / prescaler);
-        t += l;
-    }
-    return l * density;
-}
+    const int32_t numSamples = 5;
+    float32_t sampleStep = skyDistance / (float32_t)numSamples;
+    float32_t scaledSampleStep = sampleStep * Scale;
+    float32_t3 samplePoint = rayOrigin + rayDirection * 0.5f;
 
-float32_t4 Inscatter(float32_t3 rayOrigin, float32_t3 rayDirection, float32_t3 sunDirection) {
-    float32_t2 t0 = IntersectionSphere(rayOrigin, rayDirection, earthCenter, atmosphereRadius);
-    float32_t2 t1 = IntersectionSphere(rayOrigin, rayDirection, earthCenter, earthRadius);
-
-    uint32_t noPlanetIntersection = (uint32_t)(t1.x < 0.0f && t1.y < 0.0f);
-    
-    float32_t farPoint = noPlanetIntersection == 1 ? t0.y : t1.x;
-    float32_t nearPoint = t0.x > 0.0f ? t0.x : 0.0f;
-
-    float32_t l = (farPoint - nearPoint) / numViewSamples;
-    rayOrigin += nearPoint * rayDirection;
-
-    float32_t t = 0.0f;
-    float32_t3 rayleight = float32_t3(0.0f, 0.0f, 0.0f);
-    float32_t3 mie = float32_t3(0.0f, 0.0f, 0.0f);
-
-    float32_t2 prescalers = float32_t2(heightScaleRayleight, heightScaleMie);
-
-    float32_t2 densityPointToRayOrigin = float32_t2(0.0f, 0.0f);
-    for (int32_t i = 0; i < intNumViewSamples; ++i) {
-        float32_t3 sp = rayOrigin + rayDirection * (t + 0.5f * l);
-        float32_t tc = IntersectionSphere(sp, sunDirection, earthCenter, atmosphereRadius).y;
-        float32_t3 pc = sp + tc * sunDirection;
-        float32_t2 densitySPRayOrigin = DensityOverPath(sp, rayOrigin, prescalers);
-        float32_t2 densities = DensityOverPath(sp, pc, prescalers);
-
-        float32_t2 h = length(sp) - earthRadius;
-        float32_t2 expRM = exp(-h / prescalers);
-
-        rayleight += expRM.x * exp(-M_4PIBetaRayleight * densities.x);
-        mie += expRM.y * exp(-M_4PIBetaMie * densities.y);
-
-        densityPointToRayOrigin += densitySPRayOrigin;
-        t += l;
+    float32_t3 frontColor = float32_t3(0.0f, 0.0f, 0.0f);
+    for (int32_t i = 0; i < numSamples; ++i) {
+        height = length(samplePoint) + 0.0001f;
+        depth = exp(ScaleOverScaleDepth * (EarthRadius - height));
+        float32_t sunAngle = dot(SunPosition, samplePoint) / height;
+        float32_t rayAngle = dot(rayDirection, samplePoint) / height;
+        float32_t scatter = (offset + depth * (IntegralApproximation(sunAngle) - IntegralApproximation(rayAngle)));
+        float32_t3 attenuate = exp(-scatter * (InvWaveLength * Kr4PI + Km4PI));
+        frontColor += attenuate * (depth * scaledSampleStep);
+        samplePoint += sampleStep * rayDirection;
     }
 
-    rayleight *= l;
-    mie *= l;
+    float32_t3 primaryColor = frontColor * (InvWaveLength * KrESun);
+    float32_t3 secondaryColor = frontColor * KmESun;
 
-    float32_t3 extinction = exp(-(M_4PIBetaRayleight * densityPointToRayOrigin.x + M_4PIBetaMie * densityPointToRayOrigin.y));
-    float32_t nu = dot(sunDirection, -rayDirection);
-    float32_t3 inscatter = sunIntensity * (betaMie * mie * Phase(nu, g) + betaRayleight * Phase(nu, 0.0f) * rayleight);
-    return float32_t4(inscatter, extinction.r * float32_t(noPlanetIntersection));
+    float32_t cosine = dot(SunPosition, normalize(rayOrigin - skyPosition));
+    float32_t rayleightPhase = 0.75f * (1.0f * cosine * cosine);
+
+    const float32_t G2 = G * G;
+    float32_t miePhase = 1.5f * ((1.0f - G2) / (2.0f + G2)) * (1.0f + cosine * cosine) / pow(abs(1.0f + G2 - 2.0f * G * cosine), 1.5f);
+
+    float32_t3 rayleightColor = primaryColor * rayleightPhase;
+    float32_t3 mieColor = secondaryColor * miePhase;
+    float32_t3 color = 1.0f - exp(-Exposure * (rayleightColor + mieColor));
+    return frontColor;
 }
-

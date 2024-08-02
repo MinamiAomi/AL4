@@ -106,7 +106,9 @@ public:
 
     DXR_GRAPHICS_COMMAND_LIST* GetDXRCommandList() const { return dxrCommandList_.Get(); }
 
-    void SetMarker(UINT metadata, const std::wstring& label);
+    void SetMarker(const std::wstring& label);
+    void BeginEvent(const std::wstring& label);
+    void EndEvent();
 
 private:
     static const uint32_t kMaxNumResourceBarriers = 16;
@@ -518,7 +520,5 @@ inline LinearAllocator::Allocation CommandContext::AllocateDynamicBuffer(LinearA
     return dynamicBuffers_[type].Allocate(bufferSize, alignment);
 }
 
-inline void CommandContext::SetMarker(UINT metadata, const std::wstring& label) {
-    commandList_->SetMarker(metadata, label.data(), UINT(label.size() * sizeof(label[0])));
-}
+
 

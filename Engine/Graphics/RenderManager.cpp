@@ -34,6 +34,7 @@ void RenderManager::Initialize() {
     lightingRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
     skybox_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat(), geometryRenderingPass_.GetDepth().GetFormat());
     lineDrawer_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat());
+    particleCore_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat());
 
     //bloom_.Initialize(&lightingRenderingPass_.GetResult());
     fxaa_.Initialize(&lightingRenderingPass_.GetResult());
@@ -72,6 +73,8 @@ void RenderManager::Render() {
 
     skinningManager_.Update(commandContext_);
 
+    particleCore_.Dispatch(commandContext_);
+
     if (camera && sunLight) {
         // 影、スペキュラ
         modelSorter_.Sort(*camera);
@@ -92,6 +95,8 @@ void RenderManager::Render() {
         commandContext_.SetRenderTarget(lightingRenderingPass_.GetResult().GetRTV());
         commandContext_.SetViewportAndScissorRect(0, 0, lightingRenderingPass_.GetResult().GetWidth(), lightingRenderingPass_.GetResult().GetHeight());
         lineDrawer_.Render(commandContext_, *camera);
+
+        particleCore_.Render(commandContext_, *camera);
     }
 
     //bloom_.Render(commandContext_);

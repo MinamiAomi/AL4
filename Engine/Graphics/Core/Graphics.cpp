@@ -1,6 +1,7 @@
 #include "Graphics.h"
 
 #include <dxgi1_6.h>
+#include <pix3.h>
 
 #include <cassert>
 #include <format>
@@ -355,6 +356,7 @@ void Graphics::CreateDevice() {
         dredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
     }
 #endif
+    //PIXLoadLatestWinPixGpuCapturerLibrary();
 #endif // DEBUG_DIRECTX
 
     ComPtr<IDXGIFactory7> factory;

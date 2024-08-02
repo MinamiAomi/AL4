@@ -47,7 +47,7 @@ void TestScene::OnInitialize() {
     }
 
     //player_.Initialize();
-    LevelLoader::Load("Resources/scene.json", *Engine::GetGameObjectManager());
+    //LevelLoader::Load("Resources/scene.json", *Engine::GetGameObjectManager());
 }
 
 void TestScene::OnUpdate() {

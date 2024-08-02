@@ -1,6 +1,7 @@
 #include "CommandContext.h"
 
 #include <vector>
+#include <pix3.h>
 
 #include "Helper.h"
 #include "Graphics.h"
@@ -77,3 +78,17 @@ UINT64 CommandContext::Finish(bool waitForCompletion) {
     return fenceValue;
 }
 
+void CommandContext::SetMarker(const std::wstring& label) {
+    PIXSetMarker(commandList_.Get(), 0, label.c_str());
+    //commandList_->SetMarker(0, label.data(), UINT(label.size() * sizeof(label[0])));
+}
+
+void CommandContext::BeginEvent(const std::wstring& label) {
+    PIXBeginEvent(commandList_.Get(), 0, label.c_str());
+    //commandList_->BeginEvent(0, label.data(), UINT(label.size() * sizeof(label[0])));
+}
+
+void CommandContext::EndEvent() {
+    PIXEndEvent(commandList_.Get());
+    //commandList_->EndEvent();
+}

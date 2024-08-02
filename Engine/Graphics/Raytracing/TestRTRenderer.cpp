@@ -170,6 +170,8 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
     auto sceneCB = commandContext.TransfarUploadBuffer(sizeof(scene), &scene);
     sceneCB;
 
+    commandContext.BeginEvent(L"TestRTRenderer");
+
     BuildScene(commandContext, modelSorter);
 
 
@@ -202,8 +204,8 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
     commandContext.FlushResourceBarriers();
 
     denoiser_.Render(commandContext, intermadiateBuffer_, accumulationBuffer_, denoisedBuffer_, sampleCount_++);
-
-    commandContext.SetMarker(0, L"DispatchRays");
+    commandContext.EndEvent();
+    commandContext.SetMarker(L"DispatchRays");
 }
 
 void TestRTRenderer::CreateRootSignature() {

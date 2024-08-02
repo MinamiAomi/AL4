@@ -82,6 +82,12 @@
     <Filter Include="Graphics\Shader\Raytracing\Pathtracing">
       <UniqueIdentifier>{0cc2088d-d9d9-40d8-b386-a42386f55973}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Graphics\Shader\Particle">
+      <UniqueIdentifier>{61c358ab-f188-4294-8ef7-ddf79747fe1a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Graphics\Particle">
+      <UniqueIdentifier>{2aa45c89-c217-4e1c-9837-b064e6d61eb4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene\SceneManager.cpp">
@@ -208,12 +214,6 @@
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\SpriteRenderer.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ParticleManager.cpp">
-      <Filter>Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics\ParticleRenderer.cpp">
       <Filter>Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Core\TextureLoader.cpp">
@@ -380,6 +380,9 @@
     </ClCompile>
     <ClCompile Include="Framework\ThreadPool.cpp">
       <Filter>Framework</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\ParticleCore.cpp">
+      <Filter>Graphics\Particle</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -555,12 +558,6 @@
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\SpriteRenderer.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ParticleRenderer.h">
-      <Filter>Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics\ParticleManager.h">
       <Filter>Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Mesh.h">
@@ -749,6 +746,12 @@
     <ClInclude Include="Framework\ThreadPool.h">
       <Filter>Framework</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\ParticleCore.h">
+      <Filter>Graphics\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Shader\Particle\Particle.h">
+      <Filter>Graphics\Shader\Particle</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Graphics\Shader\Lighting.hlsli">
@@ -894,6 +897,27 @@
     </None>
     <None Include="Graphics\Shader\AtmosphericScattering.hlsli">
       <Filter>Graphics\Shader</Filter>
+    </None>
+    <None Include="packages.config">
+      <Filter>Externals</Filter>
+    </None>
+    <None Include="Graphics\Shader\Particle\InitializeParticleCS.hlsl">
+      <Filter>Graphics\Shader\Particle</Filter>
+    </None>
+    <None Include="Graphics\Shader\Particle\Particle.hlsli">
+      <Filter>Graphics\Shader\Particle</Filter>
+    </None>
+    <None Include="Graphics\Shader\Particle\DrawParticleVS.hlsl">
+      <Filter>Graphics\Shader\Particle</Filter>
+    </None>
+    <None Include="Graphics\Shader\Particle\DrawParticlePS.hlsl">
+      <Filter>Graphics\Shader\Particle</Filter>
+    </None>
+    <None Include="Graphics\Shader\Particle\EmitParticleCS.hlsl">
+      <Filter>Graphics\Shader\Particle</Filter>
+    </None>
+    <None Include="Graphics\Shader\Particle\UpdateParticleCS.hlsl">
+      <Filter>Graphics\Shader\Particle</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
