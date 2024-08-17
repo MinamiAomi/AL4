@@ -1,5 +1,6 @@
 #include "ProjectView.h"
 
+#include <algorithm>
 #include <Windows.h>
 
 #ifdef ENABLE_IMGUI
@@ -10,7 +11,9 @@
 
 #include "FrameWork/Engine.h"
 #include "Graphics/GameWindow.h"
+#include "EditerManager.h"
 #include "Debug/Debug.h"
+#include "Framework/AssetManager.h"
 
 namespace {
 
@@ -108,19 +111,35 @@ namespace Editer {
                 if (ImGui::BeginMenu("Import")) {
                     if (ImGui::MenuItem("Texture")) {
                         auto path = OpenFileDialog(L"Texture import", Filter::Texture);
-                        path;
+                        if (!path.empty()) {
+                            auto asset = std::make_shared<TextureAsset>();
+                            asset->Load(path);
+                            Engine::GetAssetManager()->Add(asset);
+                        }
                     }
                     if (ImGui::MenuItem("Model")) {
                         auto path = OpenFileDialog(L"Model import", Filter::Model);
-                        path;
+                        if (!path.empty()) {
+                            auto asset = std::make_shared<ModelAsset>();
+                            asset->Load(path);
+                            Engine::GetAssetManager()->Add(asset);
+                        }
                     }
                     if (ImGui::MenuItem("Animation")) {
                         auto path = OpenFileDialog(L"Animation import", Filter::Animation);
-                        path;
+                        if (!path.empty()) {
+                            auto asset = std::make_shared<AnimationAsset>();
+                            asset->Load(path);
+                            Engine::GetAssetManager()->Add(asset);
+                        }
                     }
                     if (ImGui::MenuItem("Sound")) {
                         auto path = OpenFileDialog(L"Sound import", Filter::Sound);
-                        path;
+                        if (!path.empty()) {
+                            auto asset = std::make_shared<SoundAsset>();
+                            asset->Load(path);
+                            Engine::GetAssetManager()->Add(asset);
+                        }
                     }
                     ImGui::EndMenu();
                 }
@@ -221,6 +240,9 @@ namespace Editer {
 
     void ProjectView::RenderRightWindow() {
 #ifdef ENABLE_IMGUI
+        auto assetManager = Engine::GetAssetManager();
+        auto& assetList = assetManager->GetAssetList();
+
         const auto& io = ImGui::GetIO();
         if (ImGui::IsWindowHovered() && ImGui::IsKeyPressed(ImGuiKey_LeftCtrl)) {
             if (io.MouseWheel != 0) {
@@ -232,7 +254,6 @@ namespace Editer {
         ImVec2 windowSize = ImGui::GetWindowSize();
 
         // 仮のパラメータ
-        const int32_t numItems = 10;  // 表示するアイテムの数
         const float itemSize = 64.0f * itemScale_;  // テクスチャのサイズ
 
         // 一行に収まる数 
@@ -244,7 +265,8 @@ namespace Editer {
         int32_t numItemsInLine = int32_t((itemSpace + ImGui::GetStyle().ItemSpacing.x) / (itemSize + ImGui::GetStyle().ItemSpacing.x));
         numItemsInLine = std::max(numItemsInLine, 1);
 
-        for (int32_t i = 0; i < numItems; ++i) {
+        uint32_t i = 0;
+        for (auto& asset : assetList) {
 
             ImGui::BeginGroup();
             
@@ -254,10 +276,10 @@ namespace Editer {
             imageSize = CalcFitSize({ itemSize, itemSize }, imageSize);
             // 画像が真ん中に来るよう合わせる
             ImGui::SetCursorPos({ groupLocalCursourBase.x + (itemSize - imageSize.x) * 0.5f, groupLocalCursourBase.y + (itemSize - imageSize.y) * 0.5f });
-            ImGui::Button(std::format("##{}", i).c_str(), imageSize);
+            ImGui::Button((std::format("##{}", i) + asset->GetName()).c_str(), imageSize);
             
             // テキストの描画
-            std::string text = "Asset" + std::to_string(i);
+            std::string text = asset->GetName();
             text = TruncateText(text, itemSize);
             ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
             float textOffsetX = (itemSize - textSize.x) * 0.5f;  // 中央揃えのためのオフセット計算
@@ -270,12 +292,13 @@ namespace Editer {
 
             // グループが選択された
             if (ImGui::IsItemClicked()) {
-       
+                owner.SetSelectedObject(asset);
             }
 
             if (((i + 1) % numItemsInLine) != 0) {
                 ImGui::SameLine();
             }
+            i++;
         }
 #endif ENABLE_IMGUI
     }

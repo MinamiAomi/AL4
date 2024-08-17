@@ -8,6 +8,7 @@
 #include "Core/SamplerManager.h"
 #include "GeometryRenderingPass.h"
 #include "DefaultTextures.h"
+#include "RenderManager.h"
 
 namespace {
     const wchar_t kVertexShader[] = L"ScreenQuadVS.hlsl";
@@ -30,6 +31,7 @@ void LightingRenderingPass::Initialize(uint32_t width, uint32_t height) {
 
         CD3DX12_ROOT_PARAMETER rootParameters[RootIndex::NumRootParameters]{};
         rootParameters[RootIndex::Scene].InitAsConstantBufferView(0);
+        rootParameters[RootIndex::Sky].InitAsConstantBufferView(1);
         rootParameters[RootIndex::Albedo].InitAsDescriptorTable(1, &albedoRange);
         rootParameters[RootIndex::MetallicRoughness].InitAsDescriptorTable(1, &metallicRoughnessRange);
         rootParameters[RootIndex::Normal].InitAsDescriptorTable(1, &normalRange);
@@ -83,13 +85,31 @@ void LightingRenderingPass::Render(CommandContext& commandContext, GeometryRende
         Vector3 lightDirection;
     };
 
+    struct SkyParameter {
+        Vector3 sunPosition;
+        float sunIntensity;
+
+        float Kr;
+        float Km;
+        float innerRadius;
+        float outerRadius;
+
+        Vector3 invWaveLength;
+        float scale;
+
+        float scaleDepth;
+        float scaleOverScaleDepth;
+        float g;
+        float exposure;
+    };
+
     commandContext.TransitionResource(geometryRenderingPass.GetAlbedo(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandContext.TransitionResource(geometryRenderingPass.GetMetallicRoughness(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandContext.TransitionResource(geometryRenderingPass.GetNormal(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandContext.TransitionResource(geometryRenderingPass.GetDepth(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandContext.TransitionResource(result_, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext.FlushResourceBarriers();
-    
+
     commandContext.ClearColor(result_);
     commandContext.SetRenderTarget(result_.GetRTV());
     commandContext.SetViewportAndScissorRect(0, 0, result_.GetWidth(), result_.GetHeight());
@@ -108,7 +128,27 @@ void LightingRenderingPass::Render(CommandContext& commandContext, GeometryRende
     sceneData.irradianceMipCount = (uint32_t)(cubeMap.MipLevels - 2);
     sceneData.lightColor = light.color;
     sceneData.lightDirection = light.direction;
+
+    SkyParameter skyParameter;
+    skyParameter.sunPosition = RenderManager::GetInstance()->GetSky().GetSunDirection();
+    skyParameter.sunIntensity = 1300.0f;
+    skyParameter.sunIntensity = 1300.0f;
+    skyParameter.Kr = 0.0025f;
+    skyParameter.Km = 0.0010f;
+    skyParameter.innerRadius = 10000.0f;
+    skyParameter.outerRadius = 10250.0f;
+    Vector3 waveLength = { 0.680f, 0.550f, 0.440f };
+    skyParameter.invWaveLength.x = 1.0f / std::pow(waveLength.x, 4.0f);
+    skyParameter.invWaveLength.y = 1.0f / std::pow(waveLength.y, 4.0f);
+    skyParameter.invWaveLength.z = 1.0f / std::pow(waveLength.z, 4.0f);
+    skyParameter.scale = 1.0f / (skyParameter.outerRadius - skyParameter.innerRadius);
+    skyParameter.scaleDepth = 0.25f;
+    skyParameter.scaleOverScaleDepth = skyParameter.scale / skyParameter.scaleDepth;
+    skyParameter.g = -0.999f;
+    skyParameter.exposure = 0.05f;
+
     commandContext.SetDynamicConstantBufferView(RootIndex::Scene, sizeof(sceneData), &sceneData);
+    commandContext.SetDynamicConstantBufferView(RootIndex::Sky, sizeof(skyParameter), &skyParameter);
     commandContext.SetDescriptorTable(RootIndex::Albedo, geometryRenderingPass.GetAlbedo().GetSRV());
     commandContext.SetDescriptorTable(RootIndex::MetallicRoughness, geometryRenderingPass.GetMetallicRoughness().GetSRV());
     commandContext.SetDescriptorTable(RootIndex::Normal, geometryRenderingPass.GetNormal().GetSRV());

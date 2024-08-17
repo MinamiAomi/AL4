@@ -384,6 +384,9 @@
     <ClCompile Include="Graphics\ParticleCore.cpp">
       <Filter>Graphics\Particle</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Sky.cpp">
+      <Filter>Graphics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -751,6 +754,9 @@
     </ClInclude>
     <ClInclude Include="Graphics\Shader\Particle\Particle.h">
       <Filter>Graphics\Shader\Particle</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Sky.h">
+      <Filter>Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

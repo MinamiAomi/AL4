@@ -1,3 +1,5 @@
+#include "../AtmosphericScattering.hlsli"
+
 struct DirectionalLight {
     float32_t3 color;
     float32_t intensity;
@@ -27,6 +29,7 @@ struct Scene {
 };
 
 ConstantBuffer<Scene> g_Scene : register(b0);
+ConstantBuffer<SkyParameter> g_SkyParameter : register(b1);
 
 // G-Buffers
 Texture2D<float32_t4> g_Albedo : register(t0);

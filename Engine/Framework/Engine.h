@@ -34,7 +34,7 @@ public:
     static AudioDevice* GetAudioDevice();
     static RenderManager* GetRenderManager();
     static SceneManager* GetSceneManager();
-    static AssetManager* GetResourceManager();
+    static AssetManager* GetAssetManager();
     static GameObjectManager* GetGameObjectManager();
     static ThreadPool* GetThreadPool();
 #ifdef ENABLE_IMGUI

@@ -16,6 +16,7 @@ public:
     struct RootIndex {
         enum Parameters {
             Scene,
+            Sky,
             Albedo,
             MetallicRoughness,
             Normal,

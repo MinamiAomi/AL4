@@ -41,7 +41,11 @@ PSOutput main(PSInput input) {
     
     // AlbedoのWが0の場合は計算しない
     if (g_Albedo.SampleLevel(g_DefaultSampler, input.texcoord, 0).w == 0.0f) {
-        discard;
+        float32_t3 position = GetWorldPosition(input.texcoord);
+
+        output.color.rgb = AtmosphericScattering(g_Scene.cameraPosition, normalize(position - g_Scene.cameraPosition), g_SkyParameter).rgb;
+        output.color.a = 1.0f;
+        return output;
     }
    
     float32_t3 position = GetWorldPosition(input.texcoord);
@@ -56,19 +60,19 @@ PSOutput main(PSInput input) {
     PBR::Geometry geometry = PBR::CreateGeometry(position, normal, g_Scene.cameraPosition);
     PBR::Material material = PBR::CreateMaterial(albedo, metallic, roughness, emissive);
     PBR::IncidentLight incidentLight;
-    incidentLight.direction = float32_t3(0.0f, 1.0f, 0.0f);
+    incidentLight.direction = g_SkyParameter.sunPosition;
     incidentLight.color = float32_t3(1.0f, 1.0f, 1.0f);
     
     PBR::ReflectedLight reflectedLight;
     reflectedLight.directDiffuse = float32_t3(0.0f, 0.0f, 0.0f);
     reflectedLight.directSpecular = float32_t3(0.0f, 0.0f, 0.0f);
     
-    //color += ShadeDirectionalLight(g_Scene.directionalLight);
-    //PBR::DirectRenderingEquations(incidentLight, geometry, material, reflectedLight);
+    ///color += ShadeDirectionalLight(g_Scene.directionalLight);
+    PBR::DirectRenderingEquations(incidentLight, geometry, material, reflectedLight);
     
     // IBL
-    reflectedLight.directDiffuse += DiffuseIBL(geometry.normal, material.diffuseReflectance);
-    reflectedLight.directSpecular += SpecularIBL(geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
+    //reflectedLight.directDiffuse += DiffuseIBL(geometry.normal, material.diffuseReflectance);
+    //reflectedLight.directSpecular += SpecularIBL(geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
 
     float32_t3 color = reflectedLight.directDiffuse + reflectedLight.directSpecular;
 

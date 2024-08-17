@@ -34,7 +34,7 @@ void RenderManager::Initialize() {
     lightingRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
     skybox_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat(), geometryRenderingPass_.GetDepth().GetFormat());
     lineDrawer_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat());
-    particleCore_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat());
+    //particleCore_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat());
 
     //bloom_.Initialize(&lightingRenderingPass_.GetResult());
     fxaa_.Initialize(&lightingRenderingPass_.GetResult());
@@ -71,9 +71,13 @@ void RenderManager::Render() {
 
     commandContext_.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
 
+    const float deltaSecond = 1 / 60.0f;
+    const float daySpeed = 1;
+    sky_.Update(deltaSecond / daySpeed);
+
     skinningManager_.Update(commandContext_);
 
-    particleCore_.Dispatch(commandContext_);
+    //particleCore_.Dispatch(commandContext_);
 
     if (camera && sunLight) {
         // 影、スペキュラ
@@ -90,13 +94,13 @@ void RenderManager::Render() {
         commandContext_.SetViewportAndScissorRect(0, 0, lightingRenderingPass_.GetResult().GetWidth(), lightingRenderingPass_.GetResult().GetHeight());
         commandContext_.SetRenderTarget(lightingRenderingPass_.GetResult().GetRTV(), geometryRenderingPass_.GetDepth().GetDSV());
         skybox_.SetWorldMatrix(Matrix4x4::MakeAffineTransform({ 1.0f, 1.0f, 1.0f }, Quaternion::identity, camera->GetPosition()));
-        skybox_.Render(commandContext_, *camera);
+        //skybox_.Render(commandContext_, *camera);
 
         commandContext_.SetRenderTarget(lightingRenderingPass_.GetResult().GetRTV());
         commandContext_.SetViewportAndScissorRect(0, 0, lightingRenderingPass_.GetResult().GetWidth(), lightingRenderingPass_.GetResult().GetHeight());
         lineDrawer_.Render(commandContext_, *camera);
 
-        particleCore_.Render(commandContext_, *camera);
+        //particleCore_.Render(commandContext_, *camera);
     }
 
     //bloom_.Render(commandContext_);

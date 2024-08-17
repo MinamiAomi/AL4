@@ -213,6 +213,7 @@
     <ClCompile Include="Graphics\ParticleCore.cpp" />
     <ClCompile Include="Graphics\Raytracing\Denoiser.cpp" />
     <ClCompile Include="Graphics\Raytracing\TestRTRenderer.cpp" />
+    <ClCompile Include="Graphics\Sky.cpp" />
     <ClCompile Include="Graphics\Texture.cpp" />
     <ClCompile Include="Utility\Utility.cpp" />
     <ClInclude Include="Audio\AudioDevice.h" />
@@ -322,6 +323,7 @@
     <ClInclude Include="Graphics\Raytracing\TestRTRenderer.h" />
     <ClInclude Include="Graphics\Shader\Particle\Particle.h" />
     <ClInclude Include="Graphics\Shader\Raytracing\Pathtracing\Pathtracing.h" />
+    <ClInclude Include="Graphics\Sky.h" />
     <ClInclude Include="Graphics\Texture.h" />
     <ClInclude Include="Utility\Utility.h" />
   </ItemGroup>

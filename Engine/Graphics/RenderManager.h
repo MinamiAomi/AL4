@@ -26,6 +26,7 @@
 #include "LineDrawer.h"
 #include "Raytracing/TestRTRenderer.h"
 #include "ParticleCore.h"
+#include "Sky.h"
 
 #ifdef _DEBUG
 #define SHADER_DIRECTORY "../Engine/Graphics/Shader"
@@ -55,6 +56,7 @@ public:
     LightingRenderingPass& GetLightingRenderingPass() { return lightingRenderingPass_; }
     TestRTRenderer& GetTestRTRenderer() { return testRTRenderer_; }
     PostEffect& GetPostEffect() { return postEffect_; }
+    Sky& GetSky() { return sky_; }
 
 private:
     RenderManager() = default;
@@ -89,7 +91,7 @@ private:
     PostEffect postEffect_;
     ComputeShaderTester computeShaderTester_;
     //LightManager lightManager_;
-    
+    Sky sky_;
     Timer timer_;
     std::weak_ptr<const Camera> camera_;
     std::weak_ptr<const DirectionalLight> sunLight_;

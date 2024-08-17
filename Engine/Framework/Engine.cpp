@@ -59,7 +59,7 @@ void Engine::Run(Game* game) {
     g_gameObjectManager = std::make_unique<GameObjectManager>();
     g_gameObjectManager->SetFactory<DefaultGameObjectFactory>();
 
-    
+
 #ifdef ENABLE_IMGUI
     g_editerManager = std::make_unique<Editer::EditerManager>();
     g_editerManager->Initialize();
@@ -121,12 +121,16 @@ SceneManager* Engine::GetSceneManager() {
     return g_sceneManager;
 }
 
-AssetManager* Engine::GetResourceManager() {
+AssetManager* Engine::GetAssetManager() {
     return g_assetManager;;
 }
 
 GameObjectManager* Engine::GetGameObjectManager() {
     return g_gameObjectManager.get();
+}
+
+ThreadPool* Engine::GetThreadPool() {
+    return g_threadPool.get();
 }
 
 #ifdef ENABLE_IMGUI

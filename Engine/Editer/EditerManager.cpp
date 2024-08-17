@@ -242,6 +242,10 @@ namespace Editer {
 
                 ImGui::EndMenu();
             }
+            if (ImGui::BeginMenu("Sky")) {
+                RenderManager::GetInstance()->GetSky().DrawImGui();
+                ImGui::EndMenu();
+            }
             ImGui::EndMenu();
         }
     }

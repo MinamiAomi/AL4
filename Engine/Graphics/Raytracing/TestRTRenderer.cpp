@@ -233,6 +233,7 @@ void TestRTRenderer::CreateRootSignature() {
 
     RootSignatureDescHelper missLRSDesc;
     missLRSDesc.SetFlag(D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE);
+    missLRSDesc.AddConstantBufferView(0, 3);
     missLRSDesc.AddDescriptorTable().AddSRVDescriptors(1, 0, 3);
     missLRSDesc.AddDescriptorTable().AddSRVDescriptors(1, 1, 3);
     missLocalRootSignature_.Create(L"MissLocalRootSignature", missLRSDesc);
@@ -449,9 +450,46 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
         hitGroupShaderTable_.Create(L"RaytracingRenderer HitGroupShaderTable", &shaderRecord, 1);
     }
 
+    struct SkyParameter {
+        Vector3 sunPosition;
+        float sunIntensity;
+
+        float Kr;
+        float Km;
+        float innerRadius;
+        float outerRadius;
+
+        Vector3 invWaveLength;
+        float scale;
+
+        float scaleDepth;
+        float scaleOverScaleDepth;
+        float g;
+        float exposure;
+    } skyParameter;
+    
+    skyParameter.sunPosition = RenderManager::GetInstance()->GetSky().GetSunDirection();
+    skyParameter.sunIntensity = 1300.0f;
+    skyParameter.Kr = 0.0025f;
+    skyParameter.Km = 0.0010f;
+    skyParameter.innerRadius = 10000.0f;
+    skyParameter.outerRadius = 10205.0f;
+    Vector3 waveLength = { 0.680f, 0.550f, 0.440f };
+    skyParameter.invWaveLength.x = 1.0f / std::pow(waveLength.x, 4.0f);
+    skyParameter.invWaveLength.y = 1.0f / std::pow(waveLength.y, 4.0f);
+    skyParameter.invWaveLength.z = 1.0f / std::pow(waveLength.z, 4.0f);
+    skyParameter.scale = 1.0f / (skyParameter.outerRadius - skyParameter.innerRadius);
+    skyParameter.scaleDepth = 0.25f;
+    skyParameter.scaleOverScaleDepth = skyParameter.scale / skyParameter.scaleDepth;
+    skyParameter.g = -0.999f;
+    skyParameter.exposure = 0.05f;
+
+    auto skyParameterAllocation = commandContext.TransfarUploadBuffer(sizeof(skyParameter), &skyParameter);
+
     // skyboxが変更された可能性あり
     {
         ShaderRecord missShaderRecord(identifierMap_[kRecursiveMissName]);
+        missShaderRecord.Add(skyParameterAllocation);
         // skybox1
         D3D12_GPU_DESCRIPTOR_HANDLE skyboxSRV = DefaultTexture::BlackCubeMap.GetSRV();
         if (skyboxTexture_) {
