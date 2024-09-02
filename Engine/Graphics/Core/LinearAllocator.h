@@ -16,7 +16,7 @@ struct LinearAllocatorType {
     operator Type() { return type; }
     const size_t GetSize() const {
         switch (type) {
-        case LinearAllocatorType::Default: return 0x10000; // 64KiB
+        case LinearAllocatorType::Default: return 0x500000; // 64KiB
         case LinearAllocatorType::Upload: return 0x200000; // 2MiB
         }
         return (size_t)-1;

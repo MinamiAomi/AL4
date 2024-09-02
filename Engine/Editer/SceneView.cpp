@@ -34,7 +34,6 @@ namespace Editer {
 #ifdef ENABLE_IMGUI
         if (!isDisplayed) { return; }
         ImGui::Begin("Scene", &isDisplayed, ImGuiWindowFlags_NoScrollbar);
-        ImGui::Checkbox("MainImage", &useMainImage_);
         ImTextureID imageID;
         ImVec2 size;
         if (useMainImage_) {

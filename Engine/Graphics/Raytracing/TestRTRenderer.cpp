@@ -156,7 +156,7 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
     auto commandList = commandContext.GetDXRCommandList();
     commandList;
 
-    if (Engine::GetInput()->IsKeyPressed(DIK_SPACE)) {
+    if (Engine::GetInput()->IsKeyPressed(DIK_R)) {
         commandContext.TransitionResource(accumulationBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
         commandContext.ClearColor(accumulationBuffer_);
         sampleCount_ = 1;
@@ -472,8 +472,8 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
     skyParameter.sunIntensity = 1300.0f;
     skyParameter.Kr = 0.0025f;
     skyParameter.Km = 0.0010f;
-    skyParameter.innerRadius = 10000.0f;
-    skyParameter.outerRadius = 10205.0f;
+    skyParameter.innerRadius = 6.36e6f;
+    skyParameter.outerRadius = 6.46e6f;
     Vector3 waveLength = { 0.680f, 0.550f, 0.440f };
     skyParameter.invWaveLength.x = 1.0f / std::pow(waveLength.x, 4.0f);
     skyParameter.invWaveLength.y = 1.0f / std::pow(waveLength.y, 4.0f);

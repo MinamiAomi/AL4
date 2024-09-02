@@ -86,11 +86,11 @@ void Engine::Run(Game* game) {
     g_gameObjectManager.reset();
     g_game->OnFinalize();
 
+    g_threadPool.reset();
     g_audioDevice->Finalize();
     g_renderManager->Finalize();
     g_graphics->Finalize();
     g_gameWindow->Shutdown();
-    g_threadPool.reset();
 }
 
 Game* Engine::GetGame() {

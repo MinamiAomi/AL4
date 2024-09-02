@@ -38,7 +38,6 @@ struct MeshProperty {
 
 StructuredBuffer<MeshProperty> l_MeshProperties : register(t0, space2);
 
-
 static StructuredBuffer<PackedVertex> s_VertexBuffer;
 static uint32_t s_VertexOffset;
 static StructuredBuffer<uint32_t> s_IndexBuffer;
@@ -185,9 +184,9 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     randomGenerator.seed = float32_t3(DispatchRaysIndex() + meshPropertyIndex + g_Scene.time + payload.recursiveCount) * g_Scene.time;
 
     // 完全鏡面方向
-    float32_t3 incidentDirection = normalize(reflect(rayDirection, vertex.normal));
+    //float32_t3 incidentDirection = normalize(reflect(rayDirection, vertex.normal));
     // ランダムな半球状のベクトル
-    //float32_t3 incidentDirection = RandomUnitVectorHemisphere(vertex.normal, randomGenerator);
+    float32_t3 incidentDirection = RandomUnitVectorHemisphere(vertex.normal, randomGenerator);
     //float32_t3 incidentDirection = float32_t3(0.0f, 1.0f, 0.0f);
 
     float32_t pdf = 0.0f;
@@ -197,7 +196,7 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     // 入射光
     float32_t3 incidentColor = GetIncidentColor(incidentDirection, vertex.position + vertex.normal * 0.001f, payload.recursiveCount, skyboxLod);
     // 確率密度関数
-    //pdf = 1.0f / (2.0f * PI);
+    pdf = 1.0f / (2.0f * PI);
     // コサイン項
     float32_t cosine = saturate(dot(incidentDirection, vertex.normal));
     payload.color += incidentColor * brdf * cosine / (pdf + EPSILON);
@@ -212,7 +211,5 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     //PBR::DirectRenderingEquations(light, geometry, material, reflectedLight);
     //payload.color = reflectedLight.directSpecular;
 
-     payload.color += material.emissive;
-
-  
+    payload.color += material.emissive;
 }

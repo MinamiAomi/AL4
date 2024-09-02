@@ -14,8 +14,7 @@ VSOutput main(VSInput input) {
     VSOutput output;
 
     float2 textureSize;
-    float level;
-    src_.GetDimensions(0, textureSize.x, textureSize.y, level);
+    src_.GetDimensions(textureSize.x, textureSize.y);
     
     float2 base = float2(uint2(input.vertexID, input.vertexID << 1) & 2);
     
@@ -32,9 +31,9 @@ VSOutput main(VSInput input) {
     
     for (uint i = 0; i < 8; ++i) {
         output.texcoord[i].xy = offset;
-        output.texcoord[i].zw = output.texcoord[i].xy * -1.0f;
+        output.texcoord[i].zw = -offset;
         output.texcoord[i] += basebase;
-        offset = texelSize * 2.0f;
+        offset += texelSize;
     }
     
     return output;

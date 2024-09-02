@@ -8,7 +8,7 @@ Camera::Camera(ProjectionType projectionType) {
     projection_.perspective.fovY = 45.0f * Math::ToRadian;
     projection_.perspective.aspectRaito = 1280.0f / 720.0f;
     nearClip_ = 0.1f;
-    farClip_ = 10000.0f;
+    farClip_ = 1000.0f;
 
     needUpdateing_ = true;
 
@@ -31,7 +31,7 @@ void Camera::UpdateMatrices() {
         }
 
         viewProjectionMatrix_ = viewMatrix_ * projectionMatrix_;
-    }
+    }                
 }
 
 void Camera::SetPerspective(float fovY, float aspectRaito, float nearClip, float farClip) {

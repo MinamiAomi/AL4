@@ -1,194 +1,81 @@
 #include "LightingPass.hlsli"
-
-static const float PI = 3.14159265359f;
-static const float INV_PI = 0.31830988618f;
-static const float EPSILON = 0.00001f;
-
-static float3 Position;
-static float3 Normal;
-static float3 ViewDirection;
-static float3 Albedo;
-static float Metallic;
-static float Roughness;
-static float3 DiffuseReflectance;
-static float3 SpecularReflectance;
-static float Alpha;
-static float AlphaSq;
-static float NdotV;
-
-// 変更
+#include "../PBR.hlsli"
 
 struct PSInput {
-    float4 svPosition : SV_POSITION0;
-    float2 texcoord : TEXCOORD0;
+    float32_t4 svPosition : SV_POSITION0;
+    float32_t2 texcoord : TEXCOORD0;
 };
 
 struct PSOutput {
-    float4 color : SV_TARGET0;
+    float32_t4 color : SV_TARGET0;
 };
 
-// 静的変数を初期化
-void InitializeSurfaceProperties(PSInput input) {
-     // 深度をサンプリング
-    float depth = g_Depth.SampleLevel(g_Sampler, input.texcoord, 0);
+float32_t3 GetWorldPosition(in float32_t2 texcoord) {
+    // 深度をサンプリング
+    float32_t depth = g_Depth.SampleLevel(g_DefaultSampler, texcoord, 0);
     // xは0~1から-1~1, yは0~1から1~-1に上下反転
-    float2 xy = input.texcoord * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f);
-    float4 tmpPosition = float4(xy, depth, 1.0f);
+    float32_t2 xy = texcoord * float32_t2(2.0f, -2.0f) + float32_t2(-1.0f, 1.0f);
+    float32_t4 tmpPosition = float32_t4(xy, depth, 1.0f);
     tmpPosition = mul(tmpPosition, g_Scene.viewProjectionInverseMatrix);
-    Position = tmpPosition.xyz / tmpPosition.w;
-    Normal = g_Normal.SampleLevel(g_Sampler, input.texcoord, 0) * 2.0f - 1.0f;
-    ViewDirection = normalize(g_Scene.cameraPosition - Position);
-    Albedo = g_Albedo.SampleLevel(g_Sampler, input.texcoord, 0).xyz;
-    Metallic = g_MetallicRoughness.SampleLevel(g_Sampler, input.texcoord, 0).x;
-    Roughness = g_MetallicRoughness.SampleLevel(g_Sampler, input.texcoord, 0).y;
-    Roughness = max(Roughness, 0.02f);
-    DiffuseReflectance = lerp(Albedo, 0.0f, Metallic);
-    SpecularReflectance = lerp(0.04f, Albedo, Metallic);
-    Alpha = Roughness;
-    AlphaSq = Alpha * Alpha;
-    NdotV = saturate(dot(Normal, ViewDirection));
+    return tmpPosition.xyz / tmpPosition.w;
 }
 
-float Pow5(float n) {
-    float n2 = n * n;
-    return n2 * n2 * n;
+// 拡散反射IBL
+float32_t3 DiffuseIBL(float32_t3 normal, float32_t3 diffuseReflectance) {
+    return diffuseReflectance * g_Irradiance.Sample(g_CubeMapSampler, normal);
 }
 
-//float SchlickFresnel(float f0, float f90, float cosine) {
-//    return lerp(f0, f90, Pow5(1.0f - cosine));
-//}
-
-//float3 SchlickFresnel(float3 f0, float3 f90, float cosine) {
-//    return lerp(f0, f90, Pow5(1.0f - cosine));
-//}
-
-//float3 BurleyDiffuse(float NdotL, float LdotH) {
-//    float f90 = 0.5f + 2.0f * Roughness * LdotH * LdotH;
-//    return DiffuseReflectance * SchlickFresnel(1.0f, f90, NdotL) * SchlickFresnel(1.0f, f90, NdotV);
-//}
-
-//float3 NormalizedDisneyDiffuse(float NdotL, float LdotH) {
-//    float energyBias = lerp(0.0f, 0.5f, Roughness);
-//    float energyFactor = lerp(1.0f, 1.0f / 1.51f, Roughness);
-//    float f90 = energyBias + 2.0f * Roughness * LdotH * LdotH;
-//    float FL = SchlickFresnel(1.0f, f90, NdotL);
-//    float FV = SchlickFresnel(1.0f, f90, NdotV);
-//    return DiffuseReflectance * FL * FV * energyFactor * (1.0f / PI);
-//}
-
-// GGX法線分布関数
-float D_GGX(float NdotH) {
-    float t = (NdotH * NdotH * (AlphaSq - 1.0f)) + 1.0f;
-    return AlphaSq / (t * t * PI);
-}
-
-// GGXシャドウマスキング関数
-float G_Smith_Schlick_GGX(float NdotL) {
-    float k = Alpha * 0.5f + EPSILON;
-    float GV = NdotV / (NdotV * (1.0f - k) + k);
-    float GL = NdotL / (NdotL * (1.0f - k) + k);
-    return GV * GL;
-}
-
-// GGXシャドウマスキング関数
-//float G_GGX(float NdotL) {
-//    float Gv = NdotL * sqrt((-NdotV * AlphaSq + NdotV) * NdotV + AlphaSq);
-//    float Gl = NdotV * sqrt((-NdotL * AlphaSq + NdotL) * NdotL + AlphaSq);
-//    return 0.5f / (Gv + Gl + 1e-6f);
-//}
-
-float3 F_Schlick(float LdotH) {
-    return (SpecularReflectance + (1.0f - SpecularReflectance) * Pow5(1.0f - LdotH));
-}
-
-float3 DiffuseBRDF() {
-    return DiffuseReflectance * INV_PI;
-}
-
-float3 SpecularBRDF(float NdotL, float LdotH, float NdotH) {
-    float3 F = F_Schlick(LdotH);
-    float D = D_GGX(NdotH);
-    float G = G_Smith_Schlick_GGX(NdotL);
-    return (F * (D * G)) / (4.0f * NdotV * NdotL + EPSILON);
-}
-
-float3 ShadeDirectionalLight(DirectionalLight light) {
-    float3 lightDirection = -light.direction;
-    float3 halfVector = normalize(lightDirection + ViewDirection);
-    float NdotL = saturate(dot(Normal, lightDirection));
-    float LdotH = saturate(dot(lightDirection, halfVector));
-    float NdotH = saturate(dot(Normal, halfVector));
-        
-    float3 diffuse = DiffuseBRDF();
-    float3 specular = SpecularBRDF(NdotL, LdotH, NdotH);
-    float3 BRDF = diffuse + specular;
-    return BRDF * NdotL * light.color;
-}
-
-float GetDistanceAttenuation(float3 unNormalizedLightVector) {
-    float distSq = dot(unNormalizedLightVector, unNormalizedLightVector);
-    float attenuation = 1.0f / max(distSq, EPSILON);
-    return attenuation;
-}
-
-float3 ShadePointLight(PointLight light) {
-    float3 diff = light.position - Position;
-    float3 lightDirection = normalize(diff);
-    
-    float3 halfVector = normalize(lightDirection + ViewDirection);
-    float NdotL = saturate(dot(Normal, lightDirection));
-    float LdotH = saturate(dot(lightDirection, halfVector));
-    float NdotH = saturate(dot(Normal, halfVector));
-        
-    float3 diffuse = DiffuseBRDF();
-    float3 specular = SpecularBRDF(NdotL, LdotH, NdotH);
-    float3 BRDF = diffuse + specular;
-    
-    float attenuation = GetDistanceAttenuation(diff);
-    
-    return BRDF * NdotL * light.color * attenuation * INV_PI;  
-}
-
-float GetAngleAttenuation(float3 unNormalizedLightVector, float3 lightDirection, float lightAngleScale, float lightAngleOffset) {
-    float cd = dot(lightDirection, unNormalizedLightVector);
-    float attenuation = saturate(cd * lightAngleScale + lightAngleOffset);
-    attenuation *= attenuation;
-    return attenuation;
-}
-
-float3 ShadeSpotLight(SpotLight light) {
-    float3 diff = light.position - Position;
-    float3 lightDirection = normalize(diff);
-    
-    float3 halfVector = normalize(lightDirection + ViewDirection);
-    float NdotL = saturate(dot(Normal, lightDirection));
-    float LdotH = saturate(dot(lightDirection, halfVector));
-    float NdotH = saturate(dot(Normal, halfVector));
-        
-    float3 diffuse = DiffuseBRDF();
-    float3 specular = SpecularBRDF(NdotL, LdotH, NdotH);
-    float3 BRDF = diffuse + specular;
-    
-    float attenuation = GetDistanceAttenuation(diff);
-    attenuation = GetAngleAttenuation(-lightDirection, light.direction, light.angleScale, light.angleOffset);
-    
-    return BRDF * NdotL * light.color * attenuation * INV_PI;
+// 鏡面反射IBL
+float32_t3 SpecularIBL(float32_t3 normal, float32_t3 viewDirection, float32_t3 specularReflectance, float32_t specularRoughness) {
+    float32_t NdotV = saturate(dot(normal, viewDirection));
+    float32_t lod = specularRoughness * (g_Scene.radianceMipCount);
+    float32_t3 specular = PBR::SchlickFresnel(specularReflectance, 1.0f, NdotV);
+    return specular * g_Radiance.SampleLevel(g_CubeMapSampler, reflect(-viewDirection, normal), lod);
 }
 
 PSOutput main(PSInput input) {
 
     PSOutput output;
-   
-    InitializeSurfaceProperties(input);
+    
+    //InitializeSurfaceProperties(input);
     
     // AlbedoのWが0の場合は計算しない
-    if (g_Albedo.SampleLevel(g_Sampler, input.texcoord, 0).w == 0.0f) {
-        discard;
+    if (g_Albedo.SampleLevel(g_DefaultSampler, input.texcoord, 0).w == 0.0f) {
+        float32_t3 position = GetWorldPosition(input.texcoord);
+
+        output.color.rgb = AtmosphericScattering(g_Scene.cameraPosition, normalize(position - g_Scene.cameraPosition), g_SkyParameter).rgb;
+        output.color.a = 1.0f;
+        return output;
     }
+   
+    float32_t3 position = GetWorldPosition(input.texcoord);
+    float32_t3 normal = g_Normal.SampleLevel(g_DefaultSampler, input.texcoord, 0) * 2.0f - 1.0f;
+    float32_t3 albedo = g_Albedo.SampleLevel(g_DefaultSampler, input.texcoord, 0).xyz;
+    float32_t metallic = g_MetallicRoughness.SampleLevel(g_DefaultSampler, input.texcoord, 0).x;
+    float32_t roughness = g_MetallicRoughness.SampleLevel(g_DefaultSampler, input.texcoord, 0).y;
+    // 0はダメ
+    //roughness = clamp(roughness, 0.03f, 1.0f);
+    float32_t3 emissive = float32_t3(0.0f, 0.0f, 0.0f);
+
+    PBR::Geometry geometry = PBR::CreateGeometry(position, normal, g_Scene.cameraPosition);
+    PBR::Material material = PBR::CreateMaterial(albedo, metallic, roughness, emissive);
+    PBR::IncidentLight incidentLight;
+    incidentLight.direction = g_SkyParameter.sunPosition;
+    incidentLight.color = float32_t3(1.0f, 1.0f, 1.0f);
     
-    float3 color = 0.0f;
-    color += ShadeDirectionalLight(g_Scene.directionalLight);
+    PBR::ReflectedLight reflectedLight;
+    reflectedLight.directDiffuse = float32_t3(0.0f, 0.0f, 0.0f);
+    reflectedLight.directSpecular = float32_t3(0.0f, 0.0f, 0.0f);
     
+    ///color += ShadeDirectionalLight(g_Scene.directionalLight);
+    PBR::DirectRenderingEquations(incidentLight, geometry, material, reflectedLight);
+    
+    // IBL
+    //reflectedLight.directDiffuse += DiffuseIBL(geometry.normal, material.diffuseReflectance);
+    //reflectedLight.directSpecular += SpecularIBL(geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
+
+    float32_t3 color = reflectedLight.directDiffuse + reflectedLight.directSpecular;
+
     output.color.rgb = color;
     output.color.a = 1.0f;
     

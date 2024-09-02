@@ -372,12 +372,12 @@
             "transform": {
                 "translate": [
                     0.0,
-                    -10000.0,
+                    -0.5,
                     0.0
                 ],
                 "rotate": [
                     -0.0,
-                    -0.0,
+                    0.0,
                     0.0
                 ],
                 "scale": [
@@ -386,7 +386,51 @@
                     10000.0
                 ]
             },
-            "model_name": "sphere"
+            "model_name": "plane"
+        },
+        {
+            "type": "MESH",
+            "name": "LivingRoom",
+            "transform": {
+                "translate": [
+                    50.0,
+                    0.0,
+                    -80.0
+                ],
+                "rotate": [
+                    -0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "model_name": "living_room"
+        },
+        {
+            "type": "MESH",
+            "name": "Conference",
+            "transform": {
+                "translate": [
+                    0.0,
+                    0.0,
+                    100.0
+                ],
+                "rotate": [
+                    -0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "model_name": "conference"
         }
     ]
 }

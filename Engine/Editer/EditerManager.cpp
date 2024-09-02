@@ -246,6 +246,9 @@ namespace Editer {
                 RenderManager::GetInstance()->GetSky().DrawImGui();
                 ImGui::EndMenu();
             }
+            bool pathtracing = !sceneView_->SetUseMainImage();
+            ImGui::Checkbox("Pathtracing", &pathtracing);
+            sceneView_->SetUseMainImage(!pathtracing);
             ImGui::EndMenu();
         }
     }

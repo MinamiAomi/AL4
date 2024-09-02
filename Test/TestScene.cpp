@@ -80,6 +80,33 @@ void TestScene::OnUpdate() {
         diffPosition += cameraZ;
     }
 
+    {
+        auto BoolInt = [](bool x) {
+            return x ? 1 : 0;
+            };
+
+        int xRotate = BoolInt(input->IsKeyPressed(DIK_DOWN)) - BoolInt(input->IsKeyPressed(DIK_UP));
+        int yRotate = BoolInt(input->IsKeyPressed(DIK_RIGHT)) - BoolInt(input->IsKeyPressed(DIK_LEFT));
+
+        constexpr float rotSpeed = Math::ToRadian * 1.0f;
+        euler_.x += rotSpeed * static_cast<float>(xRotate);
+        euler_.y += rotSpeed * static_cast<float>(yRotate);
+
+
+        int xMove = BoolInt(input->IsKeyPressed(DIK_D)) - BoolInt(input->IsKeyPressed(DIK_A));
+        Vector3 cameraX = rotate.GetRight() * (float)xMove * 0.5f;
+        diffPosition += cameraX;
+
+        int yMove = BoolInt(input->IsKeyPressed(DIK_SPACE)) - BoolInt(input->IsKeyPressed(DIK_LSHIFT));
+        Vector3 cameraY = rotate.GetUp() * (float)yMove * 0.5f;
+        diffPosition += cameraY;
+
+        int zMove = BoolInt(input->IsKeyPressed(DIK_W)) - BoolInt(input->IsKeyPressed(DIK_S));
+        Vector3 cameraZ = rotate.GetForward() * (float)zMove * 0.5f;
+        diffPosition += cameraZ;
+    }
+
+
 
     camera_->SetPosition(position + diffPosition);
     camera_->SetRotate(Quaternion::MakeFromEulerAngle(euler_));

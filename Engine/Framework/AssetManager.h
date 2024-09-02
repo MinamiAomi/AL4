@@ -40,6 +40,7 @@ public:
 
     void Add(const std::shared_ptr<Asset>& resource);
     std::shared_ptr<Asset> Find(const std::string& name);
+
     void Remove(const std::shared_ptr<Asset>& resource);
     const AssetList& GetAssetList() const { return assetList_; }
 

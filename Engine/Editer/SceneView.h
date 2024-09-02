@@ -12,6 +12,9 @@ namespace Editer {
 
         void Render(CommandContext& commandContext);
 
+        void SetUseMainImage(bool useMainImage) { useMainImage_ = useMainImage; }
+        bool SetUseMainImage() const { return useMainImage_; }
+
     private:
         bool useMainImage_ = true;
 

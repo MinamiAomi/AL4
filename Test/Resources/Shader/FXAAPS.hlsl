@@ -138,7 +138,7 @@ float3 LinearToSRGB(float3 color) {
 
 PSOutput main(PSInput input) {
     PSOutput output;
-    output.color.rgb = LinearToSRGB(FXAA(input.texcoord));
+    output.color.rgb = FXAA(input.texcoord);
     output.color.a = 1.0f;
     return output;
 }

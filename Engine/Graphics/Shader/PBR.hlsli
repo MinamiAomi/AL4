@@ -93,6 +93,7 @@ namespace PBR {
         float32_t D = D_GGX(NdotH, alpha);
         float32_t G = G_Smith_Schlick_GGX(NdotV, NdotL, alpha);
 
+        
         pdf = (D * NdotH) / (4.0f * VdotH);
         return (F * D * G) / (4.0f * NdotV * NdotL + EPSILON);
     }
