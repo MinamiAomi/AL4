@@ -12,9 +12,17 @@ class TextureResource;
 class Sound;
 class Animation;
 
+class TextureAsset;
+class ModelAsset;
+class MaterialAsset;
+class AnimationAsset;
+class SoundAsset;
+
 class AssetManager {
 public:
     using AssetList = std::list<std::shared_ptr<Asset>>;
+    template<typename T>
+    using AssetMap = std::map<std::string, std::shared_ptr<T>>;
 
     static AssetManager* GetInstance();
 
@@ -55,6 +63,12 @@ private:
     std::map<std::string, std::shared_ptr<Sound>> soundMap_;
     std::map<std::string, std::shared_ptr<Animation>> animationMap_;
 
+    AssetMap<TextureAsset> textures_;
+    AssetMap<ModelAsset> models_;
+    AssetMap<MaterialAsset> materials_;
+    AssetMap<AnimationAsset> animations_;
+    AssetMap<SoundAsset> sounds_;
     AssetList assetList_;
+
     std::mutex mutex_;
 };

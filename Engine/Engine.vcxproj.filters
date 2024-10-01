@@ -88,6 +88,9 @@
     <Filter Include="Graphics\Particle">
       <UniqueIdentifier>{2aa45c89-c217-4e1c-9837-b064e6d61eb4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Framework\Asset">
+      <UniqueIdentifier>{1206aa75-33c6-4774-a72e-fd5c3e5a56c7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene\SceneManager.cpp">
@@ -372,9 +375,6 @@
     <ClCompile Include="Graphics\Raytracing\Denoiser.cpp">
       <Filter>Graphics\Raytracing</Filter>
     </ClCompile>
-    <ClCompile Include="Framework\Asset.cpp">
-      <Filter>Framework</Filter>
-    </ClCompile>
     <ClCompile Include="Graphics\Texture.cpp">
       <Filter>Graphics\Standard</Filter>
     </ClCompile>
@@ -386,6 +386,24 @@
     </ClCompile>
     <ClCompile Include="Graphics\Sky.cpp">
       <Filter>Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\Asset.cpp">
+      <Filter>Framework\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\TextureAsset.cpp">
+      <Filter>Framework\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\ModelAsset.cpp">
+      <Filter>Framework\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\MaterialAsset.cpp">
+      <Filter>Framework\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\SoundAsset.cpp">
+      <Filter>Framework\Asset</Filter>
+    </ClCompile>
+    <ClCompile Include="Framework\AnimationAsset.cpp">
+      <Filter>Framework\Asset</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -728,9 +746,6 @@
     <ClInclude Include="Editer\ProjectView.h">
       <Filter>Editer</Filter>
     </ClInclude>
-    <ClInclude Include="Framework\Asset.h">
-      <Filter>Framework</Filter>
-    </ClInclude>
     <ClInclude Include="Utility\Utility.h">
       <Filter>Utility</Filter>
     </ClInclude>
@@ -757,6 +772,24 @@
     </ClInclude>
     <ClInclude Include="Graphics\Sky.h">
       <Filter>Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\Asset.h">
+      <Filter>Framework\Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\TextureAsset.h">
+      <Filter>Framework\Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\ModelAsset.h">
+      <Filter>Framework\Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\MaterialAsset.h">
+      <Filter>Framework\Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\AnimationAsset.h">
+      <Filter>Framework\Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="Framework\SoundAsset.h">
+      <Filter>Framework\Asset</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

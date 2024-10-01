@@ -202,10 +202,15 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">false</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="File\JsonConverter.cpp" />
+    <ClCompile Include="Framework\AnimationAsset.cpp" />
     <ClCompile Include="Framework\Asset.cpp" />
     <ClCompile Include="Framework\Engine.cpp" />
     <ClCompile Include="Framework\AssetManager.cpp" />
+    <ClCompile Include="Framework\MaterialAsset.cpp" />
+    <ClCompile Include="Framework\ModelAsset.cpp" />
+    <ClCompile Include="Framework\SoundAsset.cpp" />
     <ClCompile Include="Framework\ThreadPool.cpp" />
+    <ClCompile Include="Framework\TextureAsset.cpp" />
     <ClCompile Include="GameObject\GameObject.cpp" />
     <ClCompile Include="GameObject\GameObjectFactory.cpp" />
     <ClCompile Include="GameObject\GameObjectManager.cpp" />
@@ -246,8 +251,13 @@
     </ClInclude>
     <ClInclude Include="Externals\ImGui\imgui_stdlib.h" />
     <ClInclude Include="File\JsonConverter.h" />
+    <ClInclude Include="Framework\AnimationAsset.h" />
     <ClInclude Include="Framework\Asset.h" />
     <ClInclude Include="Framework\AssetManager.h" />
+    <ClInclude Include="Framework\MaterialAsset.h" />
+    <ClInclude Include="Framework\ModelAsset.h" />
+    <ClInclude Include="Framework\SoundAsset.h" />
+    <ClInclude Include="Framework\TextureAsset.h" />
     <ClInclude Include="Framework\ThreadPool.h" />
     <ClInclude Include="GameObject\Component.h" />
     <ClInclude Include="GameObject\GameObject.h" />
