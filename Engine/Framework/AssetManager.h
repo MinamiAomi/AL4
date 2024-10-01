@@ -6,17 +6,16 @@
 #include <string>
 
 #include "Asset.h"
+#include "TextureAsset.h"
+#include "ModelAsset.h"
+#include "MaterialAsset.h"
+#include "AnimationAsset.h"
+#include "SoundAsset.h"
 
 class Model;
 class TextureResource;
 class Sound;
 class Animation;
-
-class TextureAsset;
-class ModelAsset;
-class MaterialAsset;
-class AnimationAsset;
-class SoundAsset;
 
 class AssetManager {
 public:

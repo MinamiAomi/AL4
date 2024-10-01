@@ -15,6 +15,7 @@
 #include "Debug/Debug.h"
 #include "Framework/AssetManager.h"
 
+
 namespace {
 
     enum class Filter {
