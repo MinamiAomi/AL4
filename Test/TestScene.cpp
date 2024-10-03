@@ -31,7 +31,7 @@ void TestScene::OnInitialize() {
 
 
     Vector3 offset = { 50.0f, 20.0f, 0.0f };
-    auto sphereModel = AssetManager::GetInstance()->FindModel("sphere");
+    auto sphereModel = AssetManager::GetInstance()->modelMap.Get("sphere");
     for (uint32_t row = 0; row < kRowCount; ++row) {
         for (uint32_t column = 0; column < kColumnCount; ++column) {
             auto& sphere = spheres_[row][column];
@@ -39,7 +39,7 @@ void TestScene::OnInitialize() {
             sphere.material->albedo = { 1.0f, 1.0f, 1.0f };
             sphere.material->metallic = (float)row / (kRowCount - 1);
             sphere.material->roughness = (float)column / (kColumnCount - 1);
-            sphere.model.SetModel(sphereModel);
+            sphere.model.SetModel(sphereModel->Get());
             sphere.model.SetMaterial(sphere.material);
             sphere.model.SetWorldMatrix(Matrix4x4::MakeTranslation(Vector3{ -15.0f + column * 3.0f, -15.0f + row * 3.0f, 0.0f } + offset));
             sphere.model.SetBeReflected(false);

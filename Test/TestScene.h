@@ -12,8 +12,6 @@
 #include "Graphics/Skeleton.h"
 #include "GameObject/GameObjectManager.h"
 
-#include "Player.h"
-
 class TestScene :
     public BaseScene {
 public:

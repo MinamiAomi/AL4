@@ -31,9 +31,14 @@ public:
     virtual ~Asset() {}
     void Load(const std::filesystem::path& path, const std::string& name = "");
 
-    virtual void RenderInInspectorView() override = 0;
+    virtual void RenderInInspectorView() override;
 
-    void SetName(const std::string& name) { name_ = name; }
+    void SetName(const std::string& name) { 
+        name_ = name; 
+#ifdef ENABLE_IMGUI
+        editingName_ = name_;
+#endif // ENABLE_IMGUI
+    }
 
     const std::filesystem::path& GetPath() const { return path_; }
     const std::string& GetName() const { return name_; }
@@ -46,4 +51,9 @@ protected:
     std::string name_;
     Type type_ = Type::None;
     State state_ = State::Unloaded;
+
+private:
+#ifdef ENABLE_IMGUI
+    std::string editingName_;
+#endif
 };

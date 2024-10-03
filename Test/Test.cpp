@@ -4,6 +4,8 @@
 #include <fstream>
 
 #include "Externals/nlohmann/json.hpp"
+#include "Framework/Engine.h"
+#include "Framework/ThreadPool.h"
 #include "Scene/SceneManager.h"
 #include "Framework/AssetManager.h"
 #include "Graphics/Model.h"
@@ -45,7 +47,10 @@ void Test::LoadResource() {
 #ifdef _DEBUG
         auto duration = Debug::ElapsedTime([&]() {
 #endif
-            assetManager->AddTexture(texture.key(), TextureLoader::Load("Resources/" + texture.value().get<std::string>()));
+            auto asset = std::make_shared<TextureAsset>();
+            asset->Load("Resources/" + texture.value().get<std::string>());
+            asset->SetName(texture.key());
+            assetManager->textureMap.Add(asset);
 #ifdef _DEBUG
             });
         std::stringstream str;
@@ -57,7 +62,10 @@ void Test::LoadResource() {
 #ifdef _DEBUG
         auto duration = Debug::ElapsedTime([&]() {
 #endif
-            assetManager->AddModel(model.key(), Model::Load("Resources/" + model.value().get<std::string>()));
+            auto asset = std::make_shared<ModelAsset>();
+            asset->Load("Resources/" + model.value().get<std::string>());
+            asset->SetName(model.key());
+            assetManager->modelMap.Add(asset);
 #ifdef _DEBUG
             });
         std::stringstream str;
@@ -71,7 +79,11 @@ void Test::LoadResource() {
 #ifdef _DEBUG
         auto duration = Debug::ElapsedTime([&]() {
 #endif
-            assetManager->AddSound(sound.key(), Sound::Load("Resources/" + sound.value().get<std::string>()));
+
+            auto asset = std::make_shared<SoundAsset>();
+            asset->Load("Resources/" + sound.value().get<std::string>());
+            asset->SetName(sound.key());
+            assetManager->soundMap.Add(asset);
 #ifdef _DEBUG
             });
         std::stringstream str;
@@ -83,7 +95,10 @@ void Test::LoadResource() {
 #ifdef _DEBUG
         auto duration = Debug::ElapsedTime([&]() {
 #endif
-            assetManager->AddAnimation(animation.key(), Animation::Load("Resources/" + animation.value().get<std::string>()));
+            auto asset = std::make_shared<AnimationAsset>();
+            asset->Load("Resources/" + animation.value().get<std::string>());
+            asset->SetName(animation.key());
+            assetManager->animationMap.Add(asset);
 #ifdef _DEBUG
             });
         std::stringstream str;
@@ -91,4 +106,6 @@ void Test::LoadResource() {
         OutputDebugStringA(str.str().c_str());
 #endif
     }
+
+    Engine::GetThreadPool()->WaitForAll();
 }

@@ -6,7 +6,7 @@ class Model;
 class ModelAsset :
     public Asset {
 public:
-    void RenderInInspectorView() override {}
+    void RenderInInspectorView() override;
 
     std::shared_ptr<Model> Get() const { return core_; }
 

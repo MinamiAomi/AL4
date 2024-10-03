@@ -1,6 +1,7 @@
 #include "ProjectView.h"
 
 #include <algorithm>
+#include <ranges>
 #include <Windows.h>
 
 #ifdef ENABLE_IMGUI
@@ -78,7 +79,7 @@ namespace {
         return truncatedText + "...";
 #else
         maxWidth;
-        return text; 
+        return text;
 #endif // ENABLE_IMGUI
     }
 #ifdef ENABLE_IMGUI
@@ -115,7 +116,7 @@ namespace Editer {
                         if (!path.empty()) {
                             auto asset = std::make_shared<TextureAsset>();
                             asset->Load(path);
-                            Engine::GetAssetManager()->Add(asset);
+                            Engine::GetAssetManager()->textureMap.Add(asset);
                         }
                     }
                     if (ImGui::MenuItem("Model")) {
@@ -123,7 +124,7 @@ namespace Editer {
                         if (!path.empty()) {
                             auto asset = std::make_shared<ModelAsset>();
                             asset->Load(path);
-                            Engine::GetAssetManager()->Add(asset);
+                            Engine::GetAssetManager()->modelMap.Add(asset);
                         }
                     }
                     if (ImGui::MenuItem("Animation")) {
@@ -131,7 +132,7 @@ namespace Editer {
                         if (!path.empty()) {
                             auto asset = std::make_shared<AnimationAsset>();
                             asset->Load(path);
-                            Engine::GetAssetManager()->Add(asset);
+                            Engine::GetAssetManager()->animationMap.Add(asset);
                         }
                     }
                     if (ImGui::MenuItem("Sound")) {
@@ -139,7 +140,7 @@ namespace Editer {
                         if (!path.empty()) {
                             auto asset = std::make_shared<SoundAsset>();
                             asset->Load(path);
-                            Engine::GetAssetManager()->Add(asset);
+                            Engine::GetAssetManager()->soundMap.Add(asset);
                         }
                     }
                     ImGui::EndMenu();
@@ -207,26 +208,45 @@ namespace Editer {
 
     void ProjectView::RenderLeftWindow() {
 #ifdef ENABLE_IMGUI
-        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+        ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_DefaultOpen;
 
         if (ImGui::TreeNodeEx("Assets", flags)) {
-            if (ImGui::TreeNodeEx("Textures", flags | ImGuiTreeNodeFlags_Leaf)) {
+            auto LeafFlags = [flags, this](AssetType showAssetType) {
+                auto leafFlags = flags | ImGuiTreeNodeFlags_Leaf;
+                if ((showAssetTypes_ & showAssetType)) {
+                    leafFlags |= ImGuiTreeNodeFlags_Selected;
+                }
+                return leafFlags;
+            };
 
+            if (ImGui::TreeNodeEx("Textures", LeafFlags(Texture))) {
+                if (ImGui::IsItemClicked()) {
+                    showAssetTypes_ = static_cast<AssetType>(showAssetTypes_ ^ Texture);
+                }
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNodeEx("Models", flags | ImGuiTreeNodeFlags_Leaf)) {
-
+            if (ImGui::TreeNodeEx("Models", LeafFlags(Model))) {
+                if (ImGui::IsItemClicked()) {
+                    showAssetTypes_ = static_cast<AssetType>(showAssetTypes_ ^ Model);
+                }
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNodeEx("Materials", flags | ImGuiTreeNodeFlags_Leaf)) {
-
+            if (ImGui::TreeNodeEx("Materials", LeafFlags(Material))) {
+                if (ImGui::IsItemClicked()) {
+                    showAssetTypes_ = static_cast<AssetType>(showAssetTypes_ ^ Material);
+                }
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNodeEx("Animations", flags | ImGuiTreeNodeFlags_Leaf)) {
+            if (ImGui::TreeNodeEx("Animations", LeafFlags(Animation))) {
+                if (ImGui::IsItemClicked()) {
+                    showAssetTypes_ = static_cast<AssetType>(showAssetTypes_ ^ Animation);
+                }
                 ImGui::TreePop();
             }
-            if (ImGui::TreeNodeEx("Sounds", flags | ImGuiTreeNodeFlags_Leaf)) {
-
+            if (ImGui::TreeNodeEx("Sounds", LeafFlags(Sound))) {
+                if (ImGui::IsItemClicked()) {
+                    showAssetTypes_ = static_cast<AssetType>(showAssetTypes_ ^ Sound);
+                }
                 ImGui::TreePop();
             }
 
@@ -242,7 +262,7 @@ namespace Editer {
     void ProjectView::RenderRightWindow() {
 #ifdef ENABLE_IMGUI
         auto assetManager = Engine::GetAssetManager();
-        auto& assetList = assetManager->GetAssetList();
+
 
         const auto& io = ImGui::GetIO();
         if (ImGui::IsWindowHovered() && ImGui::IsKeyPressed(ImGuiKey_LeftCtrl)) {
@@ -267,20 +287,19 @@ namespace Editer {
         numItemsInLine = std::max(numItemsInLine, 1);
 
         uint32_t i = 0;
-        for (auto& asset : assetList) {
-
+        auto DrawItem = [&](const std::string& name, auto asset) {
             ImGui::BeginGroup();
-            
+
             // イメージ描画
             ImVec2 groupLocalCursourBase = ImGui::GetCursorPos();
             ImVec2 imageSize = { 64.0f, 64.0f };
             imageSize = CalcFitSize({ itemSize, itemSize }, imageSize);
             // 画像が真ん中に来るよう合わせる
             ImGui::SetCursorPos({ groupLocalCursourBase.x + (itemSize - imageSize.x) * 0.5f, groupLocalCursourBase.y + (itemSize - imageSize.y) * 0.5f });
-            ImGui::Button((std::format("##{}", i) + asset->GetName()).c_str(), imageSize);
-            
+            ImGui::Button((std::format("##{}", i) + name).c_str(), imageSize);
+
             // テキストの描画
-            std::string text = asset->GetName();
+            std::string text = name;
             text = TruncateText(text, itemSize);
             ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
             float textOffsetX = (itemSize - textSize.x) * 0.5f;  // 中央揃えのためのオフセット計算
@@ -300,7 +319,24 @@ namespace Editer {
                 ImGui::SameLine();
             }
             i++;
+        };
+
+        if (showAssetTypes_ & Texture) {
+            assetManager->textureMap.ForEach(DrawItem);
         }
+        if (showAssetTypes_ & Model) {
+            assetManager->modelMap.ForEach(DrawItem);
+        }
+        if (showAssetTypes_ & Material) {
+            assetManager->materialMap.ForEach(DrawItem);
+        }
+        if (showAssetTypes_ & Animation) {
+            assetManager->animationMap.ForEach(DrawItem);
+        }
+        if (showAssetTypes_ & Sound) {
+            assetManager->soundMap.ForEach(DrawItem);
+        }
+
 #endif ENABLE_IMGUI
     }
 

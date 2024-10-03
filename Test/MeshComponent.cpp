@@ -7,7 +7,7 @@
 
 void MeshComponent::Initialize() {
     auto assetManager = AssetManager::GetInstance();
-    model_.SetModel(assetManager->FindModel(modelName_));
+    model_.SetModel(assetManager->modelMap.Get(modelName_)->Get());
     
     if (model_.GetModel()->GetMaterials().size() <= 2) {
         customMaterial_ = std::make_shared<Material>(model_.GetModel()->GetMaterials()[0]);

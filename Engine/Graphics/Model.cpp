@@ -208,9 +208,9 @@ std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
     std::shared_ptr<Model> model = std::make_shared<Helper>();
 
     auto directory = path.parent_path();
-
     Assimp::Importer importer;
     int flags = 0;
+
     // 三角形のみ
     flags |= aiProcess_Triangulate;
     // 左手座標系に変換
