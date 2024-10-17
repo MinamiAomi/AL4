@@ -18,6 +18,7 @@
 
 #define DXR_GRAPHICS_COMMAND_LIST ID3D12GraphicsCommandList4
 
+// コマンドリストのラッパー
 class CommandContext {
 public:
     void Start(D3D12_COMMAND_LIST_TYPE type);

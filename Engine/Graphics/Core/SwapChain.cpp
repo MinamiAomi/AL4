@@ -34,7 +34,7 @@ void SwapChain::Create(HWND hWnd) {
     desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD; // モニタに移したら、中身を破棄
 
     ASSERT_IF_FAILED(factory->CreateSwapChainForHwnd(
-        Graphics::GetInstance()->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT),
+        Graphics::GetInstance()->GetCommandManager().GetCommandQueue(),
         hWnd,
         &desc,
         nullptr,

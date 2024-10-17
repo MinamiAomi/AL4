@@ -16,9 +16,9 @@ void CommandContext::Start(D3D12_COMMAND_LIST_TYPE type) {
 
     auto graphics = Graphics::GetInstance();
     device_ = graphics->GetDevice();
-    auto& queue = graphics->GetCommandQueue(type_);
-    commandAllocator_ = graphics->GetCommandAllocatorPool(type_).Allocate(queue.GetLastCompletedFenceValue());
-    commandList_ = graphics->GetCommandListPool(type_).Allocate(commandAllocator_);
+    auto& commandManager = graphics->GetCommandManager();
+    commandAllocator_ = commandManager.GetCommandAllocatorPool().Allocate(commandManager.GetCommandQueue().GetLastCompletedFenceValue());
+    commandList_ = commandManager.GetCommandListPool().Allocate(commandAllocator_);
     
     for (int i = 0; i < LinearAllocatorType::Count; ++i) {
         dynamicBuffers_[i].Create(LinearAllocatorType::Type(i));
@@ -53,26 +53,24 @@ void CommandContext::Close() {
 }
 
 UINT64 CommandContext::Finish(bool waitForCompletion) {
+    waitForCompletion;
     if (!isClose_) {
         Close();
     }
 
     auto graphics = Graphics::GetInstance();
-    auto& queue = graphics->GetCommandQueue(type_);
+    auto& commandManager = graphics->GetCommandManager();
 
-    UINT64 fenceValue = queue.ExecuteCommandList(commandList_.Get());
 
-    graphics->GetCommandAllocatorPool(type_).Discard(fenceValue, commandAllocator_);
+    UINT64 fenceValue = commandManager.Add(commandList_);
+
+    commandManager.GetCommandAllocatorPool().Discard(fenceValue, commandAllocator_);
     commandAllocator_ = nullptr;
-    graphics->GetCommandListPool(type_).Discard(commandList_);
+    commandManager.GetCommandListPool().Discard(commandList_);
     commandList_ = nullptr;
     dxrCommandList_ = nullptr;
     for (int i = 0; i < LinearAllocatorType::Count; ++i) {
         dynamicBuffers_[i].Reset(type_, fenceValue);
-    }
-
-    if (waitForCompletion) {
-        queue.WaitForGPU(fenceValue);
     }
 
     return fenceValue;

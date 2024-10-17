@@ -37,10 +37,10 @@ public:
         return ptr;
     }
 
-    void ForEach(std::function<void(const std::string&, const std::shared_ptr<T>&)> func) {
+    void ForEach(std::function<void(const std::shared_ptr<T>&)> func) {
         std::lock_guard<std::mutex> lock(mutex_);
         for (auto& iter : list_) {
-            func(iter->GetName(), iter);
+            func(iter);
         }
     }
 

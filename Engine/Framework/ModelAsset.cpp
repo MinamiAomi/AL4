@@ -4,6 +4,9 @@
 
 #include "Graphics/Model.h"
 #include "Graphics/ImGuiManager.h"
+#include "Graphics/Core/ColorBuffer.h"
+#include "Graphics/Core/CommandContext.h"
+
 
 void ModelAsset::RenderInInspectorView() {
 #ifdef ENABLE_IMGUI
@@ -17,8 +20,33 @@ void ModelAsset::RenderInInspectorView() {
 #endif // ENABLE_IMGUI
 }
 
+#ifdef ENABLE_IMGUI
+ThumbnailData ModelAsset::GetThumbnail() {
+    // ロードされていない
+    if (state_ != State::Loaded) {
+        return ThumbnailData();
+    }
+
+    assert(core_);
+
+    ThumbnailData thumbnail{};
+    return thumbnail;
+}
+#endif // ENABLE_IMGUI
+
 void ModelAsset::InternalLoad() {
     assert(state_ == State::Loading);
     type_ = Type::Model;
     core_ = Model::Load(path_);
+
+#ifdef ENABLE_IMGUI
+    //// サムネイル画像を作成
+    //ColorBuffer colorBuffer;
+    //colorBuffer.Create(L"Thumbnail ColorBuffer", 256, 256, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
+    //
+    //
+    //thumbnail_ = std::make_unique<TextureResource>();
+    //thumbnail_->Create()
+
+#endif // ENABLE_IMGUI
 }

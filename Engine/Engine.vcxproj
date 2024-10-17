@@ -215,6 +215,7 @@
     <ClCompile Include="GameObject\GameObjectFactory.cpp" />
     <ClCompile Include="GameObject\GameObjectManager.cpp" />
     <ClCompile Include="Graphics\Animation.cpp" />
+    <ClCompile Include="Graphics\Core\CommandManager.cpp" />
     <ClCompile Include="Graphics\ParticleCore.cpp" />
     <ClCompile Include="Graphics\Raytracing\Denoiser.cpp" />
     <ClCompile Include="Graphics\Raytracing\TestRTRenderer.cpp" />
@@ -249,6 +250,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="Editer\ThumbnailRenderer.h" />
     <ClInclude Include="Externals\ImGui\imgui_stdlib.h" />
     <ClInclude Include="File\JsonConverter.h" />
     <ClInclude Include="Framework\AnimationAsset.h" />
@@ -328,6 +330,7 @@
     <ClCompile Include="Math\MathUtils.cpp" />
     <ClCompile Include="Scene\SceneManager.cpp" />
     <ClCompile Include="Scene\SceneTransition.cpp" />
+    <ClInclude Include="Graphics\Core\CommandManager.h" />
     <ClInclude Include="Graphics\ParticleCore.h" />
     <ClInclude Include="Graphics\Raytracing\Denoiser.h" />
     <ClInclude Include="Graphics\Raytracing\TestRTRenderer.h" />

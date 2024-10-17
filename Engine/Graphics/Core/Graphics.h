@@ -9,9 +9,7 @@
 #include "RootSignature.h"
 #include "DescriptorHandle.h"
 #include "DescriptorHeap.h"
-#include "CommandQueue.h"
-#include "CommandAllocatorPool.h"
-#include "CommandListPool.h"
+#include "CommandManager.h"
 #include "ReleasedObjectTracker.h"
 #include "LinearAllocator.h"
 
@@ -29,9 +27,7 @@ public:
 
     ID3D12Device* GetDevice() const { return device_.Get(); }
     DXR_DEVICE* GetDXRDevoce() const { return dxrDevice_.Get(); }
-    CommandQueue& GetCommandQueue(D3D12_COMMAND_LIST_TYPE type) { return GetCommandSet(type).queue; }
-    CommandAllocatorPool& GetCommandAllocatorPool(D3D12_COMMAND_LIST_TYPE type) { return GetCommandSet(type).allocatorPool; }
-    CommandListPool& GetCommandListPool(D3D12_COMMAND_LIST_TYPE type) { return GetCommandSet(type).listPool; }
+    CommandManager& GetCommandManager() { return commandManager_; }
     DescriptorHeap& GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type) { return *descriptorHeaps_[type]; }
     LinearAllocatorPagePool& GetLinearAllocatorPagePool(LinearAllocatorType type) { return linearAllocatorPagePools_[type]; }
     ReleasedObjectTracker& GetReleasedObjectTracker() { return releasedObjectTracker_; }
@@ -48,16 +44,6 @@ private:
     static const uint32_t kNumSRVs = BINDLESS_RESOURCE_MAX;
     static const uint32_t kNumSamplers = 16;
 
-    struct CommandSet {
-        CommandQueue queue;
-        CommandAllocatorPool allocatorPool;
-        CommandListPool listPool;
-        
-        CommandSet(D3D12_COMMAND_LIST_TYPE type) :
-            queue(type), allocatorPool(type), listPool(type) {
-        }
-    };
-
     Graphics();
     Graphics(const Graphics&) = delete;
     Graphics& operator=(const Graphics&) = delete;
@@ -65,7 +51,6 @@ private:
 
     void CreateDevice();
     void CheckFeatureSupport();
-    CommandSet& GetCommandSet(D3D12_COMMAND_LIST_TYPE type);
     void CreateDynamicResourcesRootSignature();
 
     ReleasedObjectTracker releasedObjectTracker_;
@@ -73,9 +58,8 @@ private:
     Microsoft::WRL::ComPtr<ID3D12Device> device_;
     Microsoft::WRL::ComPtr<DXR_DEVICE> dxrDevice_;
 
-    CommandSet directCommandSet_;
-    CommandSet computeCommandSet_;
-    CommandSet copyCommandSet_;
+    // directのみ
+    CommandManager commandManager_;
 
     std::shared_ptr<DescriptorHeap> descriptorHeaps_[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
 
@@ -83,13 +67,3 @@ private:
     
     RootSignature dynamicResourcesRootSignature_;
 };
-
-inline Graphics::CommandSet& Graphics::GetCommandSet(D3D12_COMMAND_LIST_TYPE type) {
-    switch (type) {
-    case D3D12_COMMAND_LIST_TYPE_COMPUTE:
-        return computeCommandSet_;
-    case D3D12_COMMAND_LIST_TYPE_COPY:
-        return copyCommandSet_;
-    }
-    return directCommandSet_;
-}

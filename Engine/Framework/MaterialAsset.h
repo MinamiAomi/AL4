@@ -10,6 +10,10 @@ public:
 
     std::shared_ptr<Material> Get() const { return core_; }
 
+#ifdef ENABLE_IMGUI
+    // サムネイル画像を返す
+    ThumbnailData GetThumbnail() override;
+#endif // ENABLE_IMGUI
 private:
     void InternalLoad() override;
 

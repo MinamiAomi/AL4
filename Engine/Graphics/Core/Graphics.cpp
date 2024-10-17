@@ -19,7 +19,7 @@ using namespace Microsoft::WRL;
 
 #define DEBUG_DIRECTX
 #define ENABLED_DEBUG_LAYER 1
-#define ENABLED_GPU_BASED_DEBUGGER 0
+#define ENABLED_GPU_BASED_DEBUGGER 1
 #define ENABLED_DEBUG_DRED 1
 
 #ifdef DEBUG_DIRECTX
@@ -151,9 +151,7 @@ void Graphics::Initialize() {
     CreateDevice();
     CheckFeatureSupport();
 
-    directCommandSet_.queue.Create();
-    computeCommandSet_.queue.Create();
-    copyCommandSet_.queue.Create();
+    commandManager_.Create();
 
     uint32_t numDescriptorsTable[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
     numDescriptorsTable[D3D12_DESCRIPTOR_HEAP_TYPE_RTV] = kNumRTVs;
@@ -175,9 +173,7 @@ void Graphics::Initialize() {
 }
 
 void Graphics::Finalize() {
-    directCommandSet_.queue.WaitForIdle();
-    computeCommandSet_.queue.WaitForIdle();
-    copyCommandSet_.queue.WaitForIdle();
+    commandManager_.GetCommandQueue().WaitForIdle();
     TextureLoader::ReleaseAll();
     for (int i = 0; i < LinearAllocatorType::Count; ++i) {
         linearAllocatorPagePools_[i].Finalize();
@@ -328,11 +324,7 @@ void Graphics::CheckDRED(HRESULT presentReturnValue) {
     ASSERT_IF_FAILED(presentReturnValue);
 }
 
-Graphics::Graphics() :
-    directCommandSet_(D3D12_COMMAND_LIST_TYPE_DIRECT),
-    computeCommandSet_(D3D12_COMMAND_LIST_TYPE_COMPUTE),
-    copyCommandSet_(D3D12_COMMAND_LIST_TYPE_COPY) {
-}
+Graphics::Graphics() {}
 
 void Graphics::CreateDevice() {
 #ifdef DEBUG_DIRECTX

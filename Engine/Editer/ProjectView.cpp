@@ -287,16 +287,23 @@ namespace Editer {
         numItemsInLine = std::max(numItemsInLine, 1);
 
         uint32_t i = 0;
-        auto DrawItem = [&](const std::string& name, auto asset) {
-            ImGui::BeginGroup();
+        auto DrawItem = [&](const std::shared_ptr<Asset>& asset) {
 
+            ImGui::BeginGroup();
             // イメージ描画
             ImVec2 groupLocalCursourBase = ImGui::GetCursorPos();
-            ImVec2 imageSize = { 64.0f, 64.0f };
-            imageSize = CalcFitSize({ itemSize, itemSize }, imageSize);
+
+            std::string name = asset->GetName();
+            auto thumbnail = asset->GetThumbnail();
+            thumbnail.size = CalcFitSize({ itemSize, itemSize }, thumbnail.size);
             // 画像が真ん中に来るよう合わせる
-            ImGui::SetCursorPos({ groupLocalCursourBase.x + (itemSize - imageSize.x) * 0.5f, groupLocalCursourBase.y + (itemSize - imageSize.y) * 0.5f });
-            ImGui::Button((std::format("##{}", i) + name).c_str(), imageSize);
+            ImGui::SetCursorPos({ groupLocalCursourBase.x + (itemSize - thumbnail.size.x) * 0.5f, groupLocalCursourBase.y + (itemSize - thumbnail.size.y) * 0.5f });
+            if (thumbnail.image) {
+                ImGui::Image(thumbnail.image, thumbnail.size);
+            }
+            else {
+                ImGui::Button("##", thumbnail.size);
+            }
 
             // テキストの描画
             std::string text = name;
@@ -304,7 +311,7 @@ namespace Editer {
             ImVec2 textSize = ImGui::CalcTextSize(text.c_str());
             float textOffsetX = (itemSize - textSize.x) * 0.5f;  // 中央揃えのためのオフセット計算
             groupLocalCursourBase = ImGui::GetCursorPos();
-            ImGui::SetCursorPos({ groupLocalCursourBase.x + textOffsetX, groupLocalCursourBase.y + (itemSize - imageSize.y) * 0.5f });
+            ImGui::SetCursorPos({ groupLocalCursourBase.x + textOffsetX, groupLocalCursourBase.y + (itemSize - thumbnail.size.y) * 0.5f });
             //ImGui::SetCursorPosX(ImGui::GetCursorPosX() + textOffsetX);
             ImGui::Text("%s", text.c_str());
 
