@@ -7,6 +7,7 @@
 void TextureAsset::RenderInInspectorView() {
 #ifdef ENABLE_IMGUI
     Asset::RenderInInspectorView();
+    if (!IsReady()) { return; }
     if (core_) {
         ImGui::Text("Width    : %d", core_->GetWidth());
         ImGui::Text("Height   : %d", core_->GetHeight());

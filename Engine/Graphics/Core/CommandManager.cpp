@@ -10,7 +10,7 @@ void CommandManager::Create() {
     commandQueue_.Create();
 }
 
-UINT64 CommandManager::Add(Microsoft::WRL::ComPtr<ID3D12CommandList> commandList) {
+UINT64 CommandManager::Add(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList) {
     std::lock_guard<std::mutex> lock(mutex_);
     closedCommandLists_.emplace_back(commandList);
 
@@ -24,5 +24,9 @@ void CommandManager::Execute() {
         pplist[i] = closedCommandLists_[i].Get();
     }
     commandQueue_.ExecuteCommandLists(pplist.data(), (UINT)pplist.size());
+
+    for (auto& commandList : closedCommandLists_) {
+        commandListPool_.Discard(commandList);
+    }
     closedCommandLists_.clear();
 }

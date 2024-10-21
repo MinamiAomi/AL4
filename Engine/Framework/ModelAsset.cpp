@@ -11,6 +11,7 @@
 void ModelAsset::RenderInInspectorView() {
 #ifdef ENABLE_IMGUI
     Asset::RenderInInspectorView();
+    if (!IsReady()) { return; }
     if (core_) {
         ImGui::Text("Num Vertices  : %d", core_->GetNumVertices());
         ImGui::Text("Num Indices   : %d", core_->GetNumIndices());

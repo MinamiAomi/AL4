@@ -107,5 +107,5 @@ void Test::LoadResource() {
 #endif
     }
 
-    //Engine::GetThreadPool()->WaitForAll();
+    Engine::GetThreadPool()->WaitForAll();
 }

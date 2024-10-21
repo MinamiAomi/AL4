@@ -17,7 +17,7 @@ public:
     // CommandListListを追加
     // Executeでまとめて投げられる
     // 次にExecuteを呼び出したときのフェンスの値が戻る
-    UINT64 Add(Microsoft::WRL::ComPtr<ID3D12CommandList> commandList);
+    UINT64 Add(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList);
     void Execute();
 
     CommandQueue& GetCommandQueue() { return commandQueue_; }
@@ -31,6 +31,6 @@ private:
     CommandQueue commandQueue_;
     CommandAllocatorPool commandAllocatorPool_;
     CommandListPool commandListPool_;
-    std::vector<Microsoft::WRL::ComPtr<ID3D12CommandList>> closedCommandLists_;
+    std::vector<Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>> closedCommandLists_;
     std::mutex mutex_;
 };

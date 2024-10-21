@@ -217,7 +217,7 @@ namespace Editer {
                     leafFlags |= ImGuiTreeNodeFlags_Selected;
                 }
                 return leafFlags;
-            };
+                };
 
             if (ImGui::TreeNodeEx("Textures", LeafFlags(Texture))) {
                 if (ImGui::IsItemClicked()) {
@@ -302,7 +302,21 @@ namespace Editer {
                 ImGui::Image(thumbnail.image, thumbnail.size);
             }
             else {
-                ImGui::Button("##", thumbnail.size);
+                if (asset->IsReady()) {
+                    ImGui::Button("##", thumbnail.size);
+                }
+                else {
+                    auto& style = ImGui::GetStyle();
+                    auto button = style.Colors[ImGuiCol_Button];
+                    auto buttonActive = style.Colors[ImGuiCol_ButtonActive];
+                    auto buttonHovered = style.Colors[ImGuiCol_HeaderHovered];
+                    button.x = buttonActive.x = buttonHovered.x = 1.0f;
+                    ImGui::PushStyleColor(ImGuiCol_Button, button);
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, buttonActive);
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, buttonHovered);
+                    ImGui::Button("##", thumbnail.size);
+                    ImGui::PopStyleColor(3);
+                }
             }
 
             // テキストの描画
@@ -326,7 +340,7 @@ namespace Editer {
                 ImGui::SameLine();
             }
             i++;
-        };
+            };
 
         if (showAssetTypes_ & Texture) {
             assetManager->textureMap.ForEach(DrawItem);

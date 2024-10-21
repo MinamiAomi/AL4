@@ -59,6 +59,8 @@ public:
     const std::filesystem::path& GetPath() const { return path_; }
     const std::string& GetName() const { return name_; }
     Type GetType() const { return type_; }
+    State GetState() const { return state_; }
+    bool IsReady() const { return state_ == State::Loaded; }
 
 protected:
     virtual void InternalLoad() = 0;

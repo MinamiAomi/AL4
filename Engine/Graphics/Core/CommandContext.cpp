@@ -63,11 +63,14 @@ UINT64 CommandContext::Finish(bool waitForCompletion) {
 
 
     UINT64 fenceValue = commandManager.Add(commandList_);
-
+    
     commandManager.GetCommandAllocatorPool().Discard(fenceValue, commandAllocator_);
     commandAllocator_ = nullptr;
-    commandManager.GetCommandListPool().Discard(commandList_);
-    commandList_ = nullptr;
+    
+    // コマンドマネージャーにDiscardを以降した
+    //commandManager.GetCommandListPool().Discard(commandList_);
+    //commandList_ = nullptr;
+    
     dxrCommandList_ = nullptr;
     for (int i = 0; i < LinearAllocatorType::Count; ++i) {
         dynamicBuffers_[i].Reset(type_, fenceValue);
