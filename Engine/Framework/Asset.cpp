@@ -18,6 +18,8 @@ void Asset::Load(const std::filesystem::path& path, const std::string& name) {
     Engine::GetThreadPool()->PushTask([this]() {
         state_ = State::Loading;
         InternalLoad();
+        // GPUが終わってない場合、この状態遷移はエラーの原因
+        // 要修正
         state_ = State::Loaded;
         });
 }

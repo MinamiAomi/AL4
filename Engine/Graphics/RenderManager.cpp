@@ -42,7 +42,7 @@ void RenderManager::Initialize() {
 
     //    modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
     transition_.Initialize();
-    
+
     testRTRenderer_.Create(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
     //raytracingRenderer_.Create(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
@@ -136,11 +136,11 @@ void RenderManager::Render() {
     swapChain_.Present();
     frameCount_++;
     // シグナルを発行し待つ
-    auto& commandQueue = graphics_->GetCommandQueue(D3D12_COMMAND_LIST_TYPE_DIRECT);
-    commandQueue.WaitForIdle();
+    auto& commandManager = graphics_->GetCommandManager();
+    commandManager.GetCommandQueue().WaitForIdle();
 
     commandContext_.Finish(false);
-
+    commandManager.Execute();
     graphics_->GetReleasedObjectTracker().FrameIncrementForRelease();
 
     timer_.KeepFrameRate(60);

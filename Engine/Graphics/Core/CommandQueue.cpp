@@ -104,3 +104,12 @@ UINT64 CommandQueue::ExecuteCommandList(ID3D12CommandList* list) {
 
     return nextFenceValue_++;
 }
+
+UINT64 CommandQueue::ExecuteCommandLists(ID3D12CommandList** lists, UINT numLists) {
+    std::lock_guard<std::mutex> lock(fenceMutex_);
+
+    commandQueue_->ExecuteCommandLists(numLists, lists);
+    commandQueue_->Signal(fence_.Get(), nextFenceValue_);
+
+    return nextFenceValue_++;
+}

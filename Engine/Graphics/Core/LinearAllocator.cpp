@@ -171,7 +171,7 @@ bool LinearAllocatorPagePool::TryAllocate(D3D12_COMMAND_LIST_TYPE commandType, L
     // キューが空ではない
     if (!readyPageQueue.empty()) {
         const auto& [fenceValue, readyPage] = readyPageQueue.front();
-        auto& queue = Graphics::GetInstance()->GetCommandQueue(commandType);
+        auto& queue = Graphics::GetInstance()->GetCommandManager().GetCommandQueue();
         // GPUで使用していない
         if (fenceValue <= queue.GetLastCompletedFenceValue()) {
             readyPageQueue.pop();

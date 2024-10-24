@@ -405,6 +405,15 @@
     <ClCompile Include="Framework\AnimationAsset.cpp">
       <Filter>Framework\Asset</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Core\CommandManager.cpp">
+      <Filter>Graphics\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\SceneImporter.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene\SceneExporter.cpp">
+      <Filter>Scene</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Scene\BaseScene.h">
@@ -790,6 +799,18 @@
     </ClInclude>
     <ClInclude Include="Framework\SoundAsset.h">
       <Filter>Framework\Asset</Filter>
+    </ClInclude>
+    <ClInclude Include="Editer\ThumbnailRenderer.h">
+      <Filter>Editer</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Core\CommandManager.h">
+      <Filter>Graphics\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\SceneExporter.h">
+      <Filter>Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene\SceneImporter.h">
+      <Filter>Scene</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

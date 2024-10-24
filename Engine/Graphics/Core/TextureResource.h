@@ -8,6 +8,7 @@
 #include <filesystem>
 
 #include "DescriptorHandle.h"
+#include "PixelBuffer.h"
 
 class CommandContext;
 
@@ -17,6 +18,7 @@ public:
     void Create(CommandContext& commandContext, const std::filesystem::path& path, bool useSRGB = true);
     void Create(size_t rowPitchBytes, size_t width, size_t heigh, DXGI_FORMAT format, void* dataBegin);
     void Create(CommandContext& commandContext, size_t rowPitchBytes, size_t width, size_t heigh, DXGI_FORMAT format, void* dataBegin, bool isCubeMap = false);
+    void Create(CommandContext& commandContext, PixelBuffer& pixelBuffer);
 
     const D3D12_RESOURCE_DESC& GetDesc() const { return desc_; }
     const DescriptorHandle& GetSRV() const { return srvHandle_; }

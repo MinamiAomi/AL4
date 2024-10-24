@@ -41,7 +41,7 @@ void TextureResource::Create(CommandContext& commandContext, const std::filesyst
         mipImages = std::move(image);
     }
     else {
-        ASSERT_IF_FAILED(DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB , 0, mipImages));
+        ASSERT_IF_FAILED(DirectX::GenerateMipMaps(image.GetImages(), image.GetImageCount(), image.GetMetadata(), DirectX::TEX_FILTER_SRGB, 0, mipImages));
     }
 
     // リソースを生成
@@ -81,6 +81,20 @@ void TextureResource::Create(CommandContext& commandContext, size_t rowPitchByte
     UploadResource(commandContext, 1, &subresourceData);
 
     CreateView(isCubeMap);
+}
+
+void TextureResource::Create(CommandContext& commandContext, PixelBuffer& pixelBuffer) {
+    // テクスチャ配列は禁止
+    assert(pixelBuffer.GetArraySize() == 1);
+    CD3DX12_HEAP_PROPERTIES heapProp(D3D12_HEAP_TYPE_DEFAULT);
+    desc_ = CD3DX12_RESOURCE_DESC::Tex2D(pixelBuffer.GetFormat(), pixelBuffer.GetWidth(), pixelBuffer.GetHeight(), 1, 1);
+    CreateResource(L"TextureResource", heapProp, desc_, D3D12_RESOURCE_STATE_COPY_DEST);
+
+    commandContext.TransitionResource(pixelBuffer, D3D12_RESOURCE_STATE_COPY_SOURCE);
+    commandContext.CopyBuffer(*this, pixelBuffer);
+    commandContext.TransitionResource(*this, D3D12_RESOURCE_STATE_GENERIC_READ);
+    
+    CreateView(false);
 }
 
 void TextureResource::CreateView(bool isCubeMap) {

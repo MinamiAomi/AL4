@@ -24,6 +24,7 @@ public:
     void WaitForIdle() { WaitForGPU(IncrementFence()); }
 
     UINT64 ExecuteCommandList(ID3D12CommandList* list);
+    UINT64 ExecuteCommandLists(ID3D12CommandList** lists, UINT numLists);
 
     operator ID3D12CommandQueue* () const { return commandQueue_.Get(); }
     

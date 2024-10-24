@@ -166,7 +166,7 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
     scene.viewProjectionInverseMatrix = camera.GetViewProjectionMatrix().Inverse();
     scene.cameraPosition = camera.GetPosition();
     scene.time = time_ = std::fmodf((time_ + 1.0f / 60.0f), 10000.0f);
-    scene.skyboxLod = (uint32_t)skyboxTexture_->GetDesc().MipLevels - 1;
+    //scene.skyboxLod = (uint32_t)skyboxTexture_->GetDesc().MipLevels - 1;
     auto sceneCB = commandContext.TransfarUploadBuffer(sizeof(scene), &scene);
     sceneCB;
 

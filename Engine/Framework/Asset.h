@@ -5,6 +5,14 @@
 #include <filesystem>
 
 #include "Editer/EditerInterface.h"
+#include "Graphics/ImGuiManager.h"
+
+#ifdef ENABLE_IMGUI
+struct ThumbnailData {
+    ImTextureID image = nullptr;
+    ImVec2 size = { 64.0f, 64.0f };
+};
+#endif
 
 class Asset :
     public Editer::SelectableInEditer {
@@ -29,12 +37,20 @@ public:
     };
 
     virtual ~Asset() {}
+
+#ifdef ENABLE_IMGUI
+    // サムネイル画像を返す
+    virtual ThumbnailData GetThumbnail() = 0;
+#endif // ENABLE_IMGUI
+
+
     void Load(const std::filesystem::path& path, const std::string& name = "");
 
     virtual void RenderInInspectorView() override;
 
-    void SetName(const std::string& name) { 
-        name_ = name; 
+
+    void SetName(const std::string& name) {
+        name_ = name;
 #ifdef ENABLE_IMGUI
         editingName_ = name_;
 #endif // ENABLE_IMGUI
@@ -43,6 +59,8 @@ public:
     const std::filesystem::path& GetPath() const { return path_; }
     const std::string& GetName() const { return name_; }
     Type GetType() const { return type_; }
+    State GetState() const { return state_; }
+    bool IsReady() const { return state_ == State::Loaded; }
 
 protected:
     virtual void InternalLoad() = 0;
