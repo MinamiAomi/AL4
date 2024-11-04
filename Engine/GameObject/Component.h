@@ -3,6 +3,8 @@
 #include <memory>
 #include <string>
 
+#include "Externals/nlohmann/json.hpp"
+
 #ifndef STRINGIFY
 #define STRINGIFY_(x) #x
 #define STRINGIFY(x) STRINGIFY_(x)
@@ -15,8 +17,6 @@
     private:
 #endif // !COMPONENT_IMPL
 
-    
-
 class GameObject;
 
 class Component {
@@ -28,6 +28,8 @@ public:
     virtual void Initialize() {}
     virtual void Update() {}
     virtual void Edit() {}
+    virtual void Export(nlohmann::json&) const {}
+    virtual void Import(const nlohmann::json&) {}
 
     std::shared_ptr<GameObject> GetGameObject() { return gameObject_.lock(); }
     std::shared_ptr<GameObject> GetGameObject() const { return gameObject_.lock(); }

@@ -50,7 +50,7 @@ namespace Editer {
                 newGameObject->SetName("NewObject");
                 gameObjectManager.AddGameObject(newGameObject);
             }
-            gameObjectManager.GetFactory()->CreateGameObjectFromEditer();
+            gameObjectManager.GetFactory().CreateGameObjectFromEditer();
             ImGui::EndPopup();
         }
 

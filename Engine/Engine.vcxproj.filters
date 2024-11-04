@@ -408,11 +408,11 @@
     <ClCompile Include="Graphics\Core\CommandManager.cpp">
       <Filter>Graphics\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Scene\SceneImporter.cpp">
+    <ClCompile Include="Scene\SceneIO.cpp">
       <Filter>Scene</Filter>
     </ClCompile>
-    <ClCompile Include="Scene\SceneExporter.cpp">
-      <Filter>Scene</Filter>
+    <ClCompile Include="GameObject\ComponentRegisterer.cpp">
+      <Filter>GameObject</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -806,11 +806,11 @@
     <ClInclude Include="Graphics\Core\CommandManager.h">
       <Filter>Graphics\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Scene\SceneExporter.h">
+    <ClInclude Include="Scene\SceneIO.h">
       <Filter>Scene</Filter>
     </ClInclude>
-    <ClInclude Include="Scene\SceneImporter.h">
-      <Filter>Scene</Filter>
+    <ClInclude Include="GameObject\ComponentRegisterer.h">
+      <Filter>GameObject</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

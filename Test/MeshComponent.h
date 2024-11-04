@@ -3,7 +3,6 @@
 
 #include "Framework/ModelAsset.h"
 #include "Graphics/Model.h"
-#include "Externals/nlohmann/json.hpp"
 
 class MeshComponent :
     public Component {
@@ -12,6 +11,8 @@ public:
     void Initialize() override;
     void Update() override;
     void Edit() override;
+    void Export(nlohmann::json& json) const override;
+    void Import(const nlohmann::json& json) override;
 
     void SetModelName(const std::string& name) { modelName_ = name; }
 

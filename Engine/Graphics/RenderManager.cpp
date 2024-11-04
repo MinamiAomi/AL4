@@ -131,6 +131,7 @@ void RenderManager::Render() {
 
     // コマンドリスト完成(クローズ)
     commandContext_.Close();
+    commandContext_.Finish(false);
 
     // バックバッファをフリップ
     swapChain_.Present();
@@ -139,7 +140,6 @@ void RenderManager::Render() {
     auto& commandManager = graphics_->GetCommandManager();
     commandManager.GetCommandQueue().WaitForIdle();
 
-    commandContext_.Finish(false);
     commandManager.Execute();
     graphics_->GetReleasedObjectTracker().FrameIncrementForRelease();
 

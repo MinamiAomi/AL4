@@ -1,0 +1,7 @@
+{
+    "Model" : {
+        "sphere" : "sphere/sphere.gltf",
+        "plane" : "plane/plane.gltf",
+        "sponza" : "sponza/sponza.glb"
+    }    
+}

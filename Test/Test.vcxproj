@@ -16,6 +16,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DebugCamera.cpp" />
+    <ClCompile Include="DemoComponentRegisterer.cpp" />
+    <ClCompile Include="DemoGameObjectFactory.cpp" />
     <ClCompile Include="LevelLoader.cpp" />
     <ClCompile Include="MeshComponent.cpp" />
     <ClCompile Include="Test.cpp" />
@@ -23,6 +25,8 @@
     <ClCompile Include="TestScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="DemoComponentRegisterer.h" />
+    <ClInclude Include="DemoGameObjectFactory.h" />
     <ClInclude Include="LevelLoader.h" />
     <ClInclude Include="MeshComponent.h" />
     <ClInclude Include="DebugCamera.h" />

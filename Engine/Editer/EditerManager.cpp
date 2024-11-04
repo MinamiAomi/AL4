@@ -17,6 +17,7 @@
 #include "Graphics/Core/Graphics.h"
 #include "Graphics/GameWindow.h"
 #include "Graphics/RenderManager.h"
+#include "Scene/SceneIO.h"
 
 namespace Editer {
 
@@ -80,6 +81,60 @@ namespace Editer {
         for (int i = 0; i < ImGuiCol_COUNT; ++i) {
             style.Colors[i] = ImVec4(j["Colors"][i][0], j["Colors"][i][1], j["Colors"][i][2], j["Colors"][i][3]);
         }
+    }
+
+    std::filesystem::path OpenFileDialog(const std::wstring& title) {
+        OPENFILENAME ofn{};
+        wchar_t szFile[256]{};
+
+        ZeroMemory(&ofn, sizeof(ofn));
+        ofn.lStructSize = sizeof(ofn);
+        ofn.hwndOwner = Engine::GetGameWindow()->GetHWND();
+        ofn.lpstrFile = szFile;
+        ofn.lpstrFile[0] = L'\0';
+        ofn.nMaxFile = sizeof(szFile);
+        ofn.lpstrFilter = L"Json\0*.JSON";
+        ofn.nFilterIndex = 1;
+        ofn.lpstrFileTitle = NULL;
+        ofn.nMaxFileTitle = 0;
+        ofn.lpstrInitialDir = NULL;
+        ofn.lpstrTitle = title.c_str();
+        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+        if (GetOpenFileName(&ofn) == TRUE) {
+            std::filesystem::path path = ofn.lpstrFile;
+            return path;
+        }
+        return std::filesystem::path();
+    }
+
+    std::filesystem::path SaveFileDialog(const std::wstring& title) {
+        OPENFILENAME ofn{};
+        wchar_t szFile[256]{};
+
+        ZeroMemory(&ofn, sizeof(ofn));
+        ofn.lStructSize = sizeof(ofn);
+        ofn.hwndOwner = Engine::GetGameWindow()->GetHWND();
+        ofn.lpstrFile = szFile;
+        ofn.lpstrFile[0] = L'\0';
+        ofn.nMaxFile = sizeof(szFile);
+        ofn.lpstrFilter = L"Json\0*.JSON";
+        ofn.nFilterIndex = 1;
+        ofn.lpstrFileTitle = NULL;
+        ofn.nMaxFileTitle = 0;
+        ofn.lpstrInitialDir = NULL;
+        ofn.lpstrTitle = title.c_str();
+        ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+
+        if (GetSaveFileName(&ofn) == TRUE) {
+            std::filesystem::path path = ofn.lpstrFile;
+            // 絶対パスから相対パスに変換
+            if (path.is_absolute()) {
+                path = std::filesystem::relative(path, std::filesystem::current_path());
+            }
+            return path;
+        }
+        return std::filesystem::path();
     }
 
     EditerManager::EditerManager() :
@@ -199,6 +254,18 @@ namespace Editer {
 
     void EditerManager::FileMenu() {
         if (ImGui::BeginMenu("File")) {
+            if (ImGui::MenuItem("Load Scene")) {
+                auto path = OpenFileDialog(L"Load scene");
+                if (!path.empty()) {
+                    SceneIO::Load(path);
+                }
+            }
+            if (ImGui::MenuItem("Save Scene")) {
+                auto path = SaveFileDialog(L"Save scene");
+                if (!path.empty()) {
+                    SceneIO::Save(path);
+                }
+            }
             ImGui::EndMenu();
         }
     }

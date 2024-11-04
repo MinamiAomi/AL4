@@ -6,9 +6,11 @@
 #include "Graphics/ImGuiManager.h"
 
 void MeshComponent::Initialize() {
-    auto assetManager = AssetManager::GetInstance();
-    asset_ = assetManager->modelMap.Get(modelName_);
-    ApplyModel();
+    if (!modelName_.empty()) {
+        auto assetManager = AssetManager::GetInstance();
+        asset_ = assetManager->modelMap.Get(modelName_);
+        ApplyModel();
+    }
 
     auto gameObject = GetGameObject();
     gameObject->transform.UpdateMatrix();
@@ -28,6 +30,7 @@ void MeshComponent::Edit() {
             bool isSelected = asset->GetName() == asset_->GetName();
             if (ImGui::Selectable(asset->GetName().c_str(), isSelected) && asset->IsReady()) {
                 asset_ = asset;
+                modelName_ = asset_->GetName();
                 ApplyModel();
             }
             if (isSelected) {
@@ -47,12 +50,25 @@ void MeshComponent::Edit() {
 #endif // ENABLE_IMGUI
 }
 
+void MeshComponent::Export(nlohmann::json& json) const {
+    if (!modelName_.empty()) {
+        json["model"] = modelName_;
+    }
+}
+
+void MeshComponent::Import(const nlohmann::json& json) {
+    if (json.contains("model")) {
+        modelName_ = json.at("model").get<std::string>();
+    }
+}
+
 void MeshComponent::ApplyModel() {
     assert(asset_);
     model_.SetModel(asset_->Get());
+    customMaterial_ = std::shared_ptr<Material>();
 
     if (model_.GetModel()->GetMaterials().size() <= 2) {
         customMaterial_ = std::make_shared<Material>(model_.GetModel()->GetMaterials()[0]);
-        model_.SetMaterial(customMaterial_);
     }
+    model_.SetMaterial(customMaterial_);
 }

@@ -14,7 +14,13 @@ UINT64 CommandManager::Add(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> com
     std::lock_guard<std::mutex> lock(mutex_);
     closedCommandLists_.emplace_back(commandList);
 
-    return commandQueue_.GetNextFenceValue();
+    UINT64 nextFenceValue = commandQueue_.GetNextFenceValue();
+    // この世のごみ　ここは終わってる
+    // RenderManagerのCommandQueue::WaitForIdleによってExecuteと関係なく
+    // FenceValueが増加するため1フレーム目でCommandAllocatorやDynamicBufferの
+    // FenceValueがおかしくなってしまう。
+    nextFenceValue++;
+    return nextFenceValue;
 }
 
 void CommandManager::Execute() {

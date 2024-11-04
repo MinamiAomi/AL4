@@ -17,3 +17,7 @@ void GameObjectManager::Update() {
     }
 }
 
+void GameObjectManager::Clear() {
+    gameObjects_.clear();
+}
+

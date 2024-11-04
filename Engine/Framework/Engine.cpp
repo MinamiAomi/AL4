@@ -58,6 +58,7 @@ void Engine::Run(Game* game) {
     g_assetManager = AssetManager::GetInstance();
     g_gameObjectManager = std::make_unique<GameObjectManager>();
     g_gameObjectManager->SetFactory<DefaultGameObjectFactory>();
+    g_gameObjectManager->SetComponentRegisterer<DefaultComponentRegisterer>();
 
 
 #ifdef ENABLE_IMGUI

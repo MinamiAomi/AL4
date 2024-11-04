@@ -1,6 +1,7 @@
 #include "ProjectView.h"
 
 #include <algorithm>
+#include <filesystem>
 #include <ranges>
 #include <Windows.h>
 
@@ -26,7 +27,7 @@ namespace {
         Sound
     };
 
-    std::wstring OpenFileDialog(const std::wstring& title, Filter filter) {
+    std::filesystem::path OpenFileDialog(const std::wstring& title, Filter filter) {
         OPENFILENAME ofn{};
         wchar_t szFile[256]{};
 
@@ -42,10 +43,10 @@ namespace {
             ofn.lpstrFilter = L"Texture\0*.PNG;*.JPG;*.DDS;*.HDR";
             break;
         case Filter::Model:
-            ofn.lpstrFilter = L"Model\0*.OBJ;*.GLTF";
+            ofn.lpstrFilter = L"Model\0*.OBJ;*.GLTF;*.GLB";
             break;
         case Filter::Animation:
-            ofn.lpstrFilter = L"Animation\0*.GLTF";
+            ofn.lpstrFilter = L"Animation\0*.GLTF;*.GLB";
             break;
         case Filter::Sound:
             ofn.lpstrFilter = L"Sound\0*.MP3;*.WAV";
@@ -59,9 +60,14 @@ namespace {
         ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
         if (GetOpenFileName(&ofn) == TRUE) {
-            return std::wstring(ofn.lpstrFile);
+            std::filesystem::path path = ofn.lpstrFile;
+            // 絶対パスから相対パスに変換
+            if (path.is_absolute()) {
+                path = std::filesystem::relative(path, std::filesystem::current_path());
+            }
+            return path;
         }
-        return std::wstring();
+        return std::filesystem::path();
     }
 
     std::string TruncateText(const std::string& text, float maxWidth) {

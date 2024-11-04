@@ -16,12 +16,18 @@
 #include "Debug/Debug.h"
 
 #include "TestScene.h"
+#include "DemoGameObjectFactory.h"
+#include "DemoComponentRegisterer.h"
 
 namespace {
     const char kResourceAssociationFile[] = "Resources/Association.json";
 }
 
 void Test::OnInitialize() {
+    auto gameObjectManager = Engine::GetGameObjectManager();
+    gameObjectManager->SetFactory<DemoGameObjectFactory>();
+    gameObjectManager->SetComponentRegisterer<DemoComponentRegisterer>();
+
     SceneManager* sceneManager = SceneManager::GetInstance();
     //シーン設定
     sceneManager->ChangeScene<TestScene>(false);

@@ -49,6 +49,11 @@ public:
         list_.remove(asset);
     }
 
+    void Clear() {
+        std::lock_guard<std::mutex> lock(mutex_);
+        list_.clear();
+    }
+
 private:
     std::mutex mutex_;
     std::list<std::shared_ptr<T>> list_;
@@ -58,6 +63,8 @@ private:
 class AssetManager {
 public:
     static AssetManager* GetInstance();
+
+    void Clear();
 
     AssetMap<TextureAsset> textureMap;
     AssetMap<ModelAsset> modelMap;

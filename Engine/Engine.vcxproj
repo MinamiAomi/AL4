@@ -211,6 +211,7 @@
     <ClCompile Include="Framework\SoundAsset.cpp" />
     <ClCompile Include="Framework\ThreadPool.cpp" />
     <ClCompile Include="Framework\TextureAsset.cpp" />
+    <ClCompile Include="GameObject\ComponentRegisterer.cpp" />
     <ClCompile Include="GameObject\GameObject.cpp" />
     <ClCompile Include="GameObject\GameObjectFactory.cpp" />
     <ClCompile Include="GameObject\GameObjectManager.cpp" />
@@ -221,8 +222,7 @@
     <ClCompile Include="Graphics\Raytracing\TestRTRenderer.cpp" />
     <ClCompile Include="Graphics\Sky.cpp" />
     <ClCompile Include="Graphics\Texture.cpp" />
-    <ClCompile Include="Scene\SceneExporter.cpp" />
-    <ClCompile Include="Scene\SceneImporter.cpp" />
+    <ClCompile Include="Scene\SceneIO.cpp" />
     <ClCompile Include="Utility\Utility.cpp" />
     <ClInclude Include="Audio\AudioDevice.h" />
     <ClInclude Include="Audio\AudioSource.h" />
@@ -264,6 +264,7 @@
     <ClInclude Include="Framework\TextureAsset.h" />
     <ClInclude Include="Framework\ThreadPool.h" />
     <ClInclude Include="GameObject\Component.h" />
+    <ClInclude Include="GameObject\ComponentRegisterer.h" />
     <ClInclude Include="GameObject\GameObject.h" />
     <ClInclude Include="GameObject\GameObjectFactory.h" />
     <ClInclude Include="GameObject\GameObjectManager.h" />
@@ -340,8 +341,7 @@
     <ClInclude Include="Graphics\Shader\Raytracing\Pathtracing\Pathtracing.h" />
     <ClInclude Include="Graphics\Sky.h" />
     <ClInclude Include="Graphics\Texture.h" />
-    <ClInclude Include="Scene\SceneExporter.h" />
-    <ClInclude Include="Scene\SceneImporter.h" />
+    <ClInclude Include="Scene\SceneIO.h" />
     <ClInclude Include="Utility\Utility.h" />
   </ItemGroup>
   <ItemGroup>

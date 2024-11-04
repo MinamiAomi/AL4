@@ -34,6 +34,12 @@
     <ClCompile Include="LevelLoader.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="DemoGameObjectFactory.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
+    <ClCompile Include="DemoComponentRegisterer.cpp">
+      <Filter>Game</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Test.h">
@@ -49,6 +55,12 @@
       <Filter>Game\Component</Filter>
     </ClInclude>
     <ClInclude Include="LevelLoader.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoGameObjectFactory.h">
+      <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoComponentRegisterer.h">
       <Filter>Game</Filter>
     </ClInclude>
   </ItemGroup>
