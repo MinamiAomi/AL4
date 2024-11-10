@@ -8,13 +8,15 @@
 　リアルなグラフィックができるゲームエンジンを目標にしています。
 
 ## メイン機能
-- パストレーシングによる描画
-![パストレーシング1](https://github.com/user-attachments/assets/0c2965e4-12c0-45b2-a0ce-343d346e467c)
+### パストレーシングによる描画
+パストレーシングを使用して描画することでグローバルイルミネーションやアンビエントオクルージョンを表現できます。\
+![パストレーシング1](https://github.com/user-attachments/assets/0c2965e4-12c0-45b2-a0ce-343d346e467c)\
+上は金属、下は非金属、奥に行けば行くほど荒くなります。\
+![パストレーシング2](https://github.com/user-attachments/assets/abb1bde6-14ef-402f-8705-4cdc44479dea)\
+現状ノイズの対策として平均ブラーとフレーム蓄積でデノイズをしています。
 
-![パストレーシング2](https://github.com/user-attachments/assets/abb1bde6-14ef-402f-8705-4cdc44479dea)
+### シーンエディター
 
-- シーンエディター
-![demo1](https://github.com/user-attachments/assets/8f89289e-c08d-4995-9b4d-6d66262a8ff3)
 
 ### サブ機能
 - 大気散乱
