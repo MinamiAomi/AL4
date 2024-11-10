@@ -16,27 +16,9 @@
 - 大気散乱
 - ブルーム
 - PBR　など\
-![スクリーンショット 2024-10-30 174907](https://github.com/user-attachments/assets/1b2e08c8-ff69-495f-8bbd-84d484427570)
+![大気散乱](https://github.com/user-attachments/assets/11bf473c-85fc-4f8d-ac11-77eed10e54be)
 
-## 階層
-- Engine エンジン部分
-  - Audio
-  - Collision
-  - Debug
-  - Editer
-  - Externals
-  - File
-  - GameObject
-  - Graphics
-    - Core
-    - Raytracing 
-    - Shader
-  - Input
-  - Math
-  - Scene
-  - Utility
-- Test デモ部分
-  - Resources
+
 ## 外部ライブラリ
 - Assimp
 - Dear ImGui
