@@ -9,6 +9,10 @@
 
 ## メイン機能
 - パストレーシングによる描画
+![パストレーシング1](https://github.com/user-attachments/assets/0c2965e4-12c0-45b2-a0ce-343d346e467c)
+
+![パストレーシング2](https://github.com/user-attachments/assets/abb1bde6-14ef-402f-8705-4cdc44479dea)
+
 - シーンエディター
 ![demo1](https://github.com/user-attachments/assets/8f89289e-c08d-4995-9b4d-6d66262a8ff3)
 
@@ -17,7 +21,6 @@
 - ブルーム
 - PBR　など\
 ![大気散乱](https://github.com/user-attachments/assets/11bf473c-85fc-4f8d-ac11-77eed10e54be)
-
 
 ## 外部ライブラリ
 - Assimp
