@@ -31,8 +31,7 @@ void RayGeneration() {
     Payload payload;
     payload.color = float32_t3(0.0f, 0.0f, 0.0f);
     payload.recursiveCount = 0; // 再帰回数 0
-    payload.skyboxLod = 0;
-    payload.reflected = 0;
+    payload.seed = Srand(int32_t2(dispatchRaysIndex), g_Scene.frame);
     TraceRay(
         g_TLAS, // RaytracingAccelerationStructure
         // 背面カリング

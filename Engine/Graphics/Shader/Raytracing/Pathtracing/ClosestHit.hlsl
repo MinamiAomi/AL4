@@ -46,7 +46,7 @@ static Material s_Material;
 static Texture2D<float32_t3> s_AlbedoMap;
 static Texture2D<float32_t3> s_MetallicRoughnessMap;
 static Texture2D<float32_t3> s_NormalMap;
-
+// メッシュプロパティから初期化する
 void InitializeMeshProperty(uint32_t meshPropertyIndex) {
     MeshProperty meshProperty = l_MeshProperties[meshPropertyIndex];
 
@@ -115,7 +115,8 @@ Vertex GetVertex(in Attributes attributes) {
     return vertex;
 }
 
-float32_t3 GetIncidentColor(in float32_t3 incidentDirection, in float32_t3 position, in uint32_t recursiveCount, uint32_t skyboxLod) {
+// 入射光を取得する
+float32_t3 GetIncidentColor(in float32_t3 incidentDirection, in float32_t3 position, in uint32_t recursiveCount, inout uint32_t seed) {
     // 入射方向のレイ
     RayDesc incidentRay;
     incidentRay.Origin = position;
@@ -126,8 +127,7 @@ float32_t3 GetIncidentColor(in float32_t3 incidentDirection, in float32_t3 posit
     Payload newPayload;
     newPayload.color = float32_t3(0.0f, 0.0f, 0.0f);
     newPayload.recursiveCount = recursiveCount + 1;
-    newPayload.skyboxLod = skyboxLod;
-    newPayload.reflected = 1;
+    newPayload.seed = seed;
 
     TraceRay(
         g_TLAS, // RaytracingAccelerationStructure
@@ -144,7 +144,17 @@ float32_t3 GetIncidentColor(in float32_t3 incidentDirection, in float32_t3 posit
         incidentRay, // Ray
         newPayload // Payload
     );
+    seed = newPayload.seed;
     return newPayload.color;
+}
+
+float32_t3 CosineDirection(in float32_t3 normal, inout float32_t seed) {
+    float32_t u = fRand(seed);
+    float32_t v = fRand(seed);
+    float32_t a = 6.2831853f * v;
+    float32_t b = 2.0f * u - 1.0f;
+    float32_t3 direction = float32_t3(sqrt(1.0f - b * b) * float32_t2(cos(a), sin(a)), b);
+    return normalize(normal + direction);
 }
 
 [shader("closesthit")]
@@ -172,44 +182,26 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
     // 0が扱えないため
     PBR::Material material = PBR::CreateMaterial(albedo, metallicRoughness.x, metallicRoughness.y, s_Material.emissive);
     PBR::Geometry geometry = PBR::CreateGeometry(vertex.position, vertex.normal, rayOrigin);
-
-    uint32_t skyboxLod = payload.skyboxLod;
-    skyboxLod = g_Scene.skyboxMipCount * material.specularRoughness;
-    
+   
     material.specularRoughness = clamp(material.specularRoughness, 0.03f, 1.0f);
 
+    if (dot(material.emissive, float32_t3(1.0f, 1.0f, 1.0f)) >= 0.001f) {
+        payload.color += material.emissive;
+        return;
+    }
 
-    // 乱数生成器
-    RandomGenerator randomGenerator;
-    randomGenerator.seed = float32_t3(DispatchRaysIndex() + meshPropertyIndex + g_Scene.time + payload.recursiveCount) * g_Scene.time;
-
-    // 完全鏡面方向
-    //float32_t3 incidentDirection = normalize(reflect(rayDirection, vertex.normal));
     // ランダムな半球状のベクトル
-    float32_t3 incidentDirection = RandomUnitVectorHemisphere(vertex.normal, randomGenerator);
-    //float32_t3 incidentDirection = float32_t3(0.0f, 1.0f, 0.0f);
+    float32_t3 incidentDirection = CosineDirection(geometry.normal, payload.seed);
 
-    float32_t pdf = 0.0f;
     float32_t3 brdf =
         PBR::DiffuseBRDF(material.diffuseReflectance) +
-        PBR::SpecularBRDF(incidentDirection, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness, pdf);
+        PBR::SpecularBRDF(incidentDirection, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
     // 入射光
-    float32_t3 incidentColor = GetIncidentColor(incidentDirection, vertex.position + vertex.normal * 0.001f, payload.recursiveCount, skyboxLod);
+    float32_t3 incidentColor = GetIncidentColor(incidentDirection, vertex.position + vertex.normal * 0.001f, payload.recursiveCount, payload.seed);
     // 確率密度関数
-    pdf = 1.0f / (2.0f * PI);
+    float32_t pdf = 1.0f / (2.0f * PI);
     // コサイン項
     float32_t cosine = saturate(dot(incidentDirection, vertex.normal));
     payload.color += incidentColor * brdf * cosine / (pdf + EPSILON);
    
-    // 平行光源
-    //PBR::IncidentLight light;
-    //light.direction = float32_t3(0.0f, 1.0f, 0.0f);
-    //light.color = float32_t3(1.0f, 1.0f, 1.0f);
-    //PBR::ReflectedLight reflectedLight;
-    //reflectedLight.directDiffuse = float32_t3(0.0f, 0.0f, 0.0f);
-    //reflectedLight.directSpecular = float32_t3(0.0f, 0.0f, 0.0f);
-    //PBR::DirectRenderingEquations(light, geometry, material, reflectedLight);
-    //payload.color = reflectedLight.directSpecular;
-
-    payload.color += material.emissive;
 }

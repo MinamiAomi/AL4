@@ -140,6 +140,7 @@ void TestRTRenderer::Create(uint32_t width, uint32_t height) {
     accumulationBuffer_.Create(L"TestRTRenderer AccumulationBuffer", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
     denoisedBuffer_.Create(L"TestRTRenderer DenoisedBuffer", width, height, DXGI_FORMAT_R11G11B10_FLOAT);
     sampleCount_ = 1;
+    time_ = 0;
     denoiser_.Initialize();
 }
 
@@ -148,7 +149,7 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
     struct SceneData {
         Matrix4x4 viewProjectionInverseMatrix;
         Vector3 cameraPosition;
-        float time;
+        int32_t time;
         uint32_t skyboxLod;
     };
 
@@ -165,7 +166,7 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
     SceneData scene;
     scene.viewProjectionInverseMatrix = camera.GetViewProjectionMatrix().Inverse();
     scene.cameraPosition = camera.GetPosition();
-    scene.time = time_ = std::fmodf((time_ + 1.0f / 60.0f), 10000.0f);
+    scene.time = ++time_;
     //scene.skyboxLod = (uint32_t)skyboxTexture_->GetDesc().MipLevels - 1;
     auto sceneCB = commandContext.TransfarUploadBuffer(sizeof(scene), &scene);
     sceneCB;
@@ -286,7 +287,7 @@ void TestRTRenderer::CreateStateObject() {
 
     // 9.シェーダーコンフィグ
     auto shaderConfig = stateObjectDesc.CreateSubobject<CD3DX12_RAYTRACING_SHADER_CONFIG_SUBOBJECT>();
-    size_t maxPayloadSize = 3 * sizeof(float) + 3 * sizeof(uint32_t);      // 最大ペイロードサイズ
+    size_t maxPayloadSize = 3 * sizeof(float) + 2 * sizeof(uint32_t);      // 最大ペイロードサイズ
     size_t maxAttributeSize = 2 * sizeof(float);   // 最大アトリビュートサイズ
     shaderConfig->Config((UINT)maxPayloadSize, (UINT)maxAttributeSize);
 

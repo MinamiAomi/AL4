@@ -25,6 +25,7 @@ public:
     void SetSkybox(const std::shared_ptr<TextureResource>& texture) { skyboxTexture_ = texture; }
     void SetSkyboxRadiance(const std::shared_ptr<TextureResource>& texture) { skyboxRadianceTexture_ = texture; }
     ColorBuffer& GetResult() { return denoisedBuffer_; }
+    ColorBuffer& GetIntermadiate() { return intermadiateBuffer_; }
 
 private:
     void CreateRootSignature();
@@ -49,7 +50,7 @@ private:
     ColorBuffer intermadiateBuffer_;
     ColorBuffer accumulationBuffer_;
     ColorBuffer denoisedBuffer_;
-    float time_;
+    int32_t time_;
     uint32_t sampleCount_;
 
     Denoiser denoiser_;
