@@ -21,10 +21,11 @@
 ![スクリーンショット 2024-11-10 235903](https://github.com/user-attachments/assets/3baf6177-c1f7-4eb1-b059-14d9b9d5c8aa)
 
 ### サブ機能
-- 大気散乱
-- ブルーム
-- PBR　など\
+- 大気散乱\
 ![大気散乱](https://github.com/user-attachments/assets/11bf473c-85fc-4f8d-ac11-77eed10e54be)
+- PBR　など\
+![unnamed](https://github.com/user-attachments/assets/9346965e-d5d9-46df-80f0-cb37727b12a9)
+
 
 ## 外部ライブラリ
 - Assimp
