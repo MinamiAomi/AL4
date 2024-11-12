@@ -24,7 +24,7 @@ DirectXRaytracingを利用しています。\
 ![スクリーンショット 2024-11-10 235903](https://github.com/user-attachments/assets/3baf6177-c1f7-4eb1-b059-14d9b9d5c8aa)
 
 ### サブ機能
-その他必要より画面が映える機能を追加しています。
+その他画面が映える機能を追加しています。
 - 大気散乱\
 ![大気散乱](https://github.com/user-attachments/assets/11bf473c-85fc-4f8d-ac11-77eed10e54be)
 - PBR　など\
