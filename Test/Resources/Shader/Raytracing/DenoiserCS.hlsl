@@ -85,6 +85,7 @@ void main(uint32_t3 DTid : SV_DispatchThreadID, uint32_t3 GTid : SV_GroupThreadI
 
     // 計算する
     float32_t3 totalColor = float32_t3(0.0f, 0.0f, 0.0f);
+    //totalColor = sharedMemory[sharedMemoryCenter.y][sharedMemoryCenter.x];
     for (uint32_t y = 0; y < 3; ++y) {
         for (uint32_t x = 0; x < 3; ++x) {
             uint32_t2 sharedMemoryPosition = sharedMemoryCenter + uint32_t2(x - 1, y - 1);
