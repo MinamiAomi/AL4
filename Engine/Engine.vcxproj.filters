@@ -979,6 +979,9 @@
     <None Include="Graphics\Shader\Particle\UpdateParticleCS.hlsl">
       <Filter>Graphics\Shader\Particle</Filter>
     </None>
+    <None Include="Graphics\Shader\Raytracing\Pathtracing\AdvancedDenoiserCS.hlsl">
+      <Filter>Graphics\Shader\Raytracing\Pathtracing</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\ImGui\LICENSE.txt">

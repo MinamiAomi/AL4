@@ -142,6 +142,7 @@ void TestRTRenderer::Create(uint32_t width, uint32_t height) {
     sampleCount_ = 1;
     time_ = 0;
     denoiser_.Initialize();
+    advancedDenoiser_.Initialize();
 }
 
 void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter) {
@@ -204,7 +205,8 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
     commandContext.UAVBarrier(intermadiateBuffer_);
     commandContext.FlushResourceBarriers();
 
-    denoiser_.Render(commandContext, intermadiateBuffer_, accumulationBuffer_, denoisedBuffer_, sampleCount_++);
+    advancedDenoiser_.Render(commandContext, intermadiateBuffer_, denoisedBuffer_);
+    //denoiser_.Render(commandContext, intermadiateBuffer_, accumulationBuffer_, denoisedBuffer_, sampleCount_++);
     commandContext.EndEvent();
     commandContext.SetMarker(L"DispatchRays");
 }

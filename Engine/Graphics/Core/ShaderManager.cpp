@@ -81,7 +81,7 @@ Microsoft::WRL::ComPtr<IDxcBlob> ShaderManager::Compile(const std::wstring& path
         L"-E", L"main",
         L"-T", profile.c_str(),
         L"-Zi", L"-Qembed_debug",
-        L"-Od",
+    //    L"-Od",
         L"-Zpr"
     };
 

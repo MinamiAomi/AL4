@@ -54,4 +54,5 @@ private:
     uint32_t sampleCount_;
 
     Denoiser denoiser_;
+    AdvancedDenoiser advancedDenoiser_;
 };
