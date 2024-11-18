@@ -11,7 +11,8 @@
 #include "StateObject.h"
 #include "TLAS.h"
 #include "ShaderTable.h"
-#include "Denoiser.h"
+#include "SpatialDenoiser.h"
+#include "TemporalDenoiser.h"
 
 class CommandContext;
 class ModelSorter;
@@ -25,7 +26,7 @@ public:
     void SetSkybox(const std::shared_ptr<TextureResource>& texture) { skyboxTexture_ = texture; }
     void SetSkyboxRadiance(const std::shared_ptr<TextureResource>& texture) { skyboxRadianceTexture_ = texture; }
     ColorBuffer& GetResult() { return denoisedBuffer_; }
-    ColorBuffer& GetIntermadiate() { return intermadiateBuffer_; }
+    ColorBuffer& GetIntermadiate() { return intermediateBuffer_; }
 
 private:
     void CreateRootSignature();
@@ -47,12 +48,10 @@ private:
     std::map<std::wstring, void*> identifierMap_;
     std::shared_ptr<TextureResource> skyboxTexture_;
     std::shared_ptr<TextureResource> skyboxRadianceTexture_;
-    ColorBuffer intermadiateBuffer_;
-    ColorBuffer accumulationBuffer_;
+    ColorBuffer intermediateBuffer_;
     ColorBuffer denoisedBuffer_;
     int32_t time_;
-    uint32_t sampleCount_;
 
-    Denoiser denoiser_;
-    AdvancedDenoiser advancedDenoiser_;
+    SpatialDenoiser spatialDenoiser_;
+    TemporalDenoiser temporalDenoiser_;
 };

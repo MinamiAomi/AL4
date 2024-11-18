@@ -24,9 +24,12 @@
 #include "LightingRenderingPass.h"
 #include "Skybox.h"
 #include "LineDrawer.h"
-#include "Raytracing/TestRTRenderer.h"
 #include "ParticleCore.h"
 #include "Sky.h"
+
+#include "Raytracing/Pathtracer.h"
+#include "Raytracing/SpatialDenoiser.h"
+#include "Raytracing/TemporalDenoiser.h"
 
 #ifdef _DEBUG
 #define SHADER_DIRECTORY "../Engine/Graphics/Shader"
@@ -54,7 +57,8 @@ public:
     LineDrawer& GetLineDrawer() { return lineDrawer_; }
     Skybox& GetSkybox() { return skybox_; }
     LightingRenderingPass& GetLightingRenderingPass() { return lightingRenderingPass_; }
-    TestRTRenderer& GetTestRTRenderer() { return testRTRenderer_; }
+    Pathtracer& GetPathtracer() { return pathtracer_; }
+    ColorBuffer& GetPathtracingResultBuffer() { return postSpatialDenoiser_.GetDenoisedBuffer(); }
     PostEffect& GetPostEffect() { return postEffect_; }
     Sky& GetSky() { return sky_; }
 
@@ -81,7 +85,12 @@ private:
     LineDrawer lineDrawer_;
     ParticleCore particleCore_;
     
-    TestRTRenderer testRTRenderer_;
+    Pathtracer pathtracer_;
+    SpatialDenoiser preSpatialDenoiser_;
+    TemporalDenoiser temporalDenoiser_;
+    SpatialDenoiser postSpatialDenoiser_;
+    ColorBuffer pathtracingResultBuffer_;
+
     //RaytracingRenderer raytracingRenderer_;
     //RaymarchingRenderer raymarchingRenderer_;
     //ModelRenderer modelRenderer;

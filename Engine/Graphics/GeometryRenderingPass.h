@@ -10,6 +10,18 @@
 
 class CommandContext;
 
+struct GBuffer {
+    enum Type {
+        Albedo,
+        MetallicRoughness,
+        Normal,
+        Position,
+        MeshMaterialIDs,
+
+        NumGBuffers
+    };
+};
+
 class GeometryRenderingPass {
 public:
     struct RootIndex {
@@ -22,19 +34,20 @@ public:
             NumRootParameters
         };
     };
-    
+
     void Initialize(uint32_t width, uint32_t height);
     void Render(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter);
 
-    ColorBuffer& GetAlbedo() { return albedo_; }
-    ColorBuffer& GetMetallicRoughness() { return metallicRoughness_; }
-    ColorBuffer& GetNormal() { return normal_; }
+    ColorBuffer& GetGBuffer(GBuffer::Type type) { return gBuffers_[type]; }
+    ColorBuffer& GetAlbedo() { return gBuffers_[GBuffer::Albedo]; }
+    ColorBuffer& GetMetallicRoughness() { return gBuffers_[GBuffer::MetallicRoughness]; }
+    ColorBuffer& GetNormal() { return gBuffers_[GBuffer::Normal]; }
+    ColorBuffer& GetPosition() { return gBuffers_[GBuffer::Position]; }
+    ColorBuffer& GetMeshMaterialIDs() { return gBuffers_[GBuffer::MeshMaterialIDs]; }
     DepthBuffer& GetDepth() { return depth_; }
 
 private:
-    ColorBuffer albedo_;
-    ColorBuffer metallicRoughness_;
-    ColorBuffer normal_;
+    ColorBuffer gBuffers_[GBuffer::NumGBuffers];
     DepthBuffer depth_;
 
     RootSignature rootSignature_;

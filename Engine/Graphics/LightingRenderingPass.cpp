@@ -103,6 +103,8 @@ void LightingRenderingPass::Render(CommandContext& commandContext, GeometryRende
         float exposure;
     };
 
+    commandContext.BeginEvent(L"LightingRenderingPass::Render");
+
     commandContext.TransitionResource(geometryRenderingPass.GetAlbedo(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandContext.TransitionResource(geometryRenderingPass.GetMetallicRoughness(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandContext.TransitionResource(geometryRenderingPass.GetNormal(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
@@ -157,4 +159,6 @@ void LightingRenderingPass::Render(CommandContext& commandContext, GeometryRende
     commandContext.SetDescriptorTable(RootIndex::Radiance, radianceTexture->GetSRV());
 
     commandContext.Draw(3);
+
+    commandContext.EndEvent();
 }

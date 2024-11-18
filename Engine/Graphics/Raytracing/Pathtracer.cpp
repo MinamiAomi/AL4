@@ -1,4 +1,4 @@
-#include "TestRTRenderer.h"
+#include "Pathtracer.h"
 
 #include <span>
 
@@ -15,6 +15,7 @@
 
 #include "Framework/Engine.h"
 #include "Input/Input.h"
+#include "Math/Camera.h"
 
 namespace {
     static const wchar_t kRayGenerationShader[] = L"Raytracing/Pathtracing/RayGeneration.hlsl";
@@ -45,7 +46,7 @@ namespace {
                 woss << exports[i].Name << L"\n";
             }
             return woss.str();
-        };
+            };
 
         for (UINT i = 0; i < desc->NumSubobjects; i++) {
             wstr << L"| [" << i << L"]: ";
@@ -129,27 +130,23 @@ namespace {
     }
 }
 
-void TestRTRenderer::Create(uint32_t width, uint32_t height) {
+void Pathtracer::Initialize(uint32_t width, uint32_t height) {
     CreateRootSignature();
     CreateStateObject();
     CreateShaderTables();
     float c[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    intermediateBuffer_.SetClearColor(c);
-    intermediateBuffer_.Create(L"TestRTRenderer IntermadiateBuffer", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
-    denoisedBuffer_.Create(L"TestRTRenderer DenoisedBuffer", width, height, DXGI_FORMAT_R11G11B10_FLOAT);
+    resultBuffer_.SetClearColor(c);
+    resultBuffer_.Create(L"Pathtracer IntermadiateBuffer", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
     time_ = 0;
-    spatialDenoiser_.Initialize(width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
-    // 精度の高いフォーマットを使用
-    temporalDenoiser_.Initialize(width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
 }
 
-void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter) {
+void Pathtracer::Dispatch(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter) {
+    commandContext.BeginEvent(L"Pathtracer::Dispatch");
     modelSorter;
     struct SceneData {
         Matrix4x4 viewProjectionInverseMatrix;
         Vector3 cameraPosition;
         int32_t time;
-        uint32_t skyboxLod;
     };
 
 
@@ -160,16 +157,14 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
     scene.viewProjectionInverseMatrix = camera.GetViewProjectionMatrix().Inverse();
     scene.cameraPosition = camera.GetPosition();
     scene.time = ++time_;
-    //scene.skyboxLod = (uint32_t)skyboxTexture_->GetDesc().MipLevels - 1;
     auto sceneCB = commandContext.TransfarUploadBuffer(sizeof(scene), &scene);
     sceneCB;
 
-    commandContext.BeginEvent(L"TestRTRenderer");
 
     BuildScene(commandContext, modelSorter);
 
 
-    commandContext.TransitionResource(intermediateBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    commandContext.TransitionResource(resultBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     commandContext.FlushResourceBarriers();
 
     commandContext.SetComputeRootSignature(globalRootSignature_);
@@ -177,7 +172,7 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
     commandList->SetComputeRootConstantBufferView(0, sceneCB);
     commandList->SetComputeRootShaderResourceView(1, tlas_.GetGPUVirtualAddress());
     commandContext.SetComputeBindlessResource(2);
-    commandList->SetComputeRootDescriptorTable(3, intermediateBuffer_.GetUAV());
+    commandList->SetComputeRootDescriptorTable(3, resultBuffer_.GetUAV());
 
     D3D12_DISPATCH_RAYS_DESC rayDesc{};
     rayDesc.RayGenerationShaderRecord.StartAddress = rayGenerationShaderTable_.GetGPUVirtualAddress();
@@ -188,30 +183,19 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
     rayDesc.HitGroupTable.StartAddress = hitGroupShaderTable_.GetGPUVirtualAddress();
     rayDesc.HitGroupTable.SizeInBytes = hitGroupShaderTable_.GetBufferSize();
     rayDesc.HitGroupTable.StrideInBytes = hitGroupShaderTable_.GetShaderRecordSize();
-    rayDesc.Width = intermediateBuffer_.GetWidth();
-    rayDesc.Height = intermediateBuffer_.GetHeight();
+    rayDesc.Width = resultBuffer_.GetWidth();
+    rayDesc.Height = resultBuffer_.GetHeight();
     rayDesc.Depth = 1;
     commandList->SetPipelineState1(stateObject_);
     commandList->DispatchRays(&rayDesc);
 
-    commandContext.UAVBarrier(intermediateBuffer_);
+    commandContext.UAVBarrier(resultBuffer_);
     commandContext.FlushResourceBarriers();
 
-    commandContext.BeginEvent(L"Denoise Phase");
-    //spatialDenoiser_.Dispatch(commandContext, intermediateBuffer_);
-    
-    // 仮リセット
-    if (Engine::GetInput()->IsKeyPressed(DIK_R)) {
-        temporalDenoiser_.Reset(commandContext);
-    }
-
-    temporalDenoiser_.Dispatch(commandContext, intermediateBuffer_, denoisedBuffer_);
     commandContext.EndEvent();
-    commandContext.EndEvent();
-    commandContext.SetMarker(L"DispatchRays");
 }
 
-void TestRTRenderer::CreateRootSignature() {
+void Pathtracer::CreateRootSignature() {
 
     RootSignatureDescHelper globalRootSignatureDesc;
     // Scene
@@ -237,12 +221,10 @@ void TestRTRenderer::CreateRootSignature() {
     RootSignatureDescHelper missLRSDesc;
     missLRSDesc.SetFlag(D3D12_ROOT_SIGNATURE_FLAG_LOCAL_ROOT_SIGNATURE);
     missLRSDesc.AddConstantBufferView(0, 3);
-    missLRSDesc.AddDescriptorTable().AddSRVDescriptors(1, 0, 3);
-    missLRSDesc.AddDescriptorTable().AddSRVDescriptors(1, 1, 3);
     missLocalRootSignature_.Create(L"MissLocalRootSignature", missLRSDesc);
 }
 
-void TestRTRenderer::CreateStateObject() {
+void Pathtracer::CreateStateObject() {
     CD3DX12_STATE_OBJECT_DESC stateObjectDesc{ D3D12_STATE_OBJECT_TYPE_RAYTRACING_PIPELINE };
 
     auto shaderManager = ShaderManager::GetInstance();
@@ -256,7 +238,7 @@ void TestRTRenderer::CreateStateObject() {
         auto dxilLibSubobject = stateObjectDesc.CreateSubobject<CD3DX12_DXIL_LIBRARY_SUBOBJECT>();
         dxilLibSubobject->SetDXILLibrary(&shaderByteCode);
         dxilLibSubobject->DefineExport(exportName);
-    };
+        };
 
     // 1 ~ 3.DXILLib
     CreateShaderSubobject(kRayGenerationShader, kRayGenerationName);
@@ -305,14 +287,14 @@ void TestRTRenderer::CreateStateObject() {
     stateObject_.Create(L"RaytracingStateObject", stateObjectDesc);
 }
 
-void TestRTRenderer::CreateShaderTables() {
+void Pathtracer::CreateShaderTables() {
     {
         Microsoft::WRL::ComPtr<ID3D12StateObjectProperties> stateObjectProperties;
         stateObject_.Get().As(&stateObjectProperties);
 
         auto InsertIdentifier = [&](const wchar_t* name) {
             identifierMap_[name] = stateObjectProperties->GetShaderIdentifier(name);
-        };
+            };
         InsertIdentifier(kRayGenerationName);
         InsertIdentifier(kRecursiveHitGroupName);
         InsertIdentifier(kRecursiveMissName);
@@ -324,7 +306,7 @@ void TestRTRenderer::CreateShaderTables() {
     }
 }
 
-void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorter& modelSorter) {
+void Pathtracer::BuildScene(CommandContext& commandContext, const ModelSorter& modelSorter) {
 
     struct MaterialData {
         Vector3 albedo;
@@ -359,7 +341,7 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
         materialData.metallicRoughnessMapIndex = defaultWhiteTextureIndex;
         materialData.normalMapIndex = defaultNormalTextureIndex;
         return materialData;
-    };
+        };
 
     auto SetMaterialData = [](MaterialData& dest, const Material& src) {
         dest.albedo = src.albedo;
@@ -369,7 +351,7 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
         if (src.albedoMap) { dest.albedoMapIndex = src.albedoMap->GetSRV().GetIndex(); }
         if (src.metallicRoughnessMap) { dest.metallicRoughnessMapIndex = src.metallicRoughnessMap->GetSRV().GetIndex(); }
         if (src.normalMap) { dest.normalMapIndex = src.normalMap->GetSRV().GetIndex(); }
-    };
+        };
 
 
     auto& drawModels = modelSorter.GetDrawModels();
@@ -453,6 +435,8 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
         hitGroupShaderTable_.Create(L"RaytracingRenderer HitGroupShaderTable", &shaderRecord, 1);
     }
 
+
+    // ミスシェーダー用
     struct SkyParameter {
         Vector3 sunPosition;
         float sunIntensity;
@@ -470,7 +454,7 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
         float g;
         float exposure;
     } skyParameter;
-    
+
     skyParameter.sunPosition = RenderManager::GetInstance()->GetSky().GetSunDirection();
     skyParameter.sunIntensity = 1300.0f;
     skyParameter.Kr = 0.0025f;
@@ -490,21 +474,9 @@ void TestRTRenderer::BuildScene(CommandContext& commandContext, const ModelSorte
     auto skyParameterAllocation = commandContext.TransfarUploadBuffer(sizeof(skyParameter), &skyParameter);
 
     // skyboxが変更された可能性あり
-    {
-        ShaderRecord missShaderRecord(identifierMap_[kRecursiveMissName]);
-        missShaderRecord.Add(skyParameterAllocation);
-        // skybox1
-        D3D12_GPU_DESCRIPTOR_HANDLE skyboxSRV = DefaultTexture::BlackCubeMap.GetSRV();
-        if (skyboxTexture_) {
-            skyboxSRV = skyboxTexture_->GetSRV();
-        }
-        missShaderRecord.Add(skyboxSRV);
-        // skybox1
-        skyboxSRV = DefaultTexture::BlackCubeMap.GetSRV();
-        if (skyboxRadianceTexture_) {
-            skyboxSRV = skyboxRadianceTexture_->GetSRV();
-        }
-        missShaderRecord.Add(skyboxSRV);
-        missShaderTable_.Create(L"MissShaderTable", &missShaderRecord, 1);
-    }
+
+    ShaderRecord missShaderRecord(identifierMap_[kRecursiveMissName]);
+    missShaderRecord.Add(skyParameterAllocation);
+    missShaderTable_.Create(L"MissShaderTable", &missShaderRecord, 1);
+
 }

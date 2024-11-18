@@ -45,7 +45,7 @@ namespace Editer {
         }
         else {
 
-            auto& image = RenderManager::GetInstance()->GetTestRTRenderer().GetResult();
+            auto& image = RenderManager::GetInstance()->GetPathtracingResultBuffer();
             commandContext.TransitionResource(image, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
             commandContext.FlushResourceBarriers();
             imageID = reinterpret_cast<ImTextureID>(image.GetSRV().GetGPU().ptr);

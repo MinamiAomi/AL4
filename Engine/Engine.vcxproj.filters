@@ -91,6 +91,9 @@
     <Filter Include="Framework\Asset">
       <UniqueIdentifier>{1206aa75-33c6-4774-a72e-fd5c3e5a56c7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Graphics\Shader\Raytracing\Denoiser">
+      <UniqueIdentifier>{69c14b7a-5bc3-43c4-bc8b-b4a3334289d0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Scene\SceneManager.cpp">
@@ -372,7 +375,7 @@
     <ClCompile Include="Graphics\Raytracing\TestRTRenderer.cpp">
       <Filter>Graphics\Raytracing</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Raytracing\Denoiser.cpp">
+    <ClCompile Include="Graphics\Raytracing\SpatialDenoiser.cpp">
       <Filter>Graphics\Raytracing</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Texture.cpp">
@@ -413,6 +416,12 @@
     </ClCompile>
     <ClCompile Include="GameObject\ComponentRegisterer.cpp">
       <Filter>GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Raytracing\TemporalDenoiser.cpp">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Raytracing\Pathtracer.cpp">
+      <Filter>Graphics\Raytracing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -764,7 +773,7 @@
     <ClInclude Include="Graphics\Shader\Raytracing\Pathtracing\Pathtracing.h">
       <Filter>Graphics\Shader\Raytracing\Pathtracing</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Raytracing\Denoiser.h">
+    <ClInclude Include="Graphics\Raytracing\SpatialDenoiser.h">
       <Filter>Graphics\Raytracing</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Texture.h">
@@ -811,6 +820,15 @@
     </ClInclude>
     <ClInclude Include="GameObject\ComponentRegisterer.h">
       <Filter>GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Raytracing\TemporalDenoiser.h">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Raytracing\Pathtracer.h">
+      <Filter>Graphics\Raytracing</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\SceneContext.h">
+      <Filter>Graphics\Standard</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -952,9 +970,6 @@
     <None Include="Graphics\Shader\Random.hlsli">
       <Filter>Graphics\Shader</Filter>
     </None>
-    <None Include="Graphics\Shader\Raytracing\DenoiserCS.hlsl">
-      <Filter>Graphics\Shader\Raytracing</Filter>
-    </None>
     <None Include="Graphics\Shader\AtmosphericScattering.hlsli">
       <Filter>Graphics\Shader</Filter>
     </None>
@@ -979,8 +994,14 @@
     <None Include="Graphics\Shader\Particle\UpdateParticleCS.hlsl">
       <Filter>Graphics\Shader\Particle</Filter>
     </None>
-    <None Include="Graphics\Shader\Raytracing\Pathtracing\AdvancedDenoiserCS.hlsl">
-      <Filter>Graphics\Shader\Raytracing\Pathtracing</Filter>
+    <None Include="Graphics\Shader\Raytracing\Pathtracing\SpatialDenoiserCS.hlsl">
+      <Filter>Graphics\Shader\Raytracing\Denoiser</Filter>
+    </None>
+    <None Include="Graphics\Shader\Raytracing\DenoiserCS.hlsl">
+      <Filter>Graphics\Shader\Raytracing\Denoiser</Filter>
+    </None>
+    <None Include="Graphics\Shader\Raytracing\Pathtracing\TemporalDenoiserCS.hlsl">
+      <Filter>Graphics\Shader\Raytracing\Denoiser</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -7,6 +7,8 @@
 #include "Framework/Engine.h"
 #include "Editer/EditerManager.h"
 
+#include "Input/Input.h"
+
 static bool useGrayscale = true;
 
 RenderManager* RenderManager::GetInstance() {
@@ -43,15 +45,11 @@ void RenderManager::Initialize() {
     //    modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
     transition_.Initialize();
 
-    testRTRenderer_.Create(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
-    //raytracingRenderer_.Create(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
-
-    //raymarchingRenderer_.Create(mainColorBuffer_.GetWidth(), mainColorBuffer_.GetHeight());
-
-    //computeShaderTester_.Initialize(1024, 1024);
-    //commandContext_.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
-    //computeShaderTester_.Dispatch(commandContext_);
-    //commandContext_.Finish(true);
+    pathtracingResultBuffer_.Create(L"PathtracingResultBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
+    pathtracer_.Initialize(pathtracingResultBuffer_.GetWidth(), pathtracingResultBuffer_.GetHeight());
+    preSpatialDenoiser_.Initialize(pathtracingResultBuffer_.GetWidth(), pathtracingResultBuffer_.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
+    temporalDenoiser_.Initialize(pathtracingResultBuffer_.GetWidth(), pathtracingResultBuffer_.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
+    postSpatialDenoiser_.Initialize(pathtracingResultBuffer_.GetWidth(), pathtracingResultBuffer_.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
 
     timer_.Initialize();
 
@@ -83,10 +81,22 @@ void RenderManager::Render() {
         // 影、スペキュラ
         modelSorter_.Sort(*camera);
 
-        //raytracingRenderer_.Render(commandContext_, *camera, *sunLight);
-        testRTRenderer_.Render(commandContext_, *camera, modelSorter_);
-
         geometryRenderingPass_.Render(commandContext_, *camera, modelSorter_);
+
+        pathtracer_.Dispatch(commandContext_, *camera, modelSorter_);
+        preSpatialDenoiser_.Dispatch(commandContext_, pathtracer_.GetResult(), geometryRenderingPass_);
+
+        // 仮リセット
+        if (Engine::GetInput()->IsKeyPressed(DIK_R)) {
+            temporalDenoiser_.Reset(commandContext_);
+        }
+
+        temporalDenoiser_.Dispatch(commandContext_, preSpatialDenoiser_.GetDenoisedBuffer(), pathtracingResultBuffer_);
+
+        postSpatialDenoiser_.Dispatch(commandContext_, pathtracingResultBuffer_, geometryRenderingPass_);
+
+
+
         lightingRenderingPass_.Render(commandContext_, geometryRenderingPass_, *camera, *sunLight);
 
         commandContext_.TransitionResource(lightingRenderingPass_.GetResult(), D3D12_RESOURCE_STATE_RENDER_TARGET);

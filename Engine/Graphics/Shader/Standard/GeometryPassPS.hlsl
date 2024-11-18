@@ -6,12 +6,15 @@ struct PSInput {
     float3 normal : NORMAL0;
     float3 tangent : TANGENT0;
     float2 texcoord : TEXCOORD0;
+    float viewDepth : TEXCOORD1;
 };
 
 struct PSOutput {
     float4 albedo : SV_TARGET0;
     float2 metallicRoughness : SV_TARGET1;
     float4 normal : SV_TARGET2;
+    float4 worldPosition : SV_TARGET3;
+    uint2 meshMaterialIDs : SV_TARGET4;
 };
 
 // 法線マップから法線を取得
@@ -44,5 +47,8 @@ PSOutput main(PSInput input) {
     output.normal.xyz = (normal + 1.0f) * 0.5f;
     output.normal.w = 1.0f;
   
+    output.worldPosition = float4(input.worldPosition, 1.0f);
+    output.meshMaterialIDs = uint2(0, 0);
+
     return output;
 }

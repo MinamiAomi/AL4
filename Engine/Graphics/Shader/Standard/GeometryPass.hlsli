@@ -5,6 +5,8 @@ struct Scene {
     float4x4 viewMatrix;
     float4x4 projectionMatrix;
     float3 cameraPosition;
+    float nearClip;
+    float farClip;
 };
 ConstantBuffer<Scene> g_Scene : register(b0);
 

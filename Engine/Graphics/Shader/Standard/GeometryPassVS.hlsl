@@ -17,7 +17,12 @@ struct VSOutput {
     float3 normal : NORMAL0;
     float3 tangent : TANGENT0;
     float2 texcoord : TEXCOORD0;
+    float viewDepth : TEXCOORD1;
 };
+
+float Map(float value, float min1, float max1, float min2, float max2) {
+    return (value - min1) / (max1 - min1);
+}
 
 VSOutput main(VSInput input) {
     VSOutput output;
@@ -48,8 +53,10 @@ VSOutput main(VSInput input) {
 #endif
         
     float4 worldPosition = mul(localPosition, g_Instance.worldMatrix);
-    output.svPosition = mul(worldPosition, mul(g_Scene.viewMatrix, g_Scene.projectionMatrix));
+    float4 viewPosition = mul(worldPosition, g_Scene.viewMatrix);
+    output.svPosition = mul(viewPosition, g_Scene.projectionMatrix);
     output.worldPosition = worldPosition.xyz;
+    output.viewDepth = (viewPosition.z - g_Scene.nearClip) / (g_Scene.farClip - g_Scene.nearClip);
     output.normal = mul(localNormal, (float3x3) g_Instance.worldInverseTransposeMatrix);
     output.tangent = mul(localTangent, (float3x3) g_Instance.worldInverseTransposeMatrix);
     output.texcoord = input.texcoord;
