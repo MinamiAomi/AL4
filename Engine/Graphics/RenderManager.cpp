@@ -39,17 +39,16 @@ void RenderManager::Initialize() {
     //particleCore_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat());
 
     //bloom_.Initialize(&lightingRenderingPass_.GetResult());
-    fxaa_.Initialize(&lightingRenderingPass_.GetResult());
     postEffect_.Initialize(finalImageBuffer_);
 
     //    modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
     transition_.Initialize();
 
-    pathtracingResultBuffer_.Create(L"PathtracingResultBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
-    pathtracer_.Initialize(pathtracingResultBuffer_.GetWidth(), pathtracingResultBuffer_.GetHeight());
-    preSpatialDenoiser_.Initialize(pathtracingResultBuffer_.GetWidth(), pathtracingResultBuffer_.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
-    temporalDenoiser_.Initialize(pathtracingResultBuffer_.GetWidth(), pathtracingResultBuffer_.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
-    postSpatialDenoiser_.Initialize(pathtracingResultBuffer_.GetWidth(), pathtracingResultBuffer_.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
+    pathtracer_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
+    preSpatialDenoiser_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
+    temporalDenoiser_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
+    postSpatialDenoiser_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
+    fxaa_.Initialize(&postSpatialDenoiser_.GetDenoisedBuffer());
 
     timer_.Initialize();
 
@@ -91,9 +90,9 @@ void RenderManager::Render() {
             temporalDenoiser_.Reset(commandContext_);
         }
 
-        temporalDenoiser_.Dispatch(commandContext_, preSpatialDenoiser_.GetDenoisedBuffer(), pathtracingResultBuffer_);
+        temporalDenoiser_.Dispatch(commandContext_, preSpatialDenoiser_.GetDenoisedBuffer());
 
-        postSpatialDenoiser_.Dispatch(commandContext_, pathtracingResultBuffer_, geometryRenderingPass_);
+        postSpatialDenoiser_.Dispatch(commandContext_, temporalDenoiser_.GetDenoisedBuffer(), geometryRenderingPass_);
 
 
 

@@ -997,9 +997,6 @@
     <None Include="Graphics\Shader\Raytracing\Pathtracing\SpatialDenoiserCS.hlsl">
       <Filter>Graphics\Shader\Raytracing\Denoiser</Filter>
     </None>
-    <None Include="Graphics\Shader\Raytracing\DenoiserCS.hlsl">
-      <Filter>Graphics\Shader\Raytracing\Denoiser</Filter>
-    </None>
     <None Include="Graphics\Shader\Raytracing\Pathtracing\TemporalDenoiserCS.hlsl">
       <Filter>Graphics\Shader\Raytracing\Denoiser</Filter>
     </None>

@@ -18,9 +18,9 @@ public:
 
 private:
     uint32_t day_ = 0; // 日
-    float time_ = 0.0f; // 時間 h
+    float time_ = 12.0f; // 時間 h
     float northLatitude_ = 35.0f; // 北緯°
     float eastLongitude_ = 135.0f; // 東経°
     Vector3 sunDirection_;
-    bool stoped_ = false;
+    bool stoped_ = true;
 };

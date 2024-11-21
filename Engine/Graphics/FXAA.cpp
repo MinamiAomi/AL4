@@ -53,7 +53,7 @@ void FXAA::Initialize(ColorBuffer* original) {
 
 void FXAA::Render(CommandContext& commandContext) {
     assert(original_);
-
+    commandContext.BeginEvent(L"FXAA::Render");
     commandContext.TransitionResource(result_, D3D12_RESOURCE_STATE_RENDER_TARGET);
     commandContext.TransitionResource(*original_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     commandContext.SetRenderTarget(result_.GetRTV());
@@ -63,4 +63,5 @@ void FXAA::Render(CommandContext& commandContext) {
     commandContext.SetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
     commandContext.SetDescriptorTable(0, original_->GetSRV());
     commandContext.Draw(3);
+    commandContext.EndEvent();
 }

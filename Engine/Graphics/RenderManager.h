@@ -51,7 +51,7 @@ public:
 
     //LightManager& GetLightManager() { return lightManager_; }
     SwapChain& GetSwapChain() { return swapChain_; }
-    ColorBuffer& GetFinalImageBuffer() { return finalImageBuffer_; }
+    ColorBuffer& GetFinalImageBuffer() { return fxaa_.GetResult(); }
     Transition& GetTransition() { return transition_; }
     SkinningManager& GetSkinningManager() { return skinningManager_; }
     LineDrawer& GetLineDrawer() { return lineDrawer_; }
@@ -89,7 +89,6 @@ private:
     SpatialDenoiser preSpatialDenoiser_;
     TemporalDenoiser temporalDenoiser_;
     SpatialDenoiser postSpatialDenoiser_;
-    ColorBuffer pathtracingResultBuffer_;
 
     //RaytracingRenderer raytracingRenderer_;
     //RaymarchingRenderer raymarchingRenderer_;

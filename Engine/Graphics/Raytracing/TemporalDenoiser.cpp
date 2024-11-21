@@ -11,8 +11,8 @@ namespace {
 void TemporalDenoiser::Initialize(uint32_t width, uint32_t height, DXGI_FORMAT format) {
     // 蓄積バッファの生成
     float c[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-    accumulationBuffer_.SetClearColor(c);
-    accumulationBuffer_.Create(L"TemporalDenoiser AccumulationBuffer", width, height, format);
+    denoisedBuffer_.SetClearColor(c);
+    denoisedBuffer_.Create(L"TemporalDenoiser DenoisedBuffer", width, height, format);
     // ルートシグネチャの生成
     RootSignatureDescHelper rsDesc;
     // IntermadiateBuffer
@@ -33,30 +33,27 @@ void TemporalDenoiser::Initialize(uint32_t width, uint32_t height, DXGI_FORMAT f
     sampleCount_ = 1;
 }
 
-void TemporalDenoiser::Dispatch(CommandContext& commandContext, ColorBuffer& intermediateBuffer, ColorBuffer& denoisedBuffer) {
-    assert(intermediateBuffer.GetWidth() == accumulationBuffer_.GetWidth() && accumulationBuffer_.GetWidth() == denoisedBuffer.GetWidth());
-    assert(intermediateBuffer.GetHeight() == accumulationBuffer_.GetHeight() && accumulationBuffer_.GetHeight() == denoisedBuffer.GetHeight());
+void TemporalDenoiser::Dispatch(CommandContext& commandContext, ColorBuffer& intermediateBuffer) {
+    assert(intermediateBuffer.GetWidth() == denoisedBuffer_.GetWidth());
+    assert(intermediateBuffer.GetHeight() == denoisedBuffer_.GetHeight());
     commandContext.BeginEvent(L"TemporalDenoiser::Dispatch");
     commandContext.TransitionResource(intermediateBuffer, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE);
-    commandContext.TransitionResource(accumulationBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
-    commandContext.TransitionResource(denoisedBuffer, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+    commandContext.TransitionResource(denoisedBuffer_, D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
     commandContext.SetComputeRootSignature(rootSignature_);
     commandContext.SetPipelineState(pipelineState_);
     commandContext.SetComputeDescriptorTable(0, intermediateBuffer.GetSRV());
-    commandContext.SetComputeDescriptorTable(1, accumulationBuffer_.GetUAV());
-    commandContext.SetComputeDescriptorTable(2, denoisedBuffer.GetUAV());
+    commandContext.SetComputeDescriptorTable(1, denoisedBuffer_.GetUAV());
     commandContext.SetComputeConstants(3, sampleCount_++);
-    commandContext.Dispatch(UINT((denoisedBuffer.GetWidth() + 31) / 32), UINT((denoisedBuffer.GetHeight() + 31) / 32));
-    commandContext.UAVBarrier(accumulationBuffer_);
-    commandContext.UAVBarrier(denoisedBuffer);
+    commandContext.Dispatch(UINT((denoisedBuffer_.GetWidth() + 31) / 32), UINT((denoisedBuffer_.GetHeight() + 31) / 32));
+    commandContext.UAVBarrier(denoisedBuffer_);
     commandContext.FlushResourceBarriers();
     commandContext.EndEvent();
 }
 
 void TemporalDenoiser::Reset(CommandContext& commandContext) {
     commandContext.BeginEvent(L"TemporalDenoiser::Reset");
-    commandContext.TransitionResource(accumulationBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    commandContext.ClearColor(accumulationBuffer_);
+    commandContext.TransitionResource(denoisedBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+    commandContext.ClearColor(denoisedBuffer_);
     sampleCount_ = 1;
     commandContext.EndEvent();    
 }

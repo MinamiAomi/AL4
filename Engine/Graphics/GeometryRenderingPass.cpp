@@ -27,8 +27,8 @@ void GeometryRenderingPass::Initialize(uint32_t width, uint32_t height) {
     gBuffers_[GBuffer::Normal].SetClearColor(normalClearColor);
     gBuffers_[GBuffer::Normal].Create(L"GeometryRenderingPass Normal", width, height, DXGI_FORMAT_R10G10B10A2_UNORM);
     float viewDepthClearColor[] = { 0.0f, 0.0f, 0.0f, 1.0f };
-    gBuffers_[GBuffer::Position].SetClearColor(viewDepthClearColor);
-    gBuffers_[GBuffer::Position].Create(L"GeometryRenderingPass ViewDepth", width, height, DXGI_FORMAT_R32G32B32A32_FLOAT);
+    gBuffers_[GBuffer::ViewDepth].SetClearColor(viewDepthClearColor);
+    gBuffers_[GBuffer::ViewDepth].Create(L"GeometryRenderingPass ViewDepth", width, height, DXGI_FORMAT_R32_FLOAT);
     float meshMaterialIDsClearColor[] = { 0.0f, 0.0f, 0.0f, 0.0f };
     gBuffers_[GBuffer::MeshMaterialIDs].SetClearColor(meshMaterialIDsClearColor);
     gBuffers_[GBuffer::MeshMaterialIDs].Create(L"GeometryRenderingPass MeshMaterialIDs", width, height, DXGI_FORMAT_R16G16_UINT);

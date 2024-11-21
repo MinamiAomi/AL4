@@ -15,7 +15,7 @@ struct GBuffer {
         Albedo,
         MetallicRoughness,
         Normal,
-        Position,
+        ViewDepth,
         MeshMaterialIDs,
 
         NumGBuffers
@@ -42,7 +42,7 @@ public:
     ColorBuffer& GetAlbedo() { return gBuffers_[GBuffer::Albedo]; }
     ColorBuffer& GetMetallicRoughness() { return gBuffers_[GBuffer::MetallicRoughness]; }
     ColorBuffer& GetNormal() { return gBuffers_[GBuffer::Normal]; }
-    ColorBuffer& GetPosition() { return gBuffers_[GBuffer::Position]; }
+    ColorBuffer& GetViewDepth() { return gBuffers_[GBuffer::ViewDepth]; }
     ColorBuffer& GetMeshMaterialIDs() { return gBuffers_[GBuffer::MeshMaterialIDs]; }
     DepthBuffer& GetDepth() { return depth_; }
 

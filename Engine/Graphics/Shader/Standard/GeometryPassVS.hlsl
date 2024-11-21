@@ -56,7 +56,8 @@ VSOutput main(VSInput input) {
     float4 viewPosition = mul(worldPosition, g_Scene.viewMatrix);
     output.svPosition = mul(viewPosition, g_Scene.projectionMatrix);
     output.worldPosition = worldPosition.xyz;
-    output.viewDepth = (viewPosition.z - g_Scene.nearClip) / (g_Scene.farClip - g_Scene.nearClip);
+    output.viewDepth = viewPosition.z;
+    //output.viewDepth = (viewPosition.z - g_Scene.nearClip) / (g_Scene.farClip - g_Scene.nearClip);
     output.normal = mul(localNormal, (float3x3) g_Instance.worldInverseTransposeMatrix);
     output.tangent = mul(localTangent, (float3x3) g_Instance.worldInverseTransposeMatrix);
     output.texcoord = input.texcoord;

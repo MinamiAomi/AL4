@@ -205,7 +205,7 @@ void TestRTRenderer::Render(CommandContext& commandContext, const Camera& camera
         temporalDenoiser_.Reset(commandContext);
     }
 
-    temporalDenoiser_.Dispatch(commandContext, intermediateBuffer_, denoisedBuffer_);
+    temporalDenoiser_.Dispatch(commandContext, intermediateBuffer_);
     commandContext.EndEvent();
     commandContext.EndEvent();
     commandContext.SetMarker(L"DispatchRays");

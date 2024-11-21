@@ -43,7 +43,7 @@ void SpatialDenoiser::Dispatch(CommandContext& commandContext, ColorBuffer& sour
     commandContext.SetComputeDescriptorTable(2, gBuffers.GetGBuffer(GBuffer::Albedo).GetSRV());
     commandContext.SetComputeDescriptorTable(3, gBuffers.GetGBuffer(GBuffer::MetallicRoughness).GetSRV());
     commandContext.SetComputeDescriptorTable(4, gBuffers.GetGBuffer(GBuffer::Normal).GetSRV());
-    commandContext.SetComputeDescriptorTable(5, gBuffers.GetGBuffer(GBuffer::Position).GetSRV());
+    commandContext.SetComputeDescriptorTable(5, gBuffers.GetGBuffer(GBuffer::ViewDepth).GetSRV());
     commandContext.Dispatch(UINT((denoisedBuffer_.GetWidth() + 31) / 32), UINT((denoisedBuffer_.GetHeight() + 31) / 32));
     commandContext.UAVBarrier(denoisedBuffer_);
     commandContext.FlushResourceBarriers();

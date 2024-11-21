@@ -142,6 +142,7 @@ void Pathtracer::Initialize(uint32_t width, uint32_t height) {
 
 void Pathtracer::Dispatch(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter) {
     commandContext.BeginEvent(L"Pathtracer::Dispatch");
+   
     modelSorter;
     struct SceneData {
         Matrix4x4 viewProjectionInverseMatrix;
@@ -307,6 +308,7 @@ void Pathtracer::CreateShaderTables() {
 }
 
 void Pathtracer::BuildScene(CommandContext& commandContext, const ModelSorter& modelSorter) {
+    commandContext.BeginEvent(L"Pathtracer::BuildScene");
 
     struct MaterialData {
         Vector3 albedo;
@@ -479,4 +481,5 @@ void Pathtracer::BuildScene(CommandContext& commandContext, const ModelSorter& m
     missShaderRecord.Add(skyParameterAllocation);
     missShaderTable_.Create(L"MissShaderTable", &missShaderRecord, 1);
 
+    commandContext.EndEvent();
 }
