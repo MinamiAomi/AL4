@@ -86,6 +86,7 @@ public:
     void SetColor(const Vector3& color) { color_ = color; }
     void SetAlpha(float alpha) { alpha_ = alpha; }
     void SetBeReflected(bool beReflected) { beReflected_ = beReflected; }
+    void SetRefraction(bool refrection) { refraction_ = refrection; }
     void SetReciveShadow(bool reciveShadow) { reciveShadow_ = reciveShadow; }
     void SetCastShadow(bool castShadow) { castShadow_ = castShadow; }
     void SetReflection(bool reflection) { reflection_ = reflection; }
@@ -99,6 +100,7 @@ public:
     const Vector3& GetColor() const { return color_; }
     float GetAlpha() const { return alpha_; }
     bool BeReflected() const { return beReflected_; }
+    bool Refraction() const { return refraction_; }
     bool ReciveShadow() const { return reciveShadow_; }
     bool CastShadow() const { return castShadow_; }
     bool Reflection() const { return reflection_; }
@@ -117,7 +119,8 @@ private:
     
     // 映り込みフラグ
     bool beReflected_ = true;
-    
+    // ガラス面
+    bool refraction_ = false;
     bool reciveShadow_ = true;
     bool castShadow_ = true;
     bool reflection_ = false;

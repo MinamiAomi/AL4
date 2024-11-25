@@ -132,7 +132,7 @@ float32_t3 GetIncidentColor(in float32_t3 incidentDirection, in float32_t3 posit
     TraceRay(
         g_TLAS, // RaytracingAccelerationStructure
         // 背面カリング
-        RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // RayFlags
+         RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // RayFlags
         // レイのマスク
         RECURSIVE_MASK, // InstanceInclusionMask
         // シェーダーテーブルのオフセット
@@ -149,71 +149,21 @@ float32_t3 GetIncidentColor(in float32_t3 incidentDirection, in float32_t3 posit
 }
 
 
-float32_t3 CosineDirection(in float32_t3 normal, inout float32_t seed) {
-    float32_t u = fRand(seed);
-    float32_t v = fRand(seed);
-    float32_t a = 6.2831853f * v;
-    float32_t b = 2.0f * u - 1.0f;
-    float32_t3 direction = float32_t3(sqrt(1.0f - b * b) * float32_t2(cos(a), sin(a)), b);
-    return normalize(normal + direction);
+
+// rateは入射前の屈折率 / 入射後の屈折率
+float32_t3 Refract(in float32_t3 direction, in float32_t3 normal, in float32_t rate) {
+    float32_t cosTheta1 = dot(-direction, normal);
+    float32_t sin2Theta2 = rate * rate * (1.0f - cosTheta1 * cosTheta1);
+    // 全反射
+    if (sin2Theta2 > 1.0f) {
+        return reflect(-direction, normal);
+    }
+    float32_t cosTheta2 = sqrt(1.0f - sin2Theta2);
+    return rate * direction + (rate * cosTheta1 - cosTheta2) * normal;
 }
-
-float32_t3 LocalToWorld(in float32_t3 localDirection, in float32_t3 normal) {
-    float32_t3 tangent = abs(normal.x) > 0.999f ? float32_t3(0.0f, 1.0f, 0.0f) : float32_t3(1.0f, 0.0f, 0.0f);
-    tangent = normalize(cross(tangent, normal));
-    float32_t3 bitangent = cross(normal, tangent);
-    return localDirection.x * tangent + localDirection.y * bitangent + localDirection.z * normal;
-}
-
-float32_t3 SampleCosine(in float32_t3 normal, inout float32_t seed) {
-    float32_t r1 = fRand(seed);
-    float32_t r2 = fRand(seed);
-    float32_t theta = acos(sqrt(1.0f - r1));
-    float32_t phi = 2.0f * PI * r2;
-
-    float32_t sinTheta = sin(theta), cosTheta = cos(theta);
-    float32_t sinPhi = sin(phi), cosPhi = cos(phi);
-    float32_t x = sinTheta * cosPhi;
-    float32_t y = sinTheta * sinPhi;
-    float32_t z = cosTheta;
-
-    return LocalToWorld(float32_t3(x, y, z), normal);
-}
-
-float32_t PDFCosine(in float32_t3 normal, in float32_t3 direction) {
-    float32_t cosTheta = dot(normal, direction);
-    return cosTheta > 0.0f ? cosTheta / PI : 0.0f;
-}
-
-float32_t3 SampleGGX(in float32_t3 normal, in float32_t roughness, inout float32_t seed) {
-    float32_t alpha = roughness * roughness;
-    float32_t r1 = fRand(seed);
-    float32_t r2 = fRand(seed);
-
-    float32_t theta = atan(alpha * sqrt(r1) / sqrt(max(1.0f - r1, 0.0f)));
-    float32_t phi = 2.0f * PI * r2;
-
-    float32_t sinTheta = sin(theta);
-    float32_t x = sinTheta * cos(phi);
-    float32_t y = sinTheta * sin(phi);
-    float32_t z = cos(theta);
-
-    return LocalToWorld(float32_t3(x, y, z), normal);
-}
-
-float32_t PDFGGX(in float32_t3 halfV, in float32_t3 normal, in float32_t roughness) { 
-    float32_t alpha = roughness * roughness;
-    float32_t cosTheta = dot(halfV, normal);
-    if (cosTheta <= 0.0f) { return 0.0f; }
-    float32_t alpha2 = alpha * alpha;
-    float32_t t = (cosTheta * cosTheta) * (alpha2 - 1.0f) + 1.0f;
-    float32_t D = alpha2 / (PI * t * t);
-    return D * cosTheta;
-}
-
 
 [shader("closesthit")]
-void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
+void RefractionCHS(inout Payload payload, in Attributes attributes) {
 
     // 再帰回数が最大で光源に当たらなかった
     if (payload.recursiveCount >= MAX_RECURSIVE_COUNT) {
@@ -251,22 +201,12 @@ void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
         payload.color += material.emissive;
         return;
     }
-
-    // ランダムな半球状のベクトル
-    //float32_t3 incidentDirection = CosineDirection(geometry.normal, payload.seed);
-    float32_t3 incidentDirection = SampleCosine(geometry.normal, payload.seed);
-    //float32_t3 incidentDirection = SampleGGX(geometry.normal, material.specularRoughness, payload.seed);
-
-    float32_t3 brdf =
-        PBR::DiffuseBRDF(material.diffuseReflectance) +
-        PBR::SpecularBRDF(incidentDirection, geometry.normal, geometry.viewDirection, material.specularReflectance, material.specularRoughness);
-    // 入射光
-    float32_t3 incidentColor = GetIncidentColor(incidentDirection, vertex.position + vertex.normal * 0.001f, payload.recursiveCount, payload.seed);
-    // 確率密度関数
-    //float32_t pdf = 1.0f / (2.0f * PI);
-    float32_t pdf = PDFCosine(geometry.normal, incidentDirection);
-    //float32_t pdf = PDFGGX(normalize(incidentDirection + geometry.viewDirection), geometry.normal, material.specularRoughness);
-    // コサイン項
-    float32_t cosine = saturate(dot(incidentDirection, vertex.normal));
-    payload.color += incidentColor * brdf * cosine / (pdf + EPSILON);
+    
+    float32_t rate = 1.25f / 1.0f;
+    // 空気から物体の中へ
+    if (dot(rayDirection, geometry.normal) > 0.0f) {
+        rate = 1.0f / 1.25f;
+    } 
+    float32_t3 incidentDirection = Refract(rayDirection, geometry.normal, rate);
+    payload.color = GetIncidentColor(incidentDirection, vertex.position + incidentDirection * 0.001f, payload.recursiveCount, payload.seed);
 }

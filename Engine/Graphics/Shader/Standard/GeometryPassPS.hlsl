@@ -34,10 +34,14 @@ PSOutput main(PSInput input) {
 
     PSOutput output;
     
-    float3 albedo = g_BindlessTextures[g_Material.albedoMapIndex].Sample(g_Sampler, input.texcoord).xyz;
-    albedo *= g_Material.albedo;
-    output.albedo.xyz = albedo;
-    output.albedo.w = 1.0f;
+
+    float4 albedo = g_BindlessTextures[g_Material.albedoMapIndex].Sample(g_Sampler, input.texcoord);
+    if (albedo.a == 0.0f) {
+        discard;
+    }
+    albedo.rgb *= g_Material.albedo;
+    output.albedo.rgb = albedo.rgb;
+    output.albedo.a = 1.0f;
     
     float2 metallicRoughness = g_BindlessTextures[g_Material.metallicRoughnessMapIndex].Sample(g_Sampler, input.texcoord).zy;
     metallicRoughness *= float2(g_Material.metallic, g_Material.roughness);

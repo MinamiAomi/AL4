@@ -15,7 +15,8 @@
         "wall" : "room/wall.gltf",
         "lamp" : "room/lamp.gltf",
         "table" : "room/table.gltf",
-        "sponza" : "Sponza/sponza.glb"
+        "sponza" : "Sponza/sponza.glb",
+        "apple" : "Apple/apple.gltf"
     }
     
 }

@@ -20,11 +20,14 @@
 namespace {
     static const wchar_t kRayGenerationShader[] = L"Raytracing/Pathtracing/RayGeneration.hlsl";
     static const wchar_t kClosestHitShader[] = L"Raytracing/Pathtracing/ClosestHit.hlsl";
+    static const wchar_t kRefractionCHS[] = L"Raytracing/Pathtracing/RefractionCHS.hlsl";
     static const wchar_t kMissShader[] = L"Raytracing/Pathtracing/Miss.hlsl";
     static const wchar_t kRayGenerationName[] = L"RayGeneration";
     static const wchar_t kRecursiveMissName[] = L"RecursiveMiss";
     static const wchar_t kRecursiveClosestHitName[] = L"RecursiveClosestHit";
     static const wchar_t kRecursiveHitGroupName[] = L"RecursiveHitGroup";
+    static const wchar_t kRefractionClosestHitName[] = L"RefractionCHS";
+    static const wchar_t kRefractionHitGroupName[] = L"RefractionHitGroup";
 
     void PrintStateObjectDesc(const D3D12_STATE_OBJECT_DESC* desc) {
         std::wstringstream wstr;
@@ -241,9 +244,10 @@ void Pathtracer::CreateStateObject() {
         dxilLibSubobject->DefineExport(exportName);
         };
 
-    // 1 ~ 3.DXILLib
+    // 1 ~ 4.DXILLib
     CreateShaderSubobject(kRayGenerationShader, kRayGenerationName);
     CreateShaderSubobject(kClosestHitShader, kRecursiveClosestHitName);
+    CreateShaderSubobject(kRefractionCHS, kRefractionClosestHitName);
     CreateShaderSubobject(kMissShader, kRecursiveMissName);
 
     // 4.ヒットグループ
@@ -260,6 +264,18 @@ void Pathtracer::CreateStateObject() {
     auto hitGroupRootSignatureAssociation = stateObjectDesc.CreateSubobject<CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT>();
     hitGroupRootSignatureAssociation->SetSubobjectToAssociate(*hitGroupRootSignature);
     hitGroupRootSignatureAssociation->AddExport(kRecursiveHitGroupName);
+
+    /// refraction
+    auto refractionHitGroup = stateObjectDesc.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
+    refractionHitGroup->SetClosestHitShaderImport(kRefractionClosestHitName);
+    refractionHitGroup->SetHitGroupExport(kRefractionHitGroupName);
+    refractionHitGroup->SetHitGroupType(D3D12_HIT_GROUP_TYPE_TRIANGLES);
+
+    // ヒットグループアソシエーション
+    auto refractionHitGroupRootSignatureAssociation = stateObjectDesc.CreateSubobject<CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT>();
+    refractionHitGroupRootSignatureAssociation->SetSubobjectToAssociate(*hitGroupRootSignature);
+    refractionHitGroupRootSignatureAssociation->AddExport(kRefractionHitGroupName);
+    ///
 
     // 7.ミスのローカルルートシグネチャ
     auto missRootSignature = stateObjectDesc.CreateSubobject<CD3DX12_LOCAL_ROOT_SIGNATURE_SUBOBJECT>();
@@ -278,7 +294,7 @@ void Pathtracer::CreateStateObject() {
 
     // 10.パイプラインコンフィグ
     auto pipelineConfig = stateObjectDesc.CreateSubobject<CD3DX12_RAYTRACING_PIPELINE_CONFIG_SUBOBJECT>();
-    uint32_t maxTraceRecursionDepth = 8; // 1 + 再帰回数
+    uint32_t maxTraceRecursionDepth = MAX_RECURSIVE_COUNT + 1; // 最大再帰回数
     pipelineConfig->Config(maxTraceRecursionDepth);
 
     // 11.グローバルルートシグネチャ
@@ -298,6 +314,7 @@ void Pathtracer::CreateShaderTables() {
             };
         InsertIdentifier(kRayGenerationName);
         InsertIdentifier(kRecursiveHitGroupName);
+        InsertIdentifier(kRefractionHitGroupName);
         InsertIdentifier(kRecursiveMissName);
     }
 
@@ -389,7 +406,7 @@ void Pathtracer::BuildScene(CommandContext& commandContext, const ModelSorter& m
         if (instance->BeReflected()) {
             desc.InstanceMask |= RECURSIVE_MASK;
         }
-        desc.InstanceContributionToHitGroupIndex = 0;
+        desc.InstanceContributionToHitGroupIndex = instance->Refraction() ? 1 : 0;
         desc.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
 
         const SkinCluster* skinningData = nullptr;
@@ -432,9 +449,12 @@ void Pathtracer::BuildScene(CommandContext& commandContext, const ModelSorter& m
     tlas_.Create(L"RaytracingRenderer TLAS", commandContext, instanceDescs.data(), instanceDescs.size());
 
     {
-        ShaderRecord shaderRecord(identifierMap_[kRecursiveHitGroupName]);
-        shaderRecord.Add(meshPropertiesBuffer.gpu);
-        hitGroupShaderTable_.Create(L"RaytracingRenderer HitGroupShaderTable", &shaderRecord, 1);
+        std::vector<ShaderRecord> shaderRecords;
+        shaderRecords.emplace_back(identifierMap_[kRecursiveHitGroupName]);
+        shaderRecords.back().Add(meshPropertiesBuffer.gpu);
+        shaderRecords.emplace_back(identifierMap_[kRefractionHitGroupName]);
+        shaderRecords.back().Add(meshPropertiesBuffer.gpu);
+        hitGroupShaderTable_.Create(L"RaytracingRenderer HitGroupShaderTable", shaderRecords.data(), (UINT)shaderRecords.size());
     }
 
 

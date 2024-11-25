@@ -35,7 +35,7 @@ void RayGeneration() {
     TraceRay(
         g_TLAS, // RaytracingAccelerationStructure
         // 背面カリング
-        RAY_FLAG_CULL_BACK_FACING_TRIANGLES, // RayFlags
+        RAY_FLAG_NONE, // RayFlags
         // レイのマスク
         VISIBILITY_MASK, // InstanceInclusionMask
         // シェーダーテーブルのオフセット

@@ -390,10 +390,54 @@
         },
         {
             "type": "MESH",
-            "name": "SphereLight",
+            "name": "Sphere1",
             "transform": {
                 "translate": [
                     0.0,
+                    5.0,
+                    150.0
+                ],
+                "rotate": [
+                    -0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "model_name": "sphere"
+        },
+        {
+            "type": "MESH",
+            "name": "Sphere2",
+            "transform": {
+                "translate": [
+                    5.0,
+                    5.0,
+                    150.0
+                ],
+                "rotate": [
+                    -0.0,
+                    0.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "model_name": "sphere"
+        },
+        {
+            "type": "MESH",
+            "name": "Sphere3",
+            "transform": {
+                "translate": [
+                    10.0,
                     5.0,
                     150.0
                 ],
