@@ -59,7 +59,9 @@ PSOutput main(PSInput input) {
     hsv.x = WrapValue(hsv.x, 0.0f, 1.0f);
     hsv.yz = saturate(hsv.yz);
     outputColor.rgb = HSVToRGB(hsv);
-    outputColor.rgb = LinearToSRGB(outputColor.rgb);
+
+    // そのままスワップチェーンにコピーしているのでここでSRGBに変換
+    //outputColor.rgb = LinearToSRGB(outputColor.rgb);
 
 
     output.color = outputColor;

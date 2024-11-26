@@ -3,9 +3,6 @@
 
 ConstantBuffer<SkyParameter> l_SkyParameter : register(b0, space3);
 
-TextureCube<float32_t4> l_Skybox : register(t0, space3);
-TextureCube<float32_t4> l_SkyboxRadiance : register(t1, space3);
-
 [shader("miss")]
 void RecursiveMiss(inout Payload payload) {
     float32_t3 rayDirection = WorldRayDirection();

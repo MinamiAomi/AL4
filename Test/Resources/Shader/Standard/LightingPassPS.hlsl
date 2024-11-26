@@ -61,7 +61,6 @@ PSOutput main(PSInput input) {
     PBR::Material material = PBR::CreateMaterial(albedo, metallic, roughness, emissive);
     PBR::IncidentLight incidentLight;
     incidentLight.direction = g_SkyParameter.sunPosition;
-    incidentLight.direction = float32_t3(-1.0f, 1.0f, -1.0f);
     incidentLight.color = float32_t3(1.0f, 1.0f, 1.0f);
     
     PBR::ReflectedLight reflectedLight;

@@ -29,7 +29,6 @@ struct Scene {
     float32_t4x4 viewProjectionInverseMatrix;
     float32_t3 cameraPosition;
     int32_t frame;
-    uint32_t skyboxMipCount;
 };
 
 struct Payload {
