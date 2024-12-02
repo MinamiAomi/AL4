@@ -2,6 +2,43 @@
     "name": "scene",
     "objects": [
         {
+            "type": "CAMERA",
+            "name": "Camera",
+            "transform": {
+                "translate": [
+                    -20.0,
+                    10.0,
+                    150.0
+                ],
+                "rotate": [
+                    -0.0,
+                    90.0,
+                    0.0
+                ],
+                "scale": [
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            },
+            "camera": {
+
+            },
+            "collider": {
+                "type": "BOX",
+                "center":[
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "size":[
+                    1.0,
+                    1.0,
+                    1.0
+                ]
+            }
+        },
+        {
             "type": "MESH",
             "name": "Sofa",
             "transform": {

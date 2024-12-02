@@ -40,6 +40,9 @@
     <ClCompile Include="DemoComponentRegisterer.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="CameraComponent.cpp">
+      <Filter>Game\Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Test.h">
@@ -62,6 +65,9 @@
     </ClInclude>
     <ClInclude Include="DemoComponentRegisterer.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="CameraComponent.h">
+      <Filter>Game\Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

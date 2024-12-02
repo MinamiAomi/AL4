@@ -246,6 +246,7 @@ namespace Editer {
             FileMenu();
             SettingMenu();
             WindowMenu();
+            HelpMenu();
             ImGui::EndMenuBar();
         }
 
@@ -338,6 +339,22 @@ namespace Editer {
                 consoleView_->isDisplayed ^= true;
             }
 
+            ImGui::EndMenu();
+        }
+    }
+
+    void EditerManager::HelpMenu() {
+        if (ImGui::BeginMenu("Help")) {
+            const char helpMessage[] = {
+                "Camera Options\n"
+                "Move forward and backward : Mouse wheel\n" // 前後移動
+                "Move up : Space key\n"
+                "Move down : LShift key\n"
+                "Move camera : W A S D key\n"
+                "Focus point transition : Middle mouse button drag\n" // 注視点移動
+                "View point transition : Right mouse button drag" // 視点移動
+            };
+            ImGui::Text(helpMessage);
             ImGui::EndMenu();
         }
     }

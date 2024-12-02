@@ -15,6 +15,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CameraComponent.cpp" />
     <ClCompile Include="DebugCamera.cpp" />
     <ClCompile Include="DemoComponentRegisterer.cpp" />
     <ClCompile Include="DemoGameObjectFactory.cpp" />
@@ -25,6 +26,7 @@
     <ClCompile Include="TestScene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CameraComponent.h" />
     <ClInclude Include="DemoComponentRegisterer.h" />
     <ClInclude Include="DemoGameObjectFactory.h" />
     <ClInclude Include="LevelLoader.h" />

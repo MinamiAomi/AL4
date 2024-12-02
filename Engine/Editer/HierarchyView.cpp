@@ -19,9 +19,9 @@ namespace Editer {
         ImGui::Begin("Hierarchy", &isDisplayed, ImGuiWindowFlags_MenuBar);
 
         if (ImGui::BeginMenuBar()) {
-            if (ImGui::Button("Create")) {
-                 ImGui::OpenPopup("create_game_object_popup");
-            }
+           //if (ImGui::Button("Create")) {
+           //    ImGui::OpenPopup("create_game_object_popup");
+           //}
             ImGui::PushItemWidth(100);
             ImGui::InputText("##Search", &searchString_);
             ImGui::PopItemWidth();
