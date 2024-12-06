@@ -13,9 +13,6 @@
     <Filter Include="Game\Component">
       <UniqueIdentifier>{787af317-f60c-4c1f-8130-6e0279e570de}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Externals">
-      <UniqueIdentifier>{dca3c85e-ef89-4b02-a25e-66b266dd535f}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -71,8 +68,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config">
-      <Filter>Externals</Filter>
-    </None>
+    <None Include="packages.config" />
   </ItemGroup>
 </Project>
