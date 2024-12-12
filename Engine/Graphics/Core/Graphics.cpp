@@ -2,7 +2,7 @@
 
 #include <dxgi1_6.h>
 #ifdef _DEBUG
-#include <pix3.h>
+//#include <pix3.h>
 #endif // _DEBUG
 
 #include <cassert>
