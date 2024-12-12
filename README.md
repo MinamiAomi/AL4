@@ -1,5 +1,7 @@
 # MainProject
 
+[![ReleaseBuild](https://github.com/MinamiAomi/MainProject/actions/workflows/ReleaseBuild.yml/badge.svg)](https://github.com/MinamiAomi/MainProject/actions/workflows/ReleaseBuild.yml)
+
 ## 開発概要
 - 期間 : 2023/9 ~ 現在
 - 人数 : 1人
