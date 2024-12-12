@@ -85,8 +85,19 @@ void RenderManager::Render() {
         pathtracer_.Dispatch(commandContext_, *camera, modelSorter_);
         preSpatialDenoiser_.Dispatch(commandContext_, pathtracer_.GetResult(), geometryRenderingPass_);
 
+        auto input = Engine::GetInput();
+        bool reset = false;
+        bool mouseMove = (input->GetMouseMoveX() != 0) || (input->GetMouseMoveY() != 0);
+
+        reset |= (input->IsMousePressed(0) && mouseMove);
+        reset |= (input->IsMousePressed(1) && mouseMove);
+        reset |= (input->IsMousePressed(2) && mouseMove);
+        reset |= (input->GetMouseWheel() != 0);
+        reset |= (input->IsKeyPressed(DIK_D) || input->IsKeyPressed(DIK_A) || input->IsKeyPressed(DIK_W) || input->IsKeyPressed(DIK_S));
+        reset |= (input->IsKeyPressed(DIK_UP) || input->IsKeyPressed(DIK_DOWN) || input->IsKeyPressed(DIK_LEFT) || input->IsKeyPressed(DIK_RIGHT));
+        reset |= (input->IsKeyPressed(DIK_SPACE) || input->IsKeyPressed(DIK_LSHIFT));
         // 仮リセット
-        if (Engine::GetInput()->IsKeyPressed(DIK_R)) {
+        if (reset) {
             temporalDenoiser_.Reset(commandContext_);
         }
 

@@ -973,9 +973,6 @@
     <None Include="Graphics\Shader\AtmosphericScattering.hlsli">
       <Filter>Graphics\Shader</Filter>
     </None>
-    <None Include="packages.config">
-      <Filter>Externals</Filter>
-    </None>
     <None Include="Graphics\Shader\Particle\InitializeParticleCS.hlsl">
       <Filter>Graphics\Shader\Particle</Filter>
     </None>
@@ -1003,6 +1000,7 @@
     <None Include="Graphics\Shader\Raytracing\Pathtracing\RefractionCHS.hlsl">
       <Filter>Graphics\Shader\Raytracing\Pathtracing</Filter>
     </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="Externals\ImGui\LICENSE.txt">

@@ -1,7 +1,10 @@
 #include "CommandContext.h"
 
 #include <vector>
+#ifdef _DEBUG
 #include <pix3.h>
+#endif // _DEBUG
+
 
 #include "Helper.h"
 #include "Graphics.h"
@@ -80,16 +83,25 @@ UINT64 CommandContext::Finish(bool waitForCompletion) {
 }
 
 void CommandContext::SetMarker(const std::wstring& label) {
+    label;
+#ifdef _DEBUG
     PIXSetMarker(commandList_.Get(), 0, label.c_str());
     //commandList_->SetMarker(0, label.data(), UINT(label.size() * sizeof(label[0])));
+#endif // _DEBUG
 }
 
+
 void CommandContext::BeginEvent(const std::wstring& label) {
+    label;
+#ifdef _DEBUG
     PIXBeginEvent(commandList_.Get(), 0, label.c_str());
     //commandList_->BeginEvent(0, label.data(), UINT(label.size() * sizeof(label[0])));
+#endif // _DEBUG
 }
 
 void CommandContext::EndEvent() {
+#ifdef _DEBUG
     PIXEndEvent(commandList_.Get());
     //commandList_->EndEvent();
+#endif // _DEBUG
 }

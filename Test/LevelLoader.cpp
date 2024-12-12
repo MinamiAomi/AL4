@@ -5,6 +5,7 @@
 #include "File/JsonConverter.h"
 #include "Externals/nlohmann/json.hpp"
 #include "MeshComponent.h"
+#include "CameraComponent.h"
 #include "Collision/Collider.h"
 #include "Collision/CollisionManager.h"
 
@@ -31,6 +32,10 @@ namespace LevelLoader {
             }
             if (object.contains("transform")) {
                 object.at("transform").get_to(gameObject->transform);
+            }
+            if (object.contains("camera")) {
+                auto component = gameObject->AddComponent<CameraComponent>();
+                component;
             }
             if (object.contains("model_name")) {
                 auto component = gameObject->AddComponent<MeshComponent>();

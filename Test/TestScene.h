@@ -21,8 +21,6 @@ public:
     void OnFinalize() override;
 
 private:
-    std::shared_ptr<Camera> camera_;
-    Vector3 euler_;
     std::shared_ptr<DirectionalLight> sunLight_;
 
     static const uint32_t kRowCount = 2;

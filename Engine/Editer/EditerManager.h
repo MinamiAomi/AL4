@@ -35,6 +35,7 @@ namespace Editer {
         void FileMenu();
         void SettingMenu();
         void WindowMenu();
+        void HelpMenu();
         void LoadStyle();
         void SaveStyle();
         
