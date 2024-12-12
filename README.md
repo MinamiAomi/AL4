@@ -1,7 +1,7 @@
 # MainProject
 
 [![ReleaseBuild](https://github.com/MinamiAomi/MainProject/actions/workflows/ReleaseBuild.yml/badge.svg)](https://github.com/MinamiAomi/MainProject/actions/workflows/ReleaseBuild.yml)
-
+[![DebugBuild](https://github.com/MinamiAomi/MainProject/actions/workflows/DebugBuild.yml/badge.svg)](https://github.com/MinamiAomi/MainProject/actions/workflows/DebugBuild.yml)
 [![DebugBuild](https://github.com/MinamiAomi/MainProject/actions/workflows/DebugBuild.yml/badge.svg)](https://github.com/MinamiAomi/MainProject/actions/workflows/DebugBuild.yml)
 
 ## 開発概要
