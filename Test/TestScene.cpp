@@ -9,14 +9,17 @@
 
 void TestScene::OnInitialize() {
 
+    const Vector3 kInitialCameraPosition = { 0.0f, 1.0f, -5.0f };
+    const Quaternion kInitialCameraRotate = Quaternion::MakeLookRotation({ 0.0f, -1.0f, 5.0f });
     camera_ = std::make_shared<Camera>();
-    camera_->SetPosition({ 0.0f, 1.0f, -5.0f });
-    camera_->SetRotate(Quaternion::MakeLookRotation({ 0.0f, -1.0f, 5.0f }));
+    camera_->SetPosition(kInitialCameraPosition);
+    camera_->SetRotate(kInitialCameraRotate);
     camera_->UpdateMatrices();
     RenderManager::GetInstance()->SetCamera(camera_);
 
+    const Vector3 kInitialSunLightDirection = Vector3(1.0f, -1.0f, 1.0f).Normalized();
     sunLight_ = std::make_shared<DirectionalLight>();
-    sunLight_->direction = Vector3(1.0f, -1.0f, 1.0f).Normalized();
+    sunLight_->direction = kInitialSunLightDirection;
     RenderManager::GetInstance()->SetSunLight(sunLight_);
 
 

@@ -31,12 +31,12 @@ private:
     GameWindow(const GameWindow&) = delete;
     GameWindow& operator=(const GameWindow&) = delete;
 
-    HWND hWnd_;
+    HWND hWnd_ = nullptr;
     uint32_t clientWidth_ = 0;
     uint32_t clientHeight_ = 0;
-    UINT windowStyle_;
-    RECT windowRect_;
-    float aspectRaito_;
+    UINT windowStyle_ = 0;
+    RECT windowRect_ = {};
+    float aspectRaito_ = 0.0f;
     SizeChangeMode sizeChangeMode_ = SizeChangeMode::kFixedAspect;
     bool isFullScreen_ = false;
 
