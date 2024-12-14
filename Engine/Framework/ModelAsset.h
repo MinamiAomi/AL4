@@ -1,3 +1,7 @@
+/// 
+/// モデルのアセット
+/// 
+
 #pragma once
 #include "Asset.h"
 

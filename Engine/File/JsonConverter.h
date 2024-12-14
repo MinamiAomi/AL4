@@ -1,3 +1,7 @@
+///
+/// 基本クラスからjson構造体に変換
+/// 
+
 #pragma once
 
 #include "Externals/nlohmann/json.hpp"

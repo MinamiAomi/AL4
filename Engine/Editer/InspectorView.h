@@ -1,3 +1,7 @@
+///
+/// インスペクタービュー
+/// 
+
 #pragma once
 #include "EditerView.h"
 

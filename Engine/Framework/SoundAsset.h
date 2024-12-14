@@ -1,3 +1,7 @@
+/// 
+/// サウンドのアセット
+/// 
+
 #pragma once
 #include "Asset.h"
 

@@ -1,3 +1,7 @@
+/// 
+/// マテリアルのアセット
+/// 
+
 #pragma once
 #include "Asset.h"
 

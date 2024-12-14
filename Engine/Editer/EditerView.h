@@ -1,3 +1,7 @@
+///
+/// エディターのビューの基底クラス
+/// 
+
 #pragma once
 
 namespace Editer {

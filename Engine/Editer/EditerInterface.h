@@ -1,3 +1,7 @@
+///
+/// エディターで使うインターフェース
+/// 
+
 #pragma once
 
 namespace Editer {

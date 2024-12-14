@@ -4,9 +4,10 @@
 #include <dxcapi.h>
 #include <wrl/client.h>
 
+#include <filesystem>
+#include <map>
 #include <string>
 #include <vector>
-#include <filesystem>
 
 enum class ShaderType {
     Vertex, 
@@ -16,6 +17,26 @@ enum class ShaderType {
     Pixel,
     Compute,
     Library
+};
+
+class ShaderCompileOptions {
+    friend class ShaderManager;
+public:
+    ShaderCompileOptions();
+
+    ShaderCompileOptions& SetEntryPoint(const std::wstring& entryPoint);
+    ShaderCompileOptions& SetProfile(ShaderType shaderType, int majorVersion, int minorVersion);
+    ShaderCompileOptions& AddDefine(const std::wstring& define);
+    ShaderCompileOptions& EnableDebug();
+    ShaderCompileOptions& EnableOptimizations();
+    ShaderCompileOptions& EnableRowMajor();
+
+    void Clear();
+
+private:
+    std::vector<LPCWSTR> arguments_;
+    std::vector<std::wstring> buffer_;
+
 };
 
 class ShaderManager {
@@ -34,6 +55,7 @@ public:
     };
 
     void Initialize();
+    Microsoft::WRL::ComPtr<IDxcBlob> Compile(const std::filesystem::path& path, ShaderCompileOptions& options);
     Microsoft::WRL::ComPtr<IDxcBlob> Compile(const std::filesystem::path& path, Type type);
     Microsoft::WRL::ComPtr<IDxcBlob> Compile(const std::filesystem::path& path, ShaderType type, int majorVersion, int minorVersion);
 
@@ -44,7 +66,7 @@ private:
     ShaderManager(const ShaderManager&) = delete;
     ShaderManager& operator=(const ShaderManager&) = delete;
 
-    Microsoft::WRL::ComPtr<IDxcBlob> Compile(const std::wstring& path, const std::wstring& profile);
+    Microsoft::WRL::ComPtr<IDxcBlob> Compile(const std::wstring& path, LPCWSTR* arguments, UINT32 numArguments);
 
     Microsoft::WRL::ComPtr<IDxcUtils> utils_;
     Microsoft::WRL::ComPtr<IDxcCompiler3> compiler_;

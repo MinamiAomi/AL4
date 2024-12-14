@@ -1,4 +1,9 @@
+///
+/// コライダー関係
+/// 
+
 #pragma once
+
 #include "GameObject/Component.h"
 
 #include <functional>
@@ -35,11 +40,17 @@ public:
     Collider();
     virtual ~Collider();
 
+
     virtual bool IsCollision(Collider* collider, CollisionInfo& collisionInfo) = 0;
     virtual bool IsCollision(SphereCollider* collider, CollisionInfo& collisionInfo) = 0;
     virtual bool IsCollision(BoxCollider* collider, CollisionInfo& collisionInfo) = 0;
+    
     virtual bool RayCast(const Vector3& origin, const Vector3& diff, uint32_t mask, RayCastInfo& nearest) = 0;
 
+    /// <summary>
+    /// ヒット時のコールバック関数
+    /// </summary>
+    /// <param name="callback">コールバック関数</param>
     void SetCallback(Callback callback) { callback_ = callback; }
     void SetCollisionAttribute(uint32_t attribute) { collisionAttribute_ = attribute; }
     void SetCollisionMask(uint32_t mask) { collisionMask_ = mask; }

@@ -1,3 +1,7 @@
+///
+/// アセットマネージャー
+/// 
+
 #pragma once
 
 #include <map>

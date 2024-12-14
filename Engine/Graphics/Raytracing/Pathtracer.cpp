@@ -20,6 +20,7 @@
 namespace {
     static const wchar_t kRayGenerationShader[] = L"Raytracing/Pathtracing/RayGeneration.hlsl";
     static const wchar_t kClosestHitShader[] = L"Raytracing/Pathtracing/ClosestHit.hlsl";
+    static const wchar_t kAlphaTestAHS[] = L"Raytracing/Pathtracing/AlphaTestAHS.hlsl";
     static const wchar_t kRefractionCHS[] = L"Raytracing/Pathtracing/RefractionCHS.hlsl";
     static const wchar_t kMissShader[] = L"Raytracing/Pathtracing/Miss.hlsl";
     static const wchar_t kRayGenerationName[] = L"RayGeneration";
@@ -28,6 +29,53 @@ namespace {
     static const wchar_t kRecursiveHitGroupName[] = L"RecursiveHitGroup";
     static const wchar_t kRefractionClosestHitName[] = L"RefractionCHS";
     static const wchar_t kRefractionHitGroupName[] = L"RefractionHitGroup";
+    static const wchar_t kAlphaTestAHSName[] = L"AlphaTestAHS";
+
+    enum Shader {
+        NoneShader = 0,
+
+        RayGeneration,
+        RecursiveClosestHit,
+        RecursiveMiss,
+        RefractionCHS,
+        AlphaTestAHS,
+
+        NumShaders
+    };
+
+    enum HitGroupType {
+        Recursive,
+        Refraction,
+
+        NumHitGroups
+    };
+
+    struct ShaderLibrary {
+        std::wstring path;
+        std::wstring name;
+    };
+
+    struct HitGroup {
+        std::wstring name;
+        Shader closestHit = NoneShader, anyHit = NoneShader, intersection = NoneShader;
+    };
+
+    std::wstring kDirectory = L"Raytracing/Pathtracing/";
+
+    ShaderLibrary shaders[] = {
+        { L"RayGeneration.hlsl", L"RayGeneration" },
+        { L"ClosestHit.hlsl", L"RecursiveClosestHit" },
+        { L"Miss.hlsl", L"RecursiveMiss" },
+        { L"RefractionCHS.hlsl", L"RefractionCHS" },
+        { L"AlphaTestAHS.hlsl", L"AlphaTestAHS" },
+    };
+
+    HitGroup hitGroups[] = {
+        { L"RecursiveHitGroup", RecursiveClosestHit, NoneShader, NoneShader },
+        { L"RefractionHitGroup", RefractionCHS, NoneShader, NoneShader }
+    };
+
+
 
     void PrintStateObjectDesc(const D3D12_STATE_OBJECT_DESC* desc) {
         std::wstringstream wstr;
@@ -145,7 +193,7 @@ void Pathtracer::Initialize(uint32_t width, uint32_t height) {
 
 void Pathtracer::Dispatch(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter) {
     commandContext.BeginEvent(L"Pathtracer::Dispatch");
-   
+
     modelSorter;
     struct SceneData {
         Matrix4x4 viewProjectionInverseMatrix;
@@ -247,6 +295,7 @@ void Pathtracer::CreateStateObject() {
     // 1 ~ 4.DXILLib
     CreateShaderSubobject(kRayGenerationShader, kRayGenerationName);
     CreateShaderSubobject(kClosestHitShader, kRecursiveClosestHitName);
+    //CreateShaderSubobject(kAlphaTestAHS, kAlphaTestAHSName);
     CreateShaderSubobject(kRefractionCHS, kRefractionClosestHitName);
     CreateShaderSubobject(kMissShader, kRecursiveMissName);
 

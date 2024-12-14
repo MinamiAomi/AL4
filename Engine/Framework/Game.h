@@ -1,3 +1,7 @@
+///
+/// ゲーム基底クラス
+/// 
+
 #pragma once
 
 class Game {

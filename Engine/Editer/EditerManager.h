@@ -1,3 +1,7 @@
+///
+/// エディターマネージャー
+/// 
+
 #pragma once
 
 #include <memory>

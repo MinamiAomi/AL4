@@ -1,3 +1,7 @@
+///
+/// テクスチャのアセット
+/// 
+
 #pragma once
 #include "Asset.h"
 

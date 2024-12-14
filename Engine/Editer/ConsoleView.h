@@ -1,4 +1,9 @@
+///
+/// コンソールビュー
+/// 
+
 #pragma once
+
 #include "EditerView.h"
 
 #include <string>

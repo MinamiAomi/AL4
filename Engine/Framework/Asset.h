@@ -1,3 +1,7 @@
+///
+/// アセットの基底クラス
+/// 
+
 #pragma once
 
 #include <memory>
@@ -43,7 +47,11 @@ public:
     virtual ThumbnailData GetThumbnail() = 0;
 #endif // ENABLE_IMGUI
 
-
+    /// <summary>
+    /// 読み込み
+    /// </summary>
+    /// <param name="path">ファイルのパス</param>
+    /// <param name="name">アセットの名前</param>
     void Load(const std::filesystem::path& path, const std::string& name = "");
 
     virtual void RenderInInspectorView() override;

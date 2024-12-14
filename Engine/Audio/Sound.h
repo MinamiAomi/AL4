@@ -1,3 +1,7 @@
+///
+/// オーディオリソース
+/// 
+
 #pragma once
 
 #include <xaudio2.h>
@@ -8,6 +12,11 @@
 
 class Sound {
 public:
+    /// <summary>
+    /// 読み込み関数
+    /// </summary>
+    /// <param name="path">ファイルパス</param>
+    /// <returns>リソース</returns>
     static std::shared_ptr<Sound> Load(const std::filesystem::path& path);
 
     const WAVEFORMATEX* GetWaveFormat() const { return waveFormat_; }
