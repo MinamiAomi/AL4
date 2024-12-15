@@ -11,7 +11,7 @@ float32_t3 GetWorldPosition(in float32_t2 texcoord, in float32_t depth, in float
 }
 
 [shader("raygeneration")]
-void RayGeneration() {
+void StandardRGS() {
     // レイのインデックス
     uint32_t2 dispatchRaysIndex = DispatchRaysIndex().xy;
     // レイの縦横数

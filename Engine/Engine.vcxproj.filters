@@ -958,13 +958,13 @@
     <None Include="Graphics\Shader\Raytracing\Pathtracing\Pathtracing.hlsli">
       <Filter>Graphics\Shader\Raytracing\Pathtracing</Filter>
     </None>
-    <None Include="Graphics\Shader\Raytracing\Pathtracing\RayGeneration.hlsl">
+    <None Include="Graphics\Shader\Raytracing\Pathtracing\StandardRGS.hlsl">
       <Filter>Graphics\Shader\Raytracing\Pathtracing</Filter>
     </None>
-    <None Include="Graphics\Shader\Raytracing\Pathtracing\ClosestHit.hlsl">
+    <None Include="Graphics\Shader\Raytracing\Pathtracing\StandardCHS.hlsl">
       <Filter>Graphics\Shader\Raytracing\Pathtracing</Filter>
     </None>
-    <None Include="Graphics\Shader\Raytracing\Pathtracing\Miss.hlsl">
+    <None Include="Graphics\Shader\Raytracing\Pathtracing\StandardMS.hlsl">
       <Filter>Graphics\Shader\Raytracing\Pathtracing</Filter>
     </None>
     <None Include="Graphics\Shader\Random.hlsli">

@@ -4,7 +4,7 @@
 ConstantBuffer<SkyParameter> l_SkyParameter : register(b0, space3);
 
 [shader("miss")]
-void RecursiveMiss(inout Payload payload) {
+void StandardMS(inout Payload payload) {
     float32_t3 rayDirection = WorldRayDirection();
     float32_t3 rayOrigin = WorldRayOrigin();
         

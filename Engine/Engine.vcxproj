@@ -835,7 +835,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Graphics\Shader\Raytracing\Pathtracing\RayGeneration.hlsl">
+    <None Include="Graphics\Shader\Raytracing\Pathtracing\StandardRGS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">Vertex</ShaderType>
@@ -846,7 +846,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Graphics\Shader\Raytracing\Pathtracing\ClosestHit.hlsl">
+    <None Include="Graphics\Shader\Raytracing\Pathtracing\StandardCHS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">Vertex</ShaderType>
@@ -857,7 +857,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Graphics\Shader\Raytracing\Pathtracing\Miss.hlsl">
+    <None Include="Graphics\Shader\Raytracing\Pathtracing\StandardMS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Demo|x64'">Vertex</ShaderType>

@@ -18,25 +18,25 @@
 #include "Math/Camera.h"
 
 namespace {
-    static const wchar_t kRayGenerationShader[] = L"Raytracing/Pathtracing/RayGeneration.hlsl";
-    static const wchar_t kClosestHitShader[] = L"Raytracing/Pathtracing/ClosestHit.hlsl";
+    static const wchar_t kRayGenerationShader[] = L"Raytracing/Pathtracing/StandardRGS.hlsl";
+    static const wchar_t kClosestHitShader[] = L"Raytracing/Pathtracing/StandardCHS.hlsl";
     static const wchar_t kAlphaTestAHS[] = L"Raytracing/Pathtracing/AlphaTestAHS.hlsl";
     static const wchar_t kRefractionCHS[] = L"Raytracing/Pathtracing/RefractionCHS.hlsl";
-    static const wchar_t kMissShader[] = L"Raytracing/Pathtracing/Miss.hlsl";
-    static const wchar_t kRayGenerationName[] = L"RayGeneration";
-    static const wchar_t kRecursiveMissName[] = L"RecursiveMiss";
-    static const wchar_t kRecursiveClosestHitName[] = L"RecursiveClosestHit";
-    static const wchar_t kRecursiveHitGroupName[] = L"RecursiveHitGroup";
+    static const wchar_t kMissShader[] = L"Raytracing/Pathtracing/StandardMS.hlsl";
+    static const wchar_t kRayGenerationName[] = L"StandardRGS";
+    static const wchar_t kRecursiveMissName[] = L"StandardMS";
+    static const wchar_t kRecursiveClosestHitName[] = L"StandardCHS";
+    static const wchar_t kRecursiveHitGroupName[] = L"StandardHG";
     static const wchar_t kRefractionClosestHitName[] = L"RefractionCHS";
-    static const wchar_t kRefractionHitGroupName[] = L"RefractionHitGroup";
+    static const wchar_t kRefractionHitGroupName[] = L"RefractionHG";
     static const wchar_t kAlphaTestAHSName[] = L"AlphaTestAHS";
 
     enum Shader {
         NoneShader = 0,
 
-        RayGeneration,
-        RecursiveClosestHit,
-        RecursiveMiss,
+        StandardRGS,
+        StandardCHS,
+        StandardMS,
         RefractionCHS,
         AlphaTestAHS,
 
@@ -44,10 +44,19 @@ namespace {
     };
 
     enum HitGroupType {
-        Recursive,
+        Standard,
         Refraction,
 
         NumHitGroups
+    };
+
+    enum LocalRootSignature {
+        NoneLocalRootSignture = 0,
+
+        MeshProperties,
+        AtmosphereScattering,
+
+        NumLocalRootSignatures
     };
 
     struct ShaderLibrary {
@@ -55,27 +64,34 @@ namespace {
         std::wstring name;
     };
 
-    struct HitGroup {
+    struct HitGroupDesc {
         std::wstring name;
         Shader closestHit = NoneShader, anyHit = NoneShader, intersection = NoneShader;
+        D3D12_HIT_GROUP_TYPE type = D3D12_HIT_GROUP_TYPE_TRIANGLES;
+    };
+
+    struct MissDesc {
+        Shader miss = NoneShader;
     };
 
     std::wstring kDirectory = L"Raytracing/Pathtracing/";
 
     ShaderLibrary shaders[] = {
         { L"RayGeneration.hlsl", L"RayGeneration" },
-        { L"ClosestHit.hlsl", L"RecursiveClosestHit" },
-        { L"Miss.hlsl", L"RecursiveMiss" },
+        { L"StandardCHS.hlsl", L"StandardCHS" },
+        { L"StandardMS.hlsl", L"StandardMS" },
         { L"RefractionCHS.hlsl", L"RefractionCHS" },
         { L"AlphaTestAHS.hlsl", L"AlphaTestAHS" },
     };
 
-    HitGroup hitGroups[] = {
-        { L"RecursiveHitGroup", RecursiveClosestHit, NoneShader, NoneShader },
-        { L"RefractionHitGroup", RefractionCHS, NoneShader, NoneShader }
+    HitGroupDesc hitGroupDescs[] = {
+        { L"StandardHG", StandardCHS, NoneShader, NoneShader },
+        { L"RefractionHG", RefractionCHS, NoneShader, NoneShader }
     };
 
+    MissDesc missDescs = {
 
+    };
 
     void PrintStateObjectDesc(const D3D12_STATE_OBJECT_DESC* desc) {
         std::wstringstream wstr;
