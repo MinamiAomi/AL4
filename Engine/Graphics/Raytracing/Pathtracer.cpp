@@ -30,6 +30,7 @@ namespace {
     static const wchar_t kRefractionClosestHitName[] = L"RefractionCHS";
     static const wchar_t kRefractionHitGroupName[] = L"RefractionHG";
     static const wchar_t kAlphaTestAHSName[] = L"AlphaTestAHS";
+    static const wchar_t kAlphaTestHitGroupName[] = L"AlphaTestHG";
 
     enum Shader {
         NoneShader = 0,
@@ -311,15 +312,23 @@ void Pathtracer::CreateStateObject() {
     // 1 ~ 4.DXILLib
     CreateShaderSubobject(kRayGenerationShader, kRayGenerationName);
     CreateShaderSubobject(kClosestHitShader, kRecursiveClosestHitName);
-    //CreateShaderSubobject(kAlphaTestAHS, kAlphaTestAHSName);
+    CreateShaderSubobject(kAlphaTestAHS, kAlphaTestAHSName);
     CreateShaderSubobject(kRefractionCHS, kRefractionClosestHitName);
     CreateShaderSubobject(kMissShader, kRecursiveMissName);
+
 
     // 4.ヒットグループ
     auto hitGroup = stateObjectDesc.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
     hitGroup->SetClosestHitShaderImport(kRecursiveClosestHitName);
     hitGroup->SetHitGroupExport(kRecursiveHitGroupName);
     hitGroup->SetHitGroupType(D3D12_HIT_GROUP_TYPE_TRIANGLES);
+
+    // 4.ヒットグループ
+    auto alphaTestHitGroup = stateObjectDesc.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
+    alphaTestHitGroup->SetClosestHitShaderImport(kRecursiveClosestHitName);
+    alphaTestHitGroup->SetAnyHitShaderImport(kAlphaTestAHSName);
+    alphaTestHitGroup->SetHitGroupExport(kAlphaTestHitGroupName);
+    alphaTestHitGroup->SetHitGroupType(D3D12_HIT_GROUP_TYPE_TRIANGLES);
 
     // 5.ヒットグループのローカルルートシグネチャ
     auto hitGroupRootSignature = stateObjectDesc.CreateSubobject<CD3DX12_LOCAL_ROOT_SIGNATURE_SUBOBJECT>();
@@ -329,6 +338,10 @@ void Pathtracer::CreateStateObject() {
     auto hitGroupRootSignatureAssociation = stateObjectDesc.CreateSubobject<CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT>();
     hitGroupRootSignatureAssociation->SetSubobjectToAssociate(*hitGroupRootSignature);
     hitGroupRootSignatureAssociation->AddExport(kRecursiveHitGroupName);
+
+    auto atHitGroupRootSignatureAssociation = stateObjectDesc.CreateSubobject<CD3DX12_SUBOBJECT_TO_EXPORTS_ASSOCIATION_SUBOBJECT>();
+    atHitGroupRootSignatureAssociation->SetSubobjectToAssociate(*hitGroupRootSignature);
+    atHitGroupRootSignatureAssociation->AddExport(kAlphaTestHitGroupName);
 
     /// refraction
     auto refractionHitGroup = stateObjectDesc.CreateSubobject<CD3DX12_HIT_GROUP_SUBOBJECT>();
@@ -381,6 +394,7 @@ void Pathtracer::CreateShaderTables() {
         InsertIdentifier(kRecursiveHitGroupName);
         InsertIdentifier(kRefractionHitGroupName);
         InsertIdentifier(kRecursiveMissName);
+        InsertIdentifier(kAlphaTestHitGroupName);
     }
 
     {
@@ -473,6 +487,9 @@ void Pathtracer::BuildScene(CommandContext& commandContext, const ModelSorter& m
         }
         desc.InstanceContributionToHitGroupIndex = instance->Refraction() ? 1 : 0;
         desc.Flags = D3D12_RAYTRACING_INSTANCE_FLAG_NONE;
+        if (instance->AlphaTest()) {
+            desc.Flags |= D3D12_RAYTRACING_INSTANCE_FLAG_FORCE_NON_OPAQUE;
+        }
 
         const SkinCluster* skinningData = nullptr;
         if (auto skeleton = instance->GetSkeleton()) {
@@ -515,7 +532,7 @@ void Pathtracer::BuildScene(CommandContext& commandContext, const ModelSorter& m
 
     {
         std::vector<ShaderRecord> shaderRecords;
-        shaderRecords.emplace_back(identifierMap_[kRecursiveHitGroupName]);
+        shaderRecords.emplace_back(identifierMap_[kAlphaTestHitGroupName]);
         shaderRecords.back().Add(meshPropertiesBuffer.gpu);
         shaderRecords.emplace_back(identifierMap_[kRefractionHitGroupName]);
         shaderRecords.back().Add(meshPropertiesBuffer.gpu);

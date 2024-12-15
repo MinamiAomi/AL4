@@ -88,6 +88,7 @@ void AlphaTestAHS(inout Payload payload, in Attributes attributes) {
     // アルファを計算
     float32_t alpha = ComputeAlpha(attributes);
 
+
     // アルファが0の場合は衝突を無視
     if (alpha == 0.0f) {
         IgnoreHit();

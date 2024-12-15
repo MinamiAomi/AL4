@@ -93,6 +93,7 @@ public:
     void SetUseLighting(bool useLighting) { useLighting_ = useLighting; }
     void SetIsActive(bool isActive) { isActive_ = isActive; }
 
+
     const std::shared_ptr<Model>& GetModel() const { return model_; }
     const std::shared_ptr<Skeleton>& GetSkeleton() const { return skeleton_; }
     const std::shared_ptr<Material>& GetMaterial() const { return material_; }
@@ -106,6 +107,9 @@ public:
     bool Reflection() const { return reflection_; }
     bool UseLighting() const { return useLighting_; }
     bool IsActive() const { return isActive_; }
+
+    void SetAlphaTest(bool alphaTest) { alphaTest_ = alphaTest; }
+    bool AlphaTest() const { return alphaTest_; }
 
 private:
     static std::list<ModelInstance*> instanceLists_;
@@ -126,5 +130,8 @@ private:
     bool reflection_ = false;
     bool useLighting_ = true;
     bool isActive_ = true;
+
+    // 本来マテリアルにあるべき
+    bool alphaTest_ = false;
 };
 
