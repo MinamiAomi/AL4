@@ -10,14 +10,20 @@ public:
     };
 
     Camera(ProjectionType projectionType = Perspective);
-
+    /// <summary>
+    /// 行列を更新
+    /// </summary>
     void UpdateMatrices();
+
+    // セッター
 
     void SetPosition(const Vector3& position) { position_ = position, needUpdateing_ = true; }
     void SetRotate(const Quaternion& rotate) { rotate_ = rotate, needUpdateing_ = true; }
 
     void SetPerspective(float fovY, float aspectRaito, float nearClip, float farClip);
     void SetOrthographic(float width, float height, float nearClip, float farClip);
+
+    // ゲッター
 
     float GetNearClip() const { return nearClip_; }
     float GetFarClip() const { return farClip_; }

@@ -4,15 +4,26 @@
 
 class Sky {
 public:
+    /// <summary>
+    /// 更新
+    /// </summary>
+    /// <param name="deltaTime"></param>
     void Update(float deltaTime);
 
+    /// <summary>
+    /// ImGuiに描画
+    /// </summary>
     void DrawImGui();
+
+    // セッター
 
     void SetDay(uint32_t day) { day_ = day; }
     void SetTime(float time) { time_ = time; }
     void SetNorthLatitude(float nothLatitude) { northLatitude_ = nothLatitude; }
     void SetEastLongitude(float eastLongitude) { eastLongitude_ = eastLongitude; }
     void SetStoped(float stoped) { stoped_ = stoped; }
+
+    // ゲッター
 
     const Vector3& GetSunDirection() const { return sunDirection_; }
 

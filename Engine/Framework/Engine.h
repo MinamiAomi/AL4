@@ -29,7 +29,14 @@ namespace Editer {
 
 class Engine {
 public:
+
+    /// <summary>
+    /// ゲームをスタート
+    /// </summary>
+    /// <param name="game"></param>
     static void Run(Game* game);
+
+    // ゲッター
 
     static Game* GetGame();
     static GameWindow* GetGameWindow();

@@ -257,7 +257,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="Editer\ThumbnailRenderer.h" />
+    <None Include="Editer\ThumbnailRenderer.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+    </None>
     <ClInclude Include="Externals\ImGui\imgui_stdlib.h" />
     <ClInclude Include="File\JsonConverter.h" />
     <ClInclude Include="Framework\AnimationAsset.h" />

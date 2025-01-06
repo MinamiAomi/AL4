@@ -213,7 +213,7 @@ float32_t PDFGGX(in float32_t3 halfV, in float32_t3 normal, in float32_t roughne
 
 
 [shader("closesthit")]
-void RecursiveClosestHit(inout Payload payload, in Attributes attributes) {
+void StandardCHS(inout Payload payload, in Attributes attributes) {
 
     // 再帰回数が最大で光源に当たらなかった
     if (payload.recursiveCount >= MAX_RECURSIVE_COUNT) {

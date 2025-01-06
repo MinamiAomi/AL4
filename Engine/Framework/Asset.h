@@ -64,10 +64,17 @@ public:
 #endif // ENABLE_IMGUI
     }
 
+    // ゲッター
+
     const std::filesystem::path& GetPath() const { return path_; }
     const std::string& GetName() const { return name_; }
     Type GetType() const { return type_; }
     State GetState() const { return state_; }
+
+    /// <summary>
+    /// 使用可能か
+    /// </summary>
+    /// <returns></returns>
     bool IsReady() const { return state_ == State::Loaded; }
 
 protected:

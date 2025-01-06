@@ -37,7 +37,7 @@ void RenderManager::Initialize() {
     skybox_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat(), geometryRenderingPass_.GetDepth().GetFormat());
     lineDrawer_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat());
     //particleCore_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat());
-
+    spriteRenderer_.Initialize(finalImageBuffer_);
     //bloom_.Initialize(&lightingRenderingPass_.GetResult());
     postEffect_.Initialize(finalImageBuffer_);
 
@@ -131,6 +131,7 @@ void RenderManager::Render() {
     commandContext_.SetViewportAndScissorRect(0, 0, finalImageBuffer_.GetWidth(), finalImageBuffer_.GetHeight());
 
     postEffect_.Render(commandContext_, fxaa_.GetResult());
+    spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, (float)finalImageBuffer_.GetWidth(), (float)finalImageBuffer_.GetHeight());
 
     auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
 

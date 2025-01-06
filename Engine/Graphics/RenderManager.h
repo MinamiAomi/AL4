@@ -39,7 +39,10 @@
 
 class RenderManager {
 public:
-
+    /// <summary>
+    /// シングルトンインスタンスを取得
+    /// </summary>
+    /// <returns></returns>
     static RenderManager* GetInstance();
 
     void Initialize();
