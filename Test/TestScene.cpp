@@ -35,6 +35,13 @@ void TestScene::OnInitialize() {
     }
 
     LevelLoader::Load("Resources/scene.json", *Engine::GetGameObjectManager());
+
+    std::shared_ptr<Texture> texture = Texture::Load("Resources/Sprite-0001.dds");
+
+    sprite_.SetTexture(texture);
+    sprite_.SetTexcoordRect({ 0.0f, 0.0f }, { 256.0f, 256.0f });
+    sprite_.SetPosition({ 200.0f, 200.0f });
+    sprite_.SetScale({ 200.0f, 200.0f });
 }
 
 void TestScene::OnUpdate() {

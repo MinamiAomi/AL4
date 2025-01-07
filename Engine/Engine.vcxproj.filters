@@ -809,9 +809,6 @@
     <ClInclude Include="Framework\SoundAsset.h">
       <Filter>Framework\Asset</Filter>
     </ClInclude>
-    <ClInclude Include="Editer\ThumbnailRenderer.h">
-      <Filter>Editer</Filter>
-    </ClInclude>
     <ClInclude Include="Graphics\Core\CommandManager.h">
       <Filter>Graphics\Core</Filter>
     </ClInclude>
@@ -1002,6 +999,9 @@
     </None>
     <None Include="Graphics\Shader\Raytracing\Pathtracing\AlphaTestAHS.hlsl">
       <Filter>Graphics\Shader\Raytracing\Pathtracing</Filter>
+    </None>
+    <None Include="Editer\ThumbnailRenderer.h">
+      <Filter>Editer</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -16,7 +16,14 @@ public:
     ThreadPool(size_t threads = 0);
     ~ThreadPool();
 
+    /// <summary>
+    /// タスクを追加
+    /// </summary>
+    /// <param name="task"></param>
     void PushTask(std::function<void()> task);
+    /// <summary>
+    /// すべてのタスクの終了を待つ
+    /// </summary>
     void WaitForAll();
 
 private:

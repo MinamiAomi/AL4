@@ -17,17 +17,47 @@ class GameObject :
 public:
     virtual ~GameObject() {}
 
+    /// <summary>
+    /// インスペクタービューに描画
+    /// </summary>
     void RenderInInspectorView() override;
 
+    /// <summary>
+    /// 未初期化のコンポーネントを初期化
+    /// </summary>
     void InitializeUninitializedComponents();
+    /// <summary>
+    /// 更新
+    /// </summary>
     void Update();
 
+    /// <summary>
+    /// 親をセット
+    /// </summary>
+    /// <param name="gameObject"></param>
     void SetParent(const std::shared_ptr<GameObject>& gameObject);
+    /// <summary>
+    /// 親がいるか
+    /// </summary>
+    /// <returns></returns>
     bool HasParent() const { return !parent_.expired(); }
+    
+    /// <summary>
+    /// 親子関係を取得
+    /// </summary>
+    /// <returns></returns>
     const std::weak_ptr<GameObject>& GetParent() const { return parent_; }
+    /// <summary>
+    /// 親子関係を取得
+    /// </summary>
+    /// <returns></returns>
     const std::vector<std::weak_ptr<GameObject>>& GetChildren() const { return children_; }
 
-    // コンポーネントを追加
+    /// <summary>
+    /// コンポーネントを追加
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     template<class T>
     std::shared_ptr<T> AddComponent() {
         static_assert(std::is_base_of<Component, T>::value, "Componentが継承されていません。");
@@ -42,7 +72,11 @@ public:
         return component;
     }
 
-    // コンポーネントを取得
+    /// <summary>
+    /// コンポーネントを取得
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
     template<class T>
     std::shared_ptr<T> GetComponent() const {
         static_assert(std::is_base_of<Component, T>::value, "Componentが継承されていません。");
@@ -53,7 +87,10 @@ public:
         return std::shared_ptr<T>();
     }
 
-    // コンポーネントを削除
+    /// <summary>
+    /// コンポーネントを削除
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     template<class T>
     void RemoveComponent() {
         static_assert(std::is_base_of<Component, T>::value, "Componentが継承されていません。");
@@ -70,10 +107,26 @@ public:
 
     }
 
+    /// <summary>
+    /// 名前をセット
+    /// </summary>
+    /// <param name="name"></param>
     void SetName(const std::string& name) { name_ = name; }
+    /// <summary>
+    /// 名前を取得
+    /// </summary>
+    /// <returns></returns>
     const std::string& GetName() const { return name_; }
 
+    /// <summary>
+    /// アクティブフラグをセット
+    /// </summary>
+    /// <param name="isActive"></param>
     void SetIsActive(bool isActive) { isActive_ = isActive; }
+    /// <summary>
+    /// アクティブフラグを取得
+    /// </summary>
+    /// <returns></returns>
     bool IsActive() const { return isActive_; }
 
     Transform transform;

@@ -11,13 +11,23 @@
 #include "Audio/AudioSource.h"
 #include "Graphics/Skeleton.h"
 #include "GameObject/GameObjectManager.h"
+#include "Graphics/Sprite.h"
 
 class TestScene :
     public BaseScene {
 public:
 
+    /// <summary>
+    /// 初期化
+    /// </summary>
     void OnInitialize() override;
+    /// <summary>
+    /// 更新
+    /// </summary>
     void OnUpdate() override;
+    /// <summary>
+    /// 終了処理
+    /// </summary>
     void OnFinalize() override;
 
 private:
@@ -31,5 +41,5 @@ private:
     };
     PBRSphere spheres_[kRowCount][kColumnCount];
     ModelInstance room_;
-
+    Sprite sprite_;
 };

@@ -10,8 +10,20 @@ class Camera;
 
 class Skybox {
 public:
+    /// <summary>
+    /// 初期化
+    /// </summary>
+    /// <param name="rtvFormat"></param>
+    /// <param name="dsvFormat"></param>
     void Initialize(DXGI_FORMAT rtvFormat, DXGI_FORMAT dsvFormat);
+    /// <summary>
+    /// 描画
+    /// </summary>
+    /// <param name="commandContext"></param>
+    /// <param name="camera"></param>
     void Render(CommandContext& commandContext, const Camera& camera);
+
+    // セッター
 
     void SetWorldMatrix(const Matrix4x4& worldMatrix) { worldMatrix_ = worldMatrix; }
     void SetColor(const Vector4& color) { color_ = color; }

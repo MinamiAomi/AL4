@@ -13,6 +13,8 @@ class Sprite {
 public:
     Sprite();
     ~Sprite();
+    
+    // セッター
 
     void SetTexture(const std::shared_ptr<Texture>& texture) { texture_ = texture; }
     void SetPosition(const Vector2& position) { position_ = position; }
@@ -23,6 +25,8 @@ public:
     void SetColor(const Vector4& color) { color_ = color; }
     void SetDrawOrder(uint8_t drawOrder) { drawOrder_ = drawOrder; }
     void SetIsActive(bool isActive) { isActive_ = isActive; }
+
+    // ゲッター
 
     uint8_t GetDrawOrder() const { return drawOrder_; }
 

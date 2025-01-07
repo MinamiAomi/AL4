@@ -4,6 +4,9 @@
 
 class Transform {
 public:
+    /// <summary>
+    /// ワールド行列を更新
+    /// </summary>
     void UpdateMatrix() {
         worldMatrix = Matrix4x4::MakeAffineTransform(scale, rotate, translate);
         if (parent_) {
@@ -11,6 +14,10 @@ public:
         }
     }
 
+    /// <summary>
+    /// 親をセット
+    /// </summary>
+    /// <param name="parent"></param>
     void SetParent(const Transform* parent) {
         // 元々親がいた場合一度ワールド空間に戻す
         if (parent_) {

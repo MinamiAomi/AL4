@@ -49,6 +49,9 @@ void MeshComponent::Edit() {
         bool refraction = model_.Refraction();
         ImGui::Checkbox("Refraction", &refraction);
         model_.SetRefraction(refraction);
+        bool alphaTest = model_.AlphaTest();
+        ImGui::Checkbox("AlphaTest", &alphaTest);
+        model_.SetAlphaTest(alphaTest);
     }
 #endif // ENABLE_IMGUI
 }

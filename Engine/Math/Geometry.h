@@ -32,21 +32,51 @@ namespace Math {
             }
         }
 
+        /// <summary>
+        /// 二つを融合する
+        /// </summary>
+        /// <param name="other"></param>
         void Merge(const AABB& other) {
             min = Vector3::Min(min, other.min);
             max = Vector3::Max(max, other.max);
         }
+        /// <summary>
+        /// 点を含める
+        /// </summary>
+        /// <param name="point"></param>
         void Merge(const Vector3& point) {
             min = Vector3::Min(min, point);
             max = Vector3::Max(max, point);
         }
 
+        /// <summary>
+        /// 幅
+        /// </summary>
+        /// <returns></returns>
         Vector3 Extent() const { return max - min; }
+        /// <summary>
+        /// 幅
+        /// </summary>
+        /// <param name="dim"></param>
+        /// <returns></returns>
         float Extent(size_t dim) const { return max[dim] - min[dim]; }
-
+        /// <summary>
+        /// 中央
+        /// </summary>
+        /// <returns></returns>
         Vector3 Center() const { return (max + min) * 0.5f; }
+        /// <summary>
+        /// 中央
+        /// </summary>
+        /// <param name="dim"></param>
+        /// <returns></returns>
         float Center(size_t dim) const { return (max[dim] + min[dim]) * 0.5f; }
 
+        /// <summary>
+        /// 含むか
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         bool Contains(const AABB& other) const {
             return
                 min.x <= other.min.x &&
@@ -56,6 +86,11 @@ namespace Math {
                 min.z <= other.min.z &&
                 other.max.z <= max.z;
         }
+        /// <summary>
+        /// 含むか
+        /// </summary>
+        /// <param name="point"></param>
+        /// <returns></returns>
         bool Contains(const Vector3& point) const {
             return
                 min.x <= point.x &&
@@ -103,7 +138,10 @@ namespace Math {
             vertices[1] = v1;
             vertices[2] = v2;
         }
-
+        /// <summary>
+        /// 法線を取得
+        /// </summary>
+        /// <returns></returns>
         Vector3 Normal() const {
             return Cross(vertices[1] - vertices[0], vertices[2] - vertices[1]).Normalized();
         }

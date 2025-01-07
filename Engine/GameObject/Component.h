@@ -34,7 +34,15 @@ public:
     std::shared_ptr<GameObject> GetGameObject() { return gameObject_.lock(); }
     std::shared_ptr<GameObject> GetGameObject() const { return gameObject_.lock(); }
 
+    /// <summary>
+    /// アクティブフラグを取得
+    /// </summary>
+    /// <returns></returns>
     bool IsActive() const { return isActive_; }
+    /// <summary>
+    /// アクティブフラグをセット
+    /// </summary>
+    /// <param name="isActive"></param>
     void SetIsActive(bool isActive) { isActive_ = isActive; }
 
 private:

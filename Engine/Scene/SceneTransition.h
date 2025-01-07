@@ -10,11 +10,24 @@ public:
         Wait,
         Out,
     };
-
+    /// <summary>
+    /// 更新
+    /// </summary>
     void Update();
+    /// <summary>
+    /// 遷移をスタート
+    /// </summary>
+    /// <param name="mode"></param>
     void Start(Mode mode);
 
+    /// <summary>
+    /// プレイ中か
+    /// </summary>
+    /// <returns></returns>
     bool IsPlaying() const { return isPlaying_; }
+    
+    // ゲッター
+
     Mode GetMode() const { return mode_; }
 
 private:
