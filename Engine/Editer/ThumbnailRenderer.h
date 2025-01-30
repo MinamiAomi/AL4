@@ -4,9 +4,13 @@
 
 #pragma once
 
-// エディターのサムネイル用レンダラー
-class ThumbnailRenderer {
+namespace LIEngine {
+
+    // エディターのサムネイル用レンダラー
+    class ThumbnailRenderer {
 
 
 
-};
+    };
+
+}

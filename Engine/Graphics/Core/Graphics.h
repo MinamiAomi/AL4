@@ -16,54 +16,58 @@
 #define BINDLESS_RESOURCE_MAX (1 << 13)
 #define DXR_DEVICE ID3D12Device5
 
-class Graphics {
-public:
-    static Graphics* GetInstance();
+namespace LIEngine {
 
-    void Initialize();
-    void Finalize();
+    class Graphics {
+    public:
+        static Graphics* GetInstance();
 
-    DescriptorHandle AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type);
+        void Initialize();
+        void Finalize();
 
-    ID3D12Device* GetDevice() const { return device_.Get(); }
-    DXR_DEVICE* GetDXRDevoce() const { return dxrDevice_.Get(); }
-    CommandManager& GetCommandManager() { return commandManager_; }
-    DescriptorHeap& GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type) { return *descriptorHeaps_[type]; }
-    LinearAllocatorPagePool& GetLinearAllocatorPagePool(LinearAllocatorType type) { return linearAllocatorPagePools_[type]; }
-    ReleasedObjectTracker& GetReleasedObjectTracker() { return releasedObjectTracker_; }
+        DescriptorHandle AllocateDescriptor(D3D12_DESCRIPTOR_HEAP_TYPE type);
 
-    RootSignature& GetDynamicResourcesRootSignature() { return dynamicResourcesRootSignature_; }
+        ID3D12Device* GetDevice() const { return device_.Get(); }
+        DXR_DEVICE* GetDXRDevoce() const { return dxrDevice_.Get(); }
+        CommandManager& GetCommandManager() { return commandManager_; }
+        DescriptorHeap& GetDescriptorHeap(D3D12_DESCRIPTOR_HEAP_TYPE type) { return *descriptorHeaps_[type]; }
+        LinearAllocatorPagePool& GetLinearAllocatorPagePool(LinearAllocatorType type) { return linearAllocatorPagePools_[type]; }
+        ReleasedObjectTracker& GetReleasedObjectTracker() { return releasedObjectTracker_; }
 
-    bool IsDXRSupported() const { return dxrDevice_; }
+        RootSignature& GetDynamicResourcesRootSignature() { return dynamicResourcesRootSignature_; }
 
-    void CheckDRED(HRESULT presentReturnValue);
+        bool IsDXRSupported() const { return dxrDevice_; }
 
-private:
-    static const uint32_t kNumRTVs = 64;
-    static const uint32_t kNumDSVs = 2;
-    static const uint32_t kNumSRVs = BINDLESS_RESOURCE_MAX;
-    static const uint32_t kNumSamplers = 16;
+        void CheckDRED(HRESULT presentReturnValue);
 
-    Graphics();
-    Graphics(const Graphics&) = delete;
-    Graphics& operator=(const Graphics&) = delete;
-    ~Graphics() = default;
+    private:
+        static const uint32_t kNumRTVs = 64;
+        static const uint32_t kNumDSVs = 2;
+        static const uint32_t kNumSRVs = BINDLESS_RESOURCE_MAX;
+        static const uint32_t kNumSamplers = 16;
 
-    void CreateDevice();
-    void CheckFeatureSupport();
-    void CreateDynamicResourcesRootSignature();
+        Graphics();
+        Graphics(const Graphics&) = delete;
+        Graphics& operator=(const Graphics&) = delete;
+        ~Graphics() = default;
 
-    ReleasedObjectTracker releasedObjectTracker_;
+        void CreateDevice();
+        void CheckFeatureSupport();
+        void CreateDynamicResourcesRootSignature();
 
-    Microsoft::WRL::ComPtr<ID3D12Device> device_;
-    Microsoft::WRL::ComPtr<DXR_DEVICE> dxrDevice_;
+        ReleasedObjectTracker releasedObjectTracker_;
 
-    // directのみ
-    CommandManager commandManager_;
+        Microsoft::WRL::ComPtr<ID3D12Device> device_;
+        Microsoft::WRL::ComPtr<DXR_DEVICE> dxrDevice_;
 
-    std::shared_ptr<DescriptorHeap> descriptorHeaps_[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
+        // directのみ
+        CommandManager commandManager_;
 
-    LinearAllocatorPagePool linearAllocatorPagePools_[LinearAllocatorType::Count];
-    
-    RootSignature dynamicResourcesRootSignature_;
-};
+        std::shared_ptr<DescriptorHeap> descriptorHeaps_[D3D12_DESCRIPTOR_HEAP_TYPE_NUM_TYPES];
+
+        LinearAllocatorPagePool linearAllocatorPagePools_[LinearAllocatorType::Count];
+
+        RootSignature dynamicResourcesRootSignature_;
+    };
+
+}

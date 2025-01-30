@@ -5,23 +5,27 @@
 
 #include <string>
 
-class PipelineState {
-public:
-    ~PipelineState() { Destroy(); }
-    void Create(const std::wstring& name, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc);
-    void Create(const std::wstring& name, const D3D12_COMPUTE_PIPELINE_STATE_DESC& desc);
+namespace LIEngine {
 
-    operator ID3D12PipelineState* () const { return pipelineState_.Get(); }
-    operator bool() const { return pipelineState_; }
+    class PipelineState {
+    public:
+        ~PipelineState() { Destroy(); }
+        void Create(const std::wstring& name, const D3D12_GRAPHICS_PIPELINE_STATE_DESC& desc);
+        void Create(const std::wstring& name, const D3D12_COMPUTE_PIPELINE_STATE_DESC& desc);
 
-    const Microsoft::WRL::ComPtr<ID3D12PipelineState>& Get() const { return pipelineState_; }
+        operator ID3D12PipelineState* () const { return pipelineState_.Get(); }
+        operator bool() const { return pipelineState_; }
 
-private:
-    void Destroy();
+        const Microsoft::WRL::ComPtr<ID3D12PipelineState>& Get() const { return pipelineState_; }
 
-    Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState_;
-    
+    private:
+        void Destroy();
+
+        Microsoft::WRL::ComPtr<ID3D12PipelineState> pipelineState_;
+
 #ifdef _DEBUG
-    std::wstring name_;
+        std::wstring name_;
 #endif // _DEBUG
-};
+    };
+
+}

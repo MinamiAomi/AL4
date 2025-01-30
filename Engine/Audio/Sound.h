@@ -10,22 +10,26 @@
 #include <filesystem>
 #include <vector>
 
-class Sound {
-public:
-    /// <summary>
-    /// 読み込み関数
-    /// </summary>
-    /// <param name="path">ファイルパス</param>
-    /// <returns>リソース</returns>
-    static std::shared_ptr<Sound> Load(const std::filesystem::path& path);
+namespace LIEngine {
 
-    const WAVEFORMATEX* GetWaveFormat() const { return waveFormat_; }
-    const std::vector<BYTE>& GetMediaData() const { return mediaData_; }
+    class Sound {
+    public:
+        /// <summary>
+        /// 読み込み関数
+        /// </summary>
+        /// <param name="path">ファイルパス</param>
+        /// <returns>リソース</returns>
+        static std::shared_ptr<Sound> Load(const std::filesystem::path& path);
 
-private:
-    Sound();
-    ~Sound();
+        const WAVEFORMATEX* GetWaveFormat() const { return waveFormat_; }
+        const std::vector<BYTE>& GetMediaData() const { return mediaData_; }
 
-    WAVEFORMATEX* waveFormat_;
-    std::vector<BYTE> mediaData_;
-};
+    private:
+        Sound();
+        ~Sound();
+
+        WAVEFORMATEX* waveFormat_;
+        std::vector<BYTE> mediaData_;
+    };
+
+}

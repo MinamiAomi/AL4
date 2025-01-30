@@ -7,25 +7,29 @@
 
 #include "Graphics/Core/TextureResource.h"
 
-class Model;
+namespace LIEngine {
 
-class ModelAsset :
-    public Asset {
-public:
-    void RenderInInspectorView() override;
+    class Model;
 
-    std::shared_ptr<Model> Get() const { return core_; }
+    class ModelAsset :
+        public Asset {
+    public:
+        void RenderInInspectorView() override;
 
-#ifdef ENABLE_IMGUI
-    // サムネイル画像を返す
-    ThumbnailData GetThumbnail() override;
-#endif // ENABLE_IMGUI
-private:
-    void InternalLoad() override;
-
-    std::shared_ptr<Model> core_;
+        std::shared_ptr<Model> Get() const { return core_; }
 
 #ifdef ENABLE_IMGUI
-    std::unique_ptr<TextureResource> thumbnail_;
+        // サムネイル画像を返す
+        ThumbnailData GetThumbnail() override;
 #endif // ENABLE_IMGUI
-};
+    private:
+        void InternalLoad() override;
+
+        std::shared_ptr<Model> core_;
+
+#ifdef ENABLE_IMGUI
+        std::unique_ptr<TextureResource> thumbnail_;
+#endif // ENABLE_IMGUI
+    };
+
+}

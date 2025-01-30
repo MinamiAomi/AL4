@@ -8,23 +8,27 @@
 #include <memory>
 #include <string>
 
-class GameObject;
-class GameObjectManager;
+namespace LIEngine {
 
-namespace Editer {
+    class GameObject;
+    class GameObjectManager;
 
-    class HierarchyView :
-        public View {
-    public:
-        using View::View;
+    namespace Editer {
 
-        void Render(GameObjectManager& gameObjectManager);
+        class HierarchyView :
+            public View {
+        public:
+            using View::View;
 
-    private:
-        void RenderGameObject(const std::shared_ptr<GameObject>& gameObject);
-        void RenderSearchGameObject(const std::shared_ptr<GameObject>& gameObject);
+            void Render(GameObjectManager& gameObjectManager);
 
-        std::string searchString_;
-    };
+        private:
+            void RenderGameObject(const std::shared_ptr<GameObject>& gameObject);
+            void RenderSearchGameObject(const std::shared_ptr<GameObject>& gameObject);
+
+            std::string searchString_;
+        };
+
+    }
 
 }

@@ -17,35 +17,39 @@
     private:
 #endif // !COMPONENT_IMPL
 
-class GameObject;
+namespace LIEngine {
 
-class Component {
-    friend class GameObject;
-public:
-    virtual ~Component() = 0 {}
-    
-    virtual std::string GetComponentName() const = 0 {}
-    virtual void Initialize() {}
-    virtual void Update() {}
-    virtual void Edit() {}
-    virtual void Export(nlohmann::json&) const {}
-    virtual void Import(const nlohmann::json&) {}
+    class GameObject;
 
-    std::shared_ptr<GameObject> GetGameObject() { return gameObject_.lock(); }
-    std::shared_ptr<GameObject> GetGameObject() const { return gameObject_.lock(); }
+    class Component {
+        friend class GameObject;
+    public:
+        virtual ~Component() = 0 {}
 
-    /// <summary>
-    /// アクティブフラグを取得
-    /// </summary>
-    /// <returns></returns>
-    bool IsActive() const { return isActive_; }
-    /// <summary>
-    /// アクティブフラグをセット
-    /// </summary>
-    /// <param name="isActive"></param>
-    void SetIsActive(bool isActive) { isActive_ = isActive; }
+        virtual std::string GetComponentName() const = 0 {}
+        virtual void Initialize() {}
+        virtual void Update() {}
+        virtual void Edit() {}
+        virtual void Export(nlohmann::json&) const {}
+        virtual void Import(const nlohmann::json&) {}
 
-private:
-    std::weak_ptr<GameObject> gameObject_;
-    bool isActive_ = true;
-};
+        std::shared_ptr<GameObject> GetGameObject() { return gameObject_.lock(); }
+        std::shared_ptr<GameObject> GetGameObject() const { return gameObject_.lock(); }
+
+        /// <summary>
+        /// アクティブフラグを取得
+        /// </summary>
+        /// <returns></returns>
+        bool IsActive() const { return isActive_; }
+        /// <summary>
+        /// アクティブフラグをセット
+        /// </summary>
+        /// <param name="isActive"></param>
+        void SetIsActive(bool isActive) { isActive_ = isActive; }
+
+    private:
+        std::weak_ptr<GameObject> gameObject_;
+        bool isActive_ = true;
+    };
+
+}

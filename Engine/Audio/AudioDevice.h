@@ -4,28 +4,31 @@
 
 #pragma once
 
-
 #include <xaudio2.h>
 #include <wrl/client.h>
 
-class AudioDevice {
-public:
-    static AudioDevice* GetInstance();
+namespace LIEngine {
 
-    void Initialize();
-    void Finalize();
+    class AudioDevice {
+    public:
+        static AudioDevice* GetInstance();
 
-    void SetMasterVolume(float volume);
-    float GetMasterVolume();
+        void Initialize();
+        void Finalize();
 
-    IXAudio2* GetXAudio2() const { return xAudio2_.Get(); }
+        void SetMasterVolume(float volume);
+        float GetMasterVolume();
 
-private:
-    AudioDevice() = default;
-    ~AudioDevice() = default;
-    AudioDevice(const AudioDevice&) = delete;
-    AudioDevice& operator=(const AudioDevice&) = delete;
+        IXAudio2* GetXAudio2() const { return xAudio2_.Get(); }
 
-    Microsoft::WRL::ComPtr<IXAudio2> xAudio2_; 
-    IXAudio2MasteringVoice* masterVoice_;
-};
+    private:
+        AudioDevice() = default;
+        ~AudioDevice() = default;
+        AudioDevice(const AudioDevice&) = delete;
+        AudioDevice& operator=(const AudioDevice&) = delete;
+
+        Microsoft::WRL::ComPtr<IXAudio2> xAudio2_;
+        IXAudio2MasteringVoice* masterVoice_;
+    };
+
+}

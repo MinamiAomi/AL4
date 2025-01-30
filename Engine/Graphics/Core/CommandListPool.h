@@ -7,20 +7,24 @@
 #include <queue>
 #include <mutex>
 
-class CommandListPool {
-public:
-    using GraphicsCommandListPtr = Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>;
+namespace LIEngine {
 
-    CommandListPool(D3D12_COMMAND_LIST_TYPE type);
+    class CommandListPool {
+    public:
+        using GraphicsCommandListPtr = Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>;
 
-    GraphicsCommandListPtr Allocate(const Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& commandAllocator);
-    void Discard(const GraphicsCommandListPtr& list);
+        CommandListPool(D3D12_COMMAND_LIST_TYPE type);
 
-    size_t GetSize() const { return commandListPool_.size(); }
+        GraphicsCommandListPtr Allocate(const Microsoft::WRL::ComPtr<ID3D12CommandAllocator>& commandAllocator);
+        void Discard(const GraphicsCommandListPtr& list);
 
-private:
-    const D3D12_COMMAND_LIST_TYPE type_;
-    std::vector<GraphicsCommandListPtr> commandListPool_;
-    std::queue<GraphicsCommandListPtr> readyCommandLists_;
-    std::mutex mutex_;
-};
+        size_t GetSize() const { return commandListPool_.size(); }
+
+    private:
+        const D3D12_COMMAND_LIST_TYPE type_;
+        std::vector<GraphicsCommandListPtr> commandListPool_;
+        std::queue<GraphicsCommandListPtr> readyCommandLists_;
+        std::mutex mutex_;
+    };
+
+}

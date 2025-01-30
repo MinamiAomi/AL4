@@ -25,6 +25,13 @@ namespace LevelLoader {
         assert(json.at("name").is_string() && json.at("name").get<std::string>() == "scene");
 
         for (auto& object : json.at("objects")) {
+            if (object.contains("disabled")) {
+                bool disabled = object["disabled"].get<bool>();
+                if (disabled) {
+                    continue;
+                }
+            }
+
             std::shared_ptr<GameObject> gameObject = std::make_shared<GameObject>();
 
             if (object.contains("name")) {
@@ -37,6 +44,7 @@ namespace LevelLoader {
                 auto component = gameObject->AddComponent<CameraComponent>();
                 component;
             }
+
             if (object.contains("model_name")) {
                 auto component = gameObject->AddComponent<MeshComponent>();
                 component->SetModelName(object.at("model_name"));

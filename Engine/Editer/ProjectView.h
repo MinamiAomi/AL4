@@ -5,31 +5,35 @@
 #pragma once
 #include "EditerView.h"
 
-namespace Editer {
+namespace LIEngine {
 
-    class ProjectView : 
-        public View {
-    public:
-        using View::View;
+    namespace Editer {
 
-        void Render();
+        class ProjectView :
+            public View {
+        public:
+            using View::View;
 
-    private:
-        void RenderLeftWindow();
-        void RenderRightWindow();
+            void Render();
 
-        enum AssetType {
-            Texture     = 1 << 0,
-            Model       = 1 << 1,
-            Material    = 1 << 2,
-            Animation   = 1 << 3,
-            Sound       = 1 << 4,
-            All         = Texture | Model| Material | Animation | Sound
+        private:
+            void RenderLeftWindow();
+            void RenderRightWindow();
+
+            enum AssetType {
+                Texture = 1 << 0,
+                Model = 1 << 1,
+                Material = 1 << 2,
+                Animation = 1 << 3,
+                Sound = 1 << 4,
+                All = Texture | Model | Material | Animation | Sound
+            };
+
+            AssetType showAssetTypes_ = All;
+            float leftWindowSize_ = 100.0f;
+            float itemScale_ = 1.0f;
         };
 
-        AssetType showAssetTypes_ = All;
-        float leftWindowSize_ = 100.0f;
-        float itemScale_ = 1.0f;
-    };
+    }
 
 }

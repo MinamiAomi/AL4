@@ -9,15 +9,19 @@
 
 #include "EditerInterface.h"
 
-namespace Editer {
+namespace LIEngine {
 
-    class InspectorView :
-        public View {
-    public:
-        using View::View;
+    namespace Editer {
 
-        void Render(const std::shared_ptr<SelectableInEditer>& selectableInEditer);
+        class InspectorView :
+            public View {
+        public:
+            using View::View;
 
-    };
+            void Render(const std::shared_ptr<SelectableInEditer>& selectableInEditer);
+
+        };
+
+    }
 
 }

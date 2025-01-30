@@ -7,20 +7,24 @@
 #include <queue>
 #include <mutex>
 
-class CommandAllocatorPool {
-public:
-    using CommandAllocatorPtr = Microsoft::WRL::ComPtr<ID3D12CommandAllocator>;
+namespace LIEngine {
 
-    explicit CommandAllocatorPool(D3D12_COMMAND_LIST_TYPE typ);
+    class CommandAllocatorPool {
+    public:
+        using CommandAllocatorPtr = Microsoft::WRL::ComPtr<ID3D12CommandAllocator>;
 
-    CommandAllocatorPtr Allocate(UINT64 completedFanceValue);
-    void Discard(UINT64 fenceValue, const CommandAllocatorPtr& commandAllocator);
+        explicit CommandAllocatorPool(D3D12_COMMAND_LIST_TYPE typ);
 
-    size_t GetSize() const { return allocatorPool_.size(); }
+        CommandAllocatorPtr Allocate(UINT64 completedFanceValue);
+        void Discard(UINT64 fenceValue, const CommandAllocatorPtr& commandAllocator);
 
-private:
-    const D3D12_COMMAND_LIST_TYPE type_;
-    std::vector<CommandAllocatorPtr> allocatorPool_;
-    std::queue<std::pair<UINT64, CommandAllocatorPtr>> readyAllocators_;
-    std::mutex mutex_;
-};
+        size_t GetSize() const { return allocatorPool_.size(); }
+
+    private:
+        const D3D12_COMMAND_LIST_TYPE type_;
+        std::vector<CommandAllocatorPtr> allocatorPool_;
+        std::queue<std::pair<UINT64, CommandAllocatorPtr>> readyAllocators_;
+        std::mutex mutex_;
+    };
+
+}

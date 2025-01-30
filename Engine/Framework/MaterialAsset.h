@@ -5,21 +5,25 @@
 #pragma once
 #include "Asset.h"
 
-class Material;
+namespace LIEngine {
 
-class MaterialAsset :
-    public Asset {
-public:
-    void RenderInInspectorView() override {}
+    class Material;
 
-    std::shared_ptr<Material> Get() const { return core_; }
+    class MaterialAsset :
+        public Asset {
+    public:
+        void RenderInInspectorView() override {}
+
+        std::shared_ptr<Material> Get() const { return core_; }
 
 #ifdef ENABLE_IMGUI
-    // サムネイル画像を返す
-    ThumbnailData GetThumbnail() override;
+        // サムネイル画像を返す
+        ThumbnailData GetThumbnail() override;
 #endif // ENABLE_IMGUI
-private:
-    void InternalLoad() override;
+    private:
+        void InternalLoad() override;
 
-    std::shared_ptr<Material> core_;
-};
+        std::shared_ptr<Material> core_;
+    };
+
+}

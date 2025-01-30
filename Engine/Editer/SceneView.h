@@ -5,23 +5,27 @@
 #pragma once
 #include "EditerView.h"
 
-class CommandContext;
+namespace LIEngine {
 
-namespace Editer {
+    class CommandContext;
 
-    class SceneView :
-        public View {
-    public:
-        using View::View;
+    namespace Editer {
 
-        void Render(CommandContext& commandContext);
+        class SceneView :
+            public View {
+        public:
+            using View::View;
 
-        void SetUseMainImage(bool useMainImage) { useMainImage_ = useMainImage; }
-        bool SetUseMainImage() const { return useMainImage_; }
+            void Render(CommandContext& commandContext);
 
-    private:
-        bool useMainImage_ = true;
+            void SetUseMainImage(bool useMainImage) { useMainImage_ = useMainImage; }
+            bool SetUseMainImage() const { return useMainImage_; }
 
-    };
+        private:
+            bool useMainImage_ = true;
+
+        };
+
+    }
 
 }

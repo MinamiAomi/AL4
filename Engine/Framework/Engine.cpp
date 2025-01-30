@@ -16,6 +16,8 @@
 #endif // ENABLE_IMGUI
 
 namespace {
+    using namespace LIEngine;
+
     Game* g_game = nullptr;
     std::unique_ptr<ThreadPool> g_threadPool = nullptr;
     GameWindow* g_gameWindow = nullptr;
@@ -32,113 +34,117 @@ namespace {
 
 }
 
-void Engine::Run(Game* game) {
+namespace LIEngine {
+
+    void Engine::Run(Game* game) {
 
 
-    g_game = game;
+        g_game = game;
 
-    g_threadPool = std::make_unique<ThreadPool>();
+        g_threadPool = std::make_unique<ThreadPool>();
 
-    g_gameWindow = GameWindow::GetInstance();
-    const wchar_t kWindowTitle[] = L"ミナミアオミ";
-    const uint32_t kWindowWidth = 1280;
-    const uint32_t kWindowHeight = 720;
-    g_gameWindow->Initialize(kWindowTitle, kWindowWidth, kWindowHeight);
+        g_gameWindow = GameWindow::GetInstance();
+        const wchar_t kWindowTitle[] = L"ミナミアオミ";
+        const uint32_t kWindowWidth = 1280;
+        const uint32_t kWindowHeight = 720;
+        g_gameWindow->Initialize(kWindowTitle, kWindowWidth, kWindowHeight);
 
-    g_graphics = Graphics::GetInstance();
-    g_graphics->Initialize();
+        g_graphics = Graphics::GetInstance();
+        g_graphics->Initialize();
 
-    g_input = Input::GetInstance();
-    g_input->Initialize(g_gameWindow->GetHWND());
+        g_input = Input::GetInstance();
+        g_input->Initialize(g_gameWindow->GetHWND());
 
-    g_audioDevice = AudioDevice::GetInstance();
-    g_audioDevice->Initialize();
+        g_audioDevice = AudioDevice::GetInstance();
+        g_audioDevice->Initialize();
 
-    g_renderManager = RenderManager::GetInstance();
-    g_renderManager->Initialize();
+        g_renderManager = RenderManager::GetInstance();
+        g_renderManager->Initialize();
 
-    g_sceneManager = SceneManager::GetInstance();
-    g_assetManager = AssetManager::GetInstance();
-    g_gameObjectManager = std::make_unique<GameObjectManager>();
-    g_gameObjectManager->SetFactory<DefaultGameObjectFactory>();
-    g_gameObjectManager->SetComponentRegisterer<DefaultComponentRegisterer>();
+        g_sceneManager = SceneManager::GetInstance();
+        g_assetManager = AssetManager::GetInstance();
+        g_gameObjectManager = std::make_unique<GameObjectManager>();
+        g_gameObjectManager->SetFactory<DefaultGameObjectFactory>();
+        g_gameObjectManager->SetComponentRegisterer<DefaultComponentRegisterer>();
 
 
 #ifdef ENABLE_IMGUI
-    g_editerManager = std::make_unique<Editer::EditerManager>();
-    g_editerManager->Initialize();
+        g_editerManager = std::make_unique<Editer::EditerManager>();
+        g_editerManager->Initialize();
 #endif // ENABLE_IMGUI
 
-    g_game->OnInitialize();
+        g_game->OnInitialize();
 
-    while (g_gameWindow->ProcessMessage()) {
-        g_input->Update();
-        g_sceneManager->Update();
+        while (g_gameWindow->ProcessMessage()) {
+            g_input->Update();
+            g_sceneManager->Update();
 
 #ifdef ENABLE_IMGUI
-        g_editerManager->Render();
+            g_editerManager->Render();
 #endif // ENABLE_IMGUI
 
-        g_renderManager->Render();
+            g_renderManager->Render();
+        }
+
+#ifdef ENABLE_IMGUI
+        g_editerManager->Finalize();
+        g_editerManager.reset();
+#endif // ENABLE_IMGUI
+        g_sceneManager->Finalize();
+        g_gameObjectManager.reset();
+        g_game->OnFinalize();
+
+        g_threadPool.reset();
+        g_audioDevice->Finalize();
+        g_renderManager->Finalize();
+        g_graphics->Finalize();
+        g_gameWindow->Shutdown();
+    }
+
+    Game* Engine::GetGame() {
+        return g_game;
+    }
+
+    GameWindow* Engine::GetGameWindow() {
+        return g_gameWindow;
+    }
+
+    Graphics* Engine::GetGraphics() {
+        return g_graphics;
+    }
+
+    Input* Engine::GetInput() {
+        return g_input;
+    }
+
+    AudioDevice* Engine::GetAudioDevice() {
+        return g_audioDevice;
+    }
+
+    RenderManager* Engine::GetRenderManager() {
+        return g_renderManager;
+    }
+
+    SceneManager* Engine::GetSceneManager() {
+        return g_sceneManager;
+    }
+
+    AssetManager* Engine::GetAssetManager() {
+        return g_assetManager;;
+    }
+
+    GameObjectManager* Engine::GetGameObjectManager() {
+        return g_gameObjectManager.get();
+    }
+
+    ThreadPool* Engine::GetThreadPool() {
+        return g_threadPool.get();
     }
 
 #ifdef ENABLE_IMGUI
-    g_editerManager->Finalize();
-    g_editerManager.reset();
+    Editer::EditerManager* Engine::GetEditerManager() {
+        return g_editerManager.get();
+    }
 #endif // ENABLE_IMGUI
-    g_sceneManager->Finalize();
-    g_gameObjectManager.reset();
-    g_game->OnFinalize();
 
-    g_threadPool.reset();
-    g_audioDevice->Finalize();
-    g_renderManager->Finalize();
-    g_graphics->Finalize();
-    g_gameWindow->Shutdown();
 }
-
-Game* Engine::GetGame() {
-    return g_game;
-}
-
-GameWindow* Engine::GetGameWindow() {
-    return g_gameWindow;
-}
-
-Graphics* Engine::GetGraphics() {
-    return g_graphics;
-}
-
-Input* Engine::GetInput() {
-    return g_input;
-}
-
-AudioDevice* Engine::GetAudioDevice() {
-    return g_audioDevice;
-}
-
-RenderManager* Engine::GetRenderManager() {
-    return g_renderManager;
-}
-
-SceneManager* Engine::GetSceneManager() {
-    return g_sceneManager;
-}
-
-AssetManager* Engine::GetAssetManager() {
-    return g_assetManager;;
-}
-
-GameObjectManager* Engine::GetGameObjectManager() {
-    return g_gameObjectManager.get();
-}
-
-ThreadPool* Engine::GetThreadPool() {
-    return g_threadPool.get();
-}
-
-#ifdef ENABLE_IMGUI
-Editer::EditerManager* Engine::GetEditerManager() {
-    return g_editerManager.get();
-}
-#endif // ENABLE_IMGUI

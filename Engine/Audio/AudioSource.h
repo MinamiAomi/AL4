@@ -11,25 +11,29 @@
 
 #include "Sound.h"
 
-class AudioSource {
-public:
-    ~AudioSource();
+namespace LIEngine {
 
-    AudioSource& operator=(const std::shared_ptr<Sound>& sound);
+    class AudioSource {
+    public:
+        ~AudioSource();
 
-    void Play(bool loop = false);
-    void Stop();
+        AudioSource& operator=(const std::shared_ptr<Sound>& sound);
 
-    void SetSound(const std::shared_ptr<Sound>& sound) { sound_ = sound; }
-    void SetVolume(float volume);
-    void SetPitch(float pitch);
+        void Play(bool loop = false);
+        void Stop();
 
-    bool IsPlaying() const;
+        void SetSound(const std::shared_ptr<Sound>& sound) { sound_ = sound; }
+        void SetVolume(float volume);
+        void SetPitch(float pitch);
 
-private:
-    void Create();
-    void Destroy();
+        bool IsPlaying() const;
 
-    std::shared_ptr<Sound> sound_;
-    IXAudio2SourceVoice* sourceVoice_;
-};
+    private:
+        void Create();
+        void Destroy();
+
+        std::shared_ptr<Sound> sound_;
+        IXAudio2SourceVoice* sourceVoice_;
+    };
+
+}

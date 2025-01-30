@@ -2,19 +2,23 @@
 
 #include "DescriptorHandle.h"
 
-namespace SamplerManager {
+namespace LIEngine {
 
-    extern DescriptorHandle AnisotropicWrap;
+    namespace SamplerManager {
 
-    extern DescriptorHandle LinearWrap;
-    extern DescriptorHandle LinearClamp;
-    extern DescriptorHandle LinearMirror;
+        extern DescriptorHandle AnisotropicWrap;
 
-    extern DescriptorHandle PointWrap;
-    extern DescriptorHandle PointClamp;
-    extern DescriptorHandle PointBorder;
-    extern DescriptorHandle PointMirror;
+        extern DescriptorHandle LinearWrap;
+        extern DescriptorHandle LinearClamp;
+        extern DescriptorHandle LinearMirror;
 
-    void Initialize();
+        extern DescriptorHandle PointWrap;
+        extern DescriptorHandle PointClamp;
+        extern DescriptorHandle PointBorder;
+        extern DescriptorHandle PointMirror;
+
+        void Initialize();
+
+    }
 
 }

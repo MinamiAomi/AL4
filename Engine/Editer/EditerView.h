@@ -4,16 +4,20 @@
 
 #pragma once
 
-namespace Editer {
+namespace LIEngine {
 
-    class EditerManager;
-    class View {
-    public:
-        View(EditerManager& editerManager) : owner(editerManager), isDisplayed(true) {}
-        virtual ~View() = 0{}
+    namespace Editer {
 
-        EditerManager& owner;
-        bool isDisplayed;
-    };
+        class EditerManager;
+        class View {
+        public:
+            View(EditerManager& editerManager) : owner(editerManager), isDisplayed(true) {}
+            virtual ~View() = 0 {}
+
+            EditerManager& owner;
+            bool isDisplayed;
+        };
+
+    }
 
 }

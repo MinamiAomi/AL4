@@ -10,23 +10,27 @@
 #include "DescriptorHandle.h"
 #include "PixelBuffer.h"
 
-class CommandContext;
+namespace LIEngine {
 
-class TextureResource : public GPUResource {
-public:
-    void Create(const std::filesystem::path& path, bool useSRGB = true);
-    void Create(CommandContext& commandContext, const std::filesystem::path& path, bool useSRGB = true);
-    void Create(size_t rowPitchBytes, size_t width, size_t heigh, DXGI_FORMAT format, void* dataBegin);
-    void Create(CommandContext& commandContext, size_t rowPitchBytes, size_t width, size_t heigh, DXGI_FORMAT format, void* dataBegin, bool isCubeMap = false);
-    void Create(CommandContext& commandContext, PixelBuffer& pixelBuffer);
+    class CommandContext;
 
-    const D3D12_RESOURCE_DESC& GetDesc() const { return desc_; }
-    const DescriptorHandle& GetSRV() const { return srvHandle_; }
+    class TextureResource : public GPUResource {
+    public:
+        void Create(const std::filesystem::path& path, bool useSRGB = true);
+        void Create(CommandContext& commandContext, const std::filesystem::path& path, bool useSRGB = true);
+        void Create(size_t rowPitchBytes, size_t width, size_t heigh, DXGI_FORMAT format, void* dataBegin);
+        void Create(CommandContext& commandContext, size_t rowPitchBytes, size_t width, size_t heigh, DXGI_FORMAT format, void* dataBegin, bool isCubeMap = false);
+        void Create(CommandContext& commandContext, PixelBuffer& pixelBuffer);
 
-private:
-    void CreateView(bool isCubeMap);
-    void UploadResource(CommandContext& commandContext, size_t numSubresources, const D3D12_SUBRESOURCE_DATA* subresources);
+        const D3D12_RESOURCE_DESC& GetDesc() const { return desc_; }
+        const DescriptorHandle& GetSRV() const { return srvHandle_; }
 
-    D3D12_RESOURCE_DESC desc_{};
-    DescriptorHandle srvHandle_;
-};
+    private:
+        void CreateView(bool isCubeMap);
+        void UploadResource(CommandContext& commandContext, size_t numSubresources, const D3D12_SUBRESOURCE_DATA* subresources);
+
+        D3D12_RESOURCE_DESC desc_{};
+        DescriptorHandle srvHandle_;
+    };
+
+}

@@ -3,23 +3,27 @@
 
 #include "GameObject.h"
 
-class GameObjectManager;
+namespace LIEngine {
 
-class GameObjectFactory {
-public:
-    GameObjectFactory(GameObjectManager& owner) : owner(owner) {}
-    virtual ~GameObjectFactory() {}
-    virtual std::shared_ptr<GameObject> CreateGameObject(const std::string& id) const = 0;
-    virtual void CreateGameObjectFromEditer() {}
-    
-    GameObjectManager& owner;
-};
+    class GameObjectManager;
 
-class DefaultGameObjectFactory :
-    public GameObjectFactory {
-public:
-    using GameObjectFactory::GameObjectFactory;
+    class GameObjectFactory {
+    public:
+        GameObjectFactory(GameObjectManager& owner) : owner(owner) {}
+        virtual ~GameObjectFactory() {}
+        virtual std::shared_ptr<GameObject> CreateGameObject(const std::string& id) const = 0;
+        virtual void CreateGameObjectFromEditer() {}
 
-    std::shared_ptr<GameObject> CreateGameObject(const std::string& id) const override;
-    void CreateGameObjectFromEditer() override;
-};
+        GameObjectManager& owner;
+    };
+
+    class DefaultGameObjectFactory :
+        public GameObjectFactory {
+    public:
+        using GameObjectFactory::GameObjectFactory;
+
+        std::shared_ptr<GameObject> CreateGameObject(const std::string& id) const override;
+        void CreateGameObjectFromEditer() override;
+    };
+
+}

@@ -4,22 +4,26 @@
 
 #include "Audio/Sound.h"
 
+namespace LIEngine {
+
 #ifdef ENABLE_IMGUI
-ThumbnailData SoundAsset::GetThumbnail() {
-    // ロードされていない
-    if (state_ != State::Loaded) {
-        return ThumbnailData();
+    ThumbnailData SoundAsset::GetThumbnail() {
+        // ロードされていない
+        if (state_ != State::Loaded) {
+            return ThumbnailData();
+        }
+
+        assert(core_);
+
+        ThumbnailData thumbnail{};
+        return thumbnail;
     }
-
-    assert(core_);
-
-    ThumbnailData thumbnail{};
-    return thumbnail;
-}
 #endif // ENABLE_IMGUI
 
-void SoundAsset::InternalLoad() {
-    assert(state_ == State::Loading);
-    type_ = Type::Sound;
-    core_ = Sound::Load(path_);
+    void SoundAsset::InternalLoad() {
+        assert(state_ == State::Loading);
+        type_ = Type::Sound;
+        core_ = Sound::Load(path_);
+    }
+
 }

@@ -8,29 +8,33 @@
 #include "CommandAllocatorPool.h"
 #include "CommandListPool.h"
 
-// ListをまとめてQueueに投げる役割
-class CommandManager {
-public:
-    CommandManager();
+namespace LIEngine {
 
-    void Create();
-    // CommandListListを追加
-    // Executeでまとめて投げられる
-    // 次にExecuteを呼び出したときのフェンスの値が戻る
-    UINT64 Add(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList);
-    void Execute();
+    // ListをまとめてQueueに投げる役割
+    class CommandManager {
+    public:
+        CommandManager();
 
-    CommandQueue& GetCommandQueue() { return commandQueue_; }
-    CommandAllocatorPool& GetCommandAllocatorPool() { return commandAllocatorPool_; }
-    CommandListPool& GetCommandListPool() { return commandListPool_; }
+        void Create();
+        // CommandListListを追加
+        // Executeでまとめて投げられる
+        // 次にExecuteを呼び出したときのフェンスの値が戻る
+        UINT64 Add(Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList> commandList);
+        void Execute();
 
-private:
-    CommandManager(const CommandManager&) = delete;
-    CommandManager& operator=(const CommandManager&) = delete;
+        CommandQueue& GetCommandQueue() { return commandQueue_; }
+        CommandAllocatorPool& GetCommandAllocatorPool() { return commandAllocatorPool_; }
+        CommandListPool& GetCommandListPool() { return commandListPool_; }
 
-    CommandQueue commandQueue_;
-    CommandAllocatorPool commandAllocatorPool_;
-    CommandListPool commandListPool_;
-    std::vector<Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>> closedCommandLists_;
-    std::mutex mutex_;
-};
+    private:
+        CommandManager(const CommandManager&) = delete;
+        CommandManager& operator=(const CommandManager&) = delete;
+
+        CommandQueue commandQueue_;
+        CommandAllocatorPool commandAllocatorPool_;
+        CommandListPool commandListPool_;
+        std::vector<Microsoft::WRL::ComPtr<ID3D12GraphicsCommandList>> closedCommandLists_;
+        std::mutex mutex_;
+    };
+
+}
