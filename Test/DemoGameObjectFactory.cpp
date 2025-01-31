@@ -4,6 +4,8 @@
 #include "GameObject/GameObjectManager.h"
 #include "MeshComponent.h"
 
+using namespace LIEngine;
+
 std::shared_ptr<GameObject> DemoGameObjectFactory::CreateGameObject(const std::string& id) const {
     auto gameObjectManager = Engine::GetGameObjectManager();
     if (id == "Default") {

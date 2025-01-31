@@ -2,16 +2,16 @@
 #include "GameObject/GameObjectFactory.h"
 
 class DemoGameObjectFactory :
-    public GameObjectFactory {
+    public LIEngine::GameObjectFactory {
 public:
-    using GameObjectFactory::GameObjectFactory;
+    using LIEngine::GameObjectFactory::GameObjectFactory;
 
     /// <summary>
     /// オブジェクトを生成
     /// </summary>
     /// <param name="id">どのオブジェクトを作るかのID</param>
     /// <returns></returns>
-    std::shared_ptr<GameObject> CreateGameObject(const std::string& id) const override;
+    std::shared_ptr<LIEngine::GameObject> CreateGameObject(const std::string& id) const override;
     /// <summary>
     /// エディター
     /// </summary>

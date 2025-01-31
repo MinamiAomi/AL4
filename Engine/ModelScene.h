@@ -1,8 +1,10 @@
 #pragma once
 
+namespace LIEngine {
+
+    class ModelScene {
 
 
-class ModelScene {
+    };
 
-
-};
+}

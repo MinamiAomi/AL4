@@ -2,6 +2,8 @@
 
 #include "MeshComponent.h"
 
+using namespace LIEngine;
+
 DemoComponentRegisterer::DemoComponentRegisterer() :
     ComponentRegisterer({
         "MeshComponent"

@@ -8,29 +8,33 @@
 #include "Core/ColorBuffer.h"
 #include "Core/UploadBuffer.h"
 
-class CommandContext;
+namespace LIEngine {
 
-class GaussianBlur {
-public:
-    GaussianBlur();
-    ~GaussianBlur();
+    class CommandContext;
 
-    void Initialize(ColorBuffer* originalTexture);
-    void Render(CommandContext& commandContext);
-    void UpdateWeightTable(float blurPower);
+    class GaussianBlur {
+    public:
+        GaussianBlur();
+        ~GaussianBlur();
 
-    ColorBuffer& GetResult() { return verticalBlurTexture_; }
+        void Initialize(ColorBuffer* originalTexture);
+        void Render(CommandContext& commandContext);
+        void UpdateWeightTable(float blurPower);
 
-private:
-    static const uint32_t kNumWeights = 8;
+        ColorBuffer& GetResult() { return verticalBlurTexture_; }
 
-    GaussianBlur(const GaussianBlur&) = delete;
-    GaussianBlur& operator=(const GaussianBlur&) = delete;
+    private:
+        static const uint32_t kNumWeights = 8;
+
+        GaussianBlur(const GaussianBlur&) = delete;
+        GaussianBlur& operator=(const GaussianBlur&) = delete;
 
 
-    ColorBuffer* originalTexture_ = nullptr;
-    ColorBuffer horizontalBlurTexture_;
-    ColorBuffer verticalBlurTexture_;
-    UploadBuffer constantBuffer_;
-    float weights_[kNumWeights]{};
-};
+        ColorBuffer* originalTexture_ = nullptr;
+        ColorBuffer horizontalBlurTexture_;
+        ColorBuffer verticalBlurTexture_;
+        UploadBuffer constantBuffer_;
+        float weights_[kNumWeights]{};
+    };
+
+}

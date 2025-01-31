@@ -14,44 +14,48 @@
 #include "SpatialDenoiser.h"
 #include "TemporalDenoiser.h"
 
-class CommandContext;
-class ModelSorter;
+namespace LIEngine {
 
-class TestRTRenderer {
-public:
-    void Create(uint32_t width, uint32_t height);
+    class CommandContext;
+    class ModelSorter;
 
-    void Render(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter);
+    class TestRTRenderer {
+    public:
+        void Create(uint32_t width, uint32_t height);
 
-    void SetSkybox(const std::shared_ptr<TextureResource>& texture) { skyboxTexture_ = texture; }
-    void SetSkyboxRadiance(const std::shared_ptr<TextureResource>& texture) { skyboxRadianceTexture_ = texture; }
-    ColorBuffer& GetResult() { return denoisedBuffer_; }
-    ColorBuffer& GetIntermadiate() { return intermediateBuffer_; }
+        void Render(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter);
 
-private:
-    void CreateRootSignature();
-    void CreateStateObject();
-    void CreateShaderTables();
-    void BuildScene(CommandContext& commandContext, const ModelSorter& modelSorter);
+        void SetSkybox(const std::shared_ptr<TextureResource>& texture) { skyboxTexture_ = texture; }
+        void SetSkyboxRadiance(const std::shared_ptr<TextureResource>& texture) { skyboxRadianceTexture_ = texture; }
+        ColorBuffer& GetResult() { return denoisedBuffer_; }
+        ColorBuffer& GetIntermadiate() { return intermediateBuffer_; }
 
-    StateObject stateObject_;
-    RootSignature globalRootSignature_;
-    RootSignature hitGroupLocalRootSignature_;
-    RootSignature missLocalRootSignature_;
+    private:
+        void CreateRootSignature();
+        void CreateStateObject();
+        void CreateShaderTables();
+        void BuildScene(CommandContext& commandContext, const ModelSorter& modelSorter);
 
-    TLAS tlas_;
+        StateObject stateObject_;
+        RootSignature globalRootSignature_;
+        RootSignature hitGroupLocalRootSignature_;
+        RootSignature missLocalRootSignature_;
 
-    ShaderTable rayGenerationShaderTable_;
-    ShaderTable hitGroupShaderTable_;
-    ShaderTable missShaderTable_;
+        TLAS tlas_;
 
-    std::map<std::wstring, void*> identifierMap_;
-    std::shared_ptr<TextureResource> skyboxTexture_;
-    std::shared_ptr<TextureResource> skyboxRadianceTexture_;
-    ColorBuffer intermediateBuffer_;
-    ColorBuffer denoisedBuffer_;
-    int32_t time_;
+        ShaderTable rayGenerationShaderTable_;
+        ShaderTable hitGroupShaderTable_;
+        ShaderTable missShaderTable_;
 
-    SpatialDenoiser spatialDenoiser_;
-    TemporalDenoiser temporalDenoiser_;
-};
+        std::map<std::wstring, void*> identifierMap_;
+        std::shared_ptr<TextureResource> skyboxTexture_;
+        std::shared_ptr<TextureResource> skyboxRadianceTexture_;
+        ColorBuffer intermediateBuffer_;
+        ColorBuffer denoisedBuffer_;
+        int32_t time_;
+
+        SpatialDenoiser spatialDenoiser_;
+        TemporalDenoiser temporalDenoiser_;
+    };
+
+}

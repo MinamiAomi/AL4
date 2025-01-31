@@ -11,38 +11,42 @@
 #include "TLAS.h"
 #include "ShaderTable.h"
 
-class CommandContext;
-class DirectionalLight;
+namespace LIEngine {
 
-class RaytracingRenderer {
-public:
-    void Create(uint32_t width, uint32_t height);
+    class CommandContext;
+    class DirectionalLight;
 
-    void Render(CommandContext& commandContext, const Camera& camera, const DirectionalLight& sunLight);
+    class RaytracingRenderer {
+    public:
+        void Create(uint32_t width, uint32_t height);
 
-    ColorBuffer& GetShadow() { return shadowBuffer_; }
-    ColorBuffer& GetSpecular() { return specularBuffer_; }
+        void Render(CommandContext& commandContext, const Camera& camera, const DirectionalLight& sunLight);
 
-private:
-    void CreateRootSignature();
-    void CreateStateObject();
-    void CreateShaderTables();
-    void BuildScene(CommandContext& commandContext);
+        ColorBuffer& GetShadow() { return shadowBuffer_; }
+        ColorBuffer& GetSpecular() { return specularBuffer_; }
 
-    StateObject stateObject_;
-    RootSignature globalRootSignature_;
-    RootSignature hitGroupLocalRootSignature_;
-    TLAS tlas_;
+    private:
+        void CreateRootSignature();
+        void CreateStateObject();
+        void CreateShaderTables();
+        void BuildScene(CommandContext& commandContext);
 
-    TLAS mainTLAS_;
-    TLAS castShadowTLAS_;
+        StateObject stateObject_;
+        RootSignature globalRootSignature_;
+        RootSignature hitGroupLocalRootSignature_;
+        TLAS tlas_;
 
-    ShaderTable rayGenerationShaderTable_;
-    ShaderTable hitGroupShaderTable_;
-    ShaderTable missShaderTable_;
+        TLAS mainTLAS_;
+        TLAS castShadowTLAS_;
 
-    std::map<std::wstring, void*> identifierMap_;
+        ShaderTable rayGenerationShaderTable_;
+        ShaderTable hitGroupShaderTable_;
+        ShaderTable missShaderTable_;
 
-    ColorBuffer shadowBuffer_;
-    ColorBuffer specularBuffer_;
-};
+        std::map<std::wstring, void*> identifierMap_;
+
+        ColorBuffer shadowBuffer_;
+        ColorBuffer specularBuffer_;
+    };
+
+}

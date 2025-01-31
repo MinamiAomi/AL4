@@ -1,5 +1,9 @@
 #pragma once
 
-class SceneContext {
+namespace LIEngine {
 
-};
+    class SceneContext {
+
+    };
+
+}

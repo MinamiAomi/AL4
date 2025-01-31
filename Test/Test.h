@@ -2,7 +2,7 @@
 #include "Framework/Game.h"
 
 class Test :
-    public Game {
+    public LIEngine::Game {
 public:
 
     /// <summary>

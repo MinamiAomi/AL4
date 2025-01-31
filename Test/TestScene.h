@@ -14,7 +14,7 @@
 #include "Graphics/Sprite.h"
 
 class TestScene :
-    public BaseScene {
+    public LIEngine::BaseScene {
 public:
 
     /// <summary>
@@ -31,15 +31,15 @@ public:
     void OnFinalize() override;
 
 private:
-    std::shared_ptr<DirectionalLight> sunLight_;
+    std::shared_ptr<LIEngine::DirectionalLight> sunLight_;
 
     static const uint32_t kRowCount = 2;
     static const uint32_t kColumnCount = 5;
     struct PBRSphere {
-        ModelInstance model;
-        std::shared_ptr<Material> material;
+        LIEngine::ModelInstance model;
+        std::shared_ptr<LIEngine::Material> material;
     };
     PBRSphere spheres_[kRowCount][kColumnCount];
-    ModelInstance room_;
-    Sprite sprite_;
+    LIEngine::ModelInstance room_;
+    LIEngine::Sprite sprite_;
 };

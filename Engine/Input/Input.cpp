@@ -6,41 +6,45 @@
 #pragma comment(lib,"dxguid.lib")
 #pragma comment (lib, "xinput.lib")
 
-Input* Input::GetInstance() {
-    static Input instance;
-    return &instance;
-}
+namespace LIEngine {
 
-void Input::Initialize(HWND hWnd) {
-    hWnd_ = hWnd;
+    Input* Input::GetInstance() {
+        static Input instance;
+        return &instance;
+    }
 
-    ASSERT_IF_FAILED(DirectInput8Create(
-        GetModuleHandle(nullptr), DIRECTINPUT_HEADER_VERSION,
-        IID_IDirectInput8, (void**)directInput_.GetAddressOf(), nullptr));
+    void Input::Initialize(HWND hWnd) {
+        hWnd_ = hWnd;
 
-    ASSERT_IF_FAILED(directInput_->CreateDevice(GUID_SysKeyboard, &keybord_, nullptr));
-    ASSERT_IF_FAILED(keybord_->SetDataFormat(&c_dfDIKeyboard));
-    ASSERT_IF_FAILED(keybord_->SetCooperativeLevel(hWnd_, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY));
+        ASSERT_IF_FAILED(DirectInput8Create(
+            GetModuleHandle(nullptr), DIRECTINPUT_HEADER_VERSION,
+            IID_IDirectInput8, (void**)directInput_.GetAddressOf(), nullptr));
 
-    ASSERT_IF_FAILED(directInput_->CreateDevice(GUID_SysMouse, &mouse_, nullptr));
-    ASSERT_IF_FAILED(mouse_->SetDataFormat(&c_dfDIMouse));
-    ASSERT_IF_FAILED(mouse_->SetCooperativeLevel(hWnd_, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY));
-}
+        ASSERT_IF_FAILED(directInput_->CreateDevice(GUID_SysKeyboard, &keybord_, nullptr));
+        ASSERT_IF_FAILED(keybord_->SetDataFormat(&c_dfDIKeyboard));
+        ASSERT_IF_FAILED(keybord_->SetCooperativeLevel(hWnd_, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY));
 
-void Input::Update() {
-    memcpy(preKeys_, keys_, sizeof(keys_));
-    keybord_->Acquire();
-    keybord_->GetDeviceState(sizeof(keys_), keys_);
+        ASSERT_IF_FAILED(directInput_->CreateDevice(GUID_SysMouse, &mouse_, nullptr));
+        ASSERT_IF_FAILED(mouse_->SetDataFormat(&c_dfDIMouse));
+        ASSERT_IF_FAILED(mouse_->SetCooperativeLevel(hWnd_, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY));
+    }
 
-    preMouseState_ = mouseState_;
-    mouse_->Acquire();
-    mouse_->GetDeviceState(sizeof(mouseState_.state), &mouseState_.state);
+    void Input::Update() {
+        memcpy(preKeys_, keys_, sizeof(keys_));
+        keybord_->Acquire();
+        keybord_->GetDeviceState(sizeof(keys_), keys_);
 
-    POINT p{};
-    GetCursorPos(&p);
-    ScreenToClient(hWnd_, &p);
-    mouseState_.screenPos = p;
+        preMouseState_ = mouseState_;
+        mouse_->Acquire();
+        mouse_->GetDeviceState(sizeof(mouseState_.state), &mouseState_.state);
 
-    preXInputState_ = xInputState_;
-    XInputGetState(0, &xInputState_);
+        POINT p{};
+        GetCursorPos(&p);
+        ScreenToClient(hWnd_, &p);
+        mouseState_.screenPos = p;
+
+        preXInputState_ = xInputState_;
+        XInputGetState(0, &xInputState_);
+    }
+
 }

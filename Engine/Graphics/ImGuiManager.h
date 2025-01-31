@@ -11,21 +11,25 @@
 
 #include "Core/DescriptorHandle.h"
 
-class CommandContext;
+namespace LIEngine {
 
-class ImGuiManager {
-public:
-    static ImGuiManager* GetInstance();
+    class CommandContext;
 
-    void Initialize(HWND hWnd, DXGI_FORMAT rtvFormat);
-    void NewFrame();
-    void Render(CommandContext& commandContext);
-    void Shutdown();
+    class ImGuiManager {
+    public:
+        static ImGuiManager* GetInstance();
 
-private:
-    ImGuiManager() = default;
-    ImGuiManager(const ImGuiManager&) = delete;
-    ImGuiManager& operator=(const ImGuiManager&) = delete;
+        void Initialize(HWND hWnd, DXGI_FORMAT rtvFormat);
+        void NewFrame();
+        void Render(CommandContext& commandContext);
+        void Shutdown();
 
-    DescriptorHandle descriptor_;
-};
+    private:
+        ImGuiManager() = default;
+        ImGuiManager(const ImGuiManager&) = delete;
+        ImGuiManager& operator=(const ImGuiManager&) = delete;
+
+        DescriptorHandle descriptor_;
+    };
+
+}

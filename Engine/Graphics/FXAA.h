@@ -3,17 +3,21 @@
 #include "Core/PipelineState.h"
 #include "Core/ColorBuffer.h"
 
-class CommandContext;
+namespace LIEngine {
 
-class FXAA {
-public:
-    void Initialize(ColorBuffer* original);
-    void Render(CommandContext& commandContext);
-    ColorBuffer& GetResult() { return result_; }
+    class CommandContext;
 
-private:
-    RootSignature rootSignature_;
-    PipelineState pipelineState_;
-    ColorBuffer result_;
-    ColorBuffer* original_;
-};
+    class FXAA {
+    public:
+        void Initialize(ColorBuffer* original);
+        void Render(CommandContext& commandContext);
+        ColorBuffer& GetResult() { return result_; }
+
+    private:
+        RootSignature rootSignature_;
+        PipelineState pipelineState_;
+        ColorBuffer result_;
+        ColorBuffer* original_;
+    };
+
+}

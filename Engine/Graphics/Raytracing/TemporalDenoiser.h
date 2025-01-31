@@ -5,19 +5,23 @@
 #include "../Core/PipelineState.h"
 #include "../Core/ColorBuffer.h"
 
-class CommandContext;
+namespace LIEngine {
 
-class TemporalDenoiser {
-public:
-    void Initialize(uint32_t width, uint32_t height, DXGI_FORMAT format);
-    void Dispatch(CommandContext& commandContext, ColorBuffer& intermediateBuffer);
-    void Reset(CommandContext& commandContext);
+    class CommandContext;
 
-    ColorBuffer& GetDenoisedBuffer() { return denoisedBuffer_; }
+    class TemporalDenoiser {
+    public:
+        void Initialize(uint32_t width, uint32_t height, DXGI_FORMAT format);
+        void Dispatch(CommandContext& commandContext, ColorBuffer& intermediateBuffer);
+        void Reset(CommandContext& commandContext);
 
-private:
-    RootSignature rootSignature_;
-    PipelineState pipelineState_;
-    ColorBuffer denoisedBuffer_;
-    uint32_t sampleCount_;
-};
+        ColorBuffer& GetDenoisedBuffer() { return denoisedBuffer_; }
+
+    private:
+        RootSignature rootSignature_;
+        PipelineState pipelineState_;
+        ColorBuffer denoisedBuffer_;
+        uint32_t sampleCount_;
+    };
+
+}

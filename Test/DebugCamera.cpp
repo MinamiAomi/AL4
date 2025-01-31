@@ -3,6 +3,8 @@
 #include "Graphics/RenderManager.h"
 #include "Input/Input.h"
 
+using namespace LIEngine;
+
 void DebugCamera::Initialize() {
     camera_ = std::make_shared<Camera>();
     RenderManager::GetInstance()->SetCamera(camera_);

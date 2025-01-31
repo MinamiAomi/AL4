@@ -8,48 +8,52 @@
 #include "Math/Camera.h"
 #include "ModelSorter.h"
 
-class CommandContext;
+namespace LIEngine {
 
-struct GBuffer {
-    enum Type {
-        Albedo,
-        MetallicRoughness,
-        Normal,
-        ViewDepth,
-        MeshMaterialIDs,
+    class CommandContext;
 
-        NumGBuffers
-    };
-};
+    struct GBuffer {
+        enum Type {
+            Albedo,
+            MetallicRoughness,
+            Normal,
+            ViewDepth,
+            MeshMaterialIDs,
 
-class GeometryRenderingPass {
-public:
-    struct RootIndex {
-        enum Parameters {
-            Scene,
-            Instance,
-            Material,
-            BindlessTexture,
-
-            NumRootParameters
+            NumGBuffers
         };
     };
 
-    void Initialize(uint32_t width, uint32_t height);
-    void Render(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter);
+    class GeometryRenderingPass {
+    public:
+        struct RootIndex {
+            enum Parameters {
+                Scene,
+                Instance,
+                Material,
+                BindlessTexture,
 
-    ColorBuffer& GetGBuffer(GBuffer::Type type) { return gBuffers_[type]; }
-    ColorBuffer& GetAlbedo() { return gBuffers_[GBuffer::Albedo]; }
-    ColorBuffer& GetMetallicRoughness() { return gBuffers_[GBuffer::MetallicRoughness]; }
-    ColorBuffer& GetNormal() { return gBuffers_[GBuffer::Normal]; }
-    ColorBuffer& GetViewDepth() { return gBuffers_[GBuffer::ViewDepth]; }
-    ColorBuffer& GetMeshMaterialIDs() { return gBuffers_[GBuffer::MeshMaterialIDs]; }
-    DepthBuffer& GetDepth() { return depth_; }
+                NumRootParameters
+            };
+        };
 
-private:
-    ColorBuffer gBuffers_[GBuffer::NumGBuffers];
-    DepthBuffer depth_;
+        void Initialize(uint32_t width, uint32_t height);
+        void Render(CommandContext& commandContext, const Camera& camera, const ModelSorter& modelSorter);
 
-    RootSignature rootSignature_;
-    PipelineState pipelineState_;
-};
+        ColorBuffer& GetGBuffer(GBuffer::Type type) { return gBuffers_[type]; }
+        ColorBuffer& GetAlbedo() { return gBuffers_[GBuffer::Albedo]; }
+        ColorBuffer& GetMetallicRoughness() { return gBuffers_[GBuffer::MetallicRoughness]; }
+        ColorBuffer& GetNormal() { return gBuffers_[GBuffer::Normal]; }
+        ColorBuffer& GetViewDepth() { return gBuffers_[GBuffer::ViewDepth]; }
+        ColorBuffer& GetMeshMaterialIDs() { return gBuffers_[GBuffer::MeshMaterialIDs]; }
+        DepthBuffer& GetDepth() { return depth_; }
+
+    private:
+        ColorBuffer gBuffers_[GBuffer::NumGBuffers];
+        DepthBuffer depth_;
+
+        RootSignature rootSignature_;
+        PipelineState pipelineState_;
+    };
+
+}

@@ -2,14 +2,18 @@
 
 #include "Core/TextureResource.h"
 
-namespace DefaultTexture {
+namespace LIEngine {
 
-    extern TextureResource White;
-    extern TextureResource Black;
-    extern TextureResource Normal;
-    extern TextureResource BlackCubeMap;
+    namespace DefaultTexture {
 
-    void Initialize();
-    void Finalize();
+        extern TextureResource White;
+        extern TextureResource Black;
+        extern TextureResource Normal;
+        extern TextureResource BlackCubeMap;
+
+        void Initialize();
+        void Finalize();
+
+    }
 
 }

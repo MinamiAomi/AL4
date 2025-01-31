@@ -4,7 +4,7 @@
 #include "Math/Camera.h"
 
 class CameraComponent :
-    public Component {
+    public LIEngine::Component {
     COMPONENT_IMPL(CameraComponent);
 public:
     CameraComponent();
@@ -34,6 +34,6 @@ public:
 private:
     void MoveCamera();
 
-    std::shared_ptr<Camera> camera_;
-    Vector3 euler_;
+    std::shared_ptr<LIEngine::Camera> camera_;
+    LIEngine::Vector3 euler_;
 };

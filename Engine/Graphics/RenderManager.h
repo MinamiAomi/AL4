@@ -37,76 +37,80 @@
 #define SHADER_DIRECTORY "Resources/Shader"
 #endif // _DEBUG
 
-class RenderManager {
-public:
-    /// <summary>
-    /// シングルトンインスタンスを取得
-    /// </summary>
-    /// <returns></returns>
-    static RenderManager* GetInstance();
+namespace LIEngine {
 
-    void Initialize();
-    void Finalize();
-    void Render();
+    class RenderManager {
+    public:
+        /// <summary>
+        /// シングルトンインスタンスを取得
+        /// </summary>
+        /// <returns></returns>
+        static RenderManager* GetInstance();
 
-    void SetCamera(const std::shared_ptr<Camera>& camera) { camera_ = camera; }
-    void SetSunLight(const std::shared_ptr<DirectionalLight>& light) { sunLight_ = light; }
+        void Initialize();
+        void Finalize();
+        void Render();
 
-    //LightManager& GetLightManager() { return lightManager_; }
-    SwapChain& GetSwapChain() { return swapChain_; }
-    ColorBuffer& GetFinalImageBuffer() { return fxaa_.GetResult(); }
-    Transition& GetTransition() { return transition_; }
-    SkinningManager& GetSkinningManager() { return skinningManager_; }
-    LineDrawer& GetLineDrawer() { return lineDrawer_; }
-    Skybox& GetSkybox() { return skybox_; }
-    LightingRenderingPass& GetLightingRenderingPass() { return lightingRenderingPass_; }
-    Pathtracer& GetPathtracer() { return pathtracer_; }
-    ColorBuffer& GetPathtracingResultBuffer() { return postSpatialDenoiser_.GetDenoisedBuffer(); }
-    PostEffect& GetPostEffect() { return postEffect_; }
-    Sky& GetSky() { return sky_; }
+        void SetCamera(const std::shared_ptr<Camera>& camera) { camera_ = camera; }
+        void SetSunLight(const std::shared_ptr<DirectionalLight>& light) { sunLight_ = light; }
 
-private:
-    RenderManager() = default;
-    RenderManager(const RenderManager&) = delete;
-    RenderManager& operator=(const RenderManager&) = delete;
+        //LightManager& GetLightManager() { return lightManager_; }
+        SwapChain& GetSwapChain() { return swapChain_; }
+        ColorBuffer& GetFinalImageBuffer() { return fxaa_.GetResult(); }
+        Transition& GetTransition() { return transition_; }
+        SkinningManager& GetSkinningManager() { return skinningManager_; }
+        LineDrawer& GetLineDrawer() { return lineDrawer_; }
+        Skybox& GetSkybox() { return skybox_; }
+        LightingRenderingPass& GetLightingRenderingPass() { return lightingRenderingPass_; }
+        Pathtracer& GetPathtracer() { return pathtracer_; }
+        ColorBuffer& GetPathtracingResultBuffer() { return postSpatialDenoiser_.GetDenoisedBuffer(); }
+        PostEffect& GetPostEffect() { return postEffect_; }
+        Sky& GetSky() { return sky_; }
 
-    void ShowDockingSpace();
+    private:
+        RenderManager() = default;
+        RenderManager(const RenderManager&) = delete;
+        RenderManager& operator=(const RenderManager&) = delete;
 
-    Graphics* graphics_ = nullptr;
-    SwapChain swapChain_;
-    CommandContext commandContext_;
+        void ShowDockingSpace();
 
-    ColorBuffer finalImageBuffer_;
+        Graphics* graphics_ = nullptr;
+        SwapChain swapChain_;
+        CommandContext commandContext_;
 
-    SpriteRenderer spriteRenderer_;
+        ColorBuffer finalImageBuffer_;
 
-    ModelSorter modelSorter_;
-    SkinningManager skinningManager_;
-    GeometryRenderingPass geometryRenderingPass_;
-    LightingRenderingPass lightingRenderingPass_;
-    Skybox skybox_;
-    LineDrawer lineDrawer_;
-    ParticleCore particleCore_;
-    
-    Pathtracer pathtracer_;
-    SpatialDenoiser preSpatialDenoiser_;
-    TemporalDenoiser temporalDenoiser_;
-    SpatialDenoiser postSpatialDenoiser_;
+        SpriteRenderer spriteRenderer_;
 
-    //RaytracingRenderer raytracingRenderer_;
-    //RaymarchingRenderer raymarchingRenderer_;
-    //ModelRenderer modelRenderer;
-    Transition transition_;
-    //Bloom bloom_;
-    FXAA fxaa_;
-    PostEffect postEffect_;
-    ComputeShaderTester computeShaderTester_;
-    //LightManager lightManager_;
-    Sky sky_;
-    Timer timer_;
-    std::weak_ptr<const Camera> camera_;
-    std::weak_ptr<const DirectionalLight> sunLight_;
+        ModelSorter modelSorter_;
+        SkinningManager skinningManager_;
+        GeometryRenderingPass geometryRenderingPass_;
+        LightingRenderingPass lightingRenderingPass_;
+        Skybox skybox_;
+        LineDrawer lineDrawer_;
+        ParticleCore particleCore_;
 
-    UINT64 frameCount_;
-    bool raymarching_ = false;
-};
+        Pathtracer pathtracer_;
+        SpatialDenoiser preSpatialDenoiser_;
+        TemporalDenoiser temporalDenoiser_;
+        SpatialDenoiser postSpatialDenoiser_;
+
+        //RaytracingRenderer raytracingRenderer_;
+        //RaymarchingRenderer raymarchingRenderer_;
+        //ModelRenderer modelRenderer;
+        Transition transition_;
+        //Bloom bloom_;
+        FXAA fxaa_;
+        PostEffect postEffect_;
+        ComputeShaderTester computeShaderTester_;
+        //LightManager lightManager_;
+        Sky sky_;
+        Timer timer_;
+        std::weak_ptr<const Camera> camera_;
+        std::weak_ptr<const DirectionalLight> sunLight_;
+
+        UINT64 frameCount_;
+        bool raymarching_ = false;
+    };
+
+}

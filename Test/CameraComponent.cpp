@@ -6,6 +6,8 @@
 #include "Graphics/ImGuiManager.h"
 #include "Graphics/RenderManager.h"
 
+using namespace LIEngine;
+
 CameraComponent::CameraComponent() {
     camera_ = std::make_shared<Camera>();
 }

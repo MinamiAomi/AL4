@@ -19,6 +19,8 @@
 #include "DemoGameObjectFactory.h"
 #include "DemoComponentRegisterer.h"
 
+using namespace LIEngine;
+
 namespace {
     const char kResourceAssociationFile[] = "Resources/Association.json";
 }

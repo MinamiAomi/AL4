@@ -10,6 +10,8 @@
 
 namespace {
 
+    using namespace LIEngine;
+
     AnimationSet ParseAnimation(const aiAnimation* animation) {
         AnimationSet result;
         // 時間の単位を秒に変換
@@ -57,63 +59,67 @@ namespace {
 
 }
 
-std::shared_ptr<Animation> Animation::Load(const std::filesystem::path& path) {
+namespace LIEngine {
 
-    // privateコンストラクタをmake_sharedで呼ぶためのヘルパー
-    struct Helper : Animation {
-        Helper() : Animation() {}
-    };
-    std::shared_ptr<Animation> animation = std::make_shared<Helper>();
+    std::shared_ptr<Animation> Animation::Load(const std::filesystem::path& path) {
 
-    auto directory = path.parent_path();
+        // privateコンストラクタをmake_sharedで呼ぶためのヘルパー
+        struct Helper : Animation {
+            Helper() : Animation() {}
+        };
+        std::shared_ptr<Animation> animation = std::make_shared<Helper>();
 
-    Assimp::Importer importer;
-    int flags = 0;
-    const aiScene* scene = importer.ReadFile(path.string(), flags);
-    // 読み込めた
-    if (!scene) {
-        Debug::Log(importer.GetErrorString());
-        assert(false);
-    }
-    // アニメーションがある
-    assert(scene->mNumAnimations != 0);
-    // 配列を確保しておく
-    for (uint32_t animationIndex = 0; animationIndex < scene->mNumAnimations; ++animationIndex) {
-        aiString name = scene->mAnimations[animationIndex]->mName;
-        animation->animationSet_[name.C_Str()] = ParseAnimation(scene->mAnimations[animationIndex]);
-    }
+        auto directory = path.parent_path();
 
-    return animation;
-}
-
-Vector3 CalculateValue(const AnimationCurve<Vector3>& animationCurve, float time) {
-    assert(!animationCurve.keyframes.empty());
-    if (animationCurve.keyframes.size() == 1 || time <= animationCurve.keyframes[0].time) {
-        return animationCurve.keyframes[0].value;
-    }
-
-    for (size_t index = 0; index < animationCurve.keyframes.size() - 1; ++index) {
-        size_t nextIndex = index + 1;
-        if (animationCurve.keyframes[index].time <= time && time <= animationCurve.keyframes[nextIndex].time) {
-            float t = (time - animationCurve.keyframes[index].time) / (animationCurve.keyframes[nextIndex].time - animationCurve.keyframes[index].time);
-            return Vector3::Lerp(t, animationCurve.keyframes[index].value, animationCurve.keyframes[nextIndex].value);
+        Assimp::Importer importer;
+        int flags = 0;
+        const aiScene* scene = importer.ReadFile(path.string(), flags);
+        // 読み込めた
+        if (!scene) {
+            Debug::Log(importer.GetErrorString());
+            assert(false);
         }
-    }
-    return animationCurve.keyframes.rbegin()->value;
-}
-
-Quaternion CalculateValue(const AnimationCurve<Quaternion>& animationCurve, float time) {
-    assert(!animationCurve.keyframes.empty());
-    if (animationCurve.keyframes.size() == 1 || time <= animationCurve.keyframes[0].time) {
-        return animationCurve.keyframes[0].value;
-    }
-
-    for (size_t index = 0; index < animationCurve.keyframes.size() - 1; ++index) {
-        size_t nextIndex = index + 1;
-        if (animationCurve.keyframes[index].time <= time && time <= animationCurve.keyframes[nextIndex].time) {
-            float t = (time - animationCurve.keyframes[index].time) / (animationCurve.keyframes[nextIndex].time - animationCurve.keyframes[index].time);
-            return Quaternion::Slerp(t, animationCurve.keyframes[index].value, animationCurve.keyframes[nextIndex].value);
+        // アニメーションがある
+        assert(scene->mNumAnimations != 0);
+        // 配列を確保しておく
+        for (uint32_t animationIndex = 0; animationIndex < scene->mNumAnimations; ++animationIndex) {
+            aiString name = scene->mAnimations[animationIndex]->mName;
+            animation->animationSet_[name.C_Str()] = ParseAnimation(scene->mAnimations[animationIndex]);
         }
+
+        return animation;
     }
-    return animationCurve.keyframes.rbegin()->value;
+
+    Vector3 CalculateValue(const AnimationCurve<Vector3>& animationCurve, float time) {
+        assert(!animationCurve.keyframes.empty());
+        if (animationCurve.keyframes.size() == 1 || time <= animationCurve.keyframes[0].time) {
+            return animationCurve.keyframes[0].value;
+        }
+
+        for (size_t index = 0; index < animationCurve.keyframes.size() - 1; ++index) {
+            size_t nextIndex = index + 1;
+            if (animationCurve.keyframes[index].time <= time && time <= animationCurve.keyframes[nextIndex].time) {
+                float t = (time - animationCurve.keyframes[index].time) / (animationCurve.keyframes[nextIndex].time - animationCurve.keyframes[index].time);
+                return Vector3::Lerp(t, animationCurve.keyframes[index].value, animationCurve.keyframes[nextIndex].value);
+            }
+        }
+        return animationCurve.keyframes.rbegin()->value;
+    }
+
+    Quaternion CalculateValue(const AnimationCurve<Quaternion>& animationCurve, float time) {
+        assert(!animationCurve.keyframes.empty());
+        if (animationCurve.keyframes.size() == 1 || time <= animationCurve.keyframes[0].time) {
+            return animationCurve.keyframes[0].value;
+        }
+
+        for (size_t index = 0; index < animationCurve.keyframes.size() - 1; ++index) {
+            size_t nextIndex = index + 1;
+            if (animationCurve.keyframes[index].time <= time && time <= animationCurve.keyframes[nextIndex].time) {
+                float t = (time - animationCurve.keyframes[index].time) / (animationCurve.keyframes[nextIndex].time - animationCurve.keyframes[index].time);
+                return Quaternion::Slerp(t, animationCurve.keyframes[index].value, animationCurve.keyframes[nextIndex].value);
+            }
+        }
+        return animationCurve.keyframes.rbegin()->value;
+    }
+
 }

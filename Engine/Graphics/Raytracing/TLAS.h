@@ -2,21 +2,25 @@
 #include "../Core/GPUResource.h"
 #include "../Core/DescriptorHandle.h"
 
-class StructuredBuffer;
-class CommandContext;
+namespace LIEngine {
 
-class TLAS :
-    public GPUResource {
-public:
-    void Create(const std::wstring& name, CommandContext& commandContext, const D3D12_RAYTRACING_INSTANCE_DESC* instanceDescs, size_t numInstanceDescs);
+    class StructuredBuffer;
+    class CommandContext;
 
-    const DescriptorHandle& GetSRV() const { return srvHandle_; }
+    class TLAS :
+        public GPUResource {
+    public:
+        void Create(const std::wstring& name, CommandContext& commandContext, const D3D12_RAYTRACING_INSTANCE_DESC* instanceDescs, size_t numInstanceDescs);
 
-private:
-    void CreateView();
+        const DescriptorHandle& GetSRV() const { return srvHandle_; }
 
-    GPUResource scratchResource_;
-    DescriptorHandle srvHandle_;
-    size_t reservedSize_ = 0;
-    size_t scratchResourceReservedSize_ = 0;
-};
+    private:
+        void CreateView();
+
+        GPUResource scratchResource_;
+        DescriptorHandle srvHandle_;
+        size_t reservedSize_ = 0;
+        size_t scratchResourceReservedSize_ = 0;
+    };
+
+}

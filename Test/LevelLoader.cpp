@@ -11,6 +11,8 @@
 
 namespace LevelLoader {
 
+    using namespace LIEngine;
+
     void Load(const std::filesystem::path& path, GameObjectManager& gameObjectManager) {
         std::ifstream file(path);
         assert(file.is_open());
@@ -38,7 +40,7 @@ namespace LevelLoader {
                 gameObject->SetName(object.at("name"));
             }
             if (object.contains("transform")) {
-                object.at("transform").get_to(gameObject->transform);
+                //object.at("transform").get_to(gameObject->transform);
             }
             if (object.contains("camera")) {
                 auto component = gameObject->AddComponent<CameraComponent>();
@@ -54,8 +56,8 @@ namespace LevelLoader {
                 if (collider.at("type") == "BOX") {
                     auto component = gameObject->AddComponent<BoxCollider>();
                     Vector3 center, size;
-                    collider.at("center").get_to(center);
-                    collider.at("size").get_to(size);
+                    /*collider.at("center").get_to(center);
+                    collider.at("size").get_to(size);*/
                     component->SetCenter(center);
                     component->SetSize(size);
                 }

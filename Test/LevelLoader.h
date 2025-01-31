@@ -11,5 +11,5 @@ namespace LevelLoader {
     /// </summary>
     /// <param name="path">ファイルパス</param>
     /// <param name="gameObjectManager">マネージャー</param>
-    void Load(const std::filesystem::path& path, GameObjectManager& gameObjectManager);
+    void Load(const std::filesystem::path& path, LIEngine::GameObjectManager& gameObjectManager);
 }

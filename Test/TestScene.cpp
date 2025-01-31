@@ -7,6 +7,8 @@
 #include "Graphics/Core/TextureLoader.h"
 #include "LevelLoader.h"
 
+using namespace LIEngine;
+
 void TestScene::OnInitialize() {
 
     sunLight_ = std::make_shared<DirectionalLight>();

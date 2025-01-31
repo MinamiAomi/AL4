@@ -19,10 +19,10 @@ public:
 
     // ゲッター
 
-    const std::shared_ptr<Camera>& GetCamera() const { return camera_; }
+    const std::shared_ptr<LIEngine::Camera>& GetCamera() const { return camera_; }
 
 private:
-    Transform transform;
-    std::shared_ptr<Camera> camera_;
-    Vector3 eulerAngle_;
+    LIEngine::Transform transform;
+    std::shared_ptr<LIEngine::Camera> camera_;
+    LIEngine::Vector3 eulerAngle_;
 };

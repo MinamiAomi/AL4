@@ -8,6 +8,7 @@
 #include "Core/CommandContext.h"
 
 namespace {
+    using namespace LIEngine;
 
     const char kGaussianBlurHorizontalVS[] = "HorizontalGaussianBlurVS.hlsl";
     const char kGaussianBlurVerticalVS[] = "VerticalGaussianBlurVS.hlsl";
@@ -78,87 +79,91 @@ namespace {
     }
 }
 
-GaussianBlur::GaussianBlur() {
-    gbInstanceCount++;
-}
+namespace LIEngine {
 
-GaussianBlur::~GaussianBlur() {
-    assert(gbInstanceCount > 0);
-    gbInstanceCount--;
-    if (gbInstanceCount == 0) {
-        gbRootSignature_.reset();
-        gbPipelineStateMap_.clear();
-    }
-}
-
-void GaussianBlur::Initialize(ColorBuffer* originalTexture) {
-    assert(originalTexture);
-
-    if (!gbRootSignature_) {
-        CreateRootSignature();
+    GaussianBlur::GaussianBlur() {
+        gbInstanceCount++;
     }
 
-    originalTexture_ = originalTexture;
-    horizontalBlurTexture_.Create(
-        L"GaussianBlur HorizontalBlurTexture",
-        originalTexture_->GetWidth() / 2,
-        originalTexture_->GetHeight(),
-        originalTexture_->GetFormat());
-    verticalBlurTexture_.Create(
-        L"GaussianBlur VerticalBlurTexture",
-        originalTexture_->GetWidth() / 2,
-        originalTexture_->GetHeight() / 2,
-        originalTexture_->GetFormat());
-
-    constantBuffer_.Create(L"GaussianBlur Constant", sizeof(weights_));
-
-    CreatePipelineState(originalTexture->GetRTVFormat());
-
-    UpdateWeightTable(1.0f);
-}
-
-void GaussianBlur::Render(CommandContext& commandContext) {
-
-    auto pipelineSet = gbPipelineStateMap_[originalTexture_->GetFormat()].get();
-
-    commandContext.TransitionResource(*originalTexture_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandContext.TransitionResource(horizontalBlurTexture_, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    commandContext.SetRenderTarget(horizontalBlurTexture_.GetRTV());
-    commandContext.ClearColor(horizontalBlurTexture_);
-    commandContext.SetViewportAndScissorRect(0, 0, horizontalBlurTexture_.GetWidth(), horizontalBlurTexture_.GetHeight());
-
-    commandContext.SetRootSignature(*gbRootSignature_);
-    commandContext.SetPipelineState(pipelineSet->horizontalBlurPSO);
-    commandContext.SetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    commandContext.SetDescriptorTable(0, originalTexture_->GetSRV());
-    commandContext.SetConstantBuffer(1, constantBuffer_.GetGPUVirtualAddress());
-    commandContext.Draw(3);
-
-    commandContext.TransitionResource(horizontalBlurTexture_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    commandContext.TransitionResource(verticalBlurTexture_, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    commandContext.ClearColor(verticalBlurTexture_);
-    commandContext.SetRenderTarget(verticalBlurTexture_.GetRTV());
-    commandContext.SetViewportAndScissorRect(0, 0, verticalBlurTexture_.GetWidth(), verticalBlurTexture_.GetHeight());
-
-    commandContext.SetRootSignature(*gbRootSignature_);
-    commandContext.SetPipelineState(pipelineSet->verticalBlurPSO);
-    commandContext.SetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    commandContext.SetDescriptorTable(0, horizontalBlurTexture_.GetSRV());
-    commandContext.SetConstantBuffer(1, constantBuffer_.GetGPUVirtualAddress());
-    commandContext.Draw(3);
-
-    commandContext.TransitionResource(verticalBlurTexture_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-}
-
-void GaussianBlur::UpdateWeightTable(float blurPower) {
-    float total = 0;
-    for (uint32_t i = 0; i < kNumWeights; ++i) {
-        weights_[i] = std::exp(-0.5f * float(i * i) / blurPower);
-        total += 2.0f * weights_[i];
+    GaussianBlur::~GaussianBlur() {
+        assert(gbInstanceCount > 0);
+        gbInstanceCount--;
+        if (gbInstanceCount == 0) {
+            gbRootSignature_.reset();
+            gbPipelineStateMap_.clear();
+        }
     }
-    total = 1.0f / total;
-    for (uint32_t i = 0; i < kNumWeights; ++i) {
-        weights_[i] *= total;
+
+    void GaussianBlur::Initialize(ColorBuffer* originalTexture) {
+        assert(originalTexture);
+
+        if (!gbRootSignature_) {
+            CreateRootSignature();
+        }
+
+        originalTexture_ = originalTexture;
+        horizontalBlurTexture_.Create(
+            L"GaussianBlur HorizontalBlurTexture",
+            originalTexture_->GetWidth() / 2,
+            originalTexture_->GetHeight(),
+            originalTexture_->GetFormat());
+        verticalBlurTexture_.Create(
+            L"GaussianBlur VerticalBlurTexture",
+            originalTexture_->GetWidth() / 2,
+            originalTexture_->GetHeight() / 2,
+            originalTexture_->GetFormat());
+
+        constantBuffer_.Create(L"GaussianBlur Constant", sizeof(weights_));
+
+        CreatePipelineState(originalTexture->GetRTVFormat());
+
+        UpdateWeightTable(1.0f);
     }
-    constantBuffer_.Copy(weights_, sizeof(weights_));
+
+    void GaussianBlur::Render(CommandContext& commandContext) {
+
+        auto pipelineSet = gbPipelineStateMap_[originalTexture_->GetFormat()].get();
+
+        commandContext.TransitionResource(*originalTexture_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        commandContext.TransitionResource(horizontalBlurTexture_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        commandContext.SetRenderTarget(horizontalBlurTexture_.GetRTV());
+        commandContext.ClearColor(horizontalBlurTexture_);
+        commandContext.SetViewportAndScissorRect(0, 0, horizontalBlurTexture_.GetWidth(), horizontalBlurTexture_.GetHeight());
+
+        commandContext.SetRootSignature(*gbRootSignature_);
+        commandContext.SetPipelineState(pipelineSet->horizontalBlurPSO);
+        commandContext.SetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        commandContext.SetDescriptorTable(0, originalTexture_->GetSRV());
+        commandContext.SetConstantBuffer(1, constantBuffer_.GetGPUVirtualAddress());
+        commandContext.Draw(3);
+
+        commandContext.TransitionResource(horizontalBlurTexture_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+        commandContext.TransitionResource(verticalBlurTexture_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        commandContext.ClearColor(verticalBlurTexture_);
+        commandContext.SetRenderTarget(verticalBlurTexture_.GetRTV());
+        commandContext.SetViewportAndScissorRect(0, 0, verticalBlurTexture_.GetWidth(), verticalBlurTexture_.GetHeight());
+
+        commandContext.SetRootSignature(*gbRootSignature_);
+        commandContext.SetPipelineState(pipelineSet->verticalBlurPSO);
+        commandContext.SetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+        commandContext.SetDescriptorTable(0, horizontalBlurTexture_.GetSRV());
+        commandContext.SetConstantBuffer(1, constantBuffer_.GetGPUVirtualAddress());
+        commandContext.Draw(3);
+
+        commandContext.TransitionResource(verticalBlurTexture_, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    }
+
+    void GaussianBlur::UpdateWeightTable(float blurPower) {
+        float total = 0;
+        for (uint32_t i = 0; i < kNumWeights; ++i) {
+            weights_[i] = std::exp(-0.5f * float(i * i) / blurPower);
+            total += 2.0f * weights_[i];
+        }
+        total = 1.0f / total;
+        for (uint32_t i = 0; i < kNumWeights; ++i) {
+            weights_[i] *= total;
+        }
+        constantBuffer_.Copy(weights_, sizeof(weights_));
+    }
+
 }

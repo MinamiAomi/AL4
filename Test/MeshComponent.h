@@ -5,7 +5,7 @@
 #include "Graphics/Model.h"
 
 class MeshComponent :
-    public Component {
+    public LIEngine::Component {
     COMPONENT_IMPL(MeshComponent);
 public:
     /// <summary>
@@ -38,8 +38,8 @@ public:
 private:
     void ApplyModel();
 
-    ModelInstance model_;
-    std::shared_ptr<Material> customMaterial_;
-    std::shared_ptr<ModelAsset> asset_;
+    LIEngine::ModelInstance model_;
+    std::shared_ptr<LIEngine::Material> customMaterial_;
+    std::shared_ptr<LIEngine::ModelAsset> asset_;
     std::string modelName_;
 };

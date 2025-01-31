@@ -9,21 +9,25 @@
 #include "Math/MathUtils.h"
 #include "Math/Camera.h"
 
-class CommandContext;
+namespace LIEngine {
 
-class LineDrawer {
-public:
-    struct Vertex {
-        Vector3 position;
-        Vector4 color;
+    class CommandContext;
+
+    class LineDrawer {
+    public:
+        struct Vertex {
+            Vector3 position;
+            Vector4 color;
+        };
+
+        void Initialize(DXGI_FORMAT rtvFormat);
+        void AddLine(const Vector3& start, const Vector3& end, const Vector4& color = Vector4::one);
+        void Render(CommandContext& commandContext, const Camera& camera);
+
+    private:
+        RootSignature rootSignature_;
+        PipelineState pipelineState_;
+        std::vector<Vertex> vertices_;
     };
 
-    void Initialize(DXGI_FORMAT rtvFormat);
-    void AddLine(const Vector3& start, const Vector3& end, const Vector4& color = Vector4::one);
-    void Render(CommandContext& commandContext, const Camera& camera);
-
-private:
-    RootSignature rootSignature_;
-    PipelineState pipelineState_;
-    std::vector<Vertex> vertices_;
-};
+}

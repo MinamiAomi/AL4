@@ -5,6 +5,8 @@
 #include "Framework/AssetManager.h"
 #include "Graphics/ImGuiManager.h"
 
+using namespace LIEngine;
+
 void MeshComponent::Initialize() {
     if (!modelName_.empty()) {
         auto assetManager = AssetManager::GetInstance();

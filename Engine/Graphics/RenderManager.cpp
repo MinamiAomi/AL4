@@ -9,161 +9,165 @@
 
 #include "Input/Input.h"
 
-static bool useGrayscale = true;
+namespace LIEngine {
 
-RenderManager* RenderManager::GetInstance() {
-    static RenderManager instance;
-    return &instance;
-}
+    static bool useGrayscale = true;
 
-void RenderManager::Initialize() {
-    graphics_ = Graphics::GetInstance();
-
-    auto shaderManager = ShaderManager::GetInstance();
-    shaderManager->Initialize();
-    shaderManager->SetDirectory(std::filesystem::current_path() / SHADER_DIRECTORY);
-
-    auto window = GameWindow::GetInstance();
-    swapChain_.Create(window->GetHWND());
-
-    DefaultTexture::Initialize();
-
-    auto& swapChainBuffer = swapChain_.GetColorBuffer(0);
-    finalImageBuffer_.Create(L"FinalImageBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), swapChainBuffer.GetFormat());
-
-    skinningManager_.Initialize();
-    geometryRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
-    lightingRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
-    skybox_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat(), geometryRenderingPass_.GetDepth().GetFormat());
-    lineDrawer_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat());
-    //particleCore_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat());
-    spriteRenderer_.Initialize(finalImageBuffer_);
-    //bloom_.Initialize(&lightingRenderingPass_.GetResult());
-    postEffect_.Initialize(finalImageBuffer_);
-
-    //    modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
-    transition_.Initialize();
-
-    pathtracer_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
-    preSpatialDenoiser_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
-    temporalDenoiser_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
-    postSpatialDenoiser_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
-    fxaa_.Initialize(&postSpatialDenoiser_.GetDenoisedBuffer());
-
-    timer_.Initialize();
-
-    frameCount_ = 0;
-}
-
-void RenderManager::Finalize() {
-    DefaultTexture::Finalize();
-}
-
-void RenderManager::Render() {
-
-    uint32_t targetSwapChainBufferIndex = (swapChain_.GetCurrentBackBufferIndex() + 1) % SwapChain::kNumBuffers;
-
-    auto camera = camera_.lock();
-    auto sunLight = sunLight_.lock();
-
-    commandContext_.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
-
-    const float deltaSecond = 1 / 60.0f;
-    const float daySpeed = 1;
-    sky_.Update(deltaSecond / daySpeed);
-
-    skinningManager_.Update(commandContext_);
-
-    //particleCore_.Dispatch(commandContext_);
-
-    if (camera && sunLight) {
-        // 影、スペキュラ
-        modelSorter_.Sort(*camera);
-
-        geometryRenderingPass_.Render(commandContext_, *camera, modelSorter_);
-
-        pathtracer_.Dispatch(commandContext_, *camera, modelSorter_);
-        preSpatialDenoiser_.Dispatch(commandContext_, pathtracer_.GetResult(), geometryRenderingPass_);
-
-        auto input = Engine::GetInput();
-        bool reset = false;
-        bool mouseMove = (input->GetMouseMoveX() != 0) || (input->GetMouseMoveY() != 0);
-
-        reset |= (input->IsMousePressed(0) && mouseMove);
-        reset |= (input->IsMousePressed(1) && mouseMove);
-        reset |= (input->IsMousePressed(2) && mouseMove);
-        reset |= (input->GetMouseWheel() != 0);
-        reset |= (input->IsKeyPressed(DIK_D) || input->IsKeyPressed(DIK_A) || input->IsKeyPressed(DIK_W) || input->IsKeyPressed(DIK_S));
-        reset |= (input->IsKeyPressed(DIK_UP) || input->IsKeyPressed(DIK_DOWN) || input->IsKeyPressed(DIK_LEFT) || input->IsKeyPressed(DIK_RIGHT));
-        reset |= (input->IsKeyPressed(DIK_SPACE) || input->IsKeyPressed(DIK_LSHIFT));
-        // 仮リセット
-        if (reset) {
-            temporalDenoiser_.Reset(commandContext_);
-        }
-
-        temporalDenoiser_.Dispatch(commandContext_, preSpatialDenoiser_.GetDenoisedBuffer());
-
-        postSpatialDenoiser_.Dispatch(commandContext_, temporalDenoiser_.GetDenoisedBuffer(), geometryRenderingPass_);
-
-
-
-        lightingRenderingPass_.Render(commandContext_, geometryRenderingPass_, *camera, *sunLight);
-
-        commandContext_.TransitionResource(lightingRenderingPass_.GetResult(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-        commandContext_.TransitionResource(geometryRenderingPass_.GetDepth(), D3D12_RESOURCE_STATE_DEPTH_READ);
-        commandContext_.SetViewportAndScissorRect(0, 0, lightingRenderingPass_.GetResult().GetWidth(), lightingRenderingPass_.GetResult().GetHeight());
-        commandContext_.SetRenderTarget(lightingRenderingPass_.GetResult().GetRTV(), geometryRenderingPass_.GetDepth().GetDSV());
-        skybox_.SetWorldMatrix(Matrix4x4::MakeAffineTransform({ 1.0f, 1.0f, 1.0f }, Quaternion::identity, camera->GetPosition()));
-        //skybox_.Render(commandContext_, *camera);
-
-        commandContext_.SetRenderTarget(lightingRenderingPass_.GetResult().GetRTV());
-        commandContext_.SetViewportAndScissorRect(0, 0, lightingRenderingPass_.GetResult().GetWidth(), lightingRenderingPass_.GetResult().GetHeight());
-        lineDrawer_.Render(commandContext_, *camera);
-
-        //particleCore_.Render(commandContext_, *camera);
+    RenderManager* RenderManager::GetInstance() {
+        static RenderManager instance;
+        return &instance;
     }
 
-    //bloom_.Render(commandContext_);
-    fxaa_.Render(commandContext_);
+    void RenderManager::Initialize() {
+        graphics_ = Graphics::GetInstance();
 
-    commandContext_.TransitionResource(finalImageBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    commandContext_.SetRenderTarget(finalImageBuffer_.GetRTV());
-    commandContext_.SetViewportAndScissorRect(0, 0, finalImageBuffer_.GetWidth(), finalImageBuffer_.GetHeight());
+        auto shaderManager = ShaderManager::GetInstance();
+        shaderManager->Initialize();
+        shaderManager->SetDirectory(std::filesystem::current_path() / SHADER_DIRECTORY);
 
-    postEffect_.Render(commandContext_, fxaa_.GetResult());
-    spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, (float)finalImageBuffer_.GetWidth(), (float)finalImageBuffer_.GetHeight());
+        auto window = GameWindow::GetInstance();
+        swapChain_.Create(window->GetHWND());
 
-    auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
+        DefaultTexture::Initialize();
+
+        auto& swapChainBuffer = swapChain_.GetColorBuffer(0);
+        finalImageBuffer_.Create(L"FinalImageBuffer", swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), swapChainBuffer.GetFormat());
+
+        skinningManager_.Initialize();
+        geometryRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
+        lightingRenderingPass_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
+        skybox_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat(), geometryRenderingPass_.GetDepth().GetFormat());
+        lineDrawer_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat());
+        //particleCore_.Initialize(lightingRenderingPass_.GetResult().GetRTVFormat());
+        spriteRenderer_.Initialize(finalImageBuffer_);
+        //bloom_.Initialize(&lightingRenderingPass_.GetResult());
+        postEffect_.Initialize(finalImageBuffer_);
+
+        //    modelRenderer.Initialize(mainColorBuffer_, mainDepthBuffer_);
+        transition_.Initialize();
+
+        pathtracer_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
+        preSpatialDenoiser_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
+        temporalDenoiser_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
+        postSpatialDenoiser_.Initialize(swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight(), DXGI_FORMAT_R32G32B32A32_FLOAT);
+        fxaa_.Initialize(&postSpatialDenoiser_.GetDenoisedBuffer());
+
+        timer_.Initialize();
+
+        frameCount_ = 0;
+    }
+
+    void RenderManager::Finalize() {
+        DefaultTexture::Finalize();
+    }
+
+    void RenderManager::Render() {
+
+        uint32_t targetSwapChainBufferIndex = (swapChain_.GetCurrentBackBufferIndex() + 1) % SwapChain::kNumBuffers;
+
+        auto camera = camera_.lock();
+        auto sunLight = sunLight_.lock();
+
+        commandContext_.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
+
+        const float deltaSecond = 1 / 60.0f;
+        const float daySpeed = 1;
+        sky_.Update(deltaSecond / daySpeed);
+
+        skinningManager_.Update(commandContext_);
+
+        //particleCore_.Dispatch(commandContext_);
+
+        if (camera && sunLight) {
+            // 影、スペキュラ
+            modelSorter_.Sort(*camera);
+
+            geometryRenderingPass_.Render(commandContext_, *camera, modelSorter_);
+
+            pathtracer_.Dispatch(commandContext_, *camera, modelSorter_);
+            preSpatialDenoiser_.Dispatch(commandContext_, pathtracer_.GetResult(), geometryRenderingPass_);
+
+            auto input = Engine::GetInput();
+            bool reset = false;
+            bool mouseMove = (input->GetMouseMoveX() != 0) || (input->GetMouseMoveY() != 0);
+
+            reset |= (input->IsMousePressed(0) && mouseMove);
+            reset |= (input->IsMousePressed(1) && mouseMove);
+            reset |= (input->IsMousePressed(2) && mouseMove);
+            reset |= (input->GetMouseWheel() != 0);
+            reset |= (input->IsKeyPressed(DIK_D) || input->IsKeyPressed(DIK_A) || input->IsKeyPressed(DIK_W) || input->IsKeyPressed(DIK_S));
+            reset |= (input->IsKeyPressed(DIK_UP) || input->IsKeyPressed(DIK_DOWN) || input->IsKeyPressed(DIK_LEFT) || input->IsKeyPressed(DIK_RIGHT));
+            reset |= (input->IsKeyPressed(DIK_SPACE) || input->IsKeyPressed(DIK_LSHIFT));
+            // 仮リセット
+            if (reset) {
+                temporalDenoiser_.Reset(commandContext_);
+            }
+
+            temporalDenoiser_.Dispatch(commandContext_, preSpatialDenoiser_.GetDenoisedBuffer());
+
+            postSpatialDenoiser_.Dispatch(commandContext_, temporalDenoiser_.GetDenoisedBuffer(), geometryRenderingPass_);
+
+
+
+            lightingRenderingPass_.Render(commandContext_, geometryRenderingPass_, *camera, *sunLight);
+
+            commandContext_.TransitionResource(lightingRenderingPass_.GetResult(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+            commandContext_.TransitionResource(geometryRenderingPass_.GetDepth(), D3D12_RESOURCE_STATE_DEPTH_READ);
+            commandContext_.SetViewportAndScissorRect(0, 0, lightingRenderingPass_.GetResult().GetWidth(), lightingRenderingPass_.GetResult().GetHeight());
+            commandContext_.SetRenderTarget(lightingRenderingPass_.GetResult().GetRTV(), geometryRenderingPass_.GetDepth().GetDSV());
+            skybox_.SetWorldMatrix(Matrix4x4::MakeAffineTransform({ 1.0f, 1.0f, 1.0f }, Quaternion::identity, camera->GetPosition()));
+            //skybox_.Render(commandContext_, *camera);
+
+            commandContext_.SetRenderTarget(lightingRenderingPass_.GetResult().GetRTV());
+            commandContext_.SetViewportAndScissorRect(0, 0, lightingRenderingPass_.GetResult().GetWidth(), lightingRenderingPass_.GetResult().GetHeight());
+            lineDrawer_.Render(commandContext_, *camera);
+
+            //particleCore_.Render(commandContext_, *camera);
+        }
+
+        //bloom_.Render(commandContext_);
+        fxaa_.Render(commandContext_);
+
+        commandContext_.TransitionResource(finalImageBuffer_, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        commandContext_.SetRenderTarget(finalImageBuffer_.GetRTV());
+        commandContext_.SetViewportAndScissorRect(0, 0, finalImageBuffer_.GetWidth(), finalImageBuffer_.GetHeight());
+
+        postEffect_.Render(commandContext_, fxaa_.GetResult());
+        spriteRenderer_.Render(commandContext_, 0.0f, 0.0f, (float)finalImageBuffer_.GetWidth(), (float)finalImageBuffer_.GetHeight());
+
+        auto& swapChainBuffer = swapChain_.GetColorBuffer(targetSwapChainBufferIndex);
 
 #ifndef ENABLE_IMGUI
-    commandContext_.CopyBuffer(swapChainBuffer, finalImageBuffer_);
+        commandContext_.CopyBuffer(swapChainBuffer, finalImageBuffer_);
 #else 
-    // スワップチェーンに描画
-    commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
-    commandContext_.FlushResourceBarriers();
-    commandContext_.SetRenderTarget(swapChainBuffer.GetRTV(ColorBuffer::RTV::SRGB));
-    //commandContext_.ClearColor(swapChainBuffer);
-    commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
+        // スワップチェーンに描画
+        commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_RENDER_TARGET);
+        commandContext_.FlushResourceBarriers();
+        commandContext_.SetRenderTarget(swapChainBuffer.GetRTV(ColorBuffer::RTV::SRGB));
+        //commandContext_.ClearColor(swapChainBuffer);
+        commandContext_.SetViewportAndScissorRect(0, 0, swapChainBuffer.GetWidth(), swapChainBuffer.GetHeight());
 
-    Engine::GetEditerManager()->RenderToColorBuffer(commandContext_);
+        Engine::GetEditerManager()->RenderToColorBuffer(commandContext_);
 #endif // ENABLE_IMGUI
 
-    commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_PRESENT);
+        commandContext_.TransitionResource(swapChainBuffer, D3D12_RESOURCE_STATE_PRESENT);
 
-    // コマンドリスト完成(クローズ)
-    commandContext_.Close();
-    commandContext_.Finish(false);
+        // コマンドリスト完成(クローズ)
+        commandContext_.Close();
+        commandContext_.Finish(false);
 
-    // バックバッファをフリップ
-    swapChain_.Present();
-    frameCount_++;
-    // シグナルを発行し待つ
-    auto& commandManager = graphics_->GetCommandManager();
-    commandManager.GetCommandQueue().WaitForIdle();
+        // バックバッファをフリップ
+        swapChain_.Present();
+        frameCount_++;
+        // シグナルを発行し待つ
+        auto& commandManager = graphics_->GetCommandManager();
+        commandManager.GetCommandQueue().WaitForIdle();
 
-    commandManager.Execute();
-    graphics_->GetReleasedObjectTracker().FrameIncrementForRelease();
+        commandManager.Execute();
+        graphics_->GetReleasedObjectTracker().FrameIncrementForRelease();
 
-    timer_.KeepFrameRate(60);
+        timer_.KeepFrameRate(60);
+
+    }
 
 }

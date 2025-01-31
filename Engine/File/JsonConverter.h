@@ -6,17 +6,17 @@
 
 #include "Externals/nlohmann/json.hpp"
 
-#include <Math/MathUtils.h>
-#include <Math/Transform.h>
+#include "Math/MathUtils.h"
+#include "Math/Transform.h"
 
-void to_json(nlohmann::json& json, const Vector2& value);
-void to_json(nlohmann::json& json, const Vector3& value);
-void to_json(nlohmann::json& json, const Vector4& value);
-void to_json(nlohmann::json& json, const Quaternion& value);
-void to_json(nlohmann::json& json, const Transform& value);
-
-void from_json(const nlohmann::json& json, Vector2& value);
-void from_json(const nlohmann::json& json, Vector3& value);
-void from_json(const nlohmann::json& json, Vector4& value);
-void from_json(const nlohmann::json& json, Quaternion& value);
-void from_json(const nlohmann::json& json, Transform& value);
+//void to_json(nlohmann::json& json, const LIEngine::Vector2& value);
+//void to_json(nlohmann::json& json, const LIEngine::Vector3& value);
+//void to_json(nlohmann::json& json, const LIEngine::Vector4& value);
+//void to_json(nlohmann::json& json, const LIEngine::Quaternion& value);
+//void to_json(nlohmann::json& json, const LIEngine::Transform& value);
+//
+//void from_json(const nlohmann::json& json, LIEngine::Vector2& value);
+//void from_json(const nlohmann::json& json, LIEngine::Vector3& value);
+//void from_json(const nlohmann::json& json, LIEngine::Vector4& value);
+//void from_json(const nlohmann::json& json, LIEngine::Quaternion& value);
+//void from_json(const nlohmann::json& json, LIEngine::Transform& value);

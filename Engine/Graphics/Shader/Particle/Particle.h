@@ -5,9 +5,9 @@
 #include "Math/MathUtils.h"
 
 using float32_t = float;
-using float32_t2 = Vector2;
-using float32_t3 = Vector3;
-using float32_t4 = Vector4;
+using float32_t2 = LIEngine::Vector2;
+using float32_t3 = LIEngine::Vector3;
+using float32_t4 = LIEngine::Vector4;
 
 #endif // HLSL_HEADER
 

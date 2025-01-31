@@ -12,6 +12,8 @@
 
 namespace {
 
+    using namespace LIEngine;
+
     // シーンを構築する
     void BuildScene(const nlohmann::json& objects) {
         assert(objects.is_array());
@@ -38,7 +40,7 @@ namespace {
                 gameObject->SetIsActive(object.at("isActive").get<bool>());
             }
             if (object.contains("transform")) {
-                object.at("transform").get_to(gameObject->transform);
+                //object.at("transform").get_to(gameObject->transform);
             }
             if (object.contains("components")) {
                 for (auto& componentName : object.at("components")) {
@@ -108,40 +110,44 @@ namespace {
     }
 }
 
-namespace SceneIO {
+namespace LIEngine {
 
-    void Load(const std::filesystem::path& path) {
+    namespace SceneIO {
 
-        // 既存シーンをクリア
-        Engine::GetGameObjectManager()->Clear();
-        Engine::GetAssetManager()->Clear();
+        void Load(const std::filesystem::path& path) {
 
-        // ファイルを読み込む
-        std::ifstream file(path);
-        assert(file.is_open());
+            // 既存シーンをクリア
+            Engine::GetGameObjectManager()->Clear();
+            Engine::GetAssetManager()->Clear();
 
-        nlohmann::json json;
-        file >> json;
+            // ファイルを読み込む
+            std::ifstream file(path);
+            assert(file.is_open());
 
-        file.close();
+            nlohmann::json json;
+            file >> json;
 
-        assert(json.is_object());
-        assert(json.contains("name"));
-        assert(json.at("name").is_string());
+            file.close();
 
-        auto sceneName = json.at("name").get<std::string>();
+            assert(json.is_object());
+            assert(json.contains("name"));
+            assert(json.at("name").is_string());
 
-        if (json.contains("objects")) {
-            BuildScene(json.at("objects"));
+            auto sceneName = json.at("name").get<std::string>();
+
+            if (json.contains("objects")) {
+                BuildScene(json.at("objects"));
+            }
+
+            if (json.contains("assets")) {
+                LoadAssets(json.at("assets"));
+            }
         }
 
-        if (json.contains("assets")) {
-            LoadAssets(json.at("assets"));
+        void Save(const std::filesystem::path& path) {
+            path;
         }
-    }
 
-    void Save(const std::filesystem::path& path) {
-        path;
     }
 
 }

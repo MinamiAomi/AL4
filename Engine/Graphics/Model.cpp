@@ -11,6 +11,8 @@
 #include "Material.h"
 
 namespace {
+    using namespace LIEngine;
+
     // Vector3からuint32_tに変換する
     uint32_t R32G32B32ToR10G10B10A2(const Vector3& in) {
         uint32_t x = static_cast<uint32_t>(std::clamp((in.x + 1.0f) * 0.5f, 0.0f, 1.0f) * 0x3FF) & 0x3FF;
@@ -197,81 +199,85 @@ namespace {
 
 }
 
-std::list<ModelInstance*> ModelInstance::instanceLists_;
+namespace LIEngine {
 
-std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
+    std::list<ModelInstance*> ModelInstance::instanceLists_;
 
-    // privateコンストラクタをmake_sharedで呼ぶためのヘルパー
-    struct Helper : Model {
-        Helper() : Model() {}
-    };
-    std::shared_ptr<Model> model = std::make_shared<Helper>();
+    std::shared_ptr<Model> Model::Load(const std::filesystem::path& path) {
 
-    auto directory = path.parent_path();
-    Assimp::Importer importer;
-    int flags = 0;
+        // privateコンストラクタをmake_sharedで呼ぶためのヘルパー
+        struct Helper : Model {
+            Helper() : Model() {}
+        };
+        std::shared_ptr<Model> model = std::make_shared<Helper>();
 
-    // 三角形のみ
-    flags |= aiProcess_Triangulate;
-    // 左手座標系に変換
-    flags |= aiProcess_FlipUVs;
-    // 接空間を計算
-    flags |= aiProcess_GenNormals;
-    flags |= aiProcess_CalcTangentSpace;
-    const aiScene* scene = importer.ReadFile(path.string(), flags);
-    // 読み込めた
-    if (!scene) {
-        OutputDebugStringA(importer.GetErrorString());
-        assert(false);
+        auto directory = path.parent_path();
+        Assimp::Importer importer;
+        int flags = 0;
+
+        // 三角形のみ
+        flags |= aiProcess_Triangulate;
+        // 左手座標系に変換
+        flags |= aiProcess_FlipUVs;
+        // 接空間を計算
+        flags |= aiProcess_GenNormals;
+        flags |= aiProcess_CalcTangentSpace;
+        const aiScene* scene = importer.ReadFile(path.string(), flags);
+        // 読み込めた
+        if (!scene) {
+            OutputDebugStringA(importer.GetErrorString());
+            assert(false);
+        }
+        assert(scene->HasMeshes());
+
+        model->materials_ = ParseMaterials(scene, directory);
+        model->meshes_ = ParseMeshes(scene, model->materials_, model->vertices_, model->indices_, model->skinClusterData_);
+        model->rootNode_ = ParseNode(scene->mRootNode);
+
+        CommandContext commandContext;
+        commandContext.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
+        // 中間リソースをコピーする
+        model->vertexBuffer_.Create(path.wstring() + L"VB", model->vertices_.size(), sizeof(model->vertices_[0]));
+        model->indexBuffer_.Create(path.wstring() + L"IB", model->indices_.size(), sizeof(model->indices_[0]));
+
+        commandContext.CopyBuffer(model->vertexBuffer_, model->vertexBuffer_.GetBufferSize(), model->vertices_.data());
+        commandContext.CopyBuffer(model->indexBuffer_, model->indexBuffer_.GetBufferSize(), model->indices_.data());
+        commandContext.TransitionResource(model->vertexBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
+        commandContext.TransitionResource(model->indexBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
+        commandContext.FlushResourceBarriers();
+
+        // レイトレ用にBLASを作成
+        std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> blasDescs(model->meshes_.size());
+        for (uint32_t meshIndex = 0; meshIndex < blasDescs.size(); ++meshIndex) {
+            auto& mesh = model->meshes_[meshIndex];
+            auto& desc = blasDescs[meshIndex];
+            desc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
+            desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
+            desc.Triangles.VertexBuffer.StartAddress = model->vertexBuffer_.GetGPUVirtualAddress() + (uint64_t)mesh.vertexOffset * model->vertexBuffer_.GetElementSize();
+            desc.Triangles.VertexBuffer.StrideInBytes = model->vertexBuffer_.GetElementSize();
+            desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
+            desc.Triangles.VertexCount = mesh.vertexCount;
+            desc.Triangles.IndexBuffer = model->indexBuffer_.GetGPUVirtualAddress() + (uint64_t)mesh.indexOffset * model->indexBuffer_.GetElementSize();
+            desc.Triangles.IndexFormat = DXGI_FORMAT_R32_UINT;
+            desc.Triangles.IndexCount = mesh.indexCount;
+
+        }
+        model->blas_.Create(L"ModelBLAS", commandContext, blasDescs);
+        commandContext.Finish(true);
+
+        return model;
     }
-    assert(scene->HasMeshes());
 
-    model->materials_ = ParseMaterials(scene, directory);
-    model->meshes_ = ParseMeshes(scene, model->materials_, model->vertices_, model->indices_, model->skinClusterData_);
-    model->rootNode_ = ParseNode(scene->mRootNode);
-
-    CommandContext commandContext;
-    commandContext.Start(D3D12_COMMAND_LIST_TYPE_DIRECT);
-    // 中間リソースをコピーする
-    model->vertexBuffer_.Create(path.wstring() + L"VB", model->vertices_.size(), sizeof(model->vertices_[0]));
-    model->indexBuffer_.Create(path.wstring() + L"IB", model->indices_.size(), sizeof(model->indices_[0]));
-
-    commandContext.CopyBuffer(model->vertexBuffer_, model->vertexBuffer_.GetBufferSize(), model->vertices_.data());
-    commandContext.CopyBuffer(model->indexBuffer_, model->indexBuffer_.GetBufferSize(), model->indices_.data());
-    commandContext.TransitionResource(model->vertexBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
-    commandContext.TransitionResource(model->indexBuffer_, D3D12_RESOURCE_STATE_GENERIC_READ);
-    commandContext.FlushResourceBarriers();
-
-    // レイトレ用にBLASを作成
-    std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> blasDescs(model->meshes_.size());
-    for (uint32_t meshIndex = 0; meshIndex < blasDescs.size(); ++meshIndex) {
-        auto& mesh = model->meshes_[meshIndex];
-        auto& desc = blasDescs[meshIndex];
-        desc.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
-        desc.Flags = D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE;
-        desc.Triangles.VertexBuffer.StartAddress = model->vertexBuffer_.GetGPUVirtualAddress() + (uint64_t)mesh.vertexOffset * model->vertexBuffer_.GetElementSize();
-        desc.Triangles.VertexBuffer.StrideInBytes = model->vertexBuffer_.GetElementSize();
-        desc.Triangles.VertexFormat = DXGI_FORMAT_R32G32B32_FLOAT;
-        desc.Triangles.VertexCount = mesh.vertexCount;
-        desc.Triangles.IndexBuffer = model->indexBuffer_.GetGPUVirtualAddress() + (uint64_t)mesh.indexOffset * model->indexBuffer_.GetElementSize();
-        desc.Triangles.IndexFormat = DXGI_FORMAT_R32_UINT;
-        desc.Triangles.IndexCount = mesh.indexCount;
-
+    ModelInstance::ModelInstance() {
+        instanceLists_.emplace_back(this);
     }
-    model->blas_.Create(L"ModelBLAS", commandContext, blasDescs);
-    commandContext.Finish(true);
 
-    return model;
-}
+    ModelInstance::~ModelInstance() {
+        std::erase(instanceLists_, this);
+        // auto iter = std::find(instanceLists_.begin(), instanceLists_.end(), this);
+        // if (iter != instanceLists_.end()) {
+        //     instanceLists_.erase(iter);
+        // }
+    }
 
-ModelInstance::ModelInstance() {
-    instanceLists_.emplace_back(this);
-}
-
-ModelInstance::~ModelInstance() {
-    std::erase(instanceLists_, this);
-    // auto iter = std::find(instanceLists_.begin(), instanceLists_.end(), this);
-    // if (iter != instanceLists_.end()) {
-    //     instanceLists_.erase(iter);
-    // }
 }
